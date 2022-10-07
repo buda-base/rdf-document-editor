@@ -1,0 +1,91 @@
+{ 
+  "_:fe60db57b76857c0a76bfe410aa9e80a" : { 
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first" : [ { 
+      "type" : "literal" ,
+      "value" : "en"
+    }
+     ] ,
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest" : [ { 
+      "type" : "bnode" ,
+      "value" : "_:f0b149e0d3ef2676171cfb30b6a17de4"
+    }
+     ]
+  }
+   ,
+  "_:2ec9b8c7a48f2086219ee84b3cdd9a96" : { 
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first" : [ { 
+      "type" : "literal" ,
+      "value" : "zh-latn-pinyin"
+    }
+     ] ,
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest" : [ { 
+      "type" : "bnode" ,
+      "value" : "_:b6401fef7b9c645b11eaec69b9eed82c"
+    }
+     ]
+  }
+   ,
+  "_:f0b149e0d3ef2676171cfb30b6a17de4" : { 
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first" : [ { 
+      "type" : "literal" ,
+      "value" : "bo-x-ewts"
+    }
+     ] ,
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest" : [ { 
+      "type" : "bnode" ,
+      "value" : "_:a91f8a8a18115763fbd3cdc53899f7a8"
+    }
+     ]
+  }
+   ,
+  "http://purl.bdrc.io/resource-nc/user/U0DEMO01" : { 
+    "http://www.w3.org/2004/02/skos/core#prefLabel" : [ { 
+      "type" : "literal" ,
+      "value" : "Demo User"
+    }
+     ] ,
+    "http://xmlns.com/foaf/0.1/mbox" : [ { 
+      "type" : "literal" ,
+      "value" : "demo@bdrc.io"
+    }
+     ] ,
+    "http://purl.bdrc.io/ontology/ext/user/preferredUiLang" : [ { 
+      "type" : "literal" ,
+      "value" : "en"
+    }
+     ] ,
+    "http://purl.bdrc.io/ontology/ext/user/localNameDefaultPrefix" : [ { 
+      "type" : "literal" ,
+      "value" : "0DEMO"
+    }
+     ] ,
+    "http://purl.bdrc.io/ontology/ext/user/preferredUiLiteralLangs" : [ { 
+      "type" : "bnode" ,
+      "value" : "_:fe60db57b76857c0a76bfe410aa9e80a"
+    }
+     ] ,
+  "_:b6401fef7b9c645b11eaec69b9eed82c" : { 
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first" : [ { 
+      "type" : "literal" ,
+      "value" : "km-x-twktt"
+    }
+     ] ,
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest" : [ { 
+      "type" : "uri" ,
+      "value" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+    }
+     ]
+  }
+   ,
+  "_:a91f8a8a18115763fbd3cdc53899f7a8" : { 
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first" : [ { 
+      "type" : "literal" ,
+      "value" : "inc-x-iast"
+    }
+     ] ,
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest" : [ { 
+      "type" : "bnode" ,
+      "value" : "_:2ec9b8c7a48f2086219ee84b3cdd9a96"
+    }
+     ]
+}}}

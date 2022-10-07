@@ -1,0 +1,15 @@
+.card {
+  box-shadow: $box-shadow-sm;
+  @include hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+  }
+}
+
+body.dark-mode .board {
+  background-color: $msb-dark-body !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.board {
+  background-color: $light;
+}

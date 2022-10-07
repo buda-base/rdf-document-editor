@@ -1,0 +1,84 @@
+@prefix :      <http://purl.bdrc.io/ontology/core/> .
+@prefix adm:   <http://purl.bdrc.io/ontology/admin/> .
+@prefix adr:   <http://purl.bdrc.io/resource-nc/auth/> .
+@prefix as:    <http://www.w3.org/ns/activitystreams#> .
+@prefix aut:   <http://purl.bdrc.io/ontology/ext/auth/> .
+@prefix bda:   <http://purl.bdrc.io/admindata/> .
+@prefix bdac:  <http://purl.bdrc.io/anncollection/> .
+@prefix bdan:  <http://purl.bdrc.io/annotation/> .
+@prefix bdg:   <http://purl.bdrc.io/graph/> .
+@prefix bdgu:  <http://purl.bdrc.io/graph-nc/user/> .
+@prefix bdgup: <http://purl.bdrc.io/graph-nc/user-private/> .
+@prefix bdo:   <http://purl.bdrc.io/ontology/core/> .
+@prefix bdou:  <http://purl.bdrc.io/ontology/ext/user/> .
+@prefix bdr:   <http://purl.bdrc.io/resource/> .
+@prefix bds:   <http://purl.bdrc.io/ontology/shapes/core/> .
+@prefix bdu:   <http://purl.bdrc.io/resource-nc/user/> .
+@prefix bf:    <http://id.loc.gov/ontologies/bibframe/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dila:  <http://purl.dila.edu.tw/resource/> .
+@prefix eftr:  <http://purl.84000.co/resource/core/> .
+@prefix f:     <java:io.bdrc.libraries.sparql.functions.> .
+@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
+@prefix iiif2: <http://iiif.io/api/presentation/2#> .
+@prefix iiif3: <http://iiif.io/api/presentation/3#> .
+@prefix ldp:   <http://www.w3.org/ns/ldp#> .
+@prefix mbbt:  <http://mbingenheimer.net/tools/bibls/> .
+@prefix oa:    <http://www.w3.org/ns/oa#> .
+@prefix ola:   <https://openlibrary.org/authors/> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rsh:   <http://purl.bdrc.io/shacl/core/shape/> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix srcd:  <https://sakyaresearch.org/deities/> .
+@prefix srcl:  <https://sakyaresearch.org/literary_forms/> .
+@prefix srcpe: <https://sakyaresearch.org/persons/> .
+@prefix srcpl: <https://sakyaresearch.org/places/> .
+@prefix srcs:  <https://sakyaresearch.org/sources/> .
+@prefix srct:  <https://sakyaresearch.org/topics/> .
+@prefix tbr:   <http://purl.bdrc.io/ontology/toberemoved/> .
+@prefix text:  <http://jena.apache.org/text#> .
+@prefix tmp:   <http://purl.bdrc.io/ontology/tmp/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix viaf:  <http://viaf.org/viaf/> .
+@prefix wd:    <http://www.wikidata.org/entity/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+bda:BatchMethod  skos:prefLabel  "Batch"@en .
+
+bda:GR0005  skos:prefLabel  "Places repo"@en .
+
+bda:LD_BDRC_CC0  skos:prefLabel  "nang bstan dpe tshogs lte gnas kyis mthun sbyor byas pa/[ CC0 ]bka' 'khrol can/"@bo-x-ewts , "Provided by BDRC under the CC0 license"@en , "由佛教数字资源中心提供，基于通用 (CC0 1.0)协议"@zh-hans .
+
+bda:StatusReleased  skos:prefLabel
+      "'grem spel zin pa/"@bo-x-ewts , "released"@en , "已发布"@zh-hans .
+
+bdu:U00001  skos:prefLabel  "'jin si mi thi/"@bo-x-ewts , "E. Gene Smith"@en , "金·史密斯（E. Gene Smith）"@zh-hans .
+
+bdu:U00007  skos:prefLabel  "nang pa chung bdag"@bo-x-ewts , "Chungdak Ngagpa"@en , "仲达·阿琼（Chungdak Ngakpa）"@zh-hans .
+
+bdu:U00020  skos:prefLabel  "Michael Sheehy"@en .
+
+bdr:CHGISId  skos:prefLabel  "chgis id"@en .
+
+bdr:G2128  skos:prefLabel  "chu shur rdzong /"@bo-x-ewts , "Chushur County"@en , "曲水县"@zh-hans .
+
+bdr:G2451  skos:prefLabel  "tshal sne shang (chu shur rdzong)"@bo-x-ewts .
+
+bdr:MW20234  skos:prefLabel  "chu shur rdzong /"@bo-x-ewts .
+
+bdr:MW23847  skos:prefLabel  "gangs can bod kyi gnas bshad lam yig gsar ma/"@bo-x-ewts .
+
+bdr:MW8224  skos:prefLabel  "dga' ldan chos 'byung baiDU r+ya ser po/"@bo-x-ewts .
+
+bdr:P00AG02484  skos:prefLabel  "gyer sgom gnyis pa/"@bo-x-ewts .
+
+bdr:PT0050  skos:prefLabel  "btsun dgon/"@bo-x-ewts , "nunnery"@en , "尼姑庵"@zh-hans .
+
+bdr:TraditionKagyu  skos:prefLabel
+      "bka' brgyud/"@bo-x-ewts , "Kagyu"@en , "噶举"@zh-hans .
+
+bdr:TraditionNyingma  skos:prefLabel
+      "rnying ma/"@bo-x-ewts , "Nyingma"@en , "宁玛"@zh-hans .

@@ -1,0 +1,40 @@
+$blue: #00aeef;
+$purple: #8e278f;
+$pink: #d73449;
+$orange: #f58220;
+$msb-green: #526f5d;
+$msb-orange: #d34e38;
+$msb-light: #e4e0be;
+$msb-neutral: $pink;
+
+$msb-dark-background: #06252a;
+$msb-dark-body: #10302d;
+$msb-dark-contrast: #1ea672;
+$msb-light-contrast: #dfdfdf;
+
+$theme-colors: () !default;
+$theme-colors: map-merge(
+  (
+    "primary": #000,
+    "neutral": $msb-neutral,
+    "success": $blue,
+    "warning": $orange,
+    "danger": $msb-orange,
+    "contrast": $pink,
+    "normal-contrast": #000
+  ),
+  $theme-colors
+);
+
+$font-size-base: 1.0625rem;
+$font-size-sm: 0.8125rem;
+$font-size-md: 1.4375rem;
+$font-size-lg: 1.875rem;
+$font-size-xl: 2.5rem;
+
+$font-family-sans-serif: "Inter", Arial, "Helvetica Neue", sans-serif,
+  "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
+$body-color: #000;
+
+$breadcrumb-bg: inherit !important;

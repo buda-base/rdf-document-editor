@@ -1,0 +1,116 @@
+{
+  "name": "blmp-client",
+  "version": "0.23.1-0",
+  "homepage": "https://buda-editor.msblabs.us",
+  "description": "BUDA Editor",
+  "author": "BDRC and Ashveen Bucktowar",
+  "license": "MIT",
+  "dependencies": {
+    "@auth0/auth0-react": "^1.1.0",
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.60",
+    "@types/node": "^12.0.0",
+    "@types/react": "^16.9.53",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-redux": "^7.1.9",
+    "@types/react-router-dom": "^5.1.7",
+    "@types/react-router-hash-link": "^2.4.0",
+    "@uiw/react-md-editor": "^3.0.9",
+    "airbnb-prop-types": "^2.16.0",
+    "axios": "^0.21.0",
+    "buda-volume-manifest-tool": "https://github.com/buda-base/buda-volume-manifest-tool",
+    "date-fns": "^2.16.1",
+    "debug": "^4.2.0",
+    "edtf": "https://github.com/buda-base/edtf.js",
+    "fetch-to-curl": "^0.5.2",
+    "http-proxy-middleware": "^1.0.6",
+    "i18next": "^19.8.9",
+    "is_js": "^0.9.0",
+    "jquery": "^3.5.1",
+    "jsewts": "^1.0.3",
+    "leaflet": "^1.7.1",
+    "leaflet-geosearch": "^3.6.0",
+    "lodash": "^4.17.21",
+    "nanoid": "^3.1.16",
+    "node-sass-chokidar": "^1.5.0",
+    "prop-types": "^15.7.2",
+    "query-string": "^7.0.0",
+    "rdflib": "^2.0.0",
+    "react": "^16.14.0",
+    "react-clear-cache": "^1.4.12",
+    "react-dom": "^16.14.0",
+    "react-helmet": "^6.1.0",
+    "react-hotkeys-hook": "^3.2.1",
+    "react-i18next": "^11.8.7",
+    "react-icons": "^3.11.0",
+    "react-image": "^4.0.3",
+    "react-leaflet": "^3.2.5",
+    "react-leaflet-google-layer": "^2.0.5",
+    "react-placeholder": "^4.0.0",
+    "react-redux": "^7.2.6",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-router-hash-link": "^2.4.3",
+    "react-table": "^7.6.0",
+    "react-toggle": "^4.1.1",
+    "react-tooltip": "^4.2.7",
+    "react-waypoint": "^10.1.0",
+    "recoil": "^0.5.0",
+    "redux": "^4.1.2",
+    "throttle-debounce": "^3.0.1",
+    "typescript": "^4.2.2",
+    "typescript-memoize": "^1.0.0"
+  },
+  "scripts": {
+    "build-css": "node-sass-chokidar src/stylesheets -o public/ --output-style compressed",
+    "watch-css": "npm run build-css && node-sass-chokidar src/stylesheets -o public/ --watch --recursive",
+    "start-js": "react-scripts start",
+    "start": "export NODE_ENV=development && REACT_APP_VERSION=$npm_package_version npm-run-all -p watch-css start-js",
+    "build": "npm run build-css && REACT_APP_VERSION=$npm_package_version react-scripts build && rm -rf dist && mv build dist",
+    "eject": "react-scripts eject",
+    "analyze": "source-map-explorer 'dist/static/js/*.js'",
+    "predeploy": "npm run build",
+    "lint": "eslint --ignore-path .gitignore .",
+    "prebuild": "git submodule update --remote && yarn run generate-build-meta",
+    "generate-build-meta": "./node_modules/react-clear-cache/bin/cli.js"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,json,css,tsx,ts}": [
+      "prettier --write --config ./.prettierrc",
+      "eslint --color --fix"
+    ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.15.2",
+    "@typescript-eslint/parser": "^4.15.2",
+    "eslint": "^7.20.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-config-react-app": "^6.0.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.5.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.2.1",
+    "preval.macro": "^5.0.0",
+    "react-scripts": "^4.0.0",
+    "type-fest": "^0.13.1"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+}

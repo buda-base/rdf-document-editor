@@ -1,0 +1,19 @@
+{
+  "short_name": "BDRC Editor",
+  "name": "BUDA Editor",
+  "icons":[{
+    "src": "\/images\/favicon.ico",
+    "sizes": "48x48",
+    "type": "image\/x-icon"
+   },{
+    "src": "\/images\/android-chrome-192x192.png",
+    "sizes": "192x192",
+    "type": "image\/png",
+    "purpose":"any"
+   }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

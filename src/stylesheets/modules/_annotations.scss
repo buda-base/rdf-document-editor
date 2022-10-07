@@ -1,0 +1,16 @@
+.annot {
+  font-weight: thin;
+  font-size: smaller;
+}
+
+.annot-noteSource, .annot-contentLocationStatement, .annot-noteText, .annot-personEventRole, .annot-eventWhere {
+  color: $msb-neutral;
+}
+
+.annot-onOrAbout, .annot-notBefore, .annot-notAfter, .annot-onDate, .annot-onYear  {
+  color: $msb-neutral;
+}
+
+.annot-secondary {
+  color: gray;
+}
