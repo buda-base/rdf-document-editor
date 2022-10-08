@@ -1,6 +1,6 @@
 {
-  "short_name": "BDRC Editor",
-  "name": "BUDA Editor",
+  "short_name": "RDE",
+  "name": "RDF Document Editor (RDE)",
   "icons":[{
     "src": "\/images\/favicon.ico",
     "sizes": "48x48",

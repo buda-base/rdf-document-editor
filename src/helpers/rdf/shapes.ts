@@ -41,7 +41,7 @@ export const shNode = ns.SH("node") as rdf.NamedNode
 export const dashListShape = ns.DASH("ListShape") as rdf.NamedNode
 export const dashEnumSelectEditor = ns.DASH("EnumSelectEditor") as rdf.NamedNode
 export const shMessage = ns.SH("message") as rdf.NamedNode
-export const bdsDisplayPriority = ns.BDS("displayPriority") as rdf.NamedNode
+export const rdeDisplayPriority = ns.RDE("displayPriority") as rdf.NamedNode
 export const shMinCount = ns.SH("minCount") as rdf.NamedNode
 export const shMinInclusive = ns.SH("minInclusive") as rdf.NamedNode
 export const shMinExclusive = ns.SH("minExclusive") as rdf.NamedNode
@@ -54,41 +54,30 @@ export const dashSingleLine = ns.DASH("singleLine") as rdf.NamedNode
 export const shTargetClass = ns.SH("targetClass") as rdf.NamedNode
 export const shTargetObjectsOf = ns.SH("targetObjectsOf") as rdf.NamedNode
 export const shTargetSubjectsOf = ns.SH("targetSubjectsOf") as rdf.NamedNode
-export const bdsPropertyShapeType = ns.BDS("propertyShapeType") as rdf.NamedNode
-export const bdsFacetShape = ns.BDS("FacetShape") as rdf.NamedNode
-export const bdsExternalShape = ns.BDS("ExternalShape") as rdf.NamedNode
-export const bdsIgnoreShape = ns.BDS("IgnoreShape") as rdf.NamedNode
-export const bdsClassIn = ns.BDS("classIn") as rdf.NamedNode
+export const rdePropertyShapeType = ns.RDE("propertyShapeType") as rdf.NamedNode
+export const rdeFacetShape = ns.RDE("FacetShape") as rdf.NamedNode
+export const rdeExternalShape = ns.RDE("ExternalShape") as rdf.NamedNode
+export const rdeIgnoreShape = ns.RDE("IgnoreShape") as rdf.NamedNode
+export const rdeClassIn = ns.RDE("classIn") as rdf.NamedNode
 export const shIn = ns.SH("in") as rdf.NamedNode
 export const shInversePath = ns.SH("inversePath") as rdf.NamedNode
 export const shUniqueLang = ns.SH("uniqueLang") as rdf.NamedNode
-export const bdsReadOnly = ns.BDS("readOnly") as rdf.NamedNode
-export const bdsIdentifierPrefix = ns.BDS("identifierPrefix") as rdf.NamedNode
-export const bdsAllowMarkDown = ns.BDS("allowMarkDown") as rdf.NamedNode
+export const rdeReadOnly = ns.RDE("readOnly") as rdf.NamedNode
+export const rdeIdentifierPrefix = ns.RDE("identifierPrefix") as rdf.NamedNode
+export const rdeAllowMarkDown = ns.RDE("allowMarkDown") as rdf.NamedNode
 export const shNamespace = ns.SH("namespace") as rdf.NamedNode
-export const bdsDefaultLanguage = ns.BDS("defaultLanguage") as rdf.NamedNode
-export const bdsDefaultValue = ns.BDS("defaultValue") as rdf.NamedNode
+export const rdeDefaultLanguage = ns.RDE("defaultLanguage") as rdf.NamedNode
+export const rdeDefaultValue = ns.RDE("defaultValue") as rdf.NamedNode
 export const shLanguageIn = ns.SH("languageIn") as rdf.NamedNode
 export const shPattern = ns.SH("pattern") as rdf.NamedNode
-export const bdsSortOnProperty = ns.BDS("sortOnProperty") as rdf.NamedNode
-export const bdsAllowPushToTopLevelSkosPrefLabel = ns.BDS("allowPushToTopLevelSkosPrefLabel") as rdf.NamedNode
-export const bdsIndependentIdentifiers = ns.BDS("independentIdentifiers") as rdf.NamedNode
-export const bdsSpecialPattern = ns.BDS("specialPattern") as rdf.NamedNode
-export const bdsConnectIDs = ns.BDS("connectIDs") as rdf.NamedNode
-export const bdsAllowBatchManagement = ns.BDS("allowBatchManagement") as rdf.NamedNode
-export const bdsCopyObjectsOfProperty = ns.BDS("copyObjectsOfProperty") as rdf.NamedNode
-export const bdsUniqueValueAmongSiblings = ns.BDS("uniqueValueAmongSiblings") as rdf.NamedNode
-
-export const typeUriToShape: Record<string, Array<RDFResourceWithLabel>> = {}
-typeUriToShape[ns.BDO_uri + "Person"] = [shapeRefsMap["bds:PersonShape"]]
-//typeUriToShape[ns.BDO_uri + "Topic"] = [shapeRefsMap["bds:TopicShape"]] // etc.
-
-export const shapeRefsForEntity = (subject: Subject): Array<RDFResourceWithLabel> | null => {
-  const type = subject.getPropResValue(rdfType)
-  debug("type:", subject, type)
-  if (type == null) return null
-  return typeUriToShape[type.uri]
-}
+export const rdeSortOnProperty = ns.RDE("sortOnProperty") as rdf.NamedNode
+export const rdeAllowPushToTopLevelLabel = ns.RDE("allowPushToTopLevelLabel") as rdf.NamedNode
+export const rdeIndependentIdentifiers = ns.RDE("independentIdentifiers") as rdf.NamedNode
+export const rdeSpecialPattern = ns.RDE("specialPattern") as rdf.NamedNode
+export const rdeConnectIDs = ns.RDE("connectIDs") as rdf.NamedNode
+export const rdeAllowBatchManagement = ns.RDE("allowBatchManagement") as rdf.NamedNode
+export const rdeCopyObjectsOfProperty = ns.RDE("copyObjectsOfProperty") as rdf.NamedNode
+export const rdeUniqueValueAmongSiblings = ns.RDE("uniqueValueAmongSiblings") as rdf.NamedNode
 
 export const sortByPropValue = (
   nodelist: Array<rdf.NamedNode>,
@@ -326,17 +315,17 @@ export class PropertyShape extends RDFResourceWithLabel {
 
   @Memoize()
   public get sortOnProperty(): rdf.NamedNode | null {
-    return this.getPropResValue(bdsSortOnProperty)
+    return this.getPropResValue(rdeSortOnProperty)
   }
 
   @Memoize()
-  public get allowPushToTopLevelSkosPrefLabel(): boolean {
-    return this.getPropBooleanValue(bdsAllowPushToTopLevelSkosPrefLabel)
+  public get allowPushToTopLevelLabel(): boolean {
+    return this.getPropBooleanValue(rdeAllowPushToTopLevelLabel)
   }
 
   @Memoize()
   public get specialPattern(): string | null {
-    return this.getPropResValue(bdsSpecialPattern)
+    return this.getPropResValue(rdeSpecialPattern)
   }
 
   public static resourcizeWithInit(
@@ -395,7 +384,7 @@ export class PropertyShape extends RDFResourceWithLabel {
 
   @Memoize()
   public get expectedObjectTypes(): Array<RDFResourceWithLabel> | null {
-    let nodes = this.getPropResValuesFromList(bdsClassIn)
+    let nodes = this.getPropResValuesFromList(rdeClassIn)
     if (!nodes) {
       const cl = this.getPropResValues(shClass)
       if (cl.length) nodes = cl
@@ -413,7 +402,7 @@ export class PropertyShape extends RDFResourceWithLabel {
 
   @Memoize()
   public get objectType(): ObjectType {
-    const propertyShapeType = this.getPropResValue(bdsPropertyShapeType)
+    const propertyShapeType = this.getPropResValue(rdePropertyShapeType)
     if (!propertyShapeType) {
       const editor = this.getPropResValue(dashEditor)
       if (!editor) return ObjectType.Literal
@@ -424,9 +413,9 @@ export class PropertyShape extends RDFResourceWithLabel {
       return ObjectType.Literal
     }
     // for some reason direct comparison doesn't work...
-    if (propertyShapeType.value == bdsFacetShape.value) return ObjectType.Facet
-    else if (propertyShapeType.value == bdsExternalShape.value) return ObjectType.ResExt
-    else if (propertyShapeType.value == bdsIgnoreShape.value) return ObjectType.ResIgnore
+    if (propertyShapeType.value == rdeFacetShape.value) return ObjectType.Facet
+    else if (propertyShapeType.value == rdeExternalShape.value) return ObjectType.ResExt
+    else if (propertyShapeType.value == rdeIgnoreShape.value) return ObjectType.ResIgnore
     throw "can't handle property shape type " + propertyShapeType.value + " for property shape " + this.qname
   }
 
@@ -508,7 +497,7 @@ export class NodeShape extends RDFResourceWithLabel {
 
   @Memoize()
   public get independentIdentifiers(): boolean {
-    return this.getPropBooleanValue(bdsIndependentIdentifiers, false)
+    return this.getPropBooleanValue(rdeIndependentIdentifiers, false)
   }
 
   @Memoize()

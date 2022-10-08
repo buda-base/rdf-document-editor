@@ -21,13 +21,6 @@ import { nanoid } from "nanoid"
 const debug = require("debug")("rde:rdf:types")
 
 const defaultGraphNode = new rdf.NamedNode(rdf.Store.defaultGraphURI)
-const prefLabel = ns.SKOS("prefLabel") as rdf.NamedNode
-const rdfsLabel = ns.RDFS("label") as rdf.NamedNode
-const shDescription = ns.SH("description") as rdf.NamedNode
-const admCatalogingConvention = ns.ADM("catalogingConvention") as rdf.NamedNode
-const admUserTooltip = ns.ADM("userTooltip") as rdf.NamedNode
-const skosDefinition = ns.SKOS("definition") as rdf.NamedNode
-const rdfsComment = ns.RDFS("comment") as rdf.NamedNode
 
 export const history: Record<string, Array<Record<string, any>>> = {}
 export const errors: Record<string, Record<string, boolean>> = {}
