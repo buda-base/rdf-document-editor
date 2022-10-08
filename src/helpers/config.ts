@@ -1,51 +1,58 @@
 import * as rdf from "rdflib"
-import { useState, useEffect, useContext } from "react"
-import { useRecoilState } from "recoil"
-import { RDFResource, Subject, EntityGraph, RDFResourceWithLabel } from "./types"
-import { NodeShape } from "./shapes"
-import * as shapes from "./shapes"
-import { entitiesAtom, EditedEntityState } from "../../containers/EntitySelectorContainer"
-import { uiTabState, userIdState, RIDprefixState, demoAtom } from "../../atoms/common"
+import { RDFResource, Subject, LiteralWithId } from "./rdf/types"
+import { NodeShape } from "./rdf/shapes"
+import { Lang } from "./lang"
+import { FC } from "react"
 
-
-export const generateSubnode = async (
-  subshape: NodeShape,
-  parent: RDFResource,
-  // user info ?
-): Promise<Subject | Subject[]> => {
-
+interface generateSubnode {
+  async(
+    subshape: NodeShape,
+    parent: RDFResource
+    // user info ?
+  ): Promise<Subject | Subject[]>
 }
 
-
-
-export const ValueByLangToStrPrefLang = (vbl: Record<string, string> | null, prefLang: string | Array<string>): string => {
-  return ""
+interface valueByLangToStrPrefLang {
+  (vbl: Record<string, string> | null, prefLang: string | Array<string>): string
 }
 
-export const langs: Array<Lang> = [
-  { value: "en" },
-]
+interface previewLiteral {
+  (literal: LiteralWithId): string
+}
 
-// TODO: use in types.ts
-export cont labelProperties: Array<rdf.NamedNode>
+interface generateConnectedID {
+  async(old_resource: RDFResource, old_shape: NodeShape, new_shape: NodeShape): Promise<rdf.NamedNode>
+}
 
-export cont descriptionProperties: Array<rdf.NamedNode>
+interface DocumentInfo {
+  shapesDocument: rdf.Store
+  document?: rdf.Store
+  connexGraph?: rdf.Store
+}
 
-// TODO: merge those with the ones in ns.ts
-export const prefixToURI: { [key: string]: string }
+interface getDocumentInfo {
+  async(entity: rdf.NamedNode): Promise<DocumentInfo>
+}
 
-export function EntityCreator(shapeQname: string, entityQname: string | null, unmounting = { val: false }) {}
+interface putDocument {
+  async(entity: rdf.NamedNode, document: rdf.Store): Promise<void>
+}
 
-export const removeEntityPrefix = (lname: string): string => {}
+interface previewEntity {
+  (entity: rdf.NamedNode): void
+}
 
-// DocumentInfo is:
-// - the shapes document (mandatory)
-// - the document (optional, when we create a new entity there's no existing document)
-// - the connex graph (optional)
-
-export const getDocumentInfo = async (entity: RDFResource) => Array<rdf.Store> {}
-
-export const putDocument = async (entity: RDFResource, document: rdf.Store) => {}
-
-export function getPublishedLink(entity: RDFResource)
-
+interface RDEConfig {
+  generateSubnode: generateSubnode
+  valueByLangToStrPrefLang: valueByLangToStrPrefLang
+  possibleLiteralLangs: Array<Lang>
+  labelProperties: Array<rdf.NamedNode>
+  descriptionProperties: Array<rdf.NamedNode>
+  prefixMap: { [key: string]: string }
+  generateConnectedID: generateConnectedID
+  entityCreator: FC<{ shapeQname: string; entityQname: string | null; unmounting: any }>
+  getDocumentInfo: getDocumentInfo
+  previewLiteral: previewLiteral
+  previewEntityLabel: Record<string, string>
+  previewEntity: previewEntity
+}

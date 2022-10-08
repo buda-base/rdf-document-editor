@@ -19,6 +19,14 @@ rde:pushToTopLevelProperty
   skos:definition "Indicates that the editor should allow the user to copy the object of this property as the object of the property that is the object of this property, with the subject being the main entity of the document. As an example, if we have ex:sh1 rde:allowPushToTopLevelProperty skos:prefLabel, then the editor can have a button reading 'copy as main label'."@en ;
 .
 
+rde:uniqueValueAmongSiblings
+  a owl:DatatypeProperty ;
+  rdfs:label "unique among siblings"@en ;
+  rdfs:domain sh:PropertyShape ;
+  rdfs:range xsd:boolean ;
+  skos:definition "true indicates that siblings should each have a different value for the object of this property."@en ;
+.
+
 rde:readOnly
   a owl:DatatypeProperty ;
   rdfs:label "read only"@en ;

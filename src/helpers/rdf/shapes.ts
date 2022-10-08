@@ -11,22 +11,9 @@ import {
   Value,
 } from "./types"
 import * as ns from "./ns"
-import { debugStore } from "./io"
 import { Memoize } from "typescript-memoize"
 
 const debug = require("debug")("rde:rdf:shapes")
-
-// TODO: this should be fetched somewhere... unclear where yet
-export const shapeRefsMap: Record<string, RDFResourceWithLabel> = {
-  "bds:PersonShape": new ExtRDFResourceWithLabel(ns.BDS("PersonShape").value, { en: "Person" }),
-  //"bds:TopicShape": new ExtRDFResourceWithLabel(ns.BDS("TopicShape").value, { en: "Topic" }), //etc.
-  "bds:UserProfileShape": new ExtRDFResourceWithLabel(ns.BDS("UserProfileShape").value, { en: "User profile" }),
-}
-
-export const possibleShapeRefs: Array<RDFResourceWithLabel> = [
-  shapeRefsMap["bds:PersonShape"],
-  //shapeRefsMap["bds:TopicShape"], // etc.
-]
 
 export const rdfType = ns.RDF("type") as rdf.NamedNode
 export const shProperty = ns.SH("property")
@@ -194,7 +181,7 @@ export class PropertyShape extends RDFResourceWithLabel {
 
   @Memoize()
   public get defaultValue(): rdf.Node | null {
-    return this.graph.store.any(this.node, bdsDefaultValue, null)
+    return this.graph.store.any(this.node, rdeDefaultValue, null)
   }
 
   @Memoize()
@@ -204,12 +191,12 @@ export class PropertyShape extends RDFResourceWithLabel {
 
   @Memoize()
   public get connectIDs(): boolean {
-    return this.getPropBooleanValue(bdsConnectIDs, false)
+    return this.getPropBooleanValue(rdeConnectIDs, false)
   }
 
   @Memoize()
   public get displayPriority(): number | null {
-    return this.getPropIntValue(bdsDisplayPriority)
+    return this.getPropIntValue(rdeDisplayPriority)
   }
 
   @Memoize()
@@ -244,17 +231,17 @@ export class PropertyShape extends RDFResourceWithLabel {
 
   @Memoize()
   public get allowMarkDown(): boolean | null {
-    return this.getPropBooleanValue(bdsAllowMarkDown)
+    return this.getPropBooleanValue(rdeAllowMarkDown)
   }
 
   @Memoize()
   public get allowBatchManagement(): boolean | null {
-    return this.getPropBooleanValue(bdsAllowBatchManagement)
+    return this.getPropBooleanValue(rdeAllowBatchManagement)
   }
 
   @Memoize()
   public get uniqueValueAmongSiblings(): boolean | null {
-    return this.getPropBooleanValue(bdsUniqueValueAmongSiblings)
+    return this.getPropBooleanValue(rdeUniqueValueAmongSiblings)
   }
 
   @Memoize()
@@ -264,12 +251,12 @@ export class PropertyShape extends RDFResourceWithLabel {
 
   @Memoize()
   public get readOnly(): boolean {
-    return this.getPropBooleanValue(bdsReadOnly)
+    return this.getPropBooleanValue(rdeReadOnly)
   }
 
   @Memoize()
   public get defaultLanguage(): string | null {
-    return this.getPropStringValue(bdsDefaultLanguage)
+    return this.getPropStringValue(rdeDefaultLanguage)
   }
 
   @Memoize()
@@ -287,7 +274,7 @@ export class PropertyShape extends RDFResourceWithLabel {
   @Memoize()
   public get copyObjectsOfProperty(): Array<rdf.NamedNode> | null {
     const res: Array<PropertyShape> = []
-    return this.graph.store.each(this.node, bdsCopyObjectsOfProperty, null) as Array<rdf.NamedNode>
+    return this.graph.store.each(this.node, rdeCopyObjectsOfProperty, null) as Array<rdf.NamedNode>
   }
 
   @Memoize()
