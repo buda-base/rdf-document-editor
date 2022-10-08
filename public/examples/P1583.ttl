@@ -1,54 +1,23 @@
 @prefix :      <http://purl.bdrc.io/ontology/core/> .
 @prefix adm:   <http://purl.bdrc.io/ontology/admin/> .
-@prefix adr:   <http://purl.bdrc.io/resource-nc/auth/> .
 @prefix as:    <http://www.w3.org/ns/activitystreams#> .
-@prefix aut:   <http://purl.bdrc.io/ontology/ext/auth/> .
 @prefix bda:   <http://purl.bdrc.io/admindata/> .
-@prefix bdac:  <http://purl.bdrc.io/anncollection/> .
-@prefix bdan:  <http://purl.bdrc.io/annotation/> .
-@prefix bdg:   <http://purl.bdrc.io/graph/> .
-@prefix bdgu:  <http://purl.bdrc.io/graph-nc/user/> .
-@prefix bdgup: <http://purl.bdrc.io/graph-nc/user-private/> .
 @prefix bdo:   <http://purl.bdrc.io/ontology/core/> .
-@prefix bdou:  <http://purl.bdrc.io/ontology/ext/user/> .
 @prefix bdr:   <http://purl.bdrc.io/resource/> .
 @prefix bds:   <http://purl.bdrc.io/ontology/shapes/core/> .
-@prefix bdu:   <http://purl.bdrc.io/resource-nc/user/> .
 @prefix bf:    <http://id.loc.gov/ontologies/bibframe/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix dila:  <http://purl.dila.edu.tw/resource/> .
-@prefix eftr:  <http://purl.84000.co/resource/core/> .
-@prefix f:     <java:io.bdrc.libraries.sparql.functions.> .
 @prefix foaf:  <http://xmlns.com/foaf/0.1/> .
-@prefix iiif2: <http://iiif.io/api/presentation/2#> .
-@prefix iiif3: <http://iiif.io/api/presentation/3#> .
-@prefix ldp:   <http://www.w3.org/ns/ldp#> .
-@prefix mbbt:  <http://mbingenheimer.net/tools/bibls/> .
-@prefix oa:    <http://www.w3.org/ns/oa#> .
-@prefix ola:   <https://openlibrary.org/authors/> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix rsh:   <http://purl.bdrc.io/shacl/core/shape/> .
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
-@prefix srcd:  <https://sakyaresearch.org/deities/> .
-@prefix srcl:  <https://sakyaresearch.org/literary_forms/> .
-@prefix srcpe: <https://sakyaresearch.org/persons/> .
-@prefix srcpl: <https://sakyaresearch.org/places/> .
-@prefix srcs:  <https://sakyaresearch.org/sources/> .
-@prefix srct:  <https://sakyaresearch.org/topics/> .
-@prefix tbr:   <http://purl.bdrc.io/ontology/toberemoved/> .
-@prefix text:  <http://jena.apache.org/text#> .
-@prefix tmp:   <http://purl.bdrc.io/ontology/tmp/> .
-@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
-@prefix viaf:  <http://viaf.org/viaf/> .
-@prefix wd:    <http://www.wikidata.org/entity/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 bda:P1583  a     adm:AdminData ;
    adm:adminAbout  bdr:P1583 ;
-   adm:metadataLegal  bda:LD_BDRC_CC0 ;
    adm:status    bda:StatusReleased .
 
 bdr:EV00B857229AAA1BF0
@@ -68,33 +37,9 @@ bdr:NM27A9E6B52AE2AFD6
    a             bdo:PersonTitle ;
    rdfs:label    "klong chen rab 'byams/"@bo-x-ewts .
 
-bdr:NM6E5B539FC14B81F1
-   a             bdo:PersonSecretInitiatoryName ;
-   rdfs:label    "rgyal sras thugs mchog rtsal/"@bo-x-ewts .
-
 bdr:NM9C8DEB6FF7CEC129
    a             bdo:PersonPrimaryTitle ;
    rdfs:label    "klong chen rab 'byams pa dri med 'od zer/"@bo-x-ewts .
-
-bdr:NMBC6B2B658373DD69
-   a             bdo:PersonTitle ;
-   rdfs:label    "bsam yas lung mang ba/"@bo-x-ewts .
-
-bdr:NME2F236C649A1C622
-   a             bdo:PersonPrimaryName ;
-   rdfs:label    "隆钦热降巴·赤墨俄色"@zh-hans .
-
-bdr:NMED06EB68CC7F2B88
-   a             bdo:PersonPrimaryName ;
-   rdfs:label    "dri med 'od zer/"@bo-x-ewts .
-
-bdr:NMF942A81B0A73E4AA
-   a             bdo:PersonPersonalName ;
-   rdfs:label    "tshul khrims blo gros/"@bo-x-ewts .
-
-bdr:NMFB54273C9888828B
-   a             bdo:PersonCommonName ;
-   rdfs:label    "klong chen pa/"@bo-x-ewts .
 
 bdr:NT93D338F6A346B51D
    a             bdo:Note ;
@@ -102,37 +47,12 @@ bdr:NT93D338F6A346B51D
    bdo:noteSource  bdr:MW25268 ;
    bdo:noteText  "biography\ndates: 1308-1363"@en .
 
-bdr:NTABB307C08F280C09
-   a             bdo:Note ;
-   bdo:contentLocationStatement  "251" ;
-   bdo:noteSource  bdr:MW27401 ;
-   bdo:noteText  "biodata\n\nSubsequent main lineage holders include lha btsun chen po/ gter chen 'gyur med rdo rje/ 'bri gung rin chen phun tshogs/ rig 'dzin 'jigs med gling pa/ mi 'gyur nam mkha'i rdo rje/ 'jam dbyangs mkhyen brtse'i dbang po\n\nAmong them, 'jigs med gling pa received the nye brgyud via direct vision of klong chen pa.  'jigs med gling pa passed his lineage to rdo grub phrin las 'od zer, who passed it to mi 'gyur nam mkha' rdo rje, who in turn had a vision of klong chen pa and received the yang tig from him."@en .
-
-bdr:NTB25CDA7F05164BEA
-   a             bdo:Note ;
-   bdo:contentLocationStatement  "p. 6" ;
-   bdo:noteSource  bdr:MW19822 .
-
-bdr:NTDAA95D67ECFAB1A7
-   a             bdo:Note ;
-   bdo:contentLocationStatement  "p. 77" ;
-   bdo:noteSource  bdr:MW19801 .
-
-bdr:NTE1C8F77F6AFC308F
-   a             bdo:Note ;
-   bdo:noteText  "Teachers (not recorded):\nSlob-dpon Dbang-ye, Ston-tshul, Khro-phu-ba, Rin-po-che Za-lung-pa (Zhang Tshal-pa'i Gdams ngag and Rgod-tshang-pa's teachings)\n1319. Takes rab-byung vows from the abbot of Bsam-yas Bsam-grub-rin-chen.\n1326. Enrolls in Gsang-phu Ne'u-thog for formal studies with Mkhan-rabs 15 Slob-dpon Btsan-rgod-pa and Mkhan-rabs 16 Bla-brang Chos-dpal-rgyal-mtshan.\n1338. Comes to Snye-phu Shug-gseb and teaches Snying thig."@en .
-
-bdr:NTF24F5C4DD8140821
-   a             bdo:Note ;
-   bdo:noteText  "L. v.d. Kuijp has verified that the date of death of the subject was January, 1364. Also the unrecorded teacher Ston tshul may have been Btsun pa Ston tshul, Sa-skya scholar and author of at least two works on Tshad ma."@en .
-
 bdr:P1583  a     bdo:Person ;
    skos:prefLabel  "klong chen rab 'byams pa dri med 'od zer/"@bo-x-ewts , "隆钦热降巴·赤墨俄色"@zh-hans ;
    bdo:associatedTradition  bdr:TraditionNyingma ;
-   bdo:hasFather  bdr:P1584 ;
    bdo:hasMother  bdr:P1585 ;
-   bdo:note      bdr:NT93D338F6A346B51D , bdr:NTABB307C08F280C09 , bdr:NTB25CDA7F05164BEA , bdr:NTDAA95D67ECFAB1A7 , bdr:NTE1C8F77F6AFC308F , bdr:NTF24F5C4DD8140821 ;
+   bdo:note      bdr:NT93D338F6A346B51D  ;
    bdo:personEvent  bdr:EV00B857229AAA1BF0 , bdr:EV81A442B676BCDB2A , bdr:EVDD9AB2BD104D0A7D ;
    bdo:personGender  bdr:GenderMale ;
-   bdo:personName  bdr:NM27A9E6B52AE2AFD6 , bdr:NM6E5B539FC14B81F1 , bdr:NM9C8DEB6FF7CEC129 , bdr:NMBC6B2B658373DD69 , bdr:NME2F236C649A1C622 , bdr:NMED06EB68CC7F2B88 , bdr:NMF942A81B0A73E4AA , bdr:NMFB54273C9888828B ;
-   bdo:personStudentOf bdr:P1584 , bdr:P1586 , bdr:P1587 , bdr:P1588 , bdr:P2085 , bdr:P2349 , bdr:P2JM183 , bdr:P2JM184 , bdr:P2JM185 , bdr:P2JM186 , bdr:P2JM187 , bdr:P2JM188 , bdr:P2JM189 , bdr:P2JM190 , bdr:P2JM191 , bdr:P403 , bdr:P4312 , bdr:P4860 , bdr:P66 .
+   bdo:personName  bdr:NM27A9E6B52AE2AFD6 , bdr:NM9C8DEB6FF7CEC129 ;
+   bdo:personStudentOf bdr:P1584 , bdr:P1586  .
