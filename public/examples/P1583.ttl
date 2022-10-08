@@ -53,6 +53,5 @@ bdr:P1583  a     bdo:Person ;
    bdo:hasMother  bdr:P1585 ;
    bdo:note      bdr:NT93D338F6A346B51D  ;
    bdo:personEvent  bdr:EV00B857229AAA1BF0 , bdr:EV81A442B676BCDB2A , bdr:EVDD9AB2BD104D0A7D ;
-   bdo:personGender  bdr:GenderMale ;
    bdo:personName  bdr:NM27A9E6B52AE2AFD6 , bdr:NM9C8DEB6FF7CEC129 ;
    bdo:personStudentOf bdr:P1584 , bdr:P1586  .

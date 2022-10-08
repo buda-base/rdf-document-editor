@@ -1,5 +1,5 @@
 @prefix adm:   <http://purl.bdrc.io/ontology/admin/> .
-@prefix bda:   <http://purl.bdrc.io/admin.data/> .
+@prefix bda:   bda:> .
 @prefix bdo:   <http://purl.bdrc.io/ontology/core/> .
 @prefix bdr:   <http://purl.bdrc.io/resource/> .
 @prefix bds:   <http://purl.bdrc.io/ontology/shapes/core/> .
@@ -20,9 +20,7 @@
 @prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
 @prefix xml:   <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
-
-bdo:Person  bds:topShapeGraph  bdg:PersonShapes ;
-   bds:uiShapeGraph  bdg:PersonUIShapes .
+@prefix rde: <https://github.com/buda-base/rdf-document-editor/> .
 
 bdsa:AdmEntityShape  a  sh:NodeShape ;
    rdfs:label    "Admin Entity shape"@en ;
@@ -34,7 +32,7 @@ bdsa:AdmEntityShape  a  sh:NodeShape ;
 bdsa:AdmEntityShape-status
    a             sh:PropertyShape ;
    dash:editor   dash:EnumSelectEditor ;
-   sh:in         ( <http://purl.bdrc.io/admindata/StatusReleased> <http://purl.bdrc.io/admindata/StatusWithdrawn> <http://purl.bdrc.io/admindata/StatusEditing> <http://purl.bdrc.io/admindata/StatusOnHold> <http://purl.bdrc.io/admindata/StatusProvisional> <http://purl.bdrc.io/admindata/StatusScanned> <http://purl.bdrc.io/admindata/StatusSeekingOut> <http://purl.bdrc.io/admindata/StatusAccessioned> <http://purl.bdrc.io/admindata/StatusAcquiring> ) ;
+   sh:in         ( bda:StatusReleased bda:StatusWithdrawn ) ;
    sh:maxCount   1 ;
    sh:minCount   1 ;
    sh:name       "status"@en ;
@@ -55,8 +53,8 @@ bdsa:AdmEntityShape-type
 bdsa:AdmShape-adminAbout
    a             sh:PropertyShape ;
    dash:editor   dash:DetailsEditor ;
-   bds:propertyShapeType  bds:FacetShape ;
-   bds:readOnly  true ;
+   rde:propertyShapeType  rde:InternalShape ;
+   rde:readOnly  true ;
    sh:group      bds:AdminPropertyGroup ;
    sh:maxCount   1 ;
    sh:minCount   1 ;
@@ -64,25 +62,10 @@ bdsa:AdmShape-adminAbout
    sh:order      "0"^^xsd:decimal ;
    sh:path       [ sh:inversePath  adm:adminAbout ] .
 
-bds:ADM  a       sh:PrefixDeclaration ;
-   sh:declare    [ sh:namespace  "http://purl.bdrc.io/ontology/admin/"^^xsd:anyURI ;
-                   sh:prefix     "adm"
-                 ] .
-
 bds:AdminPropertyGroup
    a             sh:PropertyGroup ;
    rdfs:label    "Admin data"@en ;
    sh:order      "7"^^xsd:decimal .
-
-bds:BDO  a       sh:PrefixDeclaration ;
-   sh:declare    [ sh:namespace  "http://purl.bdrc.io/ontology/core/"^^xsd:anyURI ;
-                   sh:prefix     "bdo"
-                 ] .
-
-bds:BDR  a       sh:PrefixDeclaration ;
-   sh:declare    [ sh:namespace  "http://purl.bdrc.io/resource/"^^xsd:anyURI ;
-                   sh:prefix     "bdr"
-                 ] .
 
 bds:BasePropertyGroup
    a             sh:PropertyGroup ;
@@ -125,7 +108,7 @@ bds:CommonShape-prefLabel
 bds:CommonShape-rdfsComment
    a             sh:PropertyShape ;
    dash:editor   dash:TextAreaWithLangEditor ;
-   bds:allowMarkDown  true ;
+   rde:allowMarkDown  true ;
    sh:datatype   rdf:langString ;
    sh:name       "description"@en ;
    sh:path       rdfs:comment ;
@@ -134,7 +117,7 @@ bds:CommonShape-rdfsComment
 bds:ContentLocationShape
    a             sh:NodeShape ;
    rdfs:label    "ContentLocation Shape"@en ;
-   bds:identifierPrefix  "CL" ;
+   rde:identifierPrefix  "CL" ;
    sh:namespace  "http://purl.bdrc.io/resource/" ;
    sh:property   bds:ContentLocationShape-contentLocationEndPage , bds:ContentLocationShape-contentLocationEndVolume , bds:ContentLocationShape-contentLocationInstance , bds:ContentLocationShape-contentLocationPage , bds:ContentLocationShape-contentLocationVolume ;
    sh:targetClass  bdo:ContentLocation ;
@@ -167,8 +150,8 @@ bds:ContentLocationShape-contentLocationEndVolume
 bds:ContentLocationShape-contentLocationInstance
    a             sh:PropertyShape ;
    dash:editor   dash:InstancesSelectEditor ;
-   bds:classIn   ( bdo:ImageInstance ) ;
-   bds:propertyShapeType  bds:ExternalShape ;
+   rde:classIn   ( bdo:ImageInstance ) ;
+   rde:propertyShapeType  rde:ExternalShape ;
    sh:maxCount   1 ;
    sh:message    "At most one instance allowed"@en ;
    sh:minCount   1 ;
@@ -207,7 +190,7 @@ bds:ContentLocationShape-contentLocationVolume
 bds:ContentLocationShape-contentPagination
    a             sh:PropertyShape ;
    dash:editor   dash:EnumSelectEditor ;
-   bds:displayPriority  2 ;
+   rde:displayPriority  2 ;
    sh:in         ( bdr:PaginationAbsolute bdr:PaginationRelative ) ;
    sh:maxCount   1 ;
    sh:message    "a :ContentLocation may indicate, at most one, pagination type."@en ;
@@ -219,7 +202,7 @@ bds:ContentLocationShape-contentPagination
 bds:ContentLocationShape-type
    a             sh:PropertyShape ;
    dash:editor   dash:EnumSelectEditor ;
-   bds:displayPriority  1 ;
+   rde:displayPriority  1 ;
    sh:in         ( bdo:ContentLocation ) ;
    sh:maxCount   1 ;
    sh:minCount   1 ;
@@ -235,15 +218,15 @@ bds:EventPropertyGroup
 
 bds:EventShape  a  sh:NodeShape ;
    rdfs:label    "Event Shape"@en ;
-   bds:identifierPrefix  "EV" ;
-   bds:nodeShapeType  bds:FacetShape ;
+   rde:identifierPrefix  "EV" ;
+   rde:nodeShapeType  rde:InternalShape ;
    sh:namespace  "http://purl.bdrc.io/resource/" ;
    sh:property   bds:EventShape-eventWhen , bds:EventShape-eventWhere , bds:EventShape-eventWho ;
    sh:targetClass  bdo:Event .
 
 bds:EventShape-eventWhen
    a             sh:PropertyShape ;
-   bds:specialPattern  bds:PatternEDTF ;
+   rde:specialPattern  rde:PatternEDTF ;
    sh:datatype   <http://id.loc.gov/datatypes/edtf> ;
    sh:description  "use this to give a complex date representation, in EDTF: https://www.loc.gov/standards/datetime/."@en ;
    sh:maxCount   1 ;
@@ -255,8 +238,8 @@ bds:EventShape-eventWhen
 bds:EventShape-eventWhere
    a             sh:PropertyShape ;
    dash:editor   dash:InstancesSelectEditor ;
-   bds:displayPriority  1 ;
-   bds:propertyShapeType  bds:ExternalShape ;
+   rde:displayPriority  1 ;
+   rde:propertyShapeType  rde:ExternalShape ;
    sh:class      bdo:Place ;
    sh:maxCount   1 ;
    sh:name       "event location"@en ;
@@ -266,7 +249,7 @@ bds:EventShape-eventWhere
 bds:EventShape-eventWho
    a             sh:PropertyShape ;
    dash:editor   dash:InstancesSelectEditor ;
-   bds:propertyShapeType  bds:ExternalShape ;
+   rde:propertyShapeType  rde:ExternalShape ;
    sh:class      bdo:Person ;
    sh:name       "associated person"@en ;
    sh:path       bdo:eventWho .
@@ -283,8 +266,8 @@ bds:KinshipPropertyGroup
    sh:order      "4"^^xsd:decimal .
 
 bds:NoteShape  a  sh:NodeShape ;
-   bds:identifierPrefix  "NT" ;
-   bds:nodeShapeType  bds:FacetShape ;
+   rde:identifierPrefix  "NT" ;
+   rde:nodeShapeType  rde:InternalShape ;
    sh:namespace  "http://purl.bdrc.io/resource/" ;
    sh:property   bds:NoteShape-contentLocation , bds:NoteShape-contentLocationStatement , bds:NoteShape-noteSource , bds:NoteShape-noteText , bds:NoteShape-type ;
    sh:targetClass  bdo:Note ;
@@ -293,8 +276,8 @@ bds:NoteShape  a  sh:NodeShape ;
 bds:NoteShape-contentLocation
    a             sh:PropertyShape ;
    dash:editor   dash:DetailsEditor ;
-   bds:displayPriority  1 ;
-   bds:propertyShapeType  bds:FacetShape ;
+   rde:displayPriority  1 ;
+   rde:propertyShapeType  rde:InternalShape ;
    sh:maxCount   1 ;
    sh:message    "a note may have at most one :contentLocation"@en ;
    sh:name       "location"@en ;
@@ -305,7 +288,7 @@ bds:NoteShape-contentLocationStatement
    a             sh:PropertyShape ;
    dash:editor   dash:TextAreaWithLangEditor ;
    dash:singleLine  true ;
-   bds:displayPriority  1 ;
+   rde:displayPriority  1 ;
    sh:datatype   xsd:string ;
    sh:maxCount   1 ;
    sh:message    "a note may have at most one :contentLocationStatement"@en ;
@@ -316,9 +299,9 @@ bds:NoteShape-contentLocationStatement
 bds:NoteShape-noteSource
    a             sh:PropertyShape ;
    dash:editor   dash:InstancesSelectEditor ;
-   bds:classIn   ( bdo:Instance bdo:Work ) ;
-   bds:displayPriority  1 ;
-   bds:propertyShapeType  bds:ExternalShape ;
+   rde:classIn   ( bdo:Instance bdo:Work ) ;
+   rde:displayPriority  1 ;
+   rde:propertyShapeType  rde:ExternalShape ;
    sh:maxCount   1 ;
    sh:message    "a note may have at most one :noteSource"@en ;
    sh:name       "source"@en ;
@@ -328,8 +311,8 @@ bds:NoteShape-noteSource
 bds:NoteShape-noteText
    a             sh:PropertyShape ;
    dash:editor   dash:TextAreaWithLangEditor ;
-   bds:allowMarkDown  true ;
-   bds:defaultLanguage  "en" ;
+   rde:allowMarkDown  true ;
+   rde:defaultLanguage  "en" ;
    sh:datatype   rdf:langString ;
    sh:maxCount   1 ;
    sh:message    "a note may have at most one :noteText"@en ;
@@ -346,7 +329,7 @@ bds:NoteShape-noteType
 
 bds:NoteShape-type  a  sh:PropertyShape ;
    dash:editor   dash:EnumSelectEditor ;
-   bds:displayPriority  1 ;
+   rde:displayPriority  1 ;
    sh:in         ( bdo:Note ) ;
    sh:maxCount   1 ;
    sh:message    "A note must have type bdo:Note"@en ;
@@ -361,15 +344,10 @@ bds:NotesPropertyGroup
    rdfs:label    "Notes"@en ;
    sh:order      "6"^^xsd:decimal .
 
-bds:PatternEDTF  a  bds:SpecialPattern ;
-   rdfs:seeAlso  <https://www.loc.gov/standards/datetime/> ;
-   skos:description  "Extended Date/Time Format (EDTF) has been designed by the Library of Congress and integrated into ISO8601-2019"@en ;
-   skos:prefLabel  "EDTF pattern"@en .
-
 bds:PersonEventShape  a  sh:NodeShape ;
    rdfs:label    "Person Event Shape"@en ;
-   bds:identifierPrefix  "EV" ;
-   bds:nodeShapeType  bds:FacetShape ;
+   rde:identifierPrefix  "EV" ;
+   rde:nodeShapeType  rde:InternalShape ;
    sh:description  "The events associated with a person. Note that 'Founds Monastery' is not only available as a place event. To represent a century, use this pattern: 12th c. = not before 1100, not after 1199"@en ;
    sh:property   bds:EventShape-eventWhen , bds:EventShape-eventWhere , bds:PersonEventShape-personEventCorporation , bds:PersonEventShape-personEventRole , bds:PersonEventShape-type ;
    sh:targetObjectsOf  bdo:personEvent .
@@ -377,8 +355,8 @@ bds:PersonEventShape  a  sh:NodeShape ;
 bds:PersonEventShape-personEventCorporation
    a             sh:PropertyShape ;
    dash:editor   dash:InstancesSelectEditor ;
-   bds:displayPriority  1 ;
-   bds:propertyShapeType  bds:ExternalShape ;
+   rde:displayPriority  1 ;
+   rde:propertyShapeType  rde:ExternalShape ;
    sh:class      bdo:Corporation ;
    sh:maxCount   1 ;
    sh:message    "At most one :personEventCorporation allowed"@en ;
@@ -389,9 +367,9 @@ bds:PersonEventShape-personEventCorporation
 bds:PersonEventShape-personEventRole
    a             sh:PropertyShape ;
    dash:editor   dash:InstancesSelectEditor ;
-   bds:classIn   ( bdo:Role ) ;
-   bds:displayPriority  1 ;
-   bds:propertyShapeType  bds:ExternalShape ;
+   rde:classIn   ( bdo:Role ) ;
+   rde:displayPriority  1 ;
+   rde:propertyShapeType  rde:ExternalShape ;
    sh:maxCount   1 ;
    sh:message    "At most one :personEventRole allowed"@en ;
    sh:name       "role associated with the event"@en ;
@@ -402,7 +380,7 @@ bds:PersonEventShape-type
    a             sh:PropertyShape ;
    dash:editor   dash:EnumSelectEditor ;
    sh:description  "event type ('founds monastery' is now only in the events of the place)"@en ;
-   sh:in         ( bdo:PersonBirth bdo:PersonDeath bdo:PersonFlourished bdo:PersonAffiliation bdo:PersonOccupiesSeat bdo:PersonAssumesOffice bdo:PersonFinalOrdination bdo:PersonGterMaDiscovery bdo:PersonInResidence bdo:PersonLeavesOffice bdo:PersonLeavesSeat bdo:PersonMarriage bdo:PersonRabByungOrdination bdo:PersonDivorce bdo:PersonEventNotSpecified ) ;
+   sh:in         ( bdo:PersonBirth bdo:PersonDeath bdo:PersonFlourished ) ;
    sh:maxCount   1 ;
    sh:message    "A PersonEvent must have one type"@en ;
    sh:minCount   1 ;
@@ -418,8 +396,8 @@ bds:PersonNamePropertyGroup
 
 bds:PersonNameShape  a  sh:NodeShape ;
    rdfs:label    "Person Name Shape"@en ;
-   bds:identifierPrefix  "NM" ;
-   bds:nodeShapeType  bds:FacetShape ;
+   rde:identifierPrefix  "NM" ;
+   rde:nodeShapeType  rde:InternalShape ;
    sh:property   bds:PersonNameShape-personNameLabel , bds:PersonNameShape-type ;
    sh:targetClass  bdo:PersonName ;
    sh:targetObjectsOf  bdo:personName .
@@ -428,8 +406,7 @@ bds:PersonNameShape-personNameLabel
    a             sh:PropertyShape ;
    dash:editor   dash:TextAreaWithLangEditor ;
    dash:singleLine  true ;
-   bds:allowPushToTopLevelSkosPrefLabel
-      true ;
+   rde:pushToTopLevelProperty skos:prefLabel ;
    sh:datatype   rdf:langString ;
    sh:description  "this Person has a name given by the label."@en ;
    sh:maxCount   1 ;
@@ -443,7 +420,7 @@ bds:PersonNameShape-type
    a             sh:PropertyShape ;
    dash:editor   dash:EnumSelectEditor ;
    sh:description  "name type"@en ;
-   sh:in         ( bdo:PersonPrimaryTitle bdo:PersonPrimaryName bdo:PersonPersonalName bdo:PersonCommonName bdo:PersonGterStonTitle bdo:PersonOfficeTitle bdo:PersonPenName bdo:PersonTitle bdo:PersonTulkuTitle bdo:PersonOtherName bdo:PersonBodhisattvaVowName bdo:PersonCorporateName bdo:PersonFamilyName bdo:PersonFinalOrdination bdo:PersonFinalOrdinationName bdo:PersonFirstOrdinationName bdo:PersonOfficialTitle bdo:PersonOriginName bdo:PersonResidenceName bdo:PersonMonasteryName bdo:PersonMonasticPositionName bdo:PersonDonorName bdo:PersonRabByungOrdination bdo:PersonReversal bdo:PersonSecretInitiatoryName bdo:PersonVariantOrthography ) ;
+   sh:in         ( bdo:PersonPrimaryTitle bdo:PersonTitle bdo:PersonOtherName ) ;
    sh:maxCount   1 ;
    sh:message    "A PersonName must have one type"@en ;
    sh:minCount   1 ;
@@ -454,27 +431,15 @@ bds:PersonNameShape-type
 
 bds:PersonShape  a  sh:NodeShape ;
    rdfs:label    "Person Shape"@en ;
-   bds:identifierPrefix  "P" ;
+   rde:identifierPrefix  "P" ;
    sh:namespace  "http://purl.bdrc.io/resource/" ;
-   sh:property   bdsa:AdmShape-adminAbout , bds:CommonShape-associatedTradition , bds:CommonShape-prefLabel , bds:PersonShape-gender , bds:PersonShape-hasMother , bds:PersonShape-personEvent , bds:PersonShape-personName , bds:PersonShape-personStudentOf , bds:PersonShape-type , bds:RootShape-note ;
+   sh:property   bdsa:AdmShape-adminAbout , bds:CommonShape-associatedTradition , bds:CommonShape-prefLabel , bds:PersonShape-hasMother , bds:PersonShape-personEvent , bds:PersonShape-personName , bds:PersonShape-personStudentOf , bds:PersonShape-type , bds:RootShape-note ;
    sh:targetClass  bdo:Person .
-
-bds:PersonShape-gender
-   a             sh:PropertyShape ;
-   dash:editor   dash:EnumSelectEditor ;
-   sh:group      bds:BasePropertyGroup ;
-   sh:in         ( bdr:GenderMale bdr:GenderFemale ) ;
-   sh:maxCount   1 ;
-   sh:minCount   1 ;
-   sh:name       "has gender"@en ;
-   sh:nodeKind   sh:IRI ;
-   sh:order      "2"^^xsd:decimal ;
-   sh:path       bdo:personGender .
 
 bds:PersonShape-hasMother
    a             sh:PropertyShape ;
    dash:editor   dash:InstancesSelectEditor ;
-   bds:propertyShapeType  bds:ExternalShape ;
+   rde:propertyShapeType  rde:ExternalShape ;
    sh:class      bdo:Person ;
    sh:description  "this Person may have at most one mother."@en ;
    sh:group      bds:KinshipPropertyGroup ;
@@ -487,7 +452,7 @@ bds:PersonShape-hasMother
 bds:PersonShape-personEvent
    a             sh:PropertyShape ;
    dash:editor   dash:DetailsEditor ;
-   bds:propertyShapeType  bds:FacetShape ;
+   bds:propertyShapeType  rde:InternalShape ;
    sh:description  "this Person may have zero or more events like birth, death, ordination."@en ;
    sh:group      bds:EventPropertyGroup ;
    sh:message    ":personEvent object must be an IRI - no blank nodes"@en ;
@@ -499,7 +464,7 @@ bds:PersonShape-personEvent
 bds:PersonShape-personName
    a             sh:PropertyShape ;
    dash:editor   dash:DetailsEditor ;
-   bds:propertyShapeType  bds:FacetShape ;
+   rde:propertyShapeType  rde:InternalShape ;
    sh:description  "this Person may have one or more names."@en ;
    sh:group      bds:PersonNamePropertyGroup ;
    sh:message    "There must be at least one :personName object and each must be an IRI - no blank nodes"@en ;
@@ -512,8 +477,8 @@ bds:PersonShape-personName
 bds:PersonShape-personStudentOf
    a             sh:PropertyShape ;
    dash:editor   dash:InstancesSelectEditor ;
-   bds:classIn   ( bdo:Person bdo:Topic ) ;
-   bds:propertyShapeType  bds:ExternalShape ;
+   rde:classIn   ( bdo:Person bdo:Topic ) ;
+   rde:propertyShapeType  rde:ExternalShape ;
    sh:description  "use only for direct (physical) student/teacher relationships"@en ;
    sh:group      bds:StudentTeacherPropertyGroup ;
    sh:name       "student of"@en ;
@@ -531,3 +496,30 @@ bds:PersonShape-type  a  sh:PropertyShape ;
    sh:nodeKind   sh:IRI ;
    sh:order      "0"^^xsd:decimal ;
    sh:path       rdf:type .
+
+
+bdo:ImageInstance skos:prefLabel "image instance"@en .
+
+bdo:Person skos:prefLabel "person"@en .
+
+bdo:Topic skos:prefLabel "topic"@en .
+
+bdo:PersonPrimaryTitle skos:prefLabel "primary title"@en .
+
+bdo:PersonTitle skos:prefLabel "other title"@en .
+
+bdo:PersonOtherName skos:prefLabel "other name"@en .
+
+bdo:PersonBirth skos:prefLabel "birth"@en .
+
+bdo:PersonDeath skos:prefLabel "death"@en .
+
+bdo:PersonFlourished skos:prefLabel "flourished"@en .
+
+bdo:Role skos:prefLabel "role"@en .
+
+bdo:Corporation skos:prefLabel "corporation"@en .
+
+bda:StatusReleased skos:prefLabel "released"@en .
+
+bda:StatusWithdrawn skos:prefLabel "withdrawn"@en .

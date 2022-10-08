@@ -140,3 +140,32 @@ rde:InternalShape
   rdfs:label "internal shape"@en ;
   skos:definition "the shape refers to a resource within the document"@en ;
 .
+
+# defining the path to use in the list path pattern (https://www.topquadrant.com/constraints-on-rdflists-using-shacl/)
+
+rde:listPathZeroOrMore sh:zeroOrMorePath rdf:rest .
+rde:listPath rdf:first rde:listPathZeroOrMore ;
+             rdf:rest rdf:first
+.
+
+rde:specialPattern
+  a owl:ObjectProperty ;
+  rdfs:domain sh:PropertyShape ;
+  rdfs:range rde:SpecialPattern ;
+  skos:prefLabel "special pattern"@en ;
+  skos:definition "a complex pattern that a litteral argument should be checked against. Implementation is nor normalized."@en ;
+.
+
+rde:SpecialPattern
+  a owl:Class ;
+.
+
+rde:PatternEDTF
+  a rde:SpecialPattern ;
+  skos:prefLabel "EDTF pattern"@en ;
+  skos:description "Extended Date/Time Format (EDTF) has been designed by the Library of Congress and integrated into ISO8601-2019"@en ;
+  rdfs:seeAlso <https://www.loc.gov/standards/datetime/> ;
+.
+rde:PatternISBN
+  a rde:SpecialPattern ;
+  skos:prefLabel "ISBN pattern"@en ;

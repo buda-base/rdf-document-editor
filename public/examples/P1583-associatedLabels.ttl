@@ -17,8 +17,6 @@ bdr:G521  skos:prefLabel  "shug gseb dgon/"@bo-x-ewts , "休色寺"@zh-hans .
 
 bdr:G967  skos:prefLabel  "grwa stod grong /"@bo-x-ewts .
 
-bdr:GenderMale  skos:prefLabel  "pho/"@bo-x-ewts , "male"@en , "男性"@zh-hans .
-
 bdr:MW25268  skos:prefLabel  "gangs can mkhas dbang rim byon gyi rnam thar mdor bsdus/"@bo-x-ewts .
 
 bdr:P1584  skos:prefLabel  "bstan pa srung /"@bo-x-ewts .
