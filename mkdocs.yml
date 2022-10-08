@@ -1,0 +1,29 @@
+site_name: RDF Document Editor (RDE)
+repo_name: buda-base/rdf-document-editor
+repo_url: https://github.com/buda-base/rdf-document-editor
+edit_uri: "blob/master/docs"
+
+theme:
+  name: readthedocs
+  features:
+    - search.highlight
+    - content.code.annotate
+    - navigation.tabs
+    - navigation.top
+
+nav:
+  - Home:
+    - Introduction: index.md
+    - Demo: demo.md
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - admonition
+  - codehilite
+  - extra
+
+plugins:
+  - search
