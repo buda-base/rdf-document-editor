@@ -40,25 +40,21 @@ the connex graph would contain:
 ex:Person2 skos:prefLabel "name of person 2"@en .
 ```
 
-The **document shape graph** for an entity is an RDF graph containing the necessary triples to build the UI for the entire document of the entity. This includes:
+The **document shapes graph** for an entity is an RDF graph containing the necessary triples to build the UI for the entire document of the entity. This includes:
 - SHACL shapes for all subjects in the document (entity and subnodes)
 - extensions to SHACL (DASH and RDE) when relevant
+- relevant labels and descriptions for the properties and individuals
 
 ### API
 
 The code relies on 5 configurable functions that need to be implemented when configuring RDE:
 
-##### async getDocument(entity: RDFResource): RDFGraph
+##### async getDocumentInfo(entity: RDFResource): RDFGraph[]
 
-returns the document associated with an entity.
-
-##### async getDocumentShapeGraph(entity: RDFResource): RDFGraph
-
-returns the shape document for the document associated with an entity.
-
-##### async getConnexGraph(entity: RDFResource): RDFGraph
-
-return the connex graph for the document associated with an entity.
+returns an array of RDF graphs containing:
+- the document shapes graph
+- the document
+- the connex graph
 
 ##### async putDocument(entity: RDFResource, document: RDFGraph): void
 
@@ -76,4 +72,4 @@ We would like to thank Ashveen Bucktowar for his initial code and for suggesting
 
 ### License
 
-The code is Copyright 2019-2021 Buddhist Digital Resource Center, and is provided under the MIT License.
+The code is Copyright 2019-2022 Buddhist Digital Resource Center, and is provided under the MIT License.

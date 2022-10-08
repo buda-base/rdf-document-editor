@@ -38,13 +38,14 @@ export function EntityCreator(shapeQname: string, entityQname: string | null, un
 
 export const removeEntityPrefix = (lname: string): string => {}
 
-export const getDocument = async (entity: RDFResource) => rdf.Store {}
+// DocumentInfo is:
+// - the shapes document (mandatory)
+// - the document (optional, when we create a new entity there's no existing document)
+// - the connex graph (optional)
 
-export const getDocumentShapeGraph = async (entity: RDFResource) => rdf.Store {}
+export const getDocumentInfo = async (entity: RDFResource) => Array<rdf.Store> {}
 
-export const getConnexGraph = async (entity: RDFResource) => rdf.Store {}
-
-export const putDocument = async (entity: RDFResource, graph: rdf.Store) => {}
+export const putDocument = async (entity: RDFResource, document: rdf.Store) => {}
 
 export function getPublishedLink(entity: RDFResource)
 
