@@ -11,9 +11,7 @@ import { uiTabState, userIdState, RIDprefixState, demoAtom } from "../../atoms/c
 export const generateSubnode = async (
   subshape: NodeShape,
   parent: RDFResource,
-  userPrefix: string,
-  idToken: string | null
-  //n = 1
+  // user info ?
 ): Promise<Subject | Subject[]> => {
 
 }
@@ -47,3 +45,6 @@ export const getDocumentShapeGraph = async (entity: RDFResource) => rdf.Store {}
 export const getConnexGraph = async (entity: RDFResource) => rdf.Store {}
 
 export const putDocument = async (entity: RDFResource, graph: rdf.Store) => {}
+
+export function getPublishedLink(entity: RDFResource)
+

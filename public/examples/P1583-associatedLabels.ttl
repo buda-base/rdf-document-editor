@@ -53,22 +53,6 @@ bda:LD_BDRC_CC0  skos:prefLabel  "nang bstan dpe tshogs lte gnas kyis mthun sbyo
 bda:StatusReleased  skos:prefLabel
       "'grem spel zin pa/"@bo-x-ewts , "released"@en , "已发布"@zh-hans .
 
-bdu:U00001  skos:prefLabel  "'jin si mi thi/"@bo-x-ewts , "E. Gene Smith"@en , "金·史密斯（E. Gene Smith）"@zh-hans .
-
-bdu:U00007  skos:prefLabel  "nang pa chung bdag"@bo-x-ewts , "Chungdak Ngagpa"@en , "仲达·阿琼（Chungdak Ngakpa）"@zh-hans .
-
-bdu:U00012  skos:prefLabel  "je h+phi wal man/"@bo-x-ewts , "Jeff Wallman"@en , "杰夫·沃尔曼（Jeff Wallman）"@zh-hans .
-
-bdu:U00015  skos:prefLabel  "Joseph McClellan"@en .
-
-bdu:U00016  skos:prefLabel  "karma gong bde/"@bo-x-ewts , "Karma Gongde"@en .
-
-bdu:U00017  skos:prefLabel  "skal bzang lha mo/"@bo-x-ewts , "Kelsang Lhamo"@en , "格桑拉木（Kelsang Lhamo）"@zh-hans .
-
-bdu:U00020  skos:prefLabel  "Michael Sheehy"@en .
-
-bdu:U00021  skos:prefLabel  "dpal rdor/"@bo-x-ewts , "Paldor"@en , "巴多"@zh-hans .
-
 bdr:G521  skos:prefLabel  "shug gseb dgon/"@bo-x-ewts , "休色寺"@zh-hans .
 
 bdr:G967  skos:prefLabel  "grwa stod grong /"@bo-x-ewts .

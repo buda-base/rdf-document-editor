@@ -5,8 +5,6 @@ const enTranslations = {
     nav: "navigation",
   },
   types: {
-    person: "Person",
-    person_plural: "Persons",
     loading: "Loading...",
     creating: "Creating...",
     redirect: "Redirecting...",
@@ -45,7 +43,7 @@ const enTranslations = {
     prefix: "RID prefix must be set in <res>user profile</res>",
     notF: "Resource {{RID}} not found",
     type: "{{id}} is a {{actual}}; but a {{allow}} is required here",
-    preview: "This entity is not on BUDA because it has not been saved yet",
+    preview: "This entity has not been saved yet",
     force: "Errors are detected and will be likely rejected by the server.\nTry anyway?",
     modified: "Entity must be reloaded first (modified by someone else?)",
     unauthorized: "not authorized to modify {{url}}",
@@ -61,7 +59,6 @@ const enTranslations = {
     add_nb: "Number of {{val}} to add",
     close: "Close all open entities",
     import: "Import labels",
-    preview: "View on BUDA",
   },
 }
 
