@@ -102,7 +102,7 @@ bds:CommonShape-associatedTradition
    a             sh:PropertyShape ;
    dash:editor   dash:EnumSelectEditor ;
    sh:group      bds:BasePropertyGroup ;
-   sh:in         ( bdr:TraditionBaraKagyu bdr:TraditionBardrukKagyu bdr:TraditionBaromKagyu bdr:TraditionBodong bdr:TraditionBon bdr:TraditionBonSar bdr:TraditionChod bdr:TraditionDakpoKagyu bdr:TraditionDharmaguptaka bdr:TraditionDrigungKagyu bdr:TraditionDrukpaKagyu bdr:TraditionGeluk bdr:TraditionJonang bdr:TraditionJordruk bdr:TraditionKadam bdr:TraditionKagyu bdr:TraditionKarmaKagyu bdr:TraditionMadrukKagyu bdr:TraditionMadunKagyu bdr:TraditionMartsangKagyu bdr:TraditionMulasarvastivada bdr:TraditionNedoKagyu bdr:TraditionNgorSakya bdr:TraditionNyingma bdr:TraditionOrgyenNyengyu bdr:TraditionPhagGruKagyu bdr:TraditionRime bdr:TraditionSakya bdr:TraditionSarvastivada bdr:TraditionShangpaKagyu bdr:TraditionShugsepKagyu bdr:TraditionTaklungKagyu bdr:TraditionTheravada bdr:TraditionTodrukKagyu bdr:TraditionTrophuKagyu bdr:TraditionTsalpaKagyu bdr:TraditionTsarSakya bdr:TraditionYazangKagyu bdr:TraditionYelpaKagyu bdr:TraditionZhalu bdr:TraditionZhije bdr:TraditionZurmangKagyu ) ;
+   sh:in         ( bdr:TraditionBaromKagyu bdr:TraditionNyingma ) ;
    sh:name       "associated tradition"@en , "associated tradition" ;
    sh:nodeKind   sh:IRI ;
    sh:order      "3"^^xsd:decimal ;
@@ -371,7 +371,7 @@ bds:PersonEventShape  a  sh:NodeShape ;
    bds:identifierPrefix  "EV" ;
    bds:nodeShapeType  bds:FacetShape ;
    sh:description  "The events associated with a person. Note that 'Founds Monastery' is not only available as a place event. To represent a century, use this pattern: 12th c. = not before 1100, not after 1199"@en ;
-   sh:property   bds:EventShape-eventWhen , bds:EventShape-eventWhere , bds:EventShape-notAfter , bds:EventShape-notBefore , bds:EventShape-onYear , bds:PersonEventShape-personEventCorporation , bds:PersonEventShape-personEventRole , bds:PersonEventShape-type ;
+   sh:property   bds:EventShape-eventWhen , bds:EventShape-eventWhere , bds:PersonEventShape-personEventCorporation , bds:PersonEventShape-personEventRole , bds:PersonEventShape-type ;
    sh:targetObjectsOf  bdo:personEvent .
 
 bds:PersonEventShape-personEventCorporation

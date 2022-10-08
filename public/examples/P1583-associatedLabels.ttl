@@ -1,57 +1,17 @@
 @prefix :      <http://purl.bdrc.io/ontology/core/> .
 @prefix adm:   <http://purl.bdrc.io/ontology/admin/> .
-@prefix adr:   <http://purl.bdrc.io/resource-nc/auth/> .
-@prefix as:    <http://www.w3.org/ns/activitystreams#> .
-@prefix aut:   <http://purl.bdrc.io/ontology/ext/auth/> .
-@prefix bda:   <http://purl.bdrc.io/admindata/> .
-@prefix bdac:  <http://purl.bdrc.io/anncollection/> .
-@prefix bdan:  <http://purl.bdrc.io/annotation/> .
-@prefix bdg:   <http://purl.bdrc.io/graph/> .
-@prefix bdgu:  <http://purl.bdrc.io/graph-nc/user/> .
-@prefix bdgup: <http://purl.bdrc.io/graph-nc/user-private/> .
 @prefix bdo:   <http://purl.bdrc.io/ontology/core/> .
-@prefix bdou:  <http://purl.bdrc.io/ontology/ext/user/> .
 @prefix bdr:   <http://purl.bdrc.io/resource/> .
-@prefix bds:   <http://purl.bdrc.io/ontology/shapes/core/> .
-@prefix bdu:   <http://purl.bdrc.io/resource-nc/user/> .
 @prefix bf:    <http://id.loc.gov/ontologies/bibframe/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix dila:  <http://purl.dila.edu.tw/resource/> .
-@prefix eftr:  <http://purl.84000.co/resource/core/> .
-@prefix f:     <java:io.bdrc.libraries.sparql.functions.> .
 @prefix foaf:  <http://xmlns.com/foaf/0.1/> .
-@prefix iiif2: <http://iiif.io/api/presentation/2#> .
-@prefix iiif3: <http://iiif.io/api/presentation/3#> .
-@prefix ldp:   <http://www.w3.org/ns/ldp#> .
-@prefix mbbt:  <http://mbingenheimer.net/tools/bibls/> .
-@prefix oa:    <http://www.w3.org/ns/oa#> .
-@prefix ola:   <https://openlibrary.org/authors/> .
 @prefix owl:   <http://www.w3.org/2002/07/owl#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix rsh:   <http://purl.bdrc.io/shacl/core/shape/> .
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
-@prefix srcd:  <https://sakyaresearch.org/deities/> .
-@prefix srcl:  <https://sakyaresearch.org/literary_forms/> .
-@prefix srcpe: <https://sakyaresearch.org/persons/> .
-@prefix srcpl: <https://sakyaresearch.org/places/> .
-@prefix srcs:  <https://sakyaresearch.org/sources/> .
-@prefix srct:  <https://sakyaresearch.org/topics/> .
-@prefix tbr:   <http://purl.bdrc.io/ontology/toberemoved/> .
-@prefix text:  <http://jena.apache.org/text#> .
-@prefix tmp:   <http://purl.bdrc.io/ontology/tmp/> .
-@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
-@prefix viaf:  <http://viaf.org/viaf/> .
-@prefix wd:    <http://www.wikidata.org/entity/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
-
-bda:GR0006  skos:prefLabel  "Persons repo"@en .
-
-bda:LD_BDRC_CC0  skos:prefLabel  "nang bstan dpe tshogs lte gnas kyis mthun sbyor byas pa/[ CC0 ]bka' 'khrol can/"@bo-x-ewts , "Provided by BDRC under the CC0 license"@en , "由佛教数字资源中心提供，基于通用 (CC0 1.0)协议"@zh-hans .
-
-bda:StatusReleased  skos:prefLabel
-      "'grem spel zin pa/"@bo-x-ewts , "released"@en , "已发布"@zh-hans .
 
 bdr:G521  skos:prefLabel  "shug gseb dgon/"@bo-x-ewts , "休色寺"@zh-hans .
 
@@ -59,57 +19,10 @@ bdr:G967  skos:prefLabel  "grwa stod grong /"@bo-x-ewts .
 
 bdr:GenderMale  skos:prefLabel  "pho/"@bo-x-ewts , "male"@en , "男性"@zh-hans .
 
-bdr:MW19801  skos:prefLabel  "ming mdzod/"@bo-x-ewts .
-
-bdr:MW19822  skos:prefLabel  "po ta lar bzhugs pa'i rnying ma'i gsung 'bum dkar chag"@bo-x-ewts .
-
 bdr:MW25268  skos:prefLabel  "gangs can mkhas dbang rim byon gyi rnam thar mdor bsdus/"@bo-x-ewts .
-
-bdr:MW27401  skos:prefLabel  "snga 'gyur rdzogs chen chos 'byung chen mo/"@bo-x-ewts .
-
-bdr:P1226  skos:prefLabel  "bla ma dam pa bsod nams rgyal mtshan/"@bo-x-ewts .
-
-bdr:P144  skos:prefLabel  "grags pa rgyal mtshan/"@bo-x-ewts .
 
 bdr:P1584  skos:prefLabel  "bstan pa srung /"@bo-x-ewts .
 
 bdr:P1585  skos:prefLabel  "'brom bza' bsod nams rgyan/"@bo-x-ewts .
 
 bdr:P1586  skos:prefLabel  "bsam yas mkhan po bsam 'grub rin chen/"@bo-x-ewts .
-
-bdr:P1587  skos:prefLabel  "slob dpon kun dga' 'od zer/"@bo-x-ewts .
-
-bdr:P1588  skos:prefLabel  "slob dpon bkra shis rin chen/"@bo-x-ewts .
-
-bdr:P2085  skos:prefLabel  "dpang lo tsA ba blo gros brtan pa/"@bo-x-ewts .
-
-bdr:P2349  skos:prefLabel  "rig 'dzin ku mA rA dza/"@bo-x-ewts , "ku mA rA dza"@sa-x-ewts .
-
-bdr:P2JM183  skos:prefLabel  "za lung rin po che/"@bo-x-ewts .
-
-bdr:P2JM184  skos:prefLabel  "gzhon nu don grub/"@bo-x-ewts .
-
-bdr:P2JM185  skos:prefLabel  "gzhon nu rdo rje/"@bo-x-ewts .
-
-bdr:P2JM186  skos:prefLabel  "btsan dgon pa/"@bo-x-ewts .
-
-bdr:P2JM187  skos:prefLabel  "bla brang pa chos dpal rgyal mtshan/"@bo-x-ewts .
-
-bdr:P2JM188  skos:prefLabel  "khro phu pa/"@bo-x-ewts .
-
-bdr:P2JM189  skos:prefLabel  "tshong 'dus pa/"@bo-x-ewts .
-
-bdr:P2JM190  skos:prefLabel  "sangs rgyas grags 'od/"@bo-x-ewts .
-
-bdr:P2JM191  skos:prefLabel  "dbang ye/"@bo-x-ewts .
-
-bdr:P403  skos:prefLabel  "lha zur khang pa dbang phyug ye shes/"@bo-x-ewts .
-
-bdr:P4312  skos:prefLabel  "g.yag sde paN chen brtson 'grus dar rgyas/"@bo-x-ewts , "雅德班钦·尊珠达结"@zh-hans .
-
-bdr:P4860  skos:prefLabel  "gzhon nu rin chen/"@bo-x-ewts .
-
-bdr:P66  skos:prefLabel  "karma pa 03 rang byung rdo rje/"@bo-x-ewts , "Karmapa 03"@en , "噶玛·让穹多杰"@zh-hans .
-
-bdr:TraditionNyingma  skos:prefLabel
-      "rnying ma/"@bo-x-ewts , "Nyingma"@en , "宁玛"@zh-hans .

@@ -12,12 +12,11 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rde: <https://github.com/buda-base/rdf-document-editor/> .
 
-rde:allowPushToTopLevelLabel
-  a owl:DatatypeProperty ;
-  rdfs:label "allow push to top level skos pref label"@en ;
+rde:pushToTopLevelProperty
+  a owl:ObjectProperty ;
+  rdfs:label "push objects to top level property"@en ;
   rdfs:domain sh:PropertyShape ;
-  rdfs:range xsd:boolean ;
-  skos:definition "true indicates that the editor should allow the user to copy the object of this property as a label of the main entity of the document"@en ;
+  skos:definition "Indicates that the editor should allow the user to copy the object of this property as the object of the property that is the object of this property, with the subject being the main entity of the document. As an example, if we have ex:sh1 rde:allowPushToTopLevelProperty skos:prefLabel, then the editor can have a button reading 'copy as main label'."@en ;
 .
 
 rde:readOnly
@@ -27,12 +26,14 @@ rde:readOnly
   rdfs:range xsd:boolean ;
   skos:definition "true indicates that the editor should not allow the user to change the property"@en ;
 .
+
 rde:defaultValue
   a owl:DatatypeProperty ;
   rdfs:label "editor default value"@en ;
   rdfs:domain sh:PropertyShape ;
   skos:definition "indicates the default value that the editor should display when there is no value"@en ;
 .
+
 rde:defaultLanguage
   a owl:DatatypeProperty ;
   rdfs:label "default language"@en ;
@@ -46,28 +47,32 @@ rde:connectIDs
   rdfs:label "connect IDs"@en ;
   rdfs:domain sh:PropertyShape ;
   rdfs:range xsd:boolean ;
-  skos:definition "when creating a new object of this (external) property, the URI should be connected to the one of the current subject."@en ;
+  skos:definition "When creating a new object of this (external) property, the URI should be connected to the one of the current subject. The nature of the connection is left to the implementation. One example is if a user creates edits the instance ex:MW123 and creates a new work, the new work would be ex:WA123."@en ;
 .
+
 rde:copyObjectsOfProperty
   a owl:ObjectProperty ;
-  rdfs:label "connect IDs"@en ;
+  rdfs:label "copy objects of property"@en ;
   rdfs:domain sh:PropertyShape ;
   rdfs:range rdf:Property ;
   skos:definition "when creating a new object of this (external) property, automatically copy triples with the object of this property (typically skos:prefLabel) as predicates"@en ;
 .
+
 rde:allowBatchManagement
   a owl:DatatypeProperty ;
   rdfs:label "allow batch management"@en ;
   rdfs:domain sh:PropertyShape ;
   rdfs:range xsd:boolean ;
-  skos:definition "instructs the UI to allow batch creation / removal of objects of this property"@en ;
+  skos:definition "instructs the UI to allow batch creation / removal of objects of this property. The implementation is not normalized. In RDE this makes the editor add a button to create multiple volume objects when the user edits an instance."@en ;
 .
+
 rde:identifierPrefix
   a owl:DatatypeProperty ;
   rdfs:label "prefix for resource id"@en ;
   rdfs:range xsd:string ;
-  skos:definition "prefix to use when generating identifier for a resource"@en ;
+  skos:definition "local name prefix to use when generating a new URI for a resource."@en ;
 .
+
 rde:displayPriority
   a owl:DatatypeProperty ;
   rdfs:label "display priority"@en ;
@@ -75,61 +80,63 @@ rde:displayPriority
   rdfs:domain sh:PropertyShape ;
   skos:definition "indicates if a property should be displayed or hidden, using a number between 0 and 2 where 0 means the property should always be displayed, 1 means the property can be hidden behind a see more button if necessary, 2 means the property should be hidden unless there's an associated value, and 3 means that the property should always be hidden (use for inferred fields for instance)."@en ;
 .
+
 rde:classIn
   a owl:DatatypeProperty ;
   rdfs:label "expected object type"@en ;
   rdfs:domain rdfs:Resource ;
   skos:definition "this is similar to sh:class except that the constraint is that the type must be any of the listed types instead of the conjuction of all listed types. The object should be a rdf:list."@en ;
 .
-rde:nodeShapeType
-  a owl:ObjectProperty ;
-  rdfs:label "node shape type"@en ;
-  rdfs:domain sh:NodeShape ;
-  rdfs:range rde:ShapeType ;
-  skos:definition "type of a node shape to discriminate among fact shapes, internal shapes, and so on"@en ;
-.
-rde:propertyShapeType
-  a owl:ObjectProperty ;
-  rdfs:label "node shape type"@en ;
-  rdfs:domain sh:PropertyShape ;
-  rdfs:range rde:ShapeType ;
-  skos:definition "type of a node shape to discriminate among fact shapes, internal shapes, and so on"@en ;
-.
-rde:allowMarkDown
-  a owl:DatatypeProperty ;
-  rdfs:label "node shape type"@en ;
-  rdfs:domain sh:PropertyShape ;
-  rdfs:range xsd:boolean ;
-  skos:definition "the object of the property can be in markdown"@en ;
-.
-rde:ShapeType
-  a owl:Class ;
-.
+
 rde:independentIdentifiers
   a owl:DatatypeProperty ;
   rdfs:label "independent identifiers"@en ;
   rdfs:domain sh:NodeShape ;
   rdfs:range xsd:boolean ;
-  skos:definition "the identifiers for the resource are independent from its parent resource"@en ;
+  skos:definition "the identifiers for the resource are independent from its parent resource."@en ;
 .
+
 rde:sortOnProperty
   a owl:ObjectProperty ;
   rdfs:label "sort on property"@en ;
   rdfs:domain sh:PropertyShape ;
   skos:definition "sort the objects of the property shape by one of their property. This is for display purpose only and has no effect on the data."@en ;
 .
+
+rde:allowMarkDown
+  a owl:DatatypeProperty ;
+  rdfs:label "node shape type"@en ;
+  rdfs:domain sh:PropertyShape ;
+  rdfs:range xsd:boolean ;
+  skos:definition "the editor displays a markdown editor for the objects of this property"@en ;
+.
+
+rde:ShapeType
+  a owl:Class ;
+.
+
+rde:nodeShapeType
+  a owl:ObjectProperty ;
+  rdfs:label "node shape type"@en ;
+  rdfs:domain sh:NodeShape ;
+  rdfs:range rde:ShapeType ;
+.
+
+rde:propertyShapeType
+  a owl:ObjectProperty ;
+  rdfs:label "node shape type"@en ;
+  rdfs:domain sh:PropertyShape ;
+  rdfs:range rde:ShapeType ;
+.
+
 rde:ExternalShape
   a rde:ShapeType ;
-  rdfs:label "node shape refers to resource external to focus node graph"@en ;
-  skos:definition "this shape indicates external resource that is not contained in the focus node graph"@en ;
+  rdfs:label "external shape"@en ;
+  skos:definition "the shape refers to resource external to the document"@en ;
 .
-rde:FacetShape
+
+rde:InternalShape
   a rde:ShapeType ;
-  rdfs:label "node shape is a facet"@en ;
-  skos:definition "this shape applies to a resource contained in the graph of root Resource that is a facet of the containing resource"@en ;
-.
-rde:IgnoreShape
-  a rde:ShapeType ;
-  rdfs:label "node shape is ignored for editing"@en ;
-  skos:definition "this shape indicates internal resource that is not editable"@en ;
+  rdfs:label "internal shape"@en ;
+  skos:definition "the shape refers to a resource within the document"@en ;
 .
