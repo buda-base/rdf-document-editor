@@ -208,7 +208,7 @@ const generateDefault = async (
       // TODO might be a better way but "" isn't authorized
       return new ExtRDFResourceWithLabel("tmp:uri", {})
       break
-    case ObjectType.Facet:
+    case ObjectType.Internal:
       if (property.targetShape == null) throw "no target shape for " + property.uri
       return generateSubnode(property.targetShape, parent, RIDprefix, idToken) //, n)
       break
@@ -403,7 +403,7 @@ const ValueList: FC<{
     } else if (
       property.objectType != ObjectType.ResInList &&
       property.objectType != ObjectType.LitInList &&
-      property.objectType != ObjectType.Facet &&
+      property.objectType != ObjectType.Internal &&
       (!property.displayPriority ||
         property.displayPriority === 0 ||
         property.displayPriority === 1 && (list.length || force)) &&
@@ -433,7 +433,7 @@ const ValueList: FC<{
         }
         setListAsync()
       }
-    } else if (property.objectType == ObjectType.Facet && property.minCount && list.length < property.minCount) {
+    } else if (property.objectType == ObjectType.Internal && property.minCount && list.length < property.minCount) {
       const setListAsync = async () => {
         const res = await generateDefault(property, subject, RIDprefix, idToken, newVal)
         // dont store empty value autocreation
@@ -477,7 +477,7 @@ const ValueList: FC<{
     //debug("end/vL/effect")
   }, [subject, list, force])
 
-  let addBtn = property.objectType === ObjectType.Facet
+  let addBtn = property.objectType === ObjectType.Internal
 
   //debug("prop:", property.qname, subject.qname, list) //property, force)
 
@@ -685,10 +685,10 @@ const ValueList: FC<{
         {hasEmptyExtEntityAsFirst && <div style={{ width: "100%" }}>{renderListElem(list[0], 0, list.length)}</div>}
         <div
           ref={scrollElem}
-          className={!embedded && property.objectType !== ObjectType.Facet ? "overFauto" : ""}
+          className={!embedded && property.objectType !== ObjectType.Internal ? "overFauto" : ""}
           style={{
             width: "100%",
-            //...!embedded && property.objectType !== ObjectType.Facet ? { maxHeight: "338px" } : {}, // overflow conflict with iframe...
+            //...!embedded && property.objectType !== ObjectType.Internal ? { maxHeight: "338px" } : {}, // overflow conflict with iframe...
             ...property?.group?.value !== edit ? { paddingRight: "0.5rem" } : {},
           }}
         >
@@ -819,13 +819,13 @@ const Create: FC<{
 
     if (waitForNoHisto) return
 
-    if (property.objectType === ObjectType.Facet) {
+    if (property.objectType === ObjectType.Internal) {
       waitForNoHisto = true
       subject.noHisto(false, 1) // allow parent node in history but default empty subnodes before tmp:allValuesLoaded
     }
     const item = await generateDefault(property, subject, RIDprefix, idToken, newVal)
     setList([...listOrCollec, item]) //(oldList) => [...oldList, item])
-    if (property.objectType === ObjectType.Facet && item instanceof Subject) {
+    if (property.objectType === ObjectType.Internal && item instanceof Subject) {
       //setEdit(property.qname+item.qname)  // won't work...
       setImmediate(() => {
         // this must be "delayed" to work
@@ -842,7 +842,7 @@ const Create: FC<{
   //debug("path/type:", property.objectType, property.path.sparqlString, disable)
 
   if (
-    property.objectType !== ObjectType.Facet &&
+    property.objectType !== ObjectType.Internal &&
     (embedded ||
       property.objectType == ObjectType.Literal ||
       property.objectType == ObjectType.ResInList ||

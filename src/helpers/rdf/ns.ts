@@ -24,6 +24,7 @@ const debug = require("debug")("rde:rdf:ns")
 export const prefixToURI: { [key: string]: string } = {
   dash: DASH_uri,
   owl: OWL_uri,
+  rde: RDE_uri,
   rdfs: RDFS_uri,
   sh: SH_uri,
   rdf: RDF_uri,

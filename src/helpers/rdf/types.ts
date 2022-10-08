@@ -159,17 +159,16 @@ export class EntityGraphValues {
     }
   }
 
-  propsUpdateEffect: (subjectUri: string, pathString: string) => AtomEffect<Array<Value>> = (
-    subjectUri: string,
-    pathString: string
-  ) => ({ setSelf, onSet }: setSelfOnSelf) => {
-    onSet((newValues: Array<Value> | DefaultValue): void => {
-      if (!(newValues instanceof DefaultValue)) {
-        //debug("updating:",subjectUri, pathString, newValues)
-        this.onUpdateValues(subjectUri, pathString, newValues)
-      }
-    })
-  }
+  propsUpdateEffect: (subjectUri: string, pathString: string) => AtomEffect<Array<Value>> =
+    (subjectUri: string, pathString: string) =>
+    ({ setSelf, onSet }: setSelfOnSelf) => {
+      onSet((newValues: Array<Value> | DefaultValue): void => {
+        if (!(newValues instanceof DefaultValue)) {
+          //debug("updating:",subjectUri, pathString, newValues)
+          this.onUpdateValues(subjectUri, pathString, newValues)
+        }
+      })
+    }
 
   @Memoize((pathString: string, subjectUri: string) => {
     return subjectUri + pathString
@@ -232,35 +231,29 @@ export class EntityGraph {
   }
 
   static addIdToLitList = (litList: Array<rdf.Literal>): Array<LiteralWithId> => {
-    return litList.map(
-      (lit: rdf.Literal): LiteralWithId => {
-        return new LiteralWithId(lit.value, lit.language, lit.datatype)
-      }
-    )
+    return litList.map((lit: rdf.Literal): LiteralWithId => {
+      return new LiteralWithId(lit.value, lit.language, lit.datatype)
+    })
   }
 
   static addLabelsFromGraph = (resList: Array<rdf.NamedNode>, graph: EntityGraph): Array<RDFResourceWithLabel> => {
-    return resList.map(
-      (res: rdf.NamedNode): RDFResourceWithLabel => {
-        return new RDFResourceWithLabel(res, graph)
-      }
-    )
+    return resList.map((res: rdf.NamedNode): RDFResourceWithLabel => {
+      return new RDFResourceWithLabel(res, graph)
+    })
   }
 
   static addExtDataFromGraph = (resList: Array<rdf.NamedNode>, graph: EntityGraph): Array<RDFResourceWithLabel> => {
-    return resList.map(
-      (res: rdf.NamedNode): RDFResourceWithLabel => {
-        if (!graph.associatedLabelsStore) {
-          throw "trying to access inexistant associatedStore"
-        }
-        const lits: Array<rdf.Literal> = graph.associatedLabelsStore.each(res, prefLabel, null) as Array<rdf.Literal>
-        const perLang: Record<string, string> = {}
-        for (const lit of lits) {
-          perLang[lit.language] = lit.value
-        }
-        return new ExtRDFResourceWithLabel(res.uri, perLang)
+    return resList.map((res: rdf.NamedNode): RDFResourceWithLabel => {
+      if (!graph.associatedLabelsStore) {
+        throw "trying to access inexistant associatedStore"
       }
-    )
+      const lits: Array<rdf.Literal> = graph.associatedLabelsStore.each(res, prefLabel, null) as Array<rdf.Literal>
+      const perLang: Record<string, string> = {}
+      for (const lit of lits) {
+        perLang[lit.language] = lit.value
+      }
+      return new ExtRDFResourceWithLabel(res.uri, perLang)
+    })
   }
 
   hasSubject(subjectUri: string): boolean {
@@ -269,11 +262,9 @@ export class EntityGraph {
   }
 
   static subjectify = (resList: Array<rdf.NamedNode>, graph: EntityGraph): Array<Subject> => {
-    return resList.map(
-      (res: rdf.NamedNode): Subject => {
-        return new Subject(res, graph)
-      }
-    )
+    return resList.map((res: rdf.NamedNode): Subject => {
+      return new Subject(res, graph)
+    })
   }
 
   // only returns the values that were not initalized before
@@ -301,7 +292,7 @@ export class EntityGraph {
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFResExtwData)
         return fromRDFResExtwData
         break
-      case ObjectType.Facet:
+      case ObjectType.Internal:
         const fromRDFSubNode: Array<rdf.NamedNode> = s.getPropResValuesFromPath(p.path)
         const fromRDFSubs = EntityGraph.subjectify(fromRDFSubNode, s.graph)
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFSubs)
@@ -540,7 +531,7 @@ export class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
 
 export enum ObjectType {
   Literal,
-  Facet,
+  Internal,
   ResInList,
   ResExt,
   ResIgnore,

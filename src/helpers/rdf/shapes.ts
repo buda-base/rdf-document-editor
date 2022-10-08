@@ -55,7 +55,7 @@ export const shTargetClass = ns.SH("targetClass") as rdf.NamedNode
 export const shTargetObjectsOf = ns.SH("targetObjectsOf") as rdf.NamedNode
 export const shTargetSubjectsOf = ns.SH("targetSubjectsOf") as rdf.NamedNode
 export const rdePropertyShapeType = ns.RDE("propertyShapeType") as rdf.NamedNode
-export const rdeFacetShape = ns.RDE("FacetShape") as rdf.NamedNode
+export const rdeInternalShape = ns.RDE("InternalShape") as rdf.NamedNode
 export const rdeExternalShape = ns.RDE("ExternalShape") as rdf.NamedNode
 export const rdeIgnoreShape = ns.RDE("IgnoreShape") as rdf.NamedNode
 export const rdeClassIn = ns.RDE("classIn") as rdf.NamedNode
@@ -413,7 +413,7 @@ export class PropertyShape extends RDFResourceWithLabel {
       return ObjectType.Literal
     }
     // for some reason direct comparison doesn't work...
-    if (propertyShapeType.value == rdeFacetShape.value) return ObjectType.Facet
+    if (propertyShapeType.value == rdeInternalShape.value) return ObjectType.Internal
     else if (propertyShapeType.value == rdeExternalShape.value) return ObjectType.ResExt
     else if (propertyShapeType.value == rdeIgnoreShape.value) return ObjectType.ResIgnore
     throw "can't handle property shape type " + propertyShapeType.value + " for property shape " + this.qname
