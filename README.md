@@ -1,22 +1,22 @@
 ## RDF document editor (RDE)
 
-*RDF Document Editor* (or *RDE*) is a web-based RDF editor based on [SHACL](??), buit using React and [Recoil](https://recoiljs.org/).
+*RDF Document Editor* (or *RDE*) is a web-based RDF editor based on [SHACL](https://www.w3.org/TR/shacl/), buit using React and [Recoil](https://recoiljs.org/).
 
 It was initially created by the [Buddhist Digital Resource Center](https://www.bdrc.io/) but with the ambition to become an independent open source software.
 
 RDE is best suited for the edition of simple records like bibliography, persons, places, etc. The records should be limitted in size (\~100 triples) and not be recursive (like taxonomies). This limitation allows RDE to have a simple UI and API that can significantly lower the barrier to RDF adoption.
 
-### Demo
-
-A demo of RDE configured to use the BDRC API can be found at ???.
-
 ### Status
 
-The code of RDE is work in progress but is production-ready, it is used by the BDRC. We welcome contributions!
+Initially BDRC produced its in-house [BLMP editor](https://github.com/buda-base/blmp-client/), which will be used in production mid-October 2022. We are in the process of extracting the code from the BLMP editor and, in the process, making it more generic.
 
-Possible improvements include:
-- UI forms for more literal types
-- more constraints
+We expect this operation to be fully complete at the end of October 2022.
+
+### Demo
+
+A read-only demo of the BLMP editor can be found at [https://rde-demo.bdrc.io/](https://rde-demo.bdrc.io/). It allows anyone to browse all the BDRC entities and shapes.
+
+We expect a demo of RDE (isolated from the BDRC API) to be available at the end of October 2022.
 
 ### Concepts
 
