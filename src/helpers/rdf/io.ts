@@ -1,22 +1,21 @@
 import * as rdf from "rdflib"
+import i18n from "i18next"
 
 interface StoreWithEtag {
   store: rdf.Store
   etag: string | null
 }
 
-export const loadTtl = async (
+const defaultFetchTtlHeaders = new Headers()
+defaultFetchTtlHeaders.set("Accept", "text/turtle")
+
+export const fetchTtl = async (
   url: string,
   allow404 = false,
-  idToken = "",
+  headers = defaultFetchTtlHeaders,
   allowEmptyEtag = true
 ): Promise<StoreWithEtag> => {
   return new Promise(async (resolve, reject) => {
-    const headers = new Headers()
-    headers.set("Accept", "text/turtle")
-    if (idToken) {
-      headers.set("Authorization", "Bearer " + idToken)
-    }
     const response = await fetch(url, { headers: headers })
 
     // eslint-disable-next-line no-magic-numbers
@@ -45,5 +44,53 @@ export const loadTtl = async (
       return
     }
     resolve({ store, etag })
+  })
+}
+
+const defaultPutTtlHeaders = new Headers()
+defaultPutTtlHeaders.set("Content-Type", "text/turtle")
+
+export const putTtl = async (
+  url: string,
+  s: rdf.Store,
+  method = "PUT",
+  headers = defaultPutTtlHeaders,
+  allowEmptyEtag = true
+): Promise<string|null> => {
+  return new Promise(async (resolve, reject) => {
+    const defaultRef = new rdf.NamedNode(rdf.Store.defaultGraphURI)
+    rdf.serialize(defaultRef, s, undefined, "text/turtle", async function (err, str) {
+      if (err) {
+        reject(err)
+        return
+      }
+      const response = await fetch(url, { headers, method, body: str })
+      const etag = response.headers.get("etag")
+
+      // eslint-disable-next-line no-magic-numbers
+      if (response.status == 403) {
+        reject(new Error(i18n.t("error.unauthorized", { url })))
+        return
+      }
+
+      // eslint-disable-next-line no-magic-numbers
+      if (response.status == 412) {
+        reject(new Error(i18n.t("error.modified")))
+        return
+      }
+
+      // eslint-disable-next-line no-magic-numbers
+      if (response.status > 400) {
+        reject(new Error("error " + response.status + " when saving " + url))
+        return
+      }
+
+      if (!etag && !allowEmptyEtag) {
+        reject(new Error("no etag returned from " + url))
+        return
+      }
+
+      resolve(etag)
+    })
   })
 }

@@ -17,21 +17,15 @@ interface valueByLangToStrPrefLang {
 }
 
 interface previewLiteral {
-  (literal: LiteralWithId): string
+  (literal: LiteralWithId): string | null
 }
 
 interface generateConnectedID {
   (old_resource: RDFResource, old_shape: NodeShape, new_shape: NodeShape): Promise<rdf.NamedNode>
 }
 
-interface DocumentInfo {
-  shapesDocument: rdf.Store
-  document?: rdf.Store
-  connexGraph?: rdf.Store
-}
-
-interface getDocumentInfo {
-  (entity: rdf.NamedNode): Promise<DocumentInfo>
+interface getDocument {
+  (entity: rdf.NamedNode): Promise<Subject>
 }
 
 interface getShapesDocument {
@@ -54,10 +48,10 @@ export interface RDEConfig {
   readonly descriptionProperties: Array<rdf.NamedNode>
   readonly prefixMap: PrefixMap
   readonly generateConnectedID: generateConnectedID
-  readonly entityCreator: FC<{ shapeQname: string; entityQname: string | null; unmounting: any }>
-  readonly getDocumentInfo: getDocumentInfo
+  readonly entityCreator: FC<{ shapeNode: rdf.NamedNode; entityNode: rdf.NamedNode | null; unmounting: any }>
+  readonly getDocument: getDocument
   readonly previewLiteral: previewLiteral
-  readonly previewEntityLabel: Record<string, string>
-  readonly previewEntity: previewEntity,
+  readonly previewEntityLabel?: Record<string, string>
+  readonly previewEntity?: previewEntity,
   readonly getShapesDocument: getShapesDocument
 }

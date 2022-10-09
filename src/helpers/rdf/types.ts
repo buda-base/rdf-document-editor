@@ -206,14 +206,14 @@ export class EntityGraph {
   // where to start when reconstructing the tree
   topSubjectUri: string
   store: rdf.Store
-  // associatedLabelsStore is the store that contains the labels of associated resources
+  // connexGraph is the store that contains the labels of associated resources
   // (ex: students, teachers, etc.), it's not present in all circumstances
-  associatedLabelsStore?: rdf.Store
+  connexGraph?: rdf.Store
   prefixMap: ns.PrefixMap
   labelProperties: Array<rdf.NamedNode>
   descriptionProperties: Array<rdf.NamedNode>
 
-  constructor(store: rdf.Store, topSubjectUri: string, prefixMap = ns.defaultPrefixMap, descriptionProperties = defaultDescriptionProperties, labelProperties = defaultLabelProperties, associatedLabelsStore: rdf.Store = rdf.graph()) {
+  constructor(store: rdf.Store, topSubjectUri: string, prefixMap = ns.defaultPrefixMap, connexGraph: rdf.Store = rdf.graph(), labelProperties = defaultLabelProperties, descriptionProperties = defaultDescriptionProperties) {
     this.store = store
     this.prefixMap = prefixMap
     this.descriptionProperties = descriptionProperties
@@ -225,7 +225,7 @@ export class EntityGraph {
     this.onGetInitialValues = values.onGetInitialValues
     this.getAtomForSubjectProperty = (pathString, subjectUri) =>
       values.getAtomForSubjectProperty(pathString, subjectUri)
-    this.associatedLabelsStore = associatedLabelsStore
+    this.connexGraph = connexGraph
     this.getValues = () => {
       return values
     }
@@ -249,10 +249,10 @@ export class EntityGraph {
 
   static addExtDataFromGraph = (resList: Array<rdf.NamedNode>, graph: EntityGraph): Array<RDFResourceWithLabel> => {
     return resList.map((res: rdf.NamedNode): RDFResourceWithLabel => {
-      if (!graph.associatedLabelsStore) {
+      if (!graph.connexGraph) {
         throw "trying to access inexistant associatedStore"
       }
-      const lits: Array<rdf.Literal> = graph.associatedLabelsStore.each(res, prefLabel, null) as Array<rdf.Literal>
+      const lits: Array<rdf.Literal> = graph.connexGraph.each(res, prefLabel, null) as Array<rdf.Literal>
       const perLang: Record<string, string> = {}
       for (const lit of lits) {
         perLang[lit.language] = lit.value
