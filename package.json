@@ -77,6 +77,10 @@
     "src/**/*.{js,jsx,json,css,tsx,ts}": [
       "prettier --write --config ./.prettierrc",
       "eslint --color --fix"
+    ],
+    "demo/**/*.{js,jsx,json,css,tsx,ts}": [
+      "prettier --write --config ./.prettierrc",
+      "eslint --color --fix"
     ]
   },
   "eslintConfig": {

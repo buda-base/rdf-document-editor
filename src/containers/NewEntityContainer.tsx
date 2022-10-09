@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react"
-import { EntityCreator } from "../../../helpers/rdf/construct"
-import * as shapes from "../../../helpers/rdf/shapes"
-import { RDFResourceWithLabel } from "../../../helpers/rdf/types"
-import { entitiesAtom, EditedEntityState, defaultEntityLabelAtom } from "../../../containers/EntitySelectorContainer"
-import { uiDisabledTabsState, uiLangState, uiTabState, RIDprefixState, userIdState } from "../../../atoms/common"
-import * as lang from "../../../helpers/lang"
+import * as shapes from "../helpers/rdf/shapes"
+import { RDFResourceWithLabel } from "../helpers/rdf/types"
+import { entitiesAtom, EditedEntityState, defaultEntityLabelAtom } from "./EntitySelectorContainer"
+import { uiDisabledTabsState, uiLangState, uiTabState, RIDprefixState, userIdState } from "../atoms/common"
+import * as lang from "../helpers/lang"
 import { useRecoilState } from "recoil"
 import { AppProps } from "../../../containers/AppContainer"
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
@@ -23,19 +22,6 @@ function NewEntityContainer(props: AppProps) {
   const [userId, setUserId] = useRecoilState(userIdState)
 
   const disabled = !RIDprefix
-
-  /* // no need
-  const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
-  useEffect(() => {
-    if (disabled) setDisabled(false)
-  })
-  */
-
-  /* // no need
-  const urlParams = qs.parse(props.history.location.search)
-  let search = ""
-  if (urlParams.subject) search = props.history.location.search
-  */
 
   // otherwise we want the user to select the appropriate shape
 

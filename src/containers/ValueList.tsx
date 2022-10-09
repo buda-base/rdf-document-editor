@@ -11,16 +11,16 @@ import {
   errors,
   history,
   noneSelected,
-} from "../../../helpers/rdf/types"
+} from "../helpers/rdf/types"
 import { debugStore, putTtl } from "../../../helpers/rdf/io"
-import * as shapes from "../../../helpers/rdf/shapes"
-import { PropertyShape } from "../../../helpers/rdf/shapes"
-import * as ns from "../../../helpers/rdf/ns"
+import * as shapes from "../helpers/rdf/shapes"
+import { PropertyShape } from "../helpers/rdf/shapes"
+import * as ns from "../helpers/rdf/ns"
 import { generateSubnode, reserveLname } from "../../../helpers/rdf/construct"
 import { useRecoilState, useSetRecoilState, useRecoilValue, atomFamily, atom, selectorFamily } from "recoil"
 import { makeStyles } from "@material-ui/core/styles"
 import { TextField, MenuItem, Tooltip, IconButton, InputLabel, Select } from "@material-ui/core"
-import { getId, replaceItemAtIndex, removeItemAtIndex } from "../../../helpers/atoms"
+import { getId, replaceItemAtIndex, removeItemAtIndex } from "../helpers/atoms"
 import {
   AddIcon,
   RemoveIcon,
@@ -32,11 +32,11 @@ import {
   EditIcon,
   KeyboardIcon,
   HelpIcon,
-} from "../../layout/icons"
+} from "../route/layout/icons"
 import i18n from "i18next"
-import { getHistoryStatus } from "../../../containers/AppContainer"
+import { getHistoryStatus } from "../containers/AppContainer"
 import PropertyContainer from "./PropertyContainer"
-import { langs, ValueByLangToStrPrefLang, langsWithDefault } from "../../../helpers/lang"
+import { langs, ValueByLangToStrPrefLang, langsWithDefault } from "../helpers/lang"
 import {
   reloadEntityState,
   uiTabState,
@@ -53,11 +53,10 @@ import {
   ESfromRecoilSelector,
   isUniqueTestSelector,
   demoAtom,
-} from "../../../atoms/common"
+} from "../atoms/common"
 import ResourceSelector from "./ResourceSelector"
-import { entitiesAtom, Entity, EditedEntityState } from "../../../containers/EntitySelectorContainer"
+import { entitiesAtom, Entity, EditedEntityState } from "./EntitySelectorContainer"
 
-import { fromWylie } from "jsewts"
 import MDEditor, { commands } from "@uiw/react-md-editor"
 
 //import edtf, { parse } from "edtf/dist/../index.js" // finally got it to work!! not in prod...

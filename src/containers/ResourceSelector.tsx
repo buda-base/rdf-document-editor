@@ -4,9 +4,8 @@ import { makeStyles } from "@material-ui/core/styles"
 import { TextField, MenuItem } from "@material-ui/core"
 import i18n from "i18next"
 import { useHistory, Link } from "react-router-dom"
-import { fromWylie } from "jsewts"
-import * as shapes from "../../../helpers/rdf/shapes"
-import * as lang from "../../../helpers/lang"
+import * as shapes from "../helpers/rdf/shapes"
+import * as lang from "../helpers/lang"
 import {
   uiLangState,
   uiLitLangState,
@@ -14,15 +13,15 @@ import {
   initListAtom,
   initMapAtom,
   toCopySelector,
-} from "../../../atoms/common"
+} from "../atoms/common"
 import {
   RDFResource,
   ExtRDFResourceWithLabel,
   RDFResourceWithLabel,
   Subject,
   LiteralWithId,
-} from "../../../helpers/rdf/types"
-import { PropertyShape } from "../../../helpers/rdf/shapes"
+} from "../helpers/rdf/types"
+import { PropertyShape } from "../helpers/rdf/shapes"
 import {
   SearchIcon,
   LaunchIcon,
@@ -34,10 +33,10 @@ import {
   CloseIcon,
   ContentPasteIcon,
 } from "../../layout/icons"
-import { entitiesAtom, Entity } from "../../../containers/EntitySelectorContainer"
+import { entitiesAtom, Entity } from "./EntitySelectorContainer"
 import { LangSelect } from "./ValueList"
-import { qnameFromUri } from "../../../helpers/rdf/ns"
-import * as ns from "../../../helpers/rdf/ns"
+import { qnameFromUri } from "../helpers/rdf/ns"
+import * as ns from "../helpers/rdf/ns"
 
 import config from "../../../config"
 

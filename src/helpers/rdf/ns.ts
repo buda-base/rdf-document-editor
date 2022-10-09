@@ -21,7 +21,7 @@ export const RDE = rdf.Namespace(RDE_uri)
 
 const debug = require("debug")("rde:rdf:ns")
 
-export const prefixToURI: { [key: string]: string } = {
+const defaultPrefixToURI: { [key: string]: string } = {
   dash: DASH_uri,
   owl: OWL_uri,
   rde: RDE_uri,
@@ -33,66 +33,77 @@ export const prefixToURI: { [key: string]: string } = {
   foaf: FOAF_uri,
 }
 
-export const URItoPrefix: { [key: string]: string } = {}
-for (const [prefix, uri] of Object.entries(prefixToURI)) {
-  URItoPrefix[uri] = prefix
-}
+export class PrefixMap {
 
-export const setDefaultPrefixes = (s: rdf.Store): void => {
-  for (const [prefix, uri] of Object.entries(prefixToURI)) {
-    s.setPrefixForURI(prefix, uri)
+  prefixToURI: { [key: string]: string }
+  URItoPrefix: { [key: string]: string }
+
+  constructor(prefixToURI: { [key: string]: string }) {
+    this.prefixToURI = { ... defaultPrefixToURI, ... prefixToURI }
+    this.URItoPrefix = {}
+    for (const [prefix, uri] of Object.entries(this.prefixToURI)) {
+      this.URItoPrefix[uri] = prefix
+    }
+  }
+
+  setDefaultPrefixes = (s: rdf.Store): void => {
+    for (const [prefix, uri] of Object.entries(this.prefixToURI)) {
+      s.setPrefixForURI(prefix, uri)
+    }
+  }
+
+  qnameFromUri = (uri = ""): string => {
+    if (uri.match(/^[^:/#]+:[^:/#]+$/)) return uri
+
+    let j = uri.indexOf("#")
+    if (j < 0) j = uri.lastIndexOf("/")
+    if (j < 0) throw new Error("Cannot make qname out of <" + uri + ">")
+
+    const localid = uri.slice(j + 1)
+    const namesp = uri.slice(0, j + 1)
+    const prefix = this.URItoPrefix[namesp]
+    if (!prefix) throw new Error("Cannot make qname out of <" + uri + ">")
+
+    return prefix + ":" + localid
+  }
+
+  lnameFromUri = (uri: string): string => {
+    let j = uri.indexOf("#")
+    if (j < 0) j = uri.lastIndexOf("/")
+    if (j < 0) throw new Error("Cannot make qname out of <" + uri + ">")
+
+    return uri.slice(j + 1)
+  }
+
+  namespaceFromUri = (uri: string): string => {
+    let j = uri.indexOf("#")
+    if (j < 0) j = uri.lastIndexOf("/")
+    if (j < 0) throw new Error("Cannot make namespace out of <" + uri + ">")
+
+    return uri.slice(0, j + 1)
+  }
+
+  uriFromQname = (qname = ""): string => {
+    const j = qname.indexOf(":")
+
+    if (j < 0) throw new Error("Cannot make uri out of <" + qname + ">")
+
+    const localid = qname.slice(j + 1)
+    const prefix = qname.slice(0, j)
+    const uri_base = prefixToURI[prefix]
+
+    if (!uri_base) throw new Error("Cannot make uri out of <" + qname + ">")
+
+    return uri_base + localid
+  }
+
+  lnameFromQname = (qname = ""): string => {
+    const j = qname.indexOf(":")
+
+    if (j < 0) throw new Error("Cannot make lname out of <" + qname + ">")
+
+    return qname.slice(j + 1)
   }
 }
 
-export const qnameFromUri = (uri = ""): string => {
-  if (uri.match(/^[^:/#]+:[^:/#]+$/)) return uri
-
-  let j = uri.indexOf("#")
-  if (j < 0) j = uri.lastIndexOf("/")
-  if (j < 0) throw new Error("Cannot make qname out of <" + uri + ">")
-
-  const localid = uri.slice(j + 1)
-  const namesp = uri.slice(0, j + 1)
-  const prefix = URItoPrefix[namesp]
-  if (!prefix) throw new Error("Cannot make qname out of <" + uri + ">")
-
-  return prefix + ":" + localid
-}
-
-export const lnameFromUri = (uri: string): string => {
-  let j = uri.indexOf("#")
-  if (j < 0) j = uri.lastIndexOf("/")
-  if (j < 0) throw new Error("Cannot make qname out of <" + uri + ">")
-
-  return uri.slice(j + 1)
-}
-
-export const namespaceFromUri = (uri: string): string => {
-  let j = uri.indexOf("#")
-  if (j < 0) j = uri.lastIndexOf("/")
-  if (j < 0) throw new Error("Cannot make namespace out of <" + uri + ">")
-
-  return uri.slice(0, j + 1)
-}
-
-export const uriFromQname = (qname = ""): string => {
-  const j = qname.indexOf(":")
-
-  if (j < 0) throw new Error("Cannot make uri out of <" + qname + ">")
-
-  const localid = qname.slice(j + 1)
-  const prefix = qname.slice(0, j)
-  const uri_base = prefixToURI[prefix]
-
-  if (!uri_base) throw new Error("Cannot make uri out of <" + qname + ">")
-
-  return uri_base + localid
-}
-
-export const lnameFromQname = (qname = ""): string => {
-  const j = qname.indexOf(":")
-
-  if (j < 0) throw new Error("Cannot make lname out of <" + qname + ">")
-
-  return qname.slice(j + 1)
-}
+export const defaultPrefixMap = new PrefixMap({})

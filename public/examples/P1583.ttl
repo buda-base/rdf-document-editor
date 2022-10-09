@@ -4,7 +4,6 @@
 @prefix bda:   <http://purl.bdrc.io/admindata/> .
 @prefix bdo:   <http://purl.bdrc.io/ontology/core/> .
 @prefix bdr:   <http://purl.bdrc.io/resource/> .
-@prefix bds:   <http://purl.bdrc.io/ontology/shapes/core/> .
 @prefix bf:    <http://id.loc.gov/ontologies/bibframe/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix foaf:  <http://xmlns.com/foaf/0.1/> .

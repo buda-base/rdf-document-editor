@@ -12,6 +12,7 @@ import {
 } from "./types"
 import * as ns from "./ns"
 import { Memoize } from "typescript-memoize"
+import { nanoid, customAlphabet } from "nanoid"
 
 const debug = require("debug")("rde:rdf:shapes")
 
@@ -65,6 +66,12 @@ export const rdeConnectIDs = ns.RDE("connectIDs") as rdf.NamedNode
 export const rdeAllowBatchManagement = ns.RDE("allowBatchManagement") as rdf.NamedNode
 export const rdeCopyObjectsOfProperty = ns.RDE("copyObjectsOfProperty") as rdf.NamedNode
 export const rdeUniqueValueAmongSiblings = ns.RDE("uniqueValueAmongSiblings") as rdf.NamedNode
+export const skosDefinition = ns.SKOS("definition") as rdf.NamedNode
+export const rdfsComment = ns.RDFS("comment") as rdf.NamedNode
+export const shDescription = ns.SH("description") as rdf.NamedNode
+
+export const defaultLabelProperties = [prefLabel, rdfsLabel, shName]
+export const defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription]
 
 export const sortByPropValue = (
   nodelist: Array<rdf.NamedNode>,
@@ -83,12 +90,12 @@ export const sortByPropValue = (
       //orders.push(order) // instead let's try to avoid duplicates first
     }
     // TODO: enable this as exception
-    else debug("missing order from node and property" + node.value + " , " + p.value)
+    else debug("missing order from node and property", node.value, " , ", p.value)
 
     // quickfix for bug when multiple order are the same
     if (orderedGroupObjs[order]) {
       debug("current node:", node)
-      debug("  order " + order + " already exists:", orderedGroupObjs[order])
+      debug("  order ", order, " already exists:", orderedGroupObjs[order])
       let possibleOrder = Object.keys(orderedGroupObjs)
       if (orderedGroupObjs[possibleOrder.length]) {
         possibleOrder = possibleOrder.reduce((acc, n) => n > acc ? n : acc, -1)
@@ -112,7 +119,7 @@ export class Path {
   directPathNode: rdf.NamedNode | null = null
   inversePathNode: rdf.NamedNode | null = null
 
-  constructor(node: rdf.Node, graph: EntityGraph, listMode: boolean) {
+  constructor(node: rdf.NamedNode, graph: EntityGraph, listMode: boolean) {
     const invpaths = graph.store.each(node, shInversePath, null) as Array<rdf.NamedNode>
     if (invpaths.length > 1) {
       throw "too many inverse path in shacl path:" + invpaths
@@ -134,22 +141,20 @@ export class Path {
 }
 
 export class PropertyShape extends RDFResourceWithLabel {
-  ontologyGraph: EntityGraph
 
-  constructor(node: rdf.NamedNode, graph: EntityGraph, ontologyGraph: EntityGraph) {
+  constructor(node: rdf.NamedNode, graph: EntityGraph) {
     super(node, graph, rdfsLabel)
-    this.ontologyGraph = ontologyGraph
   }
 
   // different property for prefLabels, property shapes are using sh:name, otherwise use
-  // ontology
+  // labels of the property
   @Memoize()
   public get prefLabels(): Record<string, string> {
     let res = {}
     if (this.path && (this.path.directPathNode || this.path.inversePathNode)) {
       const pathNode = this.path.directPathNode || this.path.inversePathNode
       if (pathNode) {
-        const propInOntology = new RDFResourceWithLabel(pathNode, this.ontologyGraph)
+        const propInOntology = new RDFResourceWithLabel(pathNode, this.graph)
         res = propInOntology.prefLabels
       }
     }
@@ -158,14 +163,14 @@ export class PropertyShape extends RDFResourceWithLabel {
     return res
   }
 
-  // helpMessage directly from shape or from the ontology
+  // helpMessage directly from shape or from the property
   @Memoize()
   public get helpMessage(): Record<string, string> | null {
     let res = this.description
     if (res == null && this.path && (this.path.directPathNode || this.path.inversePathNode)) {
       const pathNode = this.path.directPathNode || this.path.inversePathNode
       if (pathNode) {
-        const propInOntology = new RDFResourceWithLabel(pathNode, this.ontologyGraph)
+        const propInOntology = new RDFResourceWithLabel(pathNode, this.graph)
         res = propInOntology.description
       }
     }
@@ -311,7 +316,7 @@ export class PropertyShape extends RDFResourceWithLabel {
   }
 
   @Memoize()
-  public get specialPattern(): string | null {
+  public get specialPattern(): rdf.NamedNode | null {
     return this.getPropResValue(rdeSpecialPattern)
   }
 
@@ -354,7 +359,7 @@ export class PropertyShape extends RDFResourceWithLabel {
           if (nodes) return EntityGraph.addIdToLitList(nodes)
         } else {
           const nodes = p.getPropResValuesFromList(shIn)
-          if (nodes) return PropertyShape.resourcizeWithInit(nodes, this.ontologyGraph)
+          if (nodes) return PropertyShape.resourcizeWithInit(nodes, this.graph)
         }
       }
     }
@@ -364,7 +369,7 @@ export class PropertyShape extends RDFResourceWithLabel {
     } else {
       // if no datatype, then it's res
       const nodes = this.getPropResValuesFromList(shIn)
-      if (nodes) return PropertyShape.resourcizeWithInit(nodes, this.ontologyGraph)
+      if (nodes) return PropertyShape.resourcizeWithInit(nodes, this.graph)
     }
     return null
   }
@@ -377,7 +382,7 @@ export class PropertyShape extends RDFResourceWithLabel {
       if (cl.length) nodes = cl
     }
     if (!nodes) return null
-    return PropertyShape.resourcizeWithInit(nodes, this.ontologyGraph)
+    return PropertyShape.resourcizeWithInit(nodes, this.graph)
   }
 
   @Memoize()
@@ -417,23 +422,21 @@ export class PropertyShape extends RDFResourceWithLabel {
     if (path.directPathNode) {
       val = this.graph.store.any(null, shTargetObjectsOf, path.directPathNode) as rdf.NamedNode | null
       if (val == null) return null
-      return new NodeShape(val, this.graph, this.ontologyGraph)
+      return new NodeShape(val, this.graph)
     }
     if (path.inversePathNode) {
       val = this.graph.store.any(null, shTargetSubjectsOf, path.inversePathNode) as rdf.NamedNode | null
       if (val == null) return null
-      return new NodeShape(val, this.graph, this.ontologyGraph)
+      return new NodeShape(val, this.graph)
     }
     return null
   }
 }
 
 export class PropertyGroup extends RDFResourceWithLabel {
-  ontologyGraph: EntityGraph
 
-  constructor(node: rdf.NamedNode, graph: EntityGraph, ontologyGraph: EntityGraph) {
+  constructor(node: rdf.NamedNode, graph: EntityGraph) {
     super(node, graph, rdfsLabel)
-    this.ontologyGraph = ontologyGraph
   }
 
   @Memoize()
@@ -442,7 +445,7 @@ export class PropertyGroup extends RDFResourceWithLabel {
     let propsingroup: Array<rdf.NamedNode> = this.graph.store.each(null, shGroup, this.node) as Array<rdf.NamedNode>
     propsingroup = sortByPropValue(propsingroup, shOrder, this.graph.store)
     for (const prop of propsingroup) {
-      res.push(new PropertyShape(prop, this.graph, this.ontologyGraph))
+      res.push(new PropertyShape(prop, this.graph))
     }
     return res
   }
@@ -455,18 +458,16 @@ export class PropertyGroup extends RDFResourceWithLabel {
 }
 
 export class NodeShape extends RDFResourceWithLabel {
-  ontologyGraph: EntityGraph
 
-  constructor(node: rdf.NamedNode, graph: EntityGraph, ontologyGraph: EntityGraph) {
+  constructor(node: rdf.NamedNode, graph: EntityGraph) {
     super(node, graph, rdfsLabel)
-    this.ontologyGraph = ontologyGraph
   }
 
   @Memoize()
   public get targetClassPrefLabels(): Record<string, string> | null {
     const targetClass: rdf.NamedNode | null = this.graph.store.any(this.node, shTargetClass, null) as rdf.NamedNode
     if (targetClass == null) return null
-    const classInOntology = new RDFResourceWithLabel(targetClass, this.ontologyGraph)
+    const classInOntology = new RDFResourceWithLabel(targetClass, this.graph)
     return classInOntology.prefLabels
   }
 
@@ -477,7 +478,7 @@ export class NodeShape extends RDFResourceWithLabel {
     let props: Array<rdf.NamedNode> = this.graph.store.each(this.node, shProperty, null) as Array<rdf.NamedNode>
     props = sortByPropValue(props, shOrder, this.graph.store)
     for (const prop of props) {
-      res.push(new PropertyShape(prop, this.graph, this.ontologyGraph))
+      res.push(new PropertyShape(prop, this.graph))
     }
     return res
   }
@@ -503,8 +504,27 @@ export class NodeShape extends RDFResourceWithLabel {
     }
     grouplist = sortByPropValue(grouplist, shOrder, this.graph.store)
     for (const group of grouplist) {
-      res.push(new PropertyGroup(group, this.graph, this.ontologyGraph))
+      res.push(new PropertyGroup(group, this.graph))
     }
     return res
   }
+}
+
+// default implementation, can be overridden through config
+const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8)
+
+export const generateSubnode = async (
+  subshape: NodeShape,
+  parent: RDFResource,
+): Promise<Subject> => {
+  let prefix = subshape.getPropStringValue(rdeIdentifierPrefix)
+  if (prefix == null) throw "cannot find entity prefix for " + subshape.qname
+  let namespace = subshape.getPropStringValue(shNamespace)
+  if (namespace == null) namespace = parent.namespace
+  let uri = namespace + prefix + parent.lname + nanoidCustom()
+  while (parent.graph.hasSubject(uri)) {
+    uri = namespace + prefix + nanoidCustom()
+  }
+  const res = new Subject(new rdf.NamedNode(uri), parent.graph)
+  return Promise.resolve(res)
 }

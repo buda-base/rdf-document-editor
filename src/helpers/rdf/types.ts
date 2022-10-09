@@ -1,7 +1,7 @@
 import React, { FC } from "react"
 import * as rdf from "rdflib"
 import * as ns from "./ns"
-import { PropertyShape, Path } from "./shapes"
+import { PropertyShape, Path, defaultLabelProperties, defaultDescriptionProperties } from "./shapes"
 import { Memoize } from "typescript-memoize"
 import {
   atom,
@@ -13,9 +13,8 @@ import {
   AtomEffect,
   RecoilState,
 } from "recoil"
-import config from "../../config"
 import { uiHistoryState } from "../../atoms/common"
-import { getParentPath } from "../../routes/helpers/observer"
+import { getParentPath } from "../observer"
 import { nanoid } from "nanoid"
 
 const debug = require("debug")("rde:rdf:types")
@@ -210,9 +209,15 @@ export class EntityGraph {
   // associatedLabelsStore is the store that contains the labels of associated resources
   // (ex: students, teachers, etc.), it's not present in all circumstances
   associatedLabelsStore?: rdf.Store
+  prefixMap: ns.PrefixMap
+  labelProperties: Array<rdf.NamedNode>
+  descriptionProperties: Array<rdf.NamedNode>
 
-  constructor(store: rdf.Store, topSubjectUri: string, associatedLabelsStore: rdf.Store = rdf.graph()) {
+  constructor(store: rdf.Store, topSubjectUri: string, prefixMap = ns.defaultPrefixMap, descriptionProperties = defaultDescriptionProperties, labelProperties = defaultLabelProperties, associatedLabelsStore: rdf.Store = rdf.graph()) {
     this.store = store
+    this.prefixMap = prefixMap
+    this.descriptionProperties = descriptionProperties
+    this.labelProperties = labelProperties
     // strange code: we're keeping values in the closure so that when the object freezes
     // the freeze doesn't proagate to it
     const values = new EntityGraphValues(topSubjectUri)
@@ -343,15 +348,15 @@ export class RDFResource {
   }
 
   public get lname(): string {
-    return ns.lnameFromUri(this.node.value)
+    return this.graph.prefixMap.lnameFromUri(this.node.value)
   }
 
   public get namespace(): string {
-    return ns.namespaceFromUri(this.node.value)
+    return this.graph.prefixMap.namespaceFromUri(this.node.value)
   }
 
   public get qname(): string {
-    return ns.qnameFromUri(this.node.value)
+    return this.graph.prefixMap.qnameFromUri(this.node.value)
   }
 
   public get uri(): string {
@@ -456,36 +461,23 @@ export class RDFResource {
 }
 
 export class RDFResourceWithLabel extends RDFResource {
-  private labelProp: rdf.NamedNode
 
   constructor(node: rdf.NamedNode, graph: EntityGraph, labelProp?: rdf.NamedNode) {
     super(node, graph)
-    if (!labelProp) {
-      if (node.value.startsWith("http://purl.bdrc.io/res") || node.value.startsWith("http://purl.bdrc.io/admindata/")) {
-        labelProp = prefLabel
-      } else {
-        labelProp = rdfsLabel
-      }
-    }
-    this.labelProp = labelProp
   }
 
   @Memoize()
   public get prefLabels(): Record<string, string> {
-    return this.getPropValueByLang(this.labelProp)
+    for (const p of this.graph.labelProperties) {
+      const res = this.getPropValueOrNullByLang(p)
+      if (res != null) return res
+    }
+    return {"en": this.node.uri}
   }
-
-  static messageProps: Array<rdf.NamedNode> = [
-    shDescription,
-    skosDefinition,
-    admCatalogingConvention,
-    admUserTooltip,
-    rdfsComment,
-  ]
 
   @Memoize()
   public get description(): Record<string, string> | null {
-    for (const p of RDFResourceWithLabel.messageProps) {
+    for (const p of this.graph.descriptionProperties) {
       const res = this.getPropValueOrNullByLang(p)
       if (res != null) return res
     }
@@ -517,7 +509,7 @@ export class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
     data: Record<string, any> = {},
     description: Record<string, any> | null = null
   ) {
-    super(new rdf.NamedNode(uri), new EntityGraph(new rdf.Store(), uri))
+    super(new rdf.NamedNode(uri), new EntityGraph(new rdf.Store(), uri, config))
     this._prefLabels = prefLabels
     this._description = description
     //debug("data", data)
@@ -603,14 +595,6 @@ export class Subject extends RDFResource {
 
   isEmpty(): boolean {
     return this.node.uri == "tmp:uri"
-  }
-}
-
-export class Ontology {
-  graph: EntityGraph
-
-  constructor(store: rdf.Store, url: string) {
-    this.graph = new EntityGraph(store, url)
   }
 }
 

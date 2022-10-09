@@ -1,8 +1,8 @@
 import React, { useState, FC } from "react"
-import { RDFResource, Subject, LiteralWithId, ObjectType } from "../../../helpers/rdf/types"
-import { PropertyShape } from "../../../helpers/rdf/shapes"
-import { uiLangState } from "../../../atoms/common"
-import * as lang from "../../../helpers/lang"
+import { RDFResource, Subject, LiteralWithId, ObjectType } from "../helpers/rdf/types"
+import { PropertyShape, NodeShape } from "../helpers/rdf/shapes"
+import { uiLangState } from "../atoms/common"
+import * as lang from "../helpers/lang"
 import { atom, useRecoilState, atomFamily } from "recoil"
 import ValueList from "./ValueList"
 import * as rdf from "rdflib"
@@ -17,7 +17,7 @@ const PropertyContainer: FC<{
   editable: boolean
   owner?: Subject
   topEntity?: Subject
-  shape: Shape
+  shape: NodeShape
   siblingsPath?: string
 }> = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath }) => {
   const objectType = property.objectType

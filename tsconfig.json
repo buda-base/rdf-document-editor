@@ -24,6 +24,7 @@
     "downlevelIteration":true // fixes TS2569 in observer.tsx
   },
   "include": [
-    "src"
+    "src",
+    "demo"
   ]
 }
