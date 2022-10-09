@@ -70,7 +70,6 @@
     "analyze": "source-map-explorer 'dist/static/js/*.js'",
     "predeploy": "npm run build",
     "lint": "eslint --ignore-path .gitignore .",
-    "prebuild": "git submodule update --remote && yarn run generate-build-meta",
     "generate-build-meta": "./node_modules/react-clear-cache/bin/cli.js"
   },
   "lint-staged": {
