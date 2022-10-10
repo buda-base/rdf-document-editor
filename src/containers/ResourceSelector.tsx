@@ -6,14 +6,7 @@ import i18n from "i18next"
 import { useHistory, Link } from "react-router-dom"
 import * as shapes from "../helpers/rdf/shapes"
 import * as lang from "../helpers/lang"
-import {
-  uiLangState,
-  uiLitLangState,
-  uiTabState,
-  initListAtom,
-  initMapAtom,
-  toCopySelector,
-} from "../atoms/common"
+import { uiLangState, uiLitLangState, uiTabState, initListAtom, initMapAtom, toCopySelector } from "../atoms/common"
 import {
   RDFResource,
   ExtRDFResourceWithLabel,
@@ -32,13 +25,12 @@ import {
   LookupIcon,
   CloseIcon,
   ContentPasteIcon,
-} from "../../layout/icons"
+} from "../routes/layout/icons"
 import { entitiesAtom, Entity } from "./EntitySelectorContainer"
 import { LangSelect } from "./ValueList"
-import { qnameFromUri } from "../helpers/rdf/ns"
 import * as ns from "../helpers/rdf/ns"
 
-import config from "../../../config"
+//import config from "../../../config"
 
 const debug = require("debug")("rde:atom:event:RS")
 
@@ -68,6 +60,8 @@ type messagePayload = {
   "tmp:keyword": valueLang
   "tmp:otherData": Record<string, string | string[]>
 }
+
+const BDR_uri = "http://purl.bdrc.io/resource/"
 
 // DONE dedicated subcomponent + keep previous keyword/language searched
 const ResourceSelector: FC<{
@@ -122,7 +116,7 @@ const ResourceSelector: FC<{
     property.copyObjectsOfProperty?.length
       ? toCopySelector({
           list: property.copyObjectsOfProperty.map((p) => ({
-            property: ns.qnameFromUri(p.value),
+            property: ns.defaultPrefixMap.qnameFromUri(p.value),
             atom: (owner ? owner : subject).getAtomForProperty(p.uri),
           })),
         })
@@ -134,7 +128,7 @@ const ResourceSelector: FC<{
       //debug("copy:", property.copyObjectsOfProperty, value.otherData)
       const copy = []
       for (const prop of property.copyObjectsOfProperty) {
-        const propQname = ns.qnameFromUri(prop.value)
+        const propQname = ns.defaultPrefixMap.qnameFromUri(prop.value)
         if (value.otherData[propQname]?.length)
           copy.push({
             k: propQname,
@@ -213,7 +207,7 @@ const ResourceSelector: FC<{
       if (isTypeOk) {
         if (data["@id"] && !exists(data["@id"])) {
           const newRes = new ExtRDFResourceWithLabel(
-            data["@id"].replace(/bdr:/, ns.BDR_uri),
+            data["@id"].replace(/bdr:/, BDR_uri),
             {
               ...data["skos:prefLabel"]
                 ? {
@@ -429,14 +423,18 @@ const ResourceSelector: FC<{
       let url = ""
       url =
         "/new/" +
-        shapes.typeUriToShape[type.uri][0].qname +
+        // refactoring needed
+        //shapes.typeUriToShape[type.uri][0].qname +
+
         "/" +
         (owner?.qname && owner.qname !== subject.qname ? owner.qname : subject.qname) +
         "/" +
-        qnameFromUri(property?.path?.sparqlString) +
+        ns.defaultPrefixMap.qnameFromUri(property?.path?.sparqlString) +
         "/" +
         idx +
         (owner?.qname && owner.qname !== subject.qname ? "/" + subject.qname : "")
+
+      /* // refactoring needed
 
       if (property.connectIDs) {
         const lname = subject.lname
@@ -448,6 +446,7 @@ const ResourceSelector: FC<{
         // use this id only if not already in current value list
         if (!exists(newId)) url += "/named/" + (named ? named : newId)
       }
+      */
 
       // add requested values from this entity as url params
       let urlParams = ""
@@ -652,11 +651,13 @@ const ResourceSelector: FC<{
                 &nbsp;
                 <a
                   title={i18n.t("search.help.preview")}
+                  /* // reafctoring needed
                   onClick={() => {
                     if (libraryURL) setLibraryURL("")
                     else if (value.otherData["tmp:externalUrl"]) setLibraryURL(value.otherData["tmp:externalUrl"])
                     else setLibraryURL(config.LIBRARY_URL + "/simple/" + value.qname + "?view=true")
                   }}
+                  */
                 >
                   {!libraryURL && <InfoOutlinedIcon style={{ width: "18px", cursor: "pointer" }} />}
                   {libraryURL && <InfoIcon style={{ width: "18px", cursor: "pointer" }} />}
@@ -664,7 +665,9 @@ const ResourceSelector: FC<{
                 &nbsp;
                 <a
                   title={i18n.t("search.help.open")}
+                  /* // refactoring needed
                   href={config.LIBRARY_URL + "/show/" + value.qname}
+                  */
                   rel="noopener noreferrer"
                   target="_blank"
                 >

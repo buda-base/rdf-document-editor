@@ -1,7 +1,7 @@
 /* eslint-disable no-extra-parens */
 import React, { useState, FC, useEffect, ChangeEvent } from "react"
 import { Subject, RDFResourceWithLabel, RDFResource, history as undoHistory } from "../helpers/rdf/types"
-import { setUserSession, setUserLocalEntities } from "../helpers/rdf/io"
+//import { setUserSession, setUserLocalEntities } from "../helpers/rdf/io"
 import * as shapes from "../helpers/rdf/shapes"
 import { FiPower as LogoutIcon } from "react-icons/fi"
 import { InputLabel, Select, MenuItem } from "@material-ui/core"
@@ -121,7 +121,7 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
     await setUserLocalEntities(auth0, entity.subjectQname, shapeQname, "", true, userId, entity.alreadySaved)
     // remove history for entity
     if (undoHistory) {
-      const uri = ns.uriFromQname(entity.subjectQname)
+      const uri = ns.defaultPrefixMap.uriFromQname(entity.subjectQname)
       if (undoHistory[uri]) delete undoHistory[uri]
     }
 

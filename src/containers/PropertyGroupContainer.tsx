@@ -96,12 +96,13 @@ const MapEventHandler = ({ coords, redraw, setCoords }) => {
   return null
 }
 
-const PropertyGroupContainer: FC<{ group: PropertyGroup; subject: Subject; onGroupOpen: () => void; shape: Shape }> = ({
-  group,
-  subject,
-  onGroupOpen,
-  shape,
-}) => {
+const PropertyGroupContainer: FC<{
+  group: PropertyGroup
+  subject: Subject
+  onGroupOpen: () => void
+  shape: Shape
+  GISatoms: { lat: string; long: string }
+}> = ({ group, subject, onGroupOpen, shape, GISatoms }) => {
   const [uiLang] = useRecoilState(uiLangState)
   const label = lang.ValueByLangToStrPrefLang(group.prefLabels, uiLang)
   const [force, setForce] = useState(false)
@@ -148,6 +149,8 @@ const PropertyGroupContainer: FC<{ group: PropertyGroup; subject: Subject; onGro
   const [edit, setEdit] = useRecoilState(uiEditState)
   const [groupEd, setGroupEd] = useRecoilState(uiGroupState)
 
+  /* // some refactoring needed
+
   // TODO: how not to hard code this here? add "useAsMapLatitude" property in shape?
   const [lat, setLat] = useRecoilState(subject.getAtomForProperty(ns.BDO("placeLat").value))
   const [lon, setLon] = useRecoilState(subject.getAtomForProperty(ns.BDO("placeLong").value))
@@ -174,6 +177,7 @@ const PropertyGroupContainer: FC<{ group: PropertyGroup; subject: Subject; onGro
     if (!isNaN(val.lat)) setLat([lat[0].copyWithUpdatedValue("" + val.lat)])
     if (!isNaN(val.lng)) setLon([lon[0].copyWithUpdatedValue("" + val.lng)])
   }
+  */
 
   //const [nav, setNav] = useRecoilState(uiNavState)
 
@@ -224,7 +228,8 @@ const PropertyGroupContainer: FC<{ group: PropertyGroup; subject: Subject; onGro
                       shape={shape}
                     />
                   ))}
-                  {group.qname === "bds:GISPropertyGroup" &&
+                  {/* // refactoring needed
+                    group.qname === "bds:GISPropertyGroup" &&
                     groupEd === group.qname && // to force updating map when switching between two place entities
                     coords && ( // TODO: add a property in shape to enable this instead
                       <div style={{ position: "relative", overflow: "hidden", marginTop: "16px" }}>
@@ -256,7 +261,7 @@ const PropertyGroupContainer: FC<{ group: PropertyGroup; subject: Subject; onGro
                           <MapEventHandler coords={coords} redraw={redraw} setCoords={setCoords} />
                         </MapContainer>
                       </div>
-                    )}
+                    ) */}
                   {hasExtra && (
                     <span className="toggle-btn  btn btn-rouge my-4" onClick={toggleExtra}>
                       {i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })}

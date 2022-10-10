@@ -38,17 +38,20 @@ function NewEntityContainer(props: AppProps) {
             helperText={"List of all possible shapes"}
             id="shapeSelec"
             className="shapeSelector"
-            value={shapes.possibleShapeRefs[0].qname}
+            /* // refactoring needed
+            value={ 
+              shapes.possibleShapeRefs[0].qname
+            }
+            */
             style={{ marginTop: "3px", marginLeft: "10px" }}
           >
-            {/* <MenuItem disabled key={"init"} value={"init"} >Choose a shape</MenuItem> */}
-            {shapes.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (
+            {/*shapes.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (
               <MenuItem key={shape.qname} value={shape.qname} style={{ padding: 0 }}>
                 <Link to={"/new/" + shape.qname} className="popLink">
                   {lang.ValueByLangToStrPrefLang(shape.prefLabels, uiLang)}
                 </Link>
               </MenuItem>
-            ))}
+            ))*/}
           </TextField>
           {disabled && RIDprefix === "" && (
             <span className="pl-2" style={{ fontStyle: "italic", fontWeight: 500, color: "#d73449", fontSize: 14 }}>

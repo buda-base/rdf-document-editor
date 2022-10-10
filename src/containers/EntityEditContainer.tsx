@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect, useCallback, useRef } from "react"
-import { ShapeFetcher, EntityFetcher, setUserLocalEntities, debugStore } from "../helpers/rdf/io"
-import { setDefaultPrefixes } from "../helpers/rdf/ns"
+//import { ShapeFetcher, EntityFetcher, setUserLocalEntities, debugStore } from "../helpers/rdf/io"
+//import { setDefaultPrefixes } from "../helpers/rdf/ns"
 import { RDFResource, Subject, ExtRDFResourceWithLabel, history, LiteralWithId } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
@@ -19,7 +19,6 @@ import {
   uiTabState,
   uiNavState,
   uiGroupState,
-  personNamesLabelsSelector,
   possiblePrefLabelsSelector,
   initListAtom,
   initMapAtom,
@@ -36,11 +35,11 @@ import { replaceItemAtIndex } from "../helpers/atoms"
 import { HashLink as Link } from "react-router-hash-link"
 import { useAuth0 } from "@auth0/auth0-react"
 import queryString from "query-string"
-import { getParentPath } from "../../helpers/observer"
+import { getParentPath } from "../helpers/observer"
 import Button from "@material-ui/core/Button"
-import { demoUserId } from "../../../containers/DemoContainer"
+//import { demoUserId } from "../../../containers/DemoContainer"
 
-import config from "../../../config"
+//import config from "../config/"
 
 const debug = require("debug")("rde:entity:edit")
 
@@ -64,7 +63,10 @@ export function EntityEditContainerMayUpdate(props: AppProps) {
     let subj
     if (i === -1) return
     if (subnodeQname) {
-      const pp = getParentPath(ns.uriFromQname(subjectQname), ns.uriFromQname(subnodeQname))
+      const pp = getParentPath(
+        ns.defaultPrefixMap.uriFromQname(subjectQname),
+        ns.defaultPrefixMap.uriFromQname(subnodeQname)
+      )
       //debug("gPP:", pp)
       if (pp.length > 1 && i >= 0) {
         const atom = entities[i].subject.getAtomForProperty(pp[1])
@@ -111,7 +113,7 @@ interface AppPropsDoUpdate extends AppProps {
 
 function EntityEditContainerDoUpdate(props: AppPropsDoUpdate) {
   const shapeQname = props.match.params.shapeQname
-  const atom = props.subject.getAtomForProperty(ns.uriFromQname(props.propertyQname))
+  const atom = props.subject.getAtomForProperty(ns.defaultPrefixMap.uriFromQname(props.propertyQname))
   const [list, setList] = useRecoilState(atom)
 
   const [entities, setEntities] = useRecoilState(entitiesAtom)
@@ -137,7 +139,7 @@ function EntityEditContainerDoUpdate(props: AppPropsDoUpdate) {
         toCopySelector({
           list: Object.keys(copy).map((p) => ({
             property: p,
-            atom: subject.getAtomForProperty(ns.uriFromQname(p)),
+            atom: subject.getAtomForProperty(ns.defaultPrefixMap.uriFromQname(p)),
           })),
         })
       : initListAtom
@@ -155,7 +157,7 @@ function EntityEditContainerDoUpdate(props: AppPropsDoUpdate) {
       }, 1150) // eslint-disable-line no-magic-numbers
     }
 
-    const newObject = new ExtRDFResourceWithLabel(ns.uriFromQname(props.objectQname), {}, {})
+    const newObject = new ExtRDFResourceWithLabel(ns.defaultPrefixMap.uriFromQname(props.objectQname), {}, {})
     // DONE: must also give set index in url
     const newList = replaceItemAtIndex(list, props.index, newObject)
     setList(newList)
@@ -212,12 +214,6 @@ function EntityEditContainer(props: AppProps) {
 
   const possiblePrefLabels = useRecoilValue(possiblePrefLabelsSelector({ canPushPrefLabelGroups }))
 
-  const personNamesLabels = useRecoilValue(
-    personNamesLabelsSelector({
-      atom: entityObj[0]?.subject?.getAtomForProperty(ns.BDO("personName").value),
-    })
-  )
-
   let prefLabelAtom = entityObj[0]?.subject?.getAtomForProperty(ns.SKOS("prefLabel").value)
   if (!prefLabelAtom) prefLabelAtom = initListAtom
   const [prefLabels, setPrefLabels] = useRecoilState(prefLabelAtom)
@@ -245,7 +241,7 @@ function EntityEditContainer(props: AppProps) {
 
     const delay = 350
     let n = -1 // is this used at all??
-    const entityUri = ns.uriFromQname(entityQname === "tmp:user" ? profileId : entityQname)
+    const entityUri = ns.defaultPrefixMap.uriFromQname(entityQname === "tmp:user" ? profileId : entityQname)
 
     // wait for all data to be loaded then add flag in history
     if (init) clearInterval(init)
@@ -277,7 +273,7 @@ function EntityEditContainer(props: AppProps) {
           // save to localStorage
           const defaultRef = new rdf.NamedNode(rdf.Store.defaultGraphURI)
           const store = new rdf.Store()
-          ns.setDefaultPrefixes(store)
+          ns.defaultPrefixMap.setDefaultPrefixes(store)
           obj[0]?.subject?.graph.addNewValuestoStore(store)
           debug(store)
           debugStore(store)
@@ -363,7 +359,8 @@ function EntityEditContainer(props: AppProps) {
 
   //debug("warning:",warning)
 
-  if (entityQname === "tmp:user" && !auth0.isAuthenticated && userId != demoUserId) return <span>unauthorized</span>
+  // refactoring needed
+  //if (entityQname === "tmp:user" && !auth0.isAuthenticated && userId != demoUserId) return <span>unauthorized</span>
 
   // useEffect(() => {
   //   debug("params", props.match.params.entityQname)
@@ -371,12 +368,13 @@ function EntityEditContainer(props: AppProps) {
   //   if (props.match.params.shapeQname) setShapeQname(props.match.params.shapeQname)
   // }, [props.match.params])
 
-  if (!(shapeQname in shapes.shapeRefsMap)) return <span>invalid shape!</span>
+  // refactoring needed
+  //if (!(shapeQname in shapes.shapeRefsMap)) return <span>invalid shape!</span>
 
   // TODO: update highlighted tab
 
   // eslint-disable-next-line prefer-const
-  let { entityLoadingState, entity } = EntityFetcher(entityQname, shapes.shapeRefsMap[shapeQname])
+  let { entityLoadingState, entity } = {} //EntityFetcher(entityQname, shapes.shapeRefsMap[shapeQname])
 
   // TODO: check that shape can be properly applied to entuty
 
@@ -450,7 +448,8 @@ function EntityEditContainer(props: AppProps) {
 
   //debug("eO:",entityObj)
 
-  const BUDAlink = config.LIBRARY_URL + "/show/" + entity.qname + "?v=" + entityObj[0]?.alreadySaved
+  // refactoring needed
+  // const BUDAlink = config.LIBRARY_URL + "/show/" + entity.qname + "?v=" + entityObj[0]?.alreadySaved
 
   return (
     <React.Fragment>

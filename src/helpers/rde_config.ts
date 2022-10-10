@@ -6,10 +6,7 @@ import { Lang } from "./lang"
 import { FC } from "react"
 
 interface generateSubnode {
-  (
-    subshape: NodeShape,
-    parent: RDFResource
-  ): Promise<Subject>
+  (subshape: NodeShape, parent: RDFResource): Promise<Subject>
 }
 
 interface valueByLangToStrPrefLang {
@@ -40,7 +37,7 @@ interface previewEntity {
   (entity: rdf.NamedNode): void
 }
 
-export interface RDEConfig {
+export default interface RDEConfig {
   readonly generateSubnode: generateSubnode
   readonly valueByLangToStrPrefLang: valueByLangToStrPrefLang
   readonly possibleLiteralLangs: Array<Lang>
@@ -52,6 +49,6 @@ export interface RDEConfig {
   readonly getDocument: getDocument
   readonly previewLiteral: previewLiteral
   readonly previewEntityLabel?: Record<string, string>
-  readonly previewEntity?: previewEntity,
+  readonly previewEntity?: previewEntity
   readonly getShapesDocument: getShapesDocument
 }

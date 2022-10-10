@@ -33,7 +33,7 @@ import Tab from "@material-ui/core/Tab"
 import * as lang from "../helpers/lang"
 import * as ns from "../helpers/rdf/ns"
 import { EntityInEntitySelectorContainer } from "./EntityInEntitySelectorContainer"
-import { getUserSession, setUserSession, setUserLocalEntities } from "../helpers/rdf/io"
+//import { getUserSession, setUserSession, setUserLocalEntities } from "../helpers/rdf/io"
 import { sessionLoadedState } from "../atoms/common"
 
 const debug = require("debug")("rde:entity:selector")
@@ -164,7 +164,7 @@ const EntitySelector: FC<Record<string, unknown>> = (props: AppProps) => {
 
       // remove history for entity
       if (undoHistory) {
-        const uri = ns.uriFromQname(entity.subjectQname)
+        const uri = ns.defaultPrefixMap.uriFromQname(entity.subjectQname)
         if (undoHistory[uri]) delete undoHistory[uri]
       }
     }

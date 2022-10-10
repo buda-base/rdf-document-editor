@@ -21,7 +21,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "downlevelIteration":true // fixes TS2569 in observer.tsx
+    "downlevelIteration":true, // fixes TS2569 in observer.tsx
+
+    "sourceMap": true,
+    "outDir": "dist"
   },
   "include": [
     "src",

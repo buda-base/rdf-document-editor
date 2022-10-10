@@ -16,7 +16,7 @@ import { debugStore, putTtl } from "../../../helpers/rdf/io"
 import * as shapes from "../helpers/rdf/shapes"
 import { PropertyShape } from "../helpers/rdf/shapes"
 import * as ns from "../helpers/rdf/ns"
-import { generateSubnode, reserveLname } from "../../../helpers/rdf/construct"
+// import { generateSubnode, reserveLname } from "../../../helpers/rdf/construct"
 import { useRecoilState, useSetRecoilState, useRecoilValue, atomFamily, atom, selectorFamily } from "recoil"
 import { makeStyles } from "@material-ui/core/styles"
 import { TextField, MenuItem, Tooltip, IconButton, InputLabel, Select } from "@material-ui/core"
@@ -32,11 +32,12 @@ import {
   EditIcon,
   KeyboardIcon,
   HelpIcon,
-} from "../route/layout/icons"
+} from "../routes/layout/icons"
 import i18n from "i18next"
-import { getHistoryStatus } from "../containers/AppContainer"
+//import { getHistoryStatus } from "../containers/AppContainer"
 import PropertyContainer from "./PropertyContainer"
-import { langs, ValueByLangToStrPrefLang, langsWithDefault } from "../helpers/lang"
+import { ValueByLangToStrPrefLang, langsWithDefault } from "../helpers/lang"
+import RDEConfig from "../helpers/rde_config"
 import {
   reloadEntityState,
   uiTabState,
@@ -313,8 +314,8 @@ const ValueList: FC<{
   const updateEntityState = (status: EditedEntityState, id: string, removingFacet = false, forceRemove = false) => {
     if (id === undefined) throw new Error("id undefined")
     const entityQname = topEntity ? topEntity.qname : subject.qname
-    const undo = undos[ns.uriFromQname(entityQname)]
-    const hStatus = getHistoryStatus(ns.uriFromQname(entityQname))
+    const undo = undos[ns.defaultPrefixMap.uriFromQname(entityQname)]
+    const hStatus = getHistoryStatus(ns.defaultPrefixMap.uriFromQname(entityQname))
     //debug("undo:", undo, hStatus, history, entityQname, undos)
 
     setESfromRecoil({ property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove })
@@ -744,6 +745,8 @@ const Create: FC<{
   let waitForNoHisto = false
 
   const addItem = async (event, n) => {
+    /* // refactoring needed
+
     if (n > 1) {
       let store = new rdf.Store()
       ns.setDefaultPrefixes(store)
@@ -815,6 +818,7 @@ const Create: FC<{
 
       return
     }
+    */
 
     if (waitForNoHisto) return
 
@@ -949,7 +953,7 @@ const EditLangString: FC<{
   const codeEdit = { ...commands.codeEdit, icon: <EditIcon style={{ width: "12px", height: "12px" }} /> },
     codePreview = { ...commands.codePreview, icon: <VisibilityIcon style={{ width: "12px", height: "12px" }} /> }
 
-  const hasKB = langs.filter((l) => l.value === lit.language)
+  const hasKB = RDEConfig.possibleLiteralLangs.filter((l) => l.value === lit.language)
 
   const inputRef = useRef<HTMLInputElement>()
 
@@ -1255,9 +1259,12 @@ const EditString: FC<{
 
   const dt = property.datatype
   const pattern = property.pattern ? new RegExp(property.pattern) : undefined
-  const useEdtf = property.specialPattern?.value === ns.BDS("PatternEDTF").value
 
   const [error, setError] = useState("") //getIntError(lit.value))
+
+  /* // refactoring needed
+  
+  const useEdtf = property.specialPattern?.value === ns.BDS("PatternEDTF").value
 
   // eslint-disable-next-line prefer-const
   let atoms = {
@@ -1277,6 +1284,7 @@ const EditString: FC<{
       },
     })
   )
+  */
 
   const getPatternError = (val: string) => {
     let err = ""
@@ -1289,7 +1297,7 @@ const EditString: FC<{
 
   const locales = { en: "en-US", "zh-hans": "zh-Hans-CN", bo: "bo-CN" }
 
-  let timerEdtf = 0,
+  let //timerEdtf = 0,
     changeCallback = () => false
   useEffect(() => {
     //debug("cCb?",uiLang,locales[uiLang])
@@ -1299,7 +1307,10 @@ const EditString: FC<{
         setError("")
         setReadableEDTF("")
         updateEntityState(EditedEntityState.Saved, lit.id)
-      } else if (useEdtf) {
+      } else {
+      /* // refactoring neede
+
+       else if (useEdtf) {
         if (timerEdtf) clearTimeout(timerEdtf)
         const delay = 350
         timerEdtf = setTimeout(() => {
@@ -1332,10 +1343,6 @@ const EditString: FC<{
                 {!["No possible parsing", "Syntax error"].some((err) => e.message?.includes(err)) && (
                   <>
                     <br />[{e.message}
-                    {/* <br />
-                    {e.toString()}
-                    <br />
-                    {e.stack} */}
                     ]
                   </>
                 )}
@@ -1344,7 +1351,8 @@ const EditString: FC<{
             updateEntityState(EditedEntityState.Error, lit.id)
           }
         }, delay)
-      } else {
+      } 
+      */
         const newError = getPatternError(val)
         setError(newError)
         updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id)
@@ -1391,12 +1399,11 @@ const EditString: FC<{
             }
           : {})}
       />
-      {readableEDTF && (
-        <div className="preview-EDTF" style={{ width: "100%" }}>
-          {/* <TextField disabled value={readableEDTF} /> */}
+      {/*readableEDTF && (
+        <div className="preview-EDTF" style={{ width: "100%" }}>       
           <pre>{readableEDTF}</pre>
         </div>
-      )}
+      )*/}
     </div>
   )
 }

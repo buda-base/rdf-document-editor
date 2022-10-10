@@ -141,7 +141,6 @@ export class Path {
 }
 
 export class PropertyShape extends RDFResourceWithLabel {
-
   constructor(node: rdf.NamedNode, graph: EntityGraph) {
     super(node, graph, rdfsLabel)
   }
@@ -268,7 +267,7 @@ export class PropertyShape extends RDFResourceWithLabel {
   public get editorLname(): string | null {
     const val = this.getPropResValue(dashEditor)
     if (!val) return null
-    return ns.lnameFromUri(val.value)
+    return ns.defaultPrefixMap.lnameFromUri(val.value)
   }
 
   @Memoize()
@@ -434,7 +433,6 @@ export class PropertyShape extends RDFResourceWithLabel {
 }
 
 export class PropertyGroup extends RDFResourceWithLabel {
-
   constructor(node: rdf.NamedNode, graph: EntityGraph) {
     super(node, graph, rdfsLabel)
   }
@@ -458,7 +456,6 @@ export class PropertyGroup extends RDFResourceWithLabel {
 }
 
 export class NodeShape extends RDFResourceWithLabel {
-
   constructor(node: rdf.NamedNode, graph: EntityGraph) {
     super(node, graph, rdfsLabel)
   }
@@ -511,13 +508,10 @@ export class NodeShape extends RDFResourceWithLabel {
 }
 
 // default implementation, can be overridden through config
-const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8)
+const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8) // eslint-disable-line no-magic-numbers
 
-export const generateSubnode = async (
-  subshape: NodeShape,
-  parent: RDFResource,
-): Promise<Subject> => {
-  let prefix = subshape.getPropStringValue(rdeIdentifierPrefix)
+export const generateSubnode = async (subshape: NodeShape, parent: RDFResource): Promise<Subject> => {
+  const prefix = subshape.getPropStringValue(rdeIdentifierPrefix)
   if (prefix == null) throw "cannot find entity prefix for " + subshape.qname
   let namespace = subshape.getPropStringValue(shNamespace)
   if (namespace == null) namespace = parent.namespace

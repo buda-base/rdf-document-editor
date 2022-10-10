@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react"
 import { TimeTravelObserver } from "../../helpers/observer"
-import { ShapeFetcher, debugStore, EntityFetcher } from "../helpers/rdf/io"
+//import { ShapeFetcher, debugStore, EntityFetcher } from "../helpers/rdf/io"
 import { setDefaultPrefixes } from "../helpers/rdf/ns"
 import { RDFResource, Subject, RDFResourceWithLabel } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
@@ -51,10 +51,13 @@ function EntityShapeChooserContainer(props: AppProps) {
       </div>
     )
   }
-  const { entityLoadingState, entity } = EntityFetcher(entityQname, null, unmounting)
+  const { entityLoadingState, entity } = {} //EntityFetcher(entityQname, null, unmounting)
 
   if (entity) {
+    /* // refactoring needed
     const possibleShapes = shapes.shapeRefsForEntity(entity)
+    */
+    const possibleShapes = []
     if (entityLoadingState.status === "fetching") {
       return (
         <div>
@@ -109,10 +112,15 @@ function EntityShapeChooserContainer(props: AppProps) {
               helperText={"List of all possible shapes"}
               id="shapeSelec"
               className="shapeSelector"
-              value={shapes.possibleShapeRefs[0].qname}
+              /*
+              // reactoring needed
+              value={
+                shapes.possibleShapeRefs[0].qname}
+              }
+              */
               style={{ marginTop: "3px", marginLeft: "10px" }}
             >
-              {shapes.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (
+              {/* shapes.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (
                 <MenuItem key={shape.qname} value={shape.qname} style={{ padding: 0 }}>
                   <Link
                     to={"/edit/" + entityQname + "/" + shape.qname}
@@ -122,7 +130,7 @@ function EntityShapeChooserContainer(props: AppProps) {
                     {lang.ValueByLangToStrPrefLang(shape.prefLabels, uiLang)}
                   </Link>
                 </MenuItem>
-              ))}
+              )) */}
             </TextField>
           </div>
         </div>

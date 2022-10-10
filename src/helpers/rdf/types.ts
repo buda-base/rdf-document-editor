@@ -213,7 +213,14 @@ export class EntityGraph {
   labelProperties: Array<rdf.NamedNode>
   descriptionProperties: Array<rdf.NamedNode>
 
-  constructor(store: rdf.Store, topSubjectUri: string, prefixMap = ns.defaultPrefixMap, connexGraph: rdf.Store = rdf.graph(), labelProperties = defaultLabelProperties, descriptionProperties = defaultDescriptionProperties) {
+  constructor(
+    store: rdf.Store,
+    topSubjectUri: string,
+    prefixMap = ns.defaultPrefixMap,
+    connexGraph: rdf.Store = rdf.graph(),
+    labelProperties = defaultLabelProperties,
+    descriptionProperties = defaultDescriptionProperties
+  ) {
     this.store = store
     this.prefixMap = prefixMap
     this.descriptionProperties = descriptionProperties
@@ -461,7 +468,6 @@ export class RDFResource {
 }
 
 export class RDFResourceWithLabel extends RDFResource {
-
   constructor(node: rdf.NamedNode, graph: EntityGraph, labelProp?: rdf.NamedNode) {
     super(node, graph)
   }
@@ -472,7 +478,7 @@ export class RDFResourceWithLabel extends RDFResource {
       const res = this.getPropValueOrNullByLang(p)
       if (res != null) return res
     }
-    return {"en": this.node.uri}
+    return { en: this.node.uri }
   }
 
   @Memoize()
