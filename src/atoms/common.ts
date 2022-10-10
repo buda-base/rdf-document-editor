@@ -144,7 +144,7 @@ export const orderedByPropSelector = selectorFamily({
           unorderedList.map((s) => {
             let k
             const v: Value[] = get(s.getAtomForProperty(propertyPath))
-            if (Array.isArray(v) && v.length) k = Number(v[0].node.value)
+            if (Array.isArray(v) && v.length) k = Number(v[0].value)
             else if (order === "desc") k = Number.MIN_SAFE_INTEGER
             else k = Number.MAX_SAFE_INTEGER
             return { s, k }

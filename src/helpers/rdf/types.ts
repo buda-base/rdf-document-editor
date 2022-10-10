@@ -354,6 +354,10 @@ export class RDFResource {
     return this.node.value
   }
 
+  public get value(): string {
+    return this.node.value
+  }
+
   public get lname(): string {
     return this.graph.prefixMap.lnameFromUri(this.node.value)
   }
