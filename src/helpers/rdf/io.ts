@@ -1,10 +1,25 @@
 import * as rdf from "rdflib"
 import i18n from "i18next"
+import { useState, useEffect, useContext } from "react"
+import { useRecoilState } from "recoil"
+import { RDFResource, RDFResourceWithLabel, EntityGraph, Subject, history } from "./types"
+import { NodeShape, prefLabel } from "./shapes"
+import {
+  profileIdState,
+  uiReadyState,
+  sessionLoadedState,
+  reloadEntityState,
+  uiDisabledTabsState,
+} from "../../atoms/common"
+import RDEConfig from "../rde_config"
+import { entitiesAtom, EditedEntityState, defaultEntityLabelAtom } from "../../containers/EntitySelectorContainer"
 
 interface StoreWithEtag {
   store: rdf.Store
   etag: string | null
 }
+
+const debug = require("debug")("rde:rdf:io")
 
 const defaultFetchTtlHeaders = new Headers()
 defaultFetchTtlHeaders.set("Accept", "text/turtle")
@@ -93,4 +108,288 @@ export const putTtl = async (
       resolve(etag)
     })
   })
+}
+
+export interface IFetchState {
+  status: string
+  error?: string
+}
+
+// maps of the shapes and entities that have been downloaded so far, with no gc
+export const shapesMap: Record<string, NodeShape> = {}
+
+export function ShapeFetcher(shapeQname: string, entityQname: string, config: RDEConfig) {
+  const [loadingState, setLoadingState] = useState<IFetchState>({ status: "idle", error: undefined })
+  const [shape, setShape] = useState<NodeShape>()
+  const [current, setCurrent] = useState(shapeQname)
+  const [entities, setEntities] = useRecoilState(entitiesAtom)
+
+  //debug("fetcher: shape ", shapeQname, current, shape)
+
+  useEffect(() => {
+    if (current != shapeQname) {
+      reset()
+    }
+  })
+
+  const reset = () => {
+    setCurrent(shapeQname)
+    setShape(undefined)
+    setLoadingState({ status: "idle", error: undefined })
+  }
+
+  useEffect(() => {
+    //debug("shM:", shapeQname, shapesMap, current)
+    if (shape && shapeQname === current && loadingState.status === "fetched") {
+      return
+    }
+    if (shapeQname in shapesMap) {
+      setLoadingState({ status: "fetched", error: undefined })
+      setShape(shapesMap[shapeQname])
+      return
+    }
+    async function fetchResource(shapeQname: string) {
+      setLoadingState({ status: "fetching", error: undefined })
+      const shapeNode = rdf.sym(config.prefixMap.uriFromQname(shapeQname))
+      const loadShape = config.getShapesDocument(shapeNode)
+      try {
+        const shape: NodeShape = await loadShape
+        shapesMap[shapeQname] = shape
+        setShape(shape)
+
+        if (entityQname && entityQname !== "tmp:uri") {
+          const index = entities.findIndex((e) => e.subjectQname === entityQname)
+          if (index !== -1) {
+            const newEntities = [...entities]
+            newEntities[index] = {
+              ...newEntities[index],
+              shapeRef: shape.qname,
+            }
+            //debug("shape:", shape, entityQname, index, newEntities, newEntities[index])
+            setEntities(newEntities)
+          }
+        }
+
+        setLoadingState({ status: "fetched", error: undefined })
+      } catch (e) {
+        debug("shape error:", e)
+        setLoadingState({ status: "error", error: "error fetching shape or ontology" })
+      }
+    }
+    if (current === shapeQname) fetchResource(shapeQname)
+  }, [current, entities])
+
+  const retVal =
+    shapeQname === current && shape && shapeQname == shape.qname
+      ? { loadingState, shape, reset }
+      : { loadingState: { status: "loading", error: undefined }, shape: undefined, reset }
+
+  return retVal //{ loadingState, shape, reset }
+}
+
+export function EntityFetcher(entityQname: string, shapeRef: RDFResourceWithLabel | null, config: RDEConfig, unmounting = { val: false }) {
+  const [entityLoadingState, setEntityLoadingState] = useState<IFetchState>({ status: "idle", error: undefined })
+  const [entity, setEntity] = useState<Subject>(Subject.createEmpty())
+  const [uiReady, setUiReady] = useRecoilState(uiReadyState)
+  const [entities, setEntities] = useRecoilState(entitiesAtom)
+  const [sessionLoaded, setSessionLoaded] = useRecoilState(sessionLoadedState)
+  const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"))
+  const [profileId, setProfileId] = useRecoilState(profileIdState)
+  const [current, setCurrent] = useState(entityQname)
+  const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState)
+  const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
+
+  //debug("reload?", reloadEntity, unmounting)
+
+  useEffect(() => {
+    return () => {
+      //debug("unm:ef")
+      unmounting.val = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (unmounting.val) return
+    if (current != entityQname) {
+      reset()
+    }
+  })
+
+  const reset = () => {
+    setCurrent(entityQname)
+    setEntity(Subject.createEmpty())
+    setEntityLoadingState({ status: "idle", error: undefined })
+  }
+
+  useEffect(() => {
+    if (unmounting.val) return
+    async function fetchResource(entityQname: string) {
+      setEntityLoadingState({ status: "fetching", error: undefined })
+
+      debug("fetching", entity, shapeRef, entityQname, entities) //, isAuthenticated, idToken)
+
+      // TODO: UI "save draft" / "publish"
+
+      let loadRes, loadLabels, localRes, useLocal, notFound, etag, res, needsSaving
+      const localEntities = await config.getUserLocalEntities()
+      // 1 - check if entity has local edits (once shape is defined)
+      //debug("local?", shapeRef, reloadEntity,entityQname, localEntities[entityQname])
+      if (reloadEntity !== entityQname && shapeRef && localEntities[entityQname] !== undefined) {
+        useLocal = window.confirm("found previous local edits for this resource, load them?")
+        const store: rdf.Store = rdf.graph()
+        if (useLocal) {
+          try {
+            rdf.parse(localEntities[entityQname].ttl, store, rdf.Store.defaultGraphURI, "text/turtle")
+            etag = localEntities[entityQname].etag
+            needsSaving = localEntities[entityQname].needsSaving
+            debug("nS:", needsSaving)
+          } catch (e) {
+            debug(e)
+            debug(localEntities[entityQname])
+            window.alert("could not load local data, fetching remote version")
+            useLocal = false
+            delete localEntities[entityQname]
+          }
+        } else {
+          rdf.parse("", store, rdf.Store.defaultGraphURI, "text/turtle")
+        }
+        res = { store, etag }
+      }
+
+      // 2 - try to load data from server if not or if user wants to
+
+      const entityUri = config.prefixMap.uriFromQname(entityQname)
+      const entityNode = rdf.sym(entityUri)
+
+      try {
+        if (!useLocal) {
+          res = await config.getDocument(entityNode)
+          needsSaving = false
+        }
+      } catch (e) {
+        // 3 - case when entity is not on server and user does not want to use local edits that already exist
+        if (localRes) res = { store: localRes, etag }
+        else notFound = true
+      }
+
+      // load session before updating entities
+      let _entities = entities
+      if (!sessionLoaded) {
+        const obj = await config.getUserMenuState()
+        //debug("session:", obj)
+        if (obj) {
+          _entities = []
+          for (const k of Object.keys(obj)) {
+            _entities.push({
+              subjectQname: k,
+              subject: null,
+              shapeRef: obj[k].shape,
+              subjectLabelState: defaultEntityLabelAtom,
+              state: EditedEntityState.NotLoaded,
+              preloadedLabel: obj[k].label,
+              alreadySaved: obj[k].etag,
+              loadedUnsavedFromLocalStorage: true
+            })
+          }
+        }
+      }
+
+      try {
+        // TODO: redirection to /new instead of "error fetching entity"? create missing entity?
+        if (notFound) throw Error("not found")
+
+        const resInfo = await config.getDocument(entityNode)
+        const subject = resInfo.subject
+        etag = resInfo.etag
+        if (!res) res = await loadRes
+
+        let actualQname = entityQname,
+          actualUri = entityUri
+        /* TODO: refactor
+        if (entityQname === "tmp:user") {
+          // TODO: in several steps with tests to avoid crash
+          const keys = Object.keys(entityStore.subjectIndex)
+          actualQname = qnameFromUri(keys[0].replace(/(^<)|(>$)/g, ""))
+          actualUri = uriFromQname(actualQname)
+          if (!profileId) setProfileId(actualQname)
+        }*/
+
+        // update state with loaded entity
+        let index = _entities.findIndex((e) => e.subjectQname === actualQname)
+        const newEntities = [..._entities]
+        if (index === -1) {
+          newEntities.push({
+            subjectQname: actualQname,
+            state: EditedEntityState.Loading,
+            shapeRef: shapeRef,
+            subject: null,
+            subjectLabelState: defaultEntityLabelAtom,
+            alreadySaved: !!etag,
+            loadedUnsavedFromLocalStorage: false
+          })
+          index = newEntities.length - 1
+        }
+        if (index >= 0 && newEntities[index] && !newEntities[index].subject) {
+          newEntities[index] = {
+            ...newEntities[index],
+            subject,
+            state: EditedEntityState.Saved,
+            subjectLabelState: subject.getAtomForProperty(prefLabel.uri),
+            preloadedLabel: "",
+            alreadySaved: !!etag,
+            ...etag ? { loadedUnsavedFromLocalStorage: needsSaving } : {},
+          }
+
+          // DONE: issue #2 fixed, fully using getEntities
+          setEntities(newEntities)
+
+          //debug("fetched")
+        }
+        setEntityLoadingState({ status: "fetched", error: undefined })
+        setEntity(subject)
+        setUiReady(true)
+
+        if (reloadEntity) setReloadEntity("")
+      } catch (e) {
+        debug("e:", e.message, e)
+        setDisabled(false)
+        setEntityLoadingState({
+          status: "error",
+          error: e.message !== "not found" ? "error fetching entity" : "not found",
+        })
+        if (!entities.length && _entities.length) {
+          setEntities(_entities)
+        }
+      }
+      if (!sessionLoaded) setSessionLoaded(true)
+    }
+    const index = entities.findIndex(
+      (e) => e.subjectQname === entityQname || entityQname == "tmp:user" && e.subjectQname === profileId
+    )
+
+    if (
+      reloadEntity === entityQname && !entities[index].subject ||
+      current === entityQname && (index === -1 || entities[index] && !entities[index].subject)
+    ) {
+      if (entityQname != "tmp:user" || idToken) fetchResource(entityQname)
+    } else {
+      if (unmounting.val) return
+      else setEntityLoadingState({ status: "fetched", error: undefined })
+
+      const subj: Subject | null = entities[index] ? entities[index].subject : null
+
+      if (unmounting.val) return
+      else if (subj) setEntity(subj)
+
+      if (unmounting.val) return
+      else setUiReady(true)
+    }
+  }, [current, shapeRef, idToken, profileId, reloadEntity])
+
+  const retVal =
+    entityQname === current
+      ? { entityLoadingState, entity, reset }
+      : { entityLoadingState: { status: "loading", error: undefined }, entity: Subject.createEmpty(), reset }
+
+  return retVal
 }

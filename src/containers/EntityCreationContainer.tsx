@@ -5,8 +5,9 @@ import { RDFResourceWithLabel, Subject, EntityGraph } from "../helpers/rdf/types
 import { entitiesAtom, EditedEntityState } from "./EntitySelectorContainer"
 import { uiLangState, userIdState, RIDprefixState, uiTabState } from "../atoms/common"
 import * as lang from "../helpers/lang"
+import RDEConfig from "../helpers/rde_config"
 import { useRecoilState } from "recoil"
-import { Dialog422 } from "../components/Dialog"
+import { Dialog422 } from "./Dialog"
 import { BrowserRouter as Router, Switch, Route, Link, Redirect, useParams, useHistory } from "react-router-dom"
 import React, { useEffect, useState } from "react"
 import qs from "query-string"
@@ -14,10 +15,11 @@ import NotFoundIcon from "@material-ui/icons/BrokenImage"
 import i18n from "i18next"
 import queryString from "query-string"
 import Button from "@material-ui/core/Button"
+import { EditorProps } from "../helpers/editor_props"
 
 const debug = require("debug")("rde:entity:entitycreation")
 
-export function EntityCreationContainer(props: AppProps) {
+export function EntityCreationContainer(props: EditorProps, config: RDEConfig) {
   const subjectQname = props.match.params.subjectQname
   const shapeQname = props.match.params.shapeQname
   const propertyQname = props.match.params.propertyQname
@@ -47,7 +49,7 @@ export function EntityCreationContainer(props: AppProps) {
 
   const { entityLoadingState, entity } = unmounting.val
     ? { entityLoadingState: { status: "idle" }, entity: null }
-    : EntityCreator(shapeQname, entityQname, unmounting)
+    : config.EntityCreator(shapeQname, entityQname, unmounting)
 
   debug("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname)
 

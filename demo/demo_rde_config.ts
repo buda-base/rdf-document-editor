@@ -1,6 +1,6 @@
 import * as rdf from "rdflib"
 import { RDFResource, Subject, LiteralWithId, EntityGraph } from "../src/helpers/rdf/types"
-import { fetchTtl } from "../src/helpers/rdf/io"
+import { fetchTtl, IFetchState } from "../src/helpers/rdf/io"
 import * as shapes from "../src/helpers/rdf/shapes"
 import * as ns from "../src/helpers/rdf/ns"
 import {
@@ -13,7 +13,7 @@ import {
   skosDefinition,
   rdfsComment,
 } from "../src/helpers/rdf/shapes"
-import * as config from "../src/helpers/rde_config"
+import RDEConfig from "../src/helpers/rde_config"
 import { Lang, ValueByLangToStrPrefLang } from "../src/helpers/lang"
 import { FC, useState, useEffect } from "react"
 import { nanoid, customAlphabet } from "nanoid"
@@ -77,18 +77,13 @@ const getDocument = async (entity: rdf.NamedNode) => {
   const documentGraph: rdf.Store = await getDocumentGraph(entity)
   const connexGraph: rdf.Store = await getConnexGraph(entity)
   const res = new Subject(entity, new EntityGraph(documentGraph, entity.uri, prefixMap, connexGraph))
-  return Promise.resolve(res)
+  return Promise.resolve({subject: res, etag: ""})
 }
 
 const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8) // eslint-disable-line no-magic-numbers
 
 const generateNode = async () => {
   return Promise.resolve(rdf.sym(BDR_uri + "P0DEMO" + nanoidCustom()))
-}
-
-interface IFetchState {
-  status: string
-  error?: string
 }
 
 export function EntityCreator(shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, unmounting = { val: false }) {
@@ -134,16 +129,17 @@ export function EntityCreator(shapeNode: rdf.NamedNode, entityNode: rdf.NamedNod
   return { entityLoadingState, entity, reset }
 }
 
-export const demoConfig: config.RDEConfig = {
+export const demoConfig: RDEConfig = {
   generateSubnode: generateSubnode,
   valueByLangToStrPrefLang: ValueByLangToStrPrefLang,
   possibleLiteralLangs: langs,
   labelProperties: shapes.defaultLabelProperties,
   descriptionProperties: shapes.defaultDescriptionProperties,
   prefixMap: prefixMap,
+  getConnexGraph: getConnexGraph,
   generateConnectedID: generateConnectedID,
   getShapesDocument: getShapesDocument,
   getDocument: getDocument,
-  previewLiteral: (literal) => null,
+  previewLiteral: (literal: LiteralWithId) => null,
   entityCreator: EntityCreator,
 }
