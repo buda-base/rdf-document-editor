@@ -150,7 +150,7 @@ export const orderedByPropSelector = selectorFamily({
             return { s, k }
           }),
           ["k"],
-          [order]
+          [order === "asc" ? "asc" : "desc"]
         ).map((i) => i.s)
         //debug("sort:", atom, propertyPath, orderedList)
         return orderedList
@@ -159,11 +159,16 @@ export const orderedByPropSelector = selectorFamily({
     },
 })
 
+type personNamesLabelsSelectorArgs = {
+  atom: RecoilValue<Array<Subject>>
+  toJSON: () => any
+}
 export const personNamesLabelsSelector = selectorFamily({
   key: "personNamesLabelsSelector",
   get:
-    ({ atom }) =>
+    (args: personNamesLabelsSelectorArgs) =>
     ({ get }) => {
+      const { atom } = args
       if (atom) {
         const names = get(atom)
         const namesLabelsAtoms = names.map((n) => n.getAtomForProperty(ns.RDFS("label").value))
