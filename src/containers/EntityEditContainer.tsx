@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect, useCallback, useRef } from "react"
 //import { ShapeFetcher, EntityFetcher, setUserLocalEntities, debugStore } from "../helpers/rdf/io"
 //import { setDefaultPrefixes } from "../helpers/rdf/ns"
-import { RDFResource, Subject, ExtRDFResourceWithLabel, history, LiteralWithId } from "../helpers/rdf/types"
+import { RDFResource, Subject, ExtRDFResourceWithLabel, history, LiteralWithId, Value } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
 import i18n from "i18next"
@@ -26,7 +26,7 @@ import {
 } from "../atoms/common"
 import * as lang from "../helpers/lang"
 import { atom, useRecoilState, useRecoilSnapshot, useRecoilValue } from "recoil"
-import { AppProps, IdTypeParams } from "../containers/AppContainer"
+import { RDEProps } from "../helpers/editor_props"
 import * as rdf from "rdflib"
 import qs from "query-string"
 import * as ns from "../helpers/rdf/ns"
@@ -43,7 +43,14 @@ import Button from "@material-ui/core/Button"
 
 const debug = require("debug")("rde:entity:edit")
 
-export function EntityEditContainerMayUpdate(props: AppProps) {
+interface RDEPropsDoUpdate extends RDEProps {
+  subject: Subject
+  propertyQname: string
+  objectQname: string
+  index: number
+}
+
+export function EntityEditContainerMayUpdate(props: RDEProps) {
   const shapeQname = props.match.params.shapeQname
   const entityQname = props.match.params.entityQname
   const subjectQname = props.match.params.subjectQname
@@ -54,7 +61,7 @@ export function EntityEditContainerMayUpdate(props: AppProps) {
   const [entities, setEntities] = useRecoilState(entitiesAtom)
 
   const snapshot = useRecoilSnapshot()
-  const [subject, setSubject] = useState(false)
+  const [subject, setSubject] = useState<Subject | null>(null)
 
   const { copy } = queryString.parse(props.location.search, { decode: false })
 
@@ -69,12 +76,16 @@ export function EntityEditContainerMayUpdate(props: AppProps) {
       )
       //debug("gPP:", pp)
       if (pp.length > 1 && i >= 0) {
-        const atom = entities[i].subject.getAtomForProperty(pp[1])
+        const atom = entities[i].subject?.getAtomForProperty(pp[1])
+        if (!atom) {
+          setSubject(null)
+          return
+        }
         subj = snapshot.getLoadable(atom).contents
         if (Array.isArray(subj)) {
           subj = subj.filter((s) => s.qname === subnodeQname)
           if (subj.length) subj = subj[0]
-          else throw new Error("subnode not found", subnode)
+          else throw new Error("subnode not found: " + subnodeQname)
         }
         //debug("atom:", subj)
         setSubject(subj)
@@ -88,30 +99,19 @@ export function EntityEditContainerMayUpdate(props: AppProps) {
   //debug("subj:", subject, propertyQname, entityQname, index)
 
   if (subject && propertyQname && entityQname && index) {
+    const propsForCall = { ... props, copy: copy}
     return (
       <EntityEditContainerDoUpdate
-        subject={subject}
-        propertyQname={propertyQname}
-        objectQname={entityQname}
-        index={Number(index)}
-        copy={copy}
-        {...props}
+        props={propsForCall}
       />
     )
   }
   // TODO: add 'could not find subject' warning?
-  else if (subject != false) return <Redirect to={"/edit/" + entityQname + "/" + shapeQname} />
+  else if (subject != null) return <Redirect to={"/edit/" + entityQname + "/" + shapeQname} />
   else return <div></div>
 }
 
-interface AppPropsDoUpdate extends AppProps {
-  subject: Subject
-  propertyQname: string
-  objectQname: string
-  index: number
-}
-
-function EntityEditContainerDoUpdate(props: AppPropsDoUpdate) {
+function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
   const shapeQname = props.match.params.shapeQname
   const atom = props.subject.getAtomForProperty(ns.defaultPrefixMap.uriFromQname(props.propertyQname))
   const [list, setList] = useRecoilState(atom)
@@ -120,13 +120,15 @@ function EntityEditContainerDoUpdate(props: AppPropsDoUpdate) {
   const i = entities.findIndex((e) => e.subjectQname === props.objectQname)
   const subject = entities[i]?.subject
 
-  const copy = props.copy?.split(";").reduce((acc, p) => {
+  let copy: {string: Value} | null = null
+  if (props.copy && typeof props.copy === 'string') {
+    copy = props.copy.split(";").reduce((acc: {string: Value}, p: string) => {
     const q = p.split(",")
     return {
       ...acc,
-      [q[0]]: q.slice(1).map((v) => {
+      [q[0]]: q.slice(1).map((v: string) => {
         const lit = decodeURIComponent(v).split("@")
-        return new LiteralWithId(lit[0].replace(/(^")|("$)/g, ""), lit[1], ns.RDF("langString").value)
+        return new LiteralWithId(lit[0].replace(/(^")|("$)/g, ""), lit[1], shapes.rdfLangString)
       }),
     }
   }, {})
@@ -134,8 +136,8 @@ function EntityEditContainerDoUpdate(props: AppPropsDoUpdate) {
   //debug("copy:",copy,props.copy)
 
   const [getProp, setProp] = useRecoilState(
-    subject && copy && Object.keys(copy).length
-      ? //? subject.getAtomForProperty(ns.SKOS("prefLabel").value)
+    (subject && copy && Object.keys(copy).length)
+      ?
         toCopySelector({
           list: Object.keys(copy).map((p) => ({
             property: p,
@@ -166,7 +168,7 @@ function EntityEditContainerDoUpdate(props: AppPropsDoUpdate) {
   return <Redirect to={"/edit/" + props.objectQname + "/" + shapeQname} />
 }
 
-function EntityEditContainer(props: AppProps) {
+function EntityEditContainer(props: RDEProps) {
   //const [shapeQname, setShapeQname] = useState(props.match.params.shapeQname)
   //const [entityQname, setEntityQname] = useState(props.match.params.entityQname)
   const shapeQname = props.shapeQname ?? props.match.params.shapeQname
@@ -406,25 +408,7 @@ function EntityEditContainer(props: AppProps) {
 
   //debug("entity:", entity, shape)
 
-  /* // no need for updateEntitiesRDF
-
-  // DONE: add new entity as object for property where it was created
-  const urlParams = qs.parse(props.history.location.search)
-  const index = entities.findIndex((e) => e.subjectQname === urlParams.subject)
-  // DONE: ok if subject for property is a new one
-  if (index >= 0 && entities[index].subject) {
-    const subject = entities[index].subject
-    if (subject) {
-      const rdf = "<" + subject.uri + "> <" + urlParams.propid + "> <" + ns.uriFromQname(entity.qname) + "> ."
-      // DONE: fix deleted property reappearing
-      updateEntitiesRDF(subject, subject.extendWithTTL, rdf, entities, setEntities)
-      props.history.replace(props.history.location.pathname)
-    }
-  }
-  */
-
   const shapeLabel = lang.ValueByLangToStrPrefLang(shape.targetClassPrefLabels, uiLang)
-  //const entityLabel = lang.ValueByLangToStrPrefLang(entity.prefLabels, uiLang)
 
   const checkPushNameAsPrefLabel = (e, currentGroupName) => {
     //debug("closing: ", currentGroupName, possiblePrefLabels[currentGroupName])

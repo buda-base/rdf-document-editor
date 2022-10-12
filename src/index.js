@@ -14,12 +14,11 @@ import {
   useHistory,
   Redirect,
 } from "react-router-dom"
+import { AppProps } from "./helpers/editor_props"
 
 const target = document.querySelector("#root")
 
-export interface AppProps extends RouteComponentProps<IdTypeParams> {}
-
-function App(props: AppProps) {
+function App(props) {
   const appEl = React.useRef<HTMLDivElement>(null)
 
   return (

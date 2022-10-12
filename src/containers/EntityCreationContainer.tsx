@@ -15,11 +15,12 @@ import NotFoundIcon from "@material-ui/icons/BrokenImage"
 import i18n from "i18next"
 import queryString from "query-string"
 import Button from "@material-ui/core/Button"
-import { EditorProps } from "../helpers/editor_props"
+import { RDEProps } from "../helpers/editor_props"
+import * as rdf from "rdflib"
 
 const debug = require("debug")("rde:entity:entitycreation")
 
-export function EntityCreationContainer(props: EditorProps, config: RDEConfig) {
+export function EntityCreationContainer(props: RDEProps, config: RDEConfig) {
   const subjectQname = props.match.params.subjectQname
   const shapeQname = props.match.params.shapeQname
   const propertyQname = props.match.params.propertyQname
@@ -47,9 +48,12 @@ export function EntityCreationContainer(props: EditorProps, config: RDEConfig) {
 
   if (RIDprefix == "") return <Redirect to="/new" />
 
+  const shapeNode = rdf.sym(config.prefixMap.uriFromQname(shapeQname))
+  const entityNode = rdf.sym(config.prefixMap.uriFromQname(entityQname))
+
   const { entityLoadingState, entity } = unmounting.val
-    ? { entityLoadingState: { status: "idle" }, entity: null }
-    : config.EntityCreator(shapeQname, entityQname, unmounting)
+    ? { entityLoadingState: { status: "idle", error: undefined }, entity: null }
+    : config.entityCreator(shapeNode, entityNode, unmounting)
 
   debug("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname)
 
@@ -57,7 +61,7 @@ export function EntityCreationContainer(props: EditorProps, config: RDEConfig) {
   // we must give a choice to the user:
   //    * open the existing entity
   //    * create an entity with a different id, in which case we call reserveLname again
-  if (entityLoadingState.error === "422") {
+  if (entityLoadingState.error === "422" && entity) {
     // eslint-disable-line no-magic-numbers
 
     const editUrl =
@@ -115,7 +119,9 @@ export function EntityCreationContainer(props: EditorProps, config: RDEConfig) {
     </div>
   )
 }
-export function EntityCreationContainerAlreadyOpen(props: AppProps) {
+
+
+export function EntityCreationContainerAlreadyOpen(props: RDEProps) {
   const subjectQname = props.match.params.subjectQname
   const shapeQname = props.match.params.shapeQname
   const propertyQname = props.match.params.propertyQname
@@ -158,7 +164,7 @@ export function EntityCreationContainerAlreadyOpen(props: AppProps) {
         }
       />
     )
-  else return <Redirect to={"/edit/" + entity.qname + "/" + shapeQname} />
+  else return <Redirect to={"/edit/" + entityQname + "/" + shapeQname} />
 
   return (
     <div>
@@ -167,7 +173,7 @@ export function EntityCreationContainerAlreadyOpen(props: AppProps) {
   )
 }
 
-export function EntityCreationContainerRoute(props: AppProps) {
+export function EntityCreationContainerRoute(props: RDEProps) {
   const [entities, setEntities] = useRecoilState(entitiesAtom)
   const i = entities.findIndex((e) => e.subjectQname === props.match.params.entityQname)
   const theEntity = entities[i]
@@ -176,7 +182,7 @@ export function EntityCreationContainerRoute(props: AppProps) {
 
   //debug("search/copy:", copy)
 
-  if (theEntity) return <EntityCreationContainerAlreadyOpen {...props} entity={theEntity.subject} copy={copy} />
+  if (theEntity) return <EntityCreationContainerAlreadyOpen {...props} copy={copy} />
   else return <EntityCreationContainer {...props} copy={copy} />
 }
 

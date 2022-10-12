@@ -11,4 +11,15 @@ export interface IdTypeParams {
   subnodeQname?: string
 }
 
-export interface EditorProps extends RouteComponentProps<IdTypeParams> {}
+export interface ExtendedParams {
+  shapeQname: string
+  entityQname: string
+  subjectQname: string
+  propertyQname: string
+  index?: string
+  subnodeQname?: string
+}
+
+export interface RDEProps extends RouteComponentProps<IdTypeParams> { copy?: string | null | (string|null)[] }
+
+export interface RDEExtendedProps extends RouteComponentProps<IdTypeParams> { copy?: string | null | (string|null)[] }

@@ -2,9 +2,10 @@ import * as rdf from "rdflib"
 import { RDFResource, Subject, LiteralWithId } from "./rdf/types"
 import { NodeShape } from "./rdf/shapes"
 import { PrefixMap } from "./rdf/ns"
+import { IFetchState } from "./rdf/io"
 import { Entity } from "../containers/EntitySelectorContainer"
 import { Lang } from "./lang"
-import { FC } from "react"
+import { FC, PropsWithChildren } from "react"
 
 interface generateSubnode {
   (subshape: NodeShape, parent: RDFResource): Promise<Subject>
@@ -65,6 +66,15 @@ interface LocalEntityInfo {
   needsSaving: boolean
 }
 
+type EntityCreatorArgs = {shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, unmounting: {val: boolean}}
+
+type EntityCreatorProps = PropsWithChildren<EntityCreatorArgs>
+
+interface entityCreator {
+  (shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, unmounting: {val: boolean}): { entityLoadingState: IFetchState, entity: Subject | null, reset: () => void }
+}
+
+
 export default interface RDEConfig {
   readonly generateSubnode: generateSubnode
   readonly valueByLangToStrPrefLang: valueByLangToStrPrefLang
@@ -73,7 +83,7 @@ export default interface RDEConfig {
   readonly descriptionProperties: Array<rdf.NamedNode>
   readonly prefixMap: PrefixMap
   readonly generateConnectedID: generateConnectedID
-  readonly entityCreator: FC<{ shapeNode: rdf.NamedNode; entityNode: rdf.NamedNode | null; unmounting: any }>
+  readonly entityCreator: entityCreator
   readonly getDocument: getDocument
   readonly previewLiteral: previewLiteral
   readonly previewEntityLabel?: Record<string, string>

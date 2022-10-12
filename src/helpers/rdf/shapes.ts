@@ -66,6 +66,7 @@ export const rdeConnectIDs = ns.RDE("connectIDs") as rdf.NamedNode
 export const rdeAllowBatchManagement = ns.RDE("allowBatchManagement") as rdf.NamedNode
 export const rdeCopyObjectsOfProperty = ns.RDE("copyObjectsOfProperty") as rdf.NamedNode
 export const rdeUniqueValueAmongSiblings = ns.RDE("uniqueValueAmongSiblings") as rdf.NamedNode
+export const rdfLangString = ns.RDF("langString") as rdf.NamedNode
 export const skosDefinition = ns.SKOS("definition") as rdf.NamedNode
 export const rdfsComment = ns.RDFS("comment") as rdf.NamedNode
 export const shDescription = ns.SH("description") as rdf.NamedNode

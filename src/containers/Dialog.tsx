@@ -7,31 +7,18 @@ import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
 
-const debug = require("debug")("bdrc:entity:entitycreation")
+const debug = require("debug")("rde:entity:entitycreation")
 
-export function DialogBeforeClose(props) {
-  return (
-    <div>
-      <Dialog open={true}>
-        <DialogTitle>youpi</DialogTitle>
-        <DialogContent>
-          <DialogContentText>youpla</DialogContentText>
-        </DialogContent>
-        <DialogActions style={{ justifyContent: "space-around" }}>
-          <Button className="btn-rouge" /*onClick={handleLoad}*/ color="primary">
-            <span style={{ textTransform: "none" }}>{"youpi?"}</span>
-          </Button>
-          <Button className="btn-rouge" /*onClick={handleNew}*/ color="primary">
-            <span style={{ textTransform: "none" }}>{"youpla?"}</span>
-          </Button>
-        </DialogActions>
-        <br />
-      </Dialog>
-    </div>
-  )
+export interface DialogProps {
+  // TODO: document a bit
+  open: any
+  shaped: string
+  newUrl: string
+  editUrl: string
+  named: string
 }
 
-export function Dialog422(props) {
+export function Dialog422(props: DialogProps) {
   const [open, setOpen] = React.useState(props.open)
   const shape = props.shaped.split(":")[1]?.replace(/Shape$/, "")
   const [createNew, setCreateNew] = useState(false)

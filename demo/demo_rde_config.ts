@@ -88,8 +88,8 @@ const generateNode = async () => {
 
 export function EntityCreator(shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, unmounting = { val: false }) {
   const [entityLoadingState, setEntityLoadingState] = useState<IFetchState>({ status: "idle", error: undefined })
-  const [entity, setEntity] = useState<Subject>()
-  const [shape, setShape] = useState<NodeShape>()
+  const [entity, setEntity] = useState<Subject|null>(null)
+  const [shape, setShape] = useState<NodeShape|null>(null)
 
   useEffect(() => {
     return () => {
@@ -98,8 +98,8 @@ export function EntityCreator(shapeNode: rdf.NamedNode, entityNode: rdf.NamedNod
   }, [])
 
   const reset = () => {
-    setEntity(undefined)
-    setShape(undefined)
+    setEntity(null)
+    setShape(null)
     setEntityLoadingState({ status: "idle", error: undefined })
   }
 
