@@ -172,7 +172,10 @@ export const personNamesLabelsSelector = selectorFamily({
       if (atom) {
         const names = get(atom)
         const namesLabelsAtoms = names.map((n: Subject) => n.getAtomForProperty(shapes.rdfsLabel.uri))
-        const namesLabels = namesLabelsAtoms.reduce((acc: Value[], nl: RecoilState<Value[]>) => [...acc, ...get(nl)], [])
+        const namesLabels = namesLabelsAtoms.reduce(
+          (acc: Value[], nl: RecoilState<Value[]>) => [...acc, ...get(nl)],
+          []
+        )
         //debug("values:", atom, names, namesLabelsAtoms,  namesLabels)
         return namesLabels
       }
@@ -184,8 +187,11 @@ export const initListAtom = atom<Array<Value>>({ key: "initListAtom", default: [
 
 export const initMapAtom = atom<Record<string, Value>>({ key: "initMapAtom", default: {} })
 
-type canPushPrefLabelGroupType = {props: RecoilState<Value[]>[], subprops: Record<string,{atom: RecoilState<Subject[]>, allowPush: string[]}>}
-type canPushPrefLabelGroupsType = Record<string,canPushPrefLabelGroupType>
+type canPushPrefLabelGroupType = {
+  props: RecoilState<Value[]>[]
+  subprops: Record<string, { atom: RecoilState<Subject[]>; allowPush: string[] }>
+}
+type canPushPrefLabelGroupsType = Record<string, canPushPrefLabelGroupType>
 
 export const possiblePrefLabelsSelector = selectorFamily({
   key: "possiblePrefLabelsSelector",
@@ -196,7 +202,7 @@ export const possiblePrefLabelsSelector = selectorFamily({
         //debug("push:",canPushPrefLabelGroups)
         const res: Record<string, Value[]> = {}
         for (const g of Object.keys(args)) {
-          const labels:Value[] = [],
+          const labels: Value[] = [],
             atoms = []
           const canPushPrefLabelGroup: canPushPrefLabelGroupType = args[g]
           Object.keys(canPushPrefLabelGroup.subprops).map((k: string) => {
@@ -219,73 +225,40 @@ export const possiblePrefLabelsSelector = selectorFamily({
         return res
       }
       return []
-    }
-})
-
-export const EDTFtoOtherFieldsSelector = selectorFamily({
-  key: "EDTFtoOtherFieldsSelector",
-  get:
-    ({ error, atoms }) =>
-    ({ get }) => {
-      if (error) return
-      //debug("EDTF2ofs:get", error, atoms)
-      return
-    },
-  set:
-    ({ error, atoms }) =>
-    ({ set }, { lit, val, obj }) => {
-      if (error) return
-      //debug("EDTF2ofs:set", error, atoms, lit, val, obj)
-      //debug(humanizeEDTF(obj, val, true))
-
-      if (obj.type === "Date" && !obj.unspecified) {
-        //debug("set EDTFa:",lit,val,obj)
-        set(atoms["bdo:onYear"], [new LiteralWithId(String(obj.values[0]), "", ns.XSD("gYear"))])
-        set(atoms["bdo:notBefore"], [])
-        set(atoms["bdo:notAfter"], [])
-      } else {
-        try {
-          //debug("set EDTFb:",lit,val,obj)
-          set(atoms["bdo:onYear"], [])
-          const edtfMin = edtf(edtf(val).min)
-          if (edtfMin.values[0])
-            set(atoms["bdo:notBefore"], [new LiteralWithId(String(edtfMin.values[0]), "", ns.XSD("gYear"))])
-          const edtfMax = edtf(edtf(val).max)
-          if (edtfMax.values[0])
-            set(atoms["bdo:notAfter"], [new LiteralWithId(String(edtfMax.values[0]), "", ns.XSD("gYear"))])
-        } catch (e) {
-          debug("EDTF error:", e, edtf)
-        }
-      }
-      return
     },
 })
+
+type orderedNewValSelectorType = {
+  atom: RecoilState<Subject[]> | null
+  propertyPath: string
+  order?: "asc" | "desc"
+}
 
 export const orderedNewValSelector = selectorFamily({
   key: "orderedNewValSelector",
   get:
-    ({ atom, propertyPath, order, shape }) =>
+    (args: orderedNewValSelectorType) =>
     ({ get }) => {
-      let newVal = ""
-      if (atom) {
-        if (!order) order = "asc"
-        newVal = ""
+      let newVal = -1
+      if (args.atom) {
+        const order = args.order ? args.order : "asc"
 
         //debug("nV")
-        const parentList = get(atom)
+        const parentList = get(args.atom)
         parentList.map((s, i) => {
           if (i < parentList.length - 1 - 1) return // try to speed things as list is sorted
-          let k = get(s.getAtomForProperty(propertyPath))
-          if (Array.isArray(k) && k.length) k = Number(k[0].value)
+          const k = get(s.getAtomForProperty(args.propertyPath))
+          let kint = 0
+          if (Array.isArray(k) && k.length) kint = Number(k[0].value)
           //debug("k:",k)
-          if (newVal === "" || order === "asc" && k >= newVal || order === "desc" && k <= newVal) {
-            if (order === "asc") newVal = k + 1
-            else newVal = k - 1
+          if (newVal === -1 || order === "asc" && kint >= newVal || order === "desc" && kint <= newVal) {
+            if (order === "asc") newVal = kint + 1
+            else newVal = kint - 1
           }
         })
         //debug("newVal:", newVal) //, atom, propertyPath, parentList)
       }
-      return "" + newVal
+      return newVal.toString()
     },
 })
 
@@ -294,7 +267,7 @@ export const toCopySelector = selectorFamily({
   get:
     ({ list }) =>
     ({ get }) => {
-      const res:Record<string,Value[]> = {}
+      const res: Record<string, Value[]> = {}
       list.map(({ property, atom }) => {
         const val = get(atom)
         //debug("copy:",property, val, atom)

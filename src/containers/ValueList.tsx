@@ -48,7 +48,6 @@ import {
   orderedByPropSelector,
   initListAtom,
   RIDprefixState,
-  EDTFtoOtherFieldsSelector,
   orderedNewValSelector,
   latestNewValSelector,
   ESfromRecoilSelector,
@@ -300,7 +299,7 @@ const ValueList: FC<{
     orderedNewValSelector({
       atom: withOrder.length
         ? (topEntity ? topEntity : subject).getAtomForProperty(withOrder[0].path.sparqlString)
-        : false,
+        : null,
       propertyPath: property.path.sparqlString,
       //order: "desc" // default is "asc"
     })
@@ -1262,30 +1261,6 @@ const EditString: FC<{
 
   const [error, setError] = useState("") //getIntError(lit.value))
 
-  /* // refactoring needed
-  
-  const useEdtf = property.specialPattern?.value === ns.BDS("PatternEDTF").value
-
-  // eslint-disable-next-line prefer-const
-  let atoms = {
-    "bdo:onYear": entity.getAtomForProperty(ns.BDO("onYear").value),
-    "bdo:notBefore": entity.getAtomForProperty(ns.BDO("notBefore").value),
-    "bdo:notAfter": entity.getAtomForProperty(ns.BDO("notAfter").value),
-  }
-
-  const [readableEDTF, setReadableEDTF] = useState("")
-  const [EDTFtoOtherFields, setEDTFtoOtherFields] = useRecoilState(
-    EDTFtoOtherFieldsSelector({
-      error: !useEdtf,
-      atoms: {
-        "bdo:onYear": entity.getAtomForProperty(ns.BDO("onYear").value),
-        "bdo:notBefore": entity.getAtomForProperty(ns.BDO("notBefore").value),
-        "bdo:notAfter": entity.getAtomForProperty(ns.BDO("notAfter").value),
-      },
-    })
-  )
-  */
-
   const getPatternError = (val: string) => {
     let err = ""
     if (pattern !== undefined && val !== "" && !val.match(pattern)) {
@@ -1308,7 +1283,7 @@ const EditString: FC<{
         setReadableEDTF("")
         updateEntityState(EditedEntityState.Saved, lit.id)
       } else {
-      /* // refactoring neede
+        /* // refactoring neede
 
        else if (useEdtf) {
         if (timerEdtf) clearTimeout(timerEdtf)
