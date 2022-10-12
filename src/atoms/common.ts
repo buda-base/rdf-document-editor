@@ -4,8 +4,9 @@ import { FC } from "react"
 import * as ns from "../helpers/rdf/ns"
 import * as shapes from "../helpers/rdf/shapes"
 import { Value, Subject, LiteralWithId, errors, emptyLiteral } from "../helpers/rdf/types"
+import { HistoryStatus } from "../helpers/observer"
 import { humanizeEDTF } from "../containers/ValueList"
-import { entitiesAtom, EditedEntityState } from "../containers/EntitySelectorContainer"
+import { entitiesAtom, EditedEntityState, Entity } from "../containers/EntitySelectorContainer"
 
 //import edtf from "edtf/dist/../index.js"
 import edtf, { parse } from "edtf" // see https://github.com/inukshuk/edtf.js/issues/36#issuecomment-1073778277
@@ -163,7 +164,7 @@ type personNamesLabelsSelectorArgs = {
   atom: RecoilValue<Array<Subject>>
   toJSON: () => any
 }
-export const personNamesLabelsSelector = selectorFamily({
+export const personNamesLabelsSelector = selectorFamily<any,personNamesLabelsSelectorArgs>({
   key: "personNamesLabelsSelector",
   get:
     (args: personNamesLabelsSelectorArgs) =>
@@ -191,9 +192,13 @@ type canPushPrefLabelGroupType = {
   props: RecoilState<Value[]>[]
   subprops: Record<string, { atom: RecoilState<Subject[]>; allowPush: string[] }>
 }
-type canPushPrefLabelGroupsType = Record<string, canPushPrefLabelGroupType>
 
-export const possiblePrefLabelsSelector = selectorFamily({
+type canPushPrefLabelGroupsType = {
+ canPushPrefLabelGroups: Record<string,canPushPrefLabelGroupType>,
+ toJSON: () => any
+}
+
+export const possiblePrefLabelsSelector = selectorFamily<any,canPushPrefLabelGroupsType>({
   key: "possiblePrefLabelsSelector",
   get:
     (args: canPushPrefLabelGroupsType) =>
@@ -201,10 +206,10 @@ export const possiblePrefLabelsSelector = selectorFamily({
       if (args) {
         //debug("push:",canPushPrefLabelGroups)
         const res: Record<string, Value[]> = {}
-        for (const g of Object.keys(args)) {
+        for (const g of Object.keys(args.canPushPrefLabelGroups)) {
           const labels: Value[] = [],
             atoms = []
-          const canPushPrefLabelGroup: canPushPrefLabelGroupType = args[g]
+          const canPushPrefLabelGroup: canPushPrefLabelGroupType = args.canPushPrefLabelGroups[g]
           Object.keys(canPushPrefLabelGroup.subprops).map((k: string) => {
             if (!canPushPrefLabelGroup.subprops[k].atom) return []
             const names = get(canPushPrefLabelGroup.subprops[k].atom)
@@ -232,9 +237,10 @@ type orderedNewValSelectorType = {
   atom: RecoilState<Subject[]> | null
   propertyPath: string
   order?: "asc" | "desc"
+  toJSON: () => any
 }
 
-export const orderedNewValSelector = selectorFamily({
+export const orderedNewValSelector = selectorFamily<any,orderedNewValSelectorType>({
   key: "orderedNewValSelector",
   get:
     (args: orderedNewValSelectorType) =>
@@ -262,13 +268,23 @@ export const orderedNewValSelector = selectorFamily({
     },
 })
 
-export const toCopySelector = selectorFamily({
+type toCopySelectorsType = Array<{
+  property: string
+  atom: RecoilState<Value[]>
+}>
+
+type toCopySelectorType = {
+  list: toCopySelectorsType
+  toJSON: () => any
+}
+
+export const toCopySelector = selectorFamily<any,toCopySelectorType>({
   key: "toCopySelector",
   get:
-    ({ list }) =>
+    (args: toCopySelectorType) =>
     ({ get }) => {
       const res: Record<string, Value[]> = {}
-      list.map(({ property, atom }) => {
+      args.list.map(({ property, atom }) => {
         const val = get(atom)
         //debug("copy:",property, val, atom)
         res[property] = val
@@ -276,10 +292,10 @@ export const toCopySelector = selectorFamily({
       return res
     },
   set:
-    ({ list }) =>
+    (args: toCopySelectorType) =>
     ({ get, set }, { k, val }) => {
       //debug("set:", list, k, val)
-      list.map(({ property, atom }) => {
+      args.list.map(({ property, atom }) => {
         if (k == property) set(atom, [...get(atom).filter((lit) => lit.value), ...val])
       })
     },
@@ -290,7 +306,20 @@ export const savePopupState = atom<boolean>({
   default: false,
 })
 
-export const ESfromRecoilSelector = selectorFamily({
+type ESfromRecoilSelectorType = {
+  property: shapes.PropertyShape,
+  subject: Subject,
+  entityQname: string,
+  undo: Record<string,undoState>,
+  hStatus: HistoryStatus,
+  status: EditedEntityState
+  id: string
+  removingFacet: boolean
+  forceRemove: boolean
+}
+
+
+export const ESfromRecoilSelector = selectorFamily<any,{}>({
   key: "ESfromRecoilSelector",
   get:
     ({}) =>
@@ -299,73 +328,82 @@ export const ESfromRecoilSelector = selectorFamily({
     },
   set:
     ({}) =>
-    ({ get, set }, { property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove }) => {
+    ({ get, set }, args: ESfromRecoilSelectorType) => {
+
       const entities = get(entitiesAtom)
-      const setEntities = (val) => set(entitiesAtom, val)
+      const setEntities = (val: Entity[]) => set(entitiesAtom, val)
 
       //debug("UES:", status, entityQname, id, removingFacet, forceRemove, undo, hStatus)
 
-      const n = entities.findIndex((e) => e.subjectQname === entityQname)
+      const n = entities.findIndex((e) => e.subjectQname === args.entityQname)
+
       if (n > -1) {
         const ent: Entity = entities[n]
-        if (status === EditedEntityState.Error) {
+        if (args.status === EditedEntityState.Error) {
           //debug("error:", id, status, ent.state, ent, n, property.qname, errors)
 
           if (!errors[ent.subjectQname]) errors[ent.subjectQname] = {}
-          errors[ent.subjectQname][subject.qname + ";" + property.qname + ";" + id] = true
+          errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id] = true
 
-          if (ent.state != status) {
+          if (ent.state != args.status) {
+            const newEntities = [...entities]
+            newEntities[n] = { ...entities[n], state: args.status }
+            setEntities(newEntities)
+          }
+          return
+        }
+        // DONE: update status to NeedsSaving for newly created entity and not for loaded entity
+        const status =
+          ent.alreadySaved && (!args.undo || args.undo.prev && !args.undo.prev.enabled) && !ent.loadedUnsavedFromLocalStorage
+            ? EditedEntityState.Saved
+            : EditedEntityState.NeedsSaving
+
+        const hasError =
+          errors[ent.subjectQname] && errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id]
+
+        //debug("no error:", hasError, forceRemove, id, status, ent.state, ent, n, property.qname, errors)
+        if (ent.state != status || hasError && args.forceRemove) {
+          //debug("status:", ent.state, status)
+          if (args.removingFacet) {
+            //debug("rf:", id)
+            if (errors[ent.subjectQname]) {
+              const keys = Object.keys(errors[ent.subjectQname])
+              for (const k of keys) {
+                if (k.startsWith(args.id)) delete errors[ent.subjectQname][k]
+              }
+            }
+          } else if (hasError) {
+            delete errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id]
+          }
+          if (!errors[ent.subjectQname] || !Object.keys(errors[ent.subjectQname]).length) {
             const newEntities = [...entities]
             newEntities[n] = { ...entities[n], state: status }
             setEntities(newEntities)
-          }
-        } else if (status !== EditedEntityState.Error) {
-          // DONE: update status to NeedsSaving for newly created entity and not for loaded entity
-          status =
-            ent.alreadySaved && (!undo || undo.prev && !undo.prev.enabled) && !ent.loadedUnsavedFromLocalStorage
-              ? EditedEntityState.Saved
-              : EditedEntityState.NeedsSaving
-
-          const hasError =
-            errors[ent.subjectQname] && errors[ent.subjectQname][subject.qname + ";" + property.qname + ";" + id]
-
-          //debug("no error:", hasError, forceRemove, id, status, ent.state, ent, n, property.qname, errors)
-          if (ent.state != status || hasError && forceRemove) {
-            //debug("status:", ent.state, status)
-            if (removingFacet) {
-              //debug("rf:", id)
-              if (errors[ent.subjectQname]) {
-                const keys = Object.keys(errors[ent.subjectQname])
-                for (const k of keys) {
-                  if (k.startsWith(id)) delete errors[ent.subjectQname][k]
-                }
-              }
-            } else if (hasError) {
-              delete errors[ent.subjectQname][subject.qname + ";" + property.qname + ";" + id]
-            }
-            if (!errors[ent.subjectQname] || !Object.keys(errors[ent.subjectQname]).length) {
-              const newEntities = [...entities]
-              newEntities[n] = { ...entities[n], state: status }
-              setEntities(newEntities)
-              //debug("newEnt:",newEntities[n].state)
-            }
+            //debug("newEnt:",newEntities[n].state)
           }
         }
       }
     },
 })
 
-export const isUniqueTestSelector = selectorFamily({
+type isUniqueTestSelectorType = {
+  checkUnique: boolean
+  siblingsAtom: RecoilState<Subject[]>,
+  propertyPath: string,
+  toJSON: () => any
+}
+
+export const isUniqueTestSelector = selectorFamily<any,isUniqueTestSelectorType>({
   key: "isUniqueTestSelector",
   get:
-    ({ checkUnique, siblingsAtom, propertyPath }) =>
+    (args: isUniqueTestSelectorType) =>
     ({ get }) => {
-      if (!checkUnique) return true
+      if (!args.checkUnique) return true
       //debug("iUvS:",siblingsAtom, propertyPath)
-      const siblings = get(siblingsAtom),
-        vals = []
+      const siblings = get(args.siblingsAtom),
+        vals:string[] = []
       for (const s of siblings) {
-        const lit = get(s.getAtomForProperty(propertyPath))
+        const lit:Value[] = get(s.getAtomForProperty(args.propertyPath))
         if (lit.length) {
           if (vals.includes(lit[0].value)) {
             //debug("non unique:",propertyPath,vals,lit,siblings)
@@ -379,7 +417,7 @@ export const isUniqueTestSelector = selectorFamily({
     },
 })
 
-export const outlinesAtom = atom<Map<string, any>>({
+export const outlinesAtom = atom<Record<string, any>>({
   key: "outlinesAtom",
   default: {},
 })
@@ -388,3 +426,4 @@ export const demoAtom = atom<boolean>({
   key: "demoAtom",
   default: false,
 })
+

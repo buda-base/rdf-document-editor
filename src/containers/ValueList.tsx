@@ -9,10 +9,9 @@ import {
   RDFResourceWithLabel,
   ExtRDFResourceWithLabel,
   errors,
-  history,
   noneSelected,
 } from "../helpers/rdf/types"
-import { debugStore, putTtl } from "../../../helpers/rdf/io"
+import { putTtl } from "../helpers/rdf/io"
 import * as shapes from "../helpers/rdf/shapes"
 import { PropertyShape } from "../helpers/rdf/shapes"
 import * as ns from "../helpers/rdf/ns"
@@ -34,9 +33,9 @@ import {
   HelpIcon,
 } from "../routes/layout/icons"
 import i18n from "i18next"
-//import { getHistoryStatus } from "../containers/AppContainer"
 import PropertyContainer from "./PropertyContainer"
 import { ValueByLangToStrPrefLang, langsWithDefault } from "../helpers/lang"
+import { history, HistoryStatus, getHistoryStatus } from "../helpers/observer"
 import RDEConfig from "../helpers/rde_config"
 import {
   reloadEntityState,
@@ -63,8 +62,6 @@ import MDEditor, { commands } from "@uiw/react-md-editor"
 import edtf, { parse } from "edtf" // see https://github.com/inukshuk/edtf.js/issues/36#issuecomment-1073778277
 
 import { useAuth0 } from "@auth0/auth0-react"
-
-import config from "../../../config"
 
 const debug = require("debug")("rde:entity:container:ValueList")
 

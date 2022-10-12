@@ -21,39 +21,7 @@ const debug = require("debug")("rde:rdf:types")
 
 const defaultGraphNode = new rdf.NamedNode(rdf.Store.defaultGraphURI)
 
-export const history: Record<string, Array<Record<string, any>>> = {}
 export const errors: Record<string, Record<string, boolean>> = {}
-
-const updateHistory = (
-  entity: string,
-  qname: string,
-  prop: string,
-  val: Array<Value>,
-  noHisto: boolean | number = true
-) => {
-  if (!history[entity]) history[entity] = []
-  else {
-    while (history[entity].length && history[entity][history[entity].length - 1]["tmp:undone"]) {
-      history[entity].pop()
-    }
-  }
-  const newVal = {
-    [qname]: { [prop]: val },
-    ...entity != qname ? { "tmp:parentPath": getParentPath(entity, qname) } : {},
-  }
-
-  // don't add empty value to history (fix adding undo steps when showing secondary properties in Person/Kinship)
-  if (val.length === 1 && (val[0].uri === "tmp:uri" || val[0].value === "")) return
-
-  // some value modifications must not be added to history (some autocreation of empty values for example)
-  if (noHisto === -1) {
-    const first = history[entity].findIndex((h) => h["tmp:allValuesLoaded"])
-    if (first > 0) history[entity].splice(first, 0, newVal)
-    else history[entity].push(newVal)
-  } else history[entity].push(newVal)
-
-  //debug("history:", entity, qname, prop, val, history, noHisto)
-}
 
 export const rdfLitAsNumber = (lit: rdf.Literal): number | null => {
   const n = Number(lit.value)
