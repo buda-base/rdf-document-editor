@@ -1,9 +1,9 @@
-import { atom, atomFamily, selectorFamily, RecoilValue } from "recoil"
+import { atom, atomFamily, selectorFamily, RecoilValue, RecoilState } from "recoil"
 import { FC } from "react"
-import _ from "lodash"
 
 import * as ns from "../helpers/rdf/ns"
-import { Value, Subject, LiteralWithId, errors } from "../helpers/rdf/types"
+import * as shapes from "../helpers/rdf/shapes"
+import { Value, Subject, LiteralWithId, errors, emptyLiteral } from "../helpers/rdf/types"
 import { humanizeEDTF } from "../containers/ValueList"
 import { entitiesAtom, EditedEntityState } from "../containers/EntitySelectorContainer"
 
@@ -171,8 +171,8 @@ export const personNamesLabelsSelector = selectorFamily({
       const { atom } = args
       if (atom) {
         const names = get(atom)
-        const namesLabelsAtoms = names.map((n) => n.getAtomForProperty(ns.RDFS("label").value))
-        const namesLabels = namesLabelsAtoms.reduce((acc, nl) => [...acc, ...get(nl)], [])
+        const namesLabelsAtoms = names.map((n: Subject) => n.getAtomForProperty(shapes.rdfsLabel.uri))
+        const namesLabels = namesLabelsAtoms.reduce((acc: Value[], nl: RecoilState<Value[]>) => [...acc, ...get(nl)], [])
         //debug("values:", atom, names, namesLabelsAtoms,  namesLabels)
         return namesLabels
       }
@@ -182,31 +182,35 @@ export const personNamesLabelsSelector = selectorFamily({
 
 export const initListAtom = atom<Array<Value>>({ key: "initListAtom", default: [] })
 
-export const initMapAtom = atom<Map<string, Value>>({ key: "initMapAtom", default: {} })
+export const initMapAtom = atom<Record<string, Value>>({ key: "initMapAtom", default: {} })
+
+type canPushPrefLabelGroupType = {props: RecoilState<Value[]>[], subprops: Record<string,{atom: RecoilState<Subject[]>, allowPush: string[]}>}
+type canPushPrefLabelGroupsType = Record<string,canPushPrefLabelGroupType>
 
 export const possiblePrefLabelsSelector = selectorFamily({
   key: "possiblePrefLabelsSelector",
   get:
-    ({ canPushPrefLabelGroups }) =>
+    (args: canPushPrefLabelGroupsType) =>
     ({ get }) => {
-      if (canPushPrefLabelGroups) {
+      if (args) {
         //debug("push:",canPushPrefLabelGroups)
-        const res = {}
-        for (const g of Object.keys(canPushPrefLabelGroups)) {
-          const labels = [],
+        const res: Record<string, Value[]> = {}
+        for (const g of Object.keys(args)) {
+          const labels:Value[] = [],
             atoms = []
-          Object.keys(canPushPrefLabelGroups[g].subprops).map((k) => {
-            if (!canPushPrefLabelGroups[g].subprops[k].atom) return []
-            const names = get(canPushPrefLabelGroups[g].subprops[k].atom)
+          const canPushPrefLabelGroup: canPushPrefLabelGroupType = args[g]
+          Object.keys(canPushPrefLabelGroup.subprops).map((k: string) => {
+            if (!canPushPrefLabelGroup.subprops[k].atom) return []
+            const names = get(canPushPrefLabelGroup.subprops[k].atom)
             for (const n of names) {
-              for (const a of canPushPrefLabelGroups[g].subprops[k].allowPush) {
+              for (const a of canPushPrefLabelGroup.subprops[k].allowPush) {
                 const vals = get(n.getAtomForProperty(a))
-                vals.map((v) => labels.push(v))
+                vals.map((v: Value) => labels.push(v))
               }
             }
-            canPushPrefLabelGroups[g].props.map((a) => {
-              const vals = get(a)
-              vals.map((v) => labels.push(v))
+            canPushPrefLabelGroup.props.map((a: RecoilValue<Value[]>) => {
+              const vals: Value[] = get(a)
+              vals.map((v: Value) => labels.push(v))
             })
             return labels
           })
@@ -215,7 +219,7 @@ export const possiblePrefLabelsSelector = selectorFamily({
         return res
       }
       return []
-    },
+    }
 })
 
 export const EDTFtoOtherFieldsSelector = selectorFamily({
@@ -290,7 +294,7 @@ export const toCopySelector = selectorFamily({
   get:
     ({ list }) =>
     ({ get }) => {
-      const res = {}
+      const res:Record<string,Value[]> = {}
       list.map(({ property, atom }) => {
         const val = get(atom)
         //debug("copy:",property, val, atom)

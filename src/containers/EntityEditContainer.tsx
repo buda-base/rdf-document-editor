@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo, useLayoutEffect, useCallback, useR
 //import { setDefaultPrefixes } from "../helpers/rdf/ns"
 import { RDFResource, Subject, ExtRDFResourceWithLabel, history, LiteralWithId, Value } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
+import { PropertyShape, PropertyGroup } from "../helpers/rdf/shapes"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
 import i18n from "i18next"
 import { entitiesAtom, EditedEntityState, Entity } from "./EntitySelectorContainer"
@@ -23,9 +24,11 @@ import {
   initListAtom,
   initMapAtom,
   toCopySelector,
+  canPushPrefLabelGroupType,
+  canPushPrefLabelGroupsType
 } from "../atoms/common"
 import * as lang from "../helpers/lang"
-import { atom, useRecoilState, useRecoilSnapshot, useRecoilValue } from "recoil"
+import { atom, useRecoilState, useRecoilSnapshot, useRecoilValue, RecoilState } from "recoil"
 import { RDEProps } from "../helpers/editor_props"
 import * as rdf from "rdflib"
 import qs from "query-string"
@@ -102,7 +105,12 @@ export function EntityEditContainerMayUpdate(props: RDEProps) {
     const propsForCall = { ... props, copy: copy}
     return (
       <EntityEditContainerDoUpdate
-        props={propsForCall}
+        subject={subject}
+        propertyQname={propertyQname}
+        objectQname={entityQname}
+        index={Number(index)}
+        copy={copy}
+        {...props}
       />
     )
   }
@@ -120,18 +128,16 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
   const i = entities.findIndex((e) => e.subjectQname === props.objectQname)
   const subject = entities[i]?.subject
 
-  let copy: {string: Value} | null = null
+  let copy: Record<string, Value[]> | null = null
   if (props.copy && typeof props.copy === 'string') {
-    copy = props.copy.split(";").reduce((acc: {string: Value}, p: string) => {
+    copy = props.copy.split(";").reduce((acc: Record<string, Value[]>, p: string): Record<string,Value[]> => {
     const q = p.split(",")
-    return {
-      ...acc,
-      [q[0]]: q.slice(1).map((v: string) => {
+    const literals = q.slice(1).map((v: string) => {
         const lit = decodeURIComponent(v).split("@")
         return new LiteralWithId(lit[0].replace(/(^")|("$)/g, ""), lit[1], shapes.rdfLangString)
-      }),
-    }
-  }, {})
+      })
+    return { ... acc, [q[0]]: literals }
+    }, {})
 
   //debug("copy:",copy,props.copy)
 
@@ -194,19 +200,23 @@ function EntityEditContainer(props: RDEProps) {
 
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname)
 
-  const canPushPrefLabelGroups = shape?.groups.reduce((acc, group) => {
+  const canPushPrefLabelGroups = shape?.groups.reduce((acc: canPushPrefLabelGroupsType, group: PropertyGroup) => {
     const props = group.properties
-      .filter((p) => p.allowPushToTopLevelSkosPrefLabel)
-      .map((p) => entityObj[0]?.subject?.getAtomForProperty(p.path.sparqlString))
-      .filter((a) => a)
-    const subprops = group.properties.reduce((accG, p) => {
-      const allowPush = p.targetShape?.properties
-        .filter((s) => s.allowPushToTopLevelSkosPrefLabel)
-        .map((s) => s.path.sparqlString)
-      if (allowPush?.length)
+      .filter((p: PropertyShape) => p.allowPushToTopLevelLabel)
+      .map((p: PropertyShape) => {
+        if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
+          return entityObj[0].subject.getAtomForProperty(p.path.sparqlString)
+      })
+      // removes undefined values
+      .filter((a: RecoilState<Value[]> | undefined) => a)
+    const subprops: Record<string,{atom: RecoilState<Value[]>, allowPush: string}> = group.properties.reduce((accG, p) => {
+      const allowPush: (string|undefined)[]|undefined = p.targetShape?.properties
+        .filter((s: PropertyShape) => s.allowPushToTopLevelLabel)
+        .map((s: PropertyShape) => s.path?.sparqlString)
+      if (allowPush?.length && entityObj && entityObj[0] && entityObj[0].subject && p.path)
         return {
           ...accG,
-          [p.qname]: { atom: entityObj[0]?.subject?.getAtomForProperty(p.path.sparqlString), allowPush },
+          [p.qname]: { atom: entityObj[0].subject.getAtomForProperty(p.path.sparqlString), allowPush },
         }
       return accG
     }, {})
