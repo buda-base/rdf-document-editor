@@ -1,6 +1,6 @@
 import { atom, atomFamily, selectorFamily, RecoilValue, RecoilState } from "recoil"
 import { FC } from "react"
-
+import _ from "lodash"
 import * as ns from "../helpers/rdf/ns"
 import * as shapes from "../helpers/rdf/shapes"
 import { Value, Subject, LiteralWithId, errors, emptyLiteral } from "../helpers/rdf/types"
@@ -157,7 +157,7 @@ export const orderedByPropSelector = selectorFamily<any,orderedByPropSelectorArg
           }),
           ["k"],
           [order === "asc" ? "asc" : "desc"]
-        ).map((i) => i.s)
+        ).map((i: {s: Subject, k: number}) => i.s)
         //debug("sort:", atom, propertyPath, orderedList)
         return orderedList
       }
@@ -206,38 +206,35 @@ export type canPushPrefLabelGroupsType = {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const possiblePrefLabelsSelector = selectorFamily<any,canPushPrefLabelGroupsType>({
+export const possiblePrefLabelsSelector = selectorFamily<Record<string,Value[]>,canPushPrefLabelGroupsType>({
   key: "possiblePrefLabelsSelector",
   get:
     (args: canPushPrefLabelGroupsType) =>
     ({ get }) => {
-      if (args) {
-        //debug("push:",canPushPrefLabelGroups)
-        const res: Record<string, Value[]> = {}
-        for (const g of Object.keys(args.canPushPrefLabelGroups)) {
-          const labels: Value[] = [],
-            atoms = []
-          const canPushPrefLabelGroup: canPushPrefLabelGroupType = args.canPushPrefLabelGroups[g]
-          Object.keys(canPushPrefLabelGroup.subprops).map((k: string) => {
-            if (!canPushPrefLabelGroup.subprops[k].atom) return []
-            const names = get(canPushPrefLabelGroup.subprops[k].atom)
-            for (const n of names) {
-              for (const a of canPushPrefLabelGroup.subprops[k].allowPush) {
-                const vals = get(n.getAtomForProperty(a))
-                vals.map((v: Value) => labels.push(v))
-              }
-            }
-            canPushPrefLabelGroup.props.map((a: RecoilValue<Value[]>) => {
-              const vals: Value[] = get(a)
+      //debug("push:",canPushPrefLabelGroups)
+      const res: Record<string, Value[]> = {}
+      for (const g of Object.keys(args.canPushPrefLabelGroups)) {
+        const labels: Value[] = [],
+          atoms = []
+        const canPushPrefLabelGroup: canPushPrefLabelGroupType = args.canPushPrefLabelGroups[g]
+        Object.keys(canPushPrefLabelGroup.subprops).map((k: string) => {
+          if (!canPushPrefLabelGroup.subprops[k].atom) return []
+          const names = get(canPushPrefLabelGroup.subprops[k].atom)
+          for (const n of names) {
+            for (const a of canPushPrefLabelGroup.subprops[k].allowPush) {
+              const vals = get(n.getAtomForProperty(a))
               vals.map((v: Value) => labels.push(v))
-            })
-            return labels
+            }
+          }
+          canPushPrefLabelGroup.props.map((a: RecoilValue<Value[]>) => {
+            const vals: Value[] = get(a)
+            vals.map((v: Value) => labels.push(v))
           })
-          if (labels.length) res[g] = labels
-        }
-        return res
+          return labels
+        })
+        if (labels.length) res[g] = labels
       }
-      return []
+      return res
     },
 })
 
@@ -249,7 +246,7 @@ export type orderedNewValSelectorType = {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const orderedNewValSelector = selectorFamily<any,orderedNewValSelectorType>({
+export const orderedNewValSelector = selectorFamily<string,orderedNewValSelectorType>({
   key: "orderedNewValSelector",
   get:
     (args: orderedNewValSelectorType) =>
@@ -288,7 +285,7 @@ export type toCopySelectorType = {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const toCopySelector = selectorFamily<any,toCopySelectorType>({
+export const toCopySelector = selectorFamily<Record<string,Value[]>,toCopySelectorType>({
   key: "toCopySelector",
   get:
     (args: toCopySelectorType) =>
@@ -303,7 +300,7 @@ export const toCopySelector = selectorFamily<any,toCopySelectorType>({
     },
   set:
     (args: toCopySelectorType) =>
-    ({ get, set }, { k, val }) => {
+    ({ get, set }, { k, val }: {k: string, val: Value[]}) => {
       //debug("set:", list, k, val)
       args.list.map(({ property, atom }) => {
         if (k == property) set(atom, [...get(atom).filter((lit) => lit.value), ...val])
@@ -404,7 +401,7 @@ export type isUniqueTestSelectorType = {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const isUniqueTestSelector = selectorFamily<any,isUniqueTestSelectorType>({
+export const isUniqueTestSelector = selectorFamily<boolean,isUniqueTestSelectorType>({
   key: "isUniqueTestSelector",
   get:
     (args: isUniqueTestSelectorType) =>
@@ -426,15 +423,5 @@ export const isUniqueTestSelector = selectorFamily<any,isUniqueTestSelectorType>
       //debug("unique:",propertyPath,vals,siblings)
       return true
     },
-})
-
-export const outlinesAtom = atom<Record<string, any>>({
-  key: "outlinesAtom",
-  default: {},
-})
-
-export const demoAtom = atom<boolean>({
-  key: "demoAtom",
-  default: false,
 })
 

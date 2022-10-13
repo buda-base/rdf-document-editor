@@ -99,7 +99,7 @@ const MapEventHandler = ({ coords, redraw, setCoords }) => {
 const PropertyGroupContainer: FC<{
   group: PropertyGroup
   subject: Subject
-  onGroupOpen: () => void
+  onGroupOpen: (e: MouseEvent, currentGroupName: string) => void
   shape: Shape
   GISatoms: { lat: string; long: string }
 }> = ({ group, subject, onGroupOpen, shape, GISatoms }) => {

@@ -2,6 +2,7 @@ import React, { FC } from "react"
 import * as rdf from "rdflib"
 import * as ns from "./ns"
 import { PropertyShape, Path, defaultLabelProperties, defaultDescriptionProperties } from "./shapes"
+import RDEConfig from "../rde_config"
 import { Memoize } from "typescript-memoize"
 import {
   atom,
@@ -485,6 +486,7 @@ export class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
     uri: string,
     prefLabels: Record<string, string>,
     data: Record<string, any> = {},
+    config: RDEConfig,
     description: Record<string, any> | null = null
   ) {
     super(new rdf.NamedNode(uri), new EntityGraph(new rdf.Store(), uri, config))
@@ -536,6 +538,9 @@ export class LiteralWithId extends rdf.Literal {
 export type Value = Subject | LiteralWithId | RDFResourceWithLabel
 
 export class Subject extends RDFResource {
+
+  node: rdf.NamedNode
+
   getUnitializedValues(property: PropertyShape): Array<Value> | null {
     return this.graph.getUnitializedValues(this, property)
   }
@@ -578,3 +583,8 @@ export class Subject extends RDFResource {
 
 export const noneSelected = new ExtRDFResourceWithLabel("tmp:none", { en: "–" }, {}, { en: "none provided" })
 export const emptyLiteral = new LiteralWithId("")
+
+export const sameLanguage = (lang1: string, lang2: string): boolean => {
+  // TODO: ignore suffixes
+  return lang1 == lang2
+}

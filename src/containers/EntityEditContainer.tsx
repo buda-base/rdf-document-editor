@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect, useCallback, useRef } from "react"
 import { ShapeFetcher, EntityFetcher, IFetchState } from "../helpers/rdf/io"
 //import { setDefaultPrefixes } from "../helpers/rdf/ns"
-import { RDFResource, Subject, ExtRDFResourceWithLabel, LiteralWithId, Value } from "../helpers/rdf/types"
+import { RDFResource, Subject, ExtRDFResourceWithLabel, LiteralWithId, Value, sameLanguage } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
 import { PropertyShape, PropertyGroup } from "../helpers/rdf/shapes"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
@@ -202,7 +202,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
 
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config)
 
-  const canPushPrefLabelGroups = shape?.groups.reduce((acc: canPushPrefLabelGroupsType, group: PropertyGroup) => {
+  const canPushPrefLabelGroups: canPushPrefLabelGroupsType | undefined = shape?.groups.reduce((acc: canPushPrefLabelGroupsType, group: PropertyGroup) => {
     const props = group.properties
       .filter((p: PropertyShape) => p.allowPushToTopLevelLabel)
       .map((p: PropertyShape) => {
@@ -226,7 +226,9 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
     return { ...acc }
   }, {})
 
-  const possiblePrefLabels = useRecoilValue(possiblePrefLabelsSelector({ canPushPrefLabelGroups }))
+  let possiblePrefLabels: Record<string,Value[]> | null = null
+  if (canPushPrefLabelGroups)
+    possiblePrefLabels = useRecoilValue(possiblePrefLabelsSelector({ canPushPrefLabelGroups }))
 
   let prefLabelAtom = entityObj[0]?.subject?.getAtomForProperty(ns.SKOS("prefLabel").value)
   if (!prefLabelAtom) prefLabelAtom = initListAtom
@@ -414,16 +416,15 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
 
   const shapeLabel = lang.ValueByLangToStrPrefLang(shape.targetClassPrefLabels, uiLang)
 
-  const checkPushNameAsPrefLabel = (e, currentGroupName) => {
+  const checkPushNameAsPrefLabel = (e: MouseEvent, currentGroupName: string) => {
     //debug("closing: ", currentGroupName, possiblePrefLabels[currentGroupName])
-    const isBo = (l) => ["bo", "bo-x-ewts"].includes(l)
-    if (possiblePrefLabels[currentGroupName]?.length) {
+    if (possiblePrefLabels && possiblePrefLabels[currentGroupName]?.length) {
       //debug("names:",personNamesLabels,prefLabels)
       const newLabels = [...prefLabels]
       for (const n of possiblePrefLabels[currentGroupName]) {
         if (
-          !newLabels.some((l) => l.language === n.language || isBo(l.language) && isBo(n.language)) &&
-          !altLabels.some((l) => l.language === n.language || isBo(l.language) && isBo(n.language))
+          !newLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language)) &&
+          !altLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language))
         )
           newLabels.push(n)
       }
@@ -439,6 +440,8 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
   // refactoring needed
   // const BUDAlink = config.LIBRARY_URL + "/show/" + entity.qname + "?v=" + entityObj[0]?.alreadySaved
 
+  const previewLink = config.getPreviewLink(entity.node)
+
   return (
     <React.Fragment>
       <div role="main" className="pt-4" style={{ textAlign: "center" }}>
@@ -447,13 +450,13 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
           <div>
             <h1>{shapeLabel}</h1>
             <span>{entity.qname}</span>
-            {entityQname !== "tmp:user" && shape.qname != "bds:UserProfileShape" && (
+            {previewLink && (
               <div className="buda-link">
                 <a
                   className={"btn-rouge" + (!entityObj[0]?.alreadySaved ? " disabled" : "")}
                   target="_blank"
                   rel="noreferrer"
-                  {...(!entityObj[0]?.alreadySaved ? { title: i18n.t("error.preview") } : { href: BUDAlink })}
+                  {...(!entityObj[0]?.alreadySaved ? { title: i18n.t("error.preview") } : { href: previewLink })}
                 >
                   {i18n.t("general.preview")}
                 </a>

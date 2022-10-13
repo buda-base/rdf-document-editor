@@ -39,8 +39,8 @@ interface putDocument {
   (entity: rdf.NamedNode, document: rdf.Store): Promise<string>
 }
 
-interface previewEntity {
-  (entity: rdf.NamedNode): void
+interface getPreviewLink {
+  (entity: rdf.NamedNode): string | null
 }
 
 interface getUserLocalEntities {
@@ -108,7 +108,7 @@ export default interface RDEConfig {
   readonly getDocument: getDocument
   readonly previewLiteral: previewLiteral
   readonly previewEntityLabel?: Record<string, string>
-  readonly previewEntity?: previewEntity
+  readonly getPreviewLink: getPreviewLink
   readonly getShapesDocument: getShapesDocument
   readonly getConnexGraph: getConnexGraph
   readonly getUserLocalEntities: getUserLocalEntities
