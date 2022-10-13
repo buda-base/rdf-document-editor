@@ -116,4 +116,8 @@ export default interface RDEConfig {
   readonly getUserMenuState: getUserMenuState
   readonly setUserMenuState: setUserMenuState
   readonly setUserLocalEntity: setUserLocalEntity
+  readonly googleMapsAPIKey?: string
+  readonly latProp: rdf.NamedNode
+  readonly lngProp: rdf.NamedNode
+  readonly gisPropertyGroup?: rdf.NamedNode
 }

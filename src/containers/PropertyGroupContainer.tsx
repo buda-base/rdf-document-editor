@@ -1,7 +1,8 @@
 import React, { useState, FC, ReactElement, useRef, useMemo, useCallback, useEffect } from "react"
 import PropertyContainer from "./PropertyContainer"
-import { RDFResource, Subject, errors } from "../helpers/rdf/types"
-import { PropertyGroup, PropertyShape } from "../helpers/rdf/shapes"
+import { RDFResource, Subject, errors, LiteralWithId } from "../helpers/rdf/types"
+import RDEConfig from "../helpers/rde_config"
+import { PropertyGroup, PropertyShape, NodeShape } from "../helpers/rdf/shapes"
 import { uiLangState, uiEditState, uiNavState, uiGroupState } from "../atoms/common"
 import * as lang from "../helpers/lang"
 import * as ns from "../helpers/rdf/ns"
@@ -9,7 +10,6 @@ import { ErrorIcon } from "../routes/layout/icons"
 import { atom, useRecoilState, useRecoilValue } from "recoil"
 import { OtherButton } from "./ValueList"
 import i18n from "i18next"
-//import { Waypoint } from "react-waypoint"
 import { MapContainer, LayersControl, TileLayer, Popup, Marker, useMapEvents } from "react-leaflet"
 import ReactLeafletGoogleLayer from "react-leaflet-google-layer"
 import { GeoSearchControl, OpenStreetMapProvider, GoogleProvider } from "leaflet-geosearch"
@@ -17,8 +17,6 @@ import { GeoSearchControl, OpenStreetMapProvider, GoogleProvider } from "leaflet
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import "leaflet-geosearch/dist/geosearch.css"
-
-import config from "../../../config"
 
 const debug = require("debug")("rde:entity:propertygroup")
 
@@ -31,9 +29,9 @@ const redIcon = new L.Icon({
   shadowSize: [41, 41], // eslint-disable-line no-magic-numbers
 })
 
-function DraggableMarker({ pos, icon, setCoords }) {
-  const [position, setPosition] = useState(pos)
-  const markerRef = useRef(null)
+function DraggableMarker({ pos, icon, setCoords }: {pos: L.LatLng, icon: L.Icon, setCoords: (val: L.LatLng) => void}) {
+  const [position, setPosition] = useState<L.LatLng>(pos)
+  const markerRef = useRef<L.Marker<any>|null>(null)
   const eventHandlers = useMemo(
     () => ({
       dragend() {
@@ -49,8 +47,8 @@ function DraggableMarker({ pos, icon, setCoords }) {
 
   //debug("mark:",markerRef,pos)
   useEffect(() => {
-    if (markerRef.current && (markerRef.current.lat != pos[0] || markerRef.current.lng != pos[1])) {
-      markerRef.current.setLatLng({ lat: pos[0], lng: pos[1] })
+    if (markerRef.current && (markerRef.current.lat != pos.lat || markerRef.current.lng != pos.lng)) {
+      markerRef.current.setLatLng(pos)
     }
   })
 
@@ -59,7 +57,7 @@ function DraggableMarker({ pos, icon, setCoords }) {
   )
 }
 
-const MapEventHandler = ({ coords, redraw, setCoords }) => {
+const MapEventHandler = ({ coords, redraw, setCoords, config }: { coords: L.LatLng, redraw: boolean, setCoords: (val: L.LatLng) => void, config: RDEConfig}) => {
   const map = useMapEvents({
     click: (ev) => {
       debug("click:", ev)
@@ -68,13 +66,11 @@ const MapEventHandler = ({ coords, redraw, setCoords }) => {
   })
 
   useEffect(() => {
-    if (coords.length === Number("2")) map.setView(coords, map.getZoom())
+    map.setView(coords, map.getZoom())
   })
 
   useEffect(() => {
-    const provider = new OpenStreetMapProvider()
-    // TODO? allow use of search in Google API configuration
-    //if (config.googleAPIkey) provider = new GoogleProvider({ params: { key: config.googleAPIkey } })
+    const provider = config.googleMapsAPIKey ? new GoogleProvider({ apiKey: config.googleMapsAPIKey }) : new OpenStreetMapProvider()
 
     const searchControl = new GeoSearchControl({
       provider,
@@ -99,10 +95,11 @@ const MapEventHandler = ({ coords, redraw, setCoords }) => {
 const PropertyGroupContainer: FC<{
   group: PropertyGroup
   subject: Subject
-  onGroupOpen: (e: MouseEvent, currentGroupName: string) => void
-  shape: Shape
-  GISatoms: { lat: string; long: string }
-}> = ({ group, subject, onGroupOpen, shape, GISatoms }) => {
+  onGroupOpen: (e: React.MouseEvent, currentGroupName: string) => void
+  shape: NodeShape
+  GISatoms?: { lat: string; long: string }
+  config: RDEConfig
+}> = ({ group, subject, onGroupOpen, shape, GISatoms, config }) => {
   const [uiLang] = useRecoilState(uiLangState)
   const label = lang.ValueByLangToStrPrefLang(group.prefLabels, uiLang)
   const [force, setForce] = useState(false)
@@ -111,7 +108,6 @@ const PropertyGroupContainer: FC<{
 
   const withDisplayPriority: PropertyShape[] = [],
     withoutDisplayPriority: PropertyShape[] = []
-  //let isSimplePriority = false
   const errorKeys = Object.keys(errors[subject.qname] ? errors[subject.qname] : {})
   let hasError = false
   group.properties.map((property) => {
@@ -126,15 +122,8 @@ const PropertyGroupContainer: FC<{
     if (
       property.displayPriority &&
       property.displayPriority >= 1
-      /* // no need 
-      ||
-      property.targetShape &&
-        property.targetShape.properties &&
-        property.targetShape.properties.filter((subprop) => subprop.displayPriority && subprop.displayPriority >= 1)
-          .length > 0 */
     ) {
       withDisplayPriority.push(property)
-      //if(property.displayPriority && property.displayPriority >= 1) isSimplePriority = true
     } else {
       withoutDisplayPriority.push(property)
     }
@@ -149,40 +138,43 @@ const PropertyGroupContainer: FC<{
   const [edit, setEdit] = useRecoilState(uiEditState)
   const [groupEd, setGroupEd] = useRecoilState(uiGroupState)
 
-  /* // some refactoring needed
-
-  // TODO: how not to hard code this here? add "useAsMapLatitude" property in shape?
-  const [lat, setLat] = useRecoilState(subject.getAtomForProperty(ns.BDO("placeLat").value))
-  const [lon, setLon] = useRecoilState(subject.getAtomForProperty(ns.BDO("placeLong").value))
+  const [lat, setLat] = useRecoilState(subject.getAtomForProperty(config.latProp.uri))
+  const [lng, setLng] = useRecoilState(subject.getAtomForProperty(config.lngProp.uri))
   const [redraw, setRedraw] = useState(false)
-  let coords,
-    zoom = "5",
-    unset
+  let coords: L.LatLng,
+    zoom = 5,
+    unset = false
   //debug("coords:", coords, lat, lon)
-  if (lat.length && lon.length && lat[0].value != "" && lat[0].value != "") coords = [lat[0].value, lon[0].value]
+  if (lat.length && lng.length && lat[0].value != "" && lat[0].value != "") coords = new L.LatLng(Number(lat[0].value), Number(lng[0].value))
   else {
     unset = true
-    coords = ["30", 0]
-    zoom = "2"
+    coords = new L.LatLng(30, 0)
+    zoom = 2
   }
 
   useEffect(() => {
     //debug("update:",lon,lat)
     setRedraw(true)
-  }, [lon, lat])
+  }, [lng, lat])
 
-  const setCoords = (val) => {
+  const setCoords = (val: L.LatLng) => {
     //debug("val:",val)
     setRedraw(false)
-    if (!isNaN(val.lat)) setLat([lat[0].copyWithUpdatedValue("" + val.lat)])
-    if (!isNaN(val.lng)) setLon([lon[0].copyWithUpdatedValue("" + val.lng)])
+    if (!isNaN(val.lat)) {
+      if (lat.length > 0 && lat[0] instanceof LiteralWithId)
+        setLat([lat[0].copyWithUpdatedValue("" + val.lat)])
+      if (lat.length == 0)
+        setLat([new LiteralWithId("" + val.lat)])
+    }
+    if (!isNaN(val.lng)) {
+      if (lng.length > 0 && lng[0] instanceof LiteralWithId)
+        setLng([lng[0].copyWithUpdatedValue("" + val.lng)])
+      if (lng.length == 0)
+        setLng([new LiteralWithId("" + val.lat)])
+    }
   }
-  */
-
-  //const [nav, setNav] = useRecoilState(uiNavState)
 
   return (
-    //<Waypoint scrollableAncestor={window} onEnter={() => setNav(group.qname)} topOffset={500} bottomOffset={500}>
     <div
       role="main"
       className={"group " + (hasError ? "hasError" : "")}
@@ -195,7 +187,7 @@ const PropertyGroupContainer: FC<{
             className={
               "row card my-2 pb-3" + (edit === group.qname ? " group-edit" : "") + " show-displayPriority-" + force
             }
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               if (onGroupOpen && groupEd !== group.qname) onGroupOpen(e, groupEd)
               setEdit(group.qname)
               setGroupEd(group.qname)
@@ -228,40 +220,40 @@ const PropertyGroupContainer: FC<{
                       shape={shape}
                     />
                   ))}
-                  {/* // refactoring needed
-                    group.qname === "bds:GISPropertyGroup" &&
+                  {
+                    (config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri) &&
                     groupEd === group.qname && // to force updating map when switching between two place entities
                     coords && ( // TODO: add a property in shape to enable this instead
                       <div style={{ position: "relative", overflow: "hidden", marginTop: "16px" }}>
                         <MapContainer style={{ width: "100%", height: "400px" }} zoom={zoom} center={coords}>
                           <LayersControl position="topright">
-                            {config.googleAPIkey && (
+                            {config.googleMapsAPIKey && (
                               <>
                                 <LayersControl.BaseLayer checked name="Satellite+Roadmap">
-                                  <ReactLeafletGoogleLayer apiKey={config.googleAPIkey} type="hybrid" />
+                                  <ReactLeafletGoogleLayer apiKey={config.googleMapsAPIKey} type="hybrid" />
                                 </LayersControl.BaseLayer>
                                 <LayersControl.BaseLayer name="Satellite">
-                                  <ReactLeafletGoogleLayer apiKey={config.googleAPIkey} type="satellite" />
+                                  <ReactLeafletGoogleLayer apiKey={config.googleMapsAPIKey} type="satellite" />
                                 </LayersControl.BaseLayer>
                                 <LayersControl.BaseLayer name="Roadmap">
-                                  <ReactLeafletGoogleLayer apiKey={config.googleAPIkey} type="roadmap" />
+                                  <ReactLeafletGoogleLayer apiKey={config.googleMapsAPIKey} type="roadmap" />
                                 </LayersControl.BaseLayer>
                                 <LayersControl.BaseLayer name="Terrain">
-                                  <ReactLeafletGoogleLayer apiKey={config.googleAPIkey} type="terrain" />
+                                  <ReactLeafletGoogleLayer apiKey={config.googleMapsAPIKey} type="terrain" />
                                 </LayersControl.BaseLayer>
                               </>
                             )}
-                            {!config.googleAPIkey && (
+                            {!config.googleMapsAPIKey && (
                               <LayersControl.BaseLayer checked name="OpenStreetMap">
                                 <TileLayer url="https://{s}.tile.iosb.fraunhofer.de/tiles/osmde/{z}/{x}/{y}.png" />
                               </LayersControl.BaseLayer>
                             )}
                           </LayersControl>
                           {!unset && <DraggableMarker pos={coords} icon={redIcon} setCoords={setCoords} />}
-                          <MapEventHandler coords={coords} redraw={redraw} setCoords={setCoords} />
+                          <MapEventHandler coords={coords} redraw={redraw} setCoords={setCoords} config={config} />
                         </MapContainer>
                       </div>
-                    ) */}
+                    ) }
                   {hasExtra && (
                     <span className="toggle-btn  btn btn-rouge my-4" onClick={toggleExtra}>
                       {i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })}
@@ -274,7 +266,6 @@ const PropertyGroupContainer: FC<{
         </div>
       </section>
     </div>
-    //</Waypoint>
   )
 }
 
