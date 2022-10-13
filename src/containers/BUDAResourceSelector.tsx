@@ -65,8 +65,11 @@ type messagePayload = {
 
 const BDR_uri = "http://purl.bdrc.io/resource/"
 
-// DONE dedicated subcomponent + keep previous keyword/language searched
-const ResourceSelector: FC<{
+// This is an example implementation of a resource selector
+// the code should be made a bit more generic so that
+// it can be reused in other resource selectors
+
+const BUDAResourceSelector: FC<{
   value: ExtRDFResourceWithLabel
   onChange: (value: ExtRDFResourceWithLabel, idx: number, removeFirst: boolean | undefined) => void
   property: PropertyShape
@@ -688,24 +691,6 @@ const ResourceSelector: FC<{
                 </MenuItem>
               )
             })}
-            {/* 
-            // not needed (use actual keyword/rid to create entity)
-            isRid && keyword && <> 
-              <hr className="my-1" />
-              <MenuItem
-                key={keyword}
-                value={keyword}
-                onClick={() => {
-                  const r = qnamePrefixToType(keyword)
-                  const url = createAndUpdate(r, keyword)
-                  debug("CaU?", property.qname, keyword)
-                  //history.push(url)
-                }}
-              >
-                create {qnamePrefixToType(keyword)} {keyword}
-              </MenuItem>
-              </>  
-              */}
           </div>
           <div className="popup-new-BG" onClick={togglePopup}></div>
         </div>
@@ -739,4 +724,4 @@ const LabelWithRID: FC<{ entity: Entity; choose?: (e: Entity, labels: Record<str
     )
 }
 
-export default ResourceSelector
+export default BUDAResourceSelector

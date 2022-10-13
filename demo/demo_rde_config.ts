@@ -4,6 +4,7 @@ import { fetchTtl, IFetchState } from "../src/helpers/rdf/io"
 import * as shapes from "../src/helpers/rdf/shapes"
 import * as ns from "../src/helpers/rdf/ns"
 import { Entity } from "../src/containers/EntitySelectorContainer"
+import BUDAResourceSelector from "../src/containers/BUDAResourceSelector"
 import {
   NodeShape,
   generateSubnode,
@@ -222,5 +223,6 @@ export const demoConfig: RDEConfig = {
   setUserLocalEntity: setUserLocalEntity,
   possibleShapeRefs: possibleShapeRefs,
   possibleShapeRefsForEntity: possibleShapeRefsForEntity,
-  libraryUrl: "https://library.bdrc.io/"
+  libraryUrl: "https://library.bdrc.io/",
+  resourceSelector: BUDAResourceSelector
 }

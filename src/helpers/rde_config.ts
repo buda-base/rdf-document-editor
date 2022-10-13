@@ -1,9 +1,9 @@
 import * as rdf from "rdflib"
-import { RDFResource, Subject, LiteralWithId, RDFResourceWithLabel } from "./rdf/types"
-import { NodeShape } from "./rdf/shapes"
+import { RDFResource, Subject, LiteralWithId, RDFResourceWithLabel, ExtRDFResourceWithLabel } from "./rdf/types"
+import { NodeShape, PropertyShape } from "./rdf/shapes"
 import { PrefixMap } from "./rdf/ns"
 import { IFetchState } from "./rdf/io"
-import { Entity } from "../containers/EntitySelectorContainer"
+import { Entity, EditedEntityState } from "../containers/EntitySelectorContainer"
 import { Lang } from "./lang"
 import { FC, PropsWithChildren } from "react"
 
@@ -112,6 +112,22 @@ interface possibleShapeRefsForEntity {
   (entity: rdf.NamedNode): ShapeRef[]
 }
 
+type ResourceSelector = FC<{
+  value: ExtRDFResourceWithLabel
+  onChange: (value: ExtRDFResourceWithLabel, idx: number, removeFirst: boolean | undefined) => void
+  property: PropertyShape
+  idx: number
+  exists: (uri: string) => boolean
+  subject: Subject
+  editable: boolean
+  owner?: Subject
+  title: string
+  globalError: string
+  updateEntityState: (es: EditedEntityState) => void
+  shape: NodeShape,
+  config: RDEConfig
+}>
+
 export default interface RDEConfig {
   readonly generateSubnode: generateSubnode
   readonly valueByLangToStrPrefLang: valueByLangToStrPrefLang
@@ -139,4 +155,5 @@ export default interface RDEConfig {
   readonly possibleShapeRefs: ShapeRef[]
   possibleShapeRefsForEntity: possibleShapeRefsForEntity
   libraryUrl?: string
+  resourceSelector: ResourceSelector
 }
