@@ -44,7 +44,7 @@ interface getPreviewLink {
 }
 
 interface getUserLocalEntities {
-  (): Record<string, LocalEntityInfo>
+  (): Promise<Record<string, LocalEntityInfo>>
 }
 
 interface setUserLocalEntities {
@@ -52,14 +52,20 @@ interface setUserLocalEntities {
 }
 
 interface getUserMenuState {
-  (): Array<Entity>
+  (): Promise<Entity[]>
 }
 
 interface setUserMenuState {
-  (menuState: Array<Entity>): Promise<void>
+  (
+  subjectQname: string,
+  shapeQname: string | null,
+  labels: string | undefined,
+  del: boolean,
+  etag: string | null
+  ): Promise<void>
 }
 
-interface LocalEntityInfo {
+export interface LocalEntityInfo {
   shapeQname: string,
   ttl: string,
   etag: string | null,
@@ -75,7 +81,7 @@ interface entityCreator {
 }
 
 type localEntityInfo = {
-  rid: string,
+  subjectQname: string,
   shapeQname: string,
   ttl: string,
   del: boolean,
@@ -86,15 +92,21 @@ type localEntityInfo = {
 
 interface setUserLocalEntity {
   (
-  rid: string,
-  shapeQname: string,
-  ttl: string,
+  subjectQname: string,
+  shapeQname: string | null,
+  ttl: string | null,
   del: boolean,
   userId: string,
   etag: string | null,
   needsSaving: boolean
   ): Promise<void>
 }
+
+interface iconFromEntity {
+  (entity: Entity): string
+}
+
+
 
 export default interface RDEConfig {
   readonly generateSubnode: generateSubnode
@@ -112,7 +124,6 @@ export default interface RDEConfig {
   readonly getShapesDocument: getShapesDocument
   readonly getConnexGraph: getConnexGraph
   readonly getUserLocalEntities: getUserLocalEntities
-  readonly setUserLocalEntities: setUserLocalEntities
   readonly getUserMenuState: getUserMenuState
   readonly setUserMenuState: setUserMenuState
   readonly setUserLocalEntity: setUserLocalEntity
@@ -120,4 +131,5 @@ export default interface RDEConfig {
   readonly latProp: rdf.NamedNode
   readonly lngProp: rdf.NamedNode
   readonly gisPropertyGroup?: rdf.NamedNode
+  readonly iconFromEntity: iconFromEntity
 }

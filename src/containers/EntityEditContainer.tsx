@@ -40,9 +40,6 @@ import { HashLink as Link } from "react-router-hash-link"
 import queryString from "query-string"
 import { getParentPath, history } from "../helpers/observer"
 import Button from "@material-ui/core/Button"
-//import { demoUserId } from "../../../containers/DemoContainer"
-
-//import config from "../config/"
 
 const debug = require("debug")("rde:entity:edit")
 
@@ -210,7 +207,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
           return entityObj[0].subject.getAtomForProperty(p.path.sparqlString)
       })
       // removes undefined values
-      .filter((a: RecoilState<Value[]> | undefined): RecoilState<Value[]>[] => a!!)
+      .filter((a: RecoilState<Value[]> | undefined): RecoilState<Value[]>[] => a)
     const subprops: Record<string,{atom: RecoilState<Subject[]>, allowPush: string[]}> = group.properties.reduce((accG, p) => {
       const allowPush: (string|undefined)[]|undefined = p.targetShape?.properties
         .filter((s: PropertyShape) => s.allowPushToTopLevelLabel)

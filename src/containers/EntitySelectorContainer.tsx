@@ -66,9 +66,9 @@ export type Entity = {
   subject: Subject | null
   shapeQname: string
   state: EditedEntityState
-  subjectLabelState: RecoilState<Array<Value>> | null
+  subjectLabelState: RecoilState<Array<Value>>
   preloadedLabel?: string
-  alreadySaved: boolean // false or current etag
+  etag: string | null
   loadedUnsavedFromLocalStorage: boolean // true when localStorage has unsaved changes
 }
 

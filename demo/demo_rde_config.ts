@@ -3,6 +3,7 @@ import { RDFResource, Subject, LiteralWithId, EntityGraph } from "../src/helpers
 import { fetchTtl, IFetchState } from "../src/helpers/rdf/io"
 import * as shapes from "../src/helpers/rdf/shapes"
 import * as ns from "../src/helpers/rdf/ns"
+import { Entity } from "../src/containers/EntitySelectorContainer"
 import {
   NodeShape,
   generateSubnode,
@@ -14,6 +15,7 @@ import {
   rdfsComment,
 } from "../src/helpers/rdf/shapes"
 import RDEConfig from "../src/helpers/rde_config"
+import { LocalEntityInfo } from "../src/helpers/rde_config"
 import { Lang, ValueByLangToStrPrefLang } from "../src/helpers/lang"
 import { FC, useState, useEffect } from "react"
 import { nanoid, customAlphabet } from "nanoid"
@@ -129,6 +131,69 @@ export function EntityCreator(shapeNode: rdf.NamedNode, entityNode: rdf.NamedNod
   return { entityLoadingState, entity, reset }
 }
 
+export const iconFromEntity = (entity: Entity | null): string => {
+  if (!entity) return ""
+  let icon
+  if (entity.subject) {
+    const rdfType = ns.RDF("type") as rdf.NamedNode
+    if (entity?.subject?.graph?.store?.statements)
+      for (const s of entity.subject.graph.store.statements) {
+        if (s.predicate.value === rdfType.value && s.subject.value === entity.subject.node.value) {
+          icon = s.object.value.replace(/.*?[/]([^/]+)$/, "$1") // .toLowerCase()
+          if (icon.toLowerCase() === "user") break
+        }
+      }
+  }
+  let shapeQname = entity.shapeQname
+  if (!icon && shapeQname) {
+    // TODO: might be something better than that...
+    icon = shapeQname.replace(/^[^:]+:([^:]+?)Shape[^/]*$/, "$1")
+  }
+  return icon as string
+}
+
+export const getUserMenuState = async (): Promise<Entity[]>  => {
+  const datastr = localStorage.getItem("rde_menu_state")
+  return datastr ? await JSON.parse(datastr) : {}
+}
+
+export const setUserMenuState = async (
+  subjectQname: string,
+  shapeQname: string | null,
+  labels: string | undefined,
+  del: boolean,
+  etag: string | null
+): Promise<void> => {
+  const datastr = localStorage.getItem("rde_menu_state")
+  const data = datastr ? await JSON.parse(datastr) : {}
+  if (!del) data[subjectQname] = { shapeQname, labels, etag }
+  else if (data[subjectQname]) delete data[subjectQname]
+  const dataNewStr = JSON.stringify(data)
+  localStorage.setItem("rde_menu_state", dataNewStr)
+}
+
+export const getUserLocalEntities = async (): Promise<Record<string, LocalEntityInfo>> => {
+  const datastr = localStorage.getItem("rde_entities")
+  return datastr ? await JSON.parse(datastr) : {}
+}
+
+export const setUserLocalEntity = async (
+  subjectQname: string,
+  shapeQname: string | null,
+  ttl: string | null,
+  del: boolean,
+  userId: string,
+  etag: string | null,
+  needsSaving: boolean
+): Promise<void> => {
+  const datastr = localStorage.getItem("rde_entities")
+  const data = datastr ? await JSON.parse(datastr) : {}
+  if (!del) data[subjectQname] = { shapeQname, ttl, etag, needsSaving }
+  else if (data[subjectQname]) delete data[subjectQname]
+  const dataNewStr = JSON.stringify(data)
+  localStorage.setItem("rde_entities", dataNewStr)
+}
+
 export const demoConfig: RDEConfig = {
   generateSubnode: generateSubnode,
   valueByLangToStrPrefLang: ValueByLangToStrPrefLang,
@@ -142,4 +207,9 @@ export const demoConfig: RDEConfig = {
   getDocument: getDocument,
   previewLiteral: (literal: LiteralWithId) => null,
   entityCreator: EntityCreator,
+  iconFromEntity: iconFromEntity,
+  getUserMenuState: getUserMenuState,
+  setUserMenuState: setUserMenuState,
+  getUserLocalEntities: getUserLocalEntities,
+  setUserLocalEntity: setUserLocalEntity
 }
