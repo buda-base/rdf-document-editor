@@ -76,42 +76,20 @@ export const defaultDescriptionProperties = [skosDefinition, rdfsComment, shDesc
 
 export const sortByPropValue = (
   nodelist: Array<rdf.NamedNode>,
-  p: rdf.NamedNode,
+  property: rdf.NamedNode,
   store: rdf.Store
 ): Array<rdf.NamedNode> => {
-  const orderedGroupObjs: Record<number, rdf.NamedNode> = {}
-  let orders: Array<number> = []
+  const nodeUriToPropValue: Record<string,number> = {}
   for (const node of nodelist) {
-    let order = 0
-    const ordern: rdf.Literal | null = store.any(node, p, null) as rdf.Literal
-    if (ordern) {
-      const asnum = rdfLitAsNumber(ordern)
-      if (asnum !== null) order = asnum
-      else throw "no order found for node and property: " + node.value + " , " + p.value + " , " + asnum
-      //orders.push(order) // instead let's try to avoid duplicates first
-    }
-    // TODO: enable this as exception
-    else debug("missing order from node and property", node.value, " , ", p.value)
-
-    // quickfix for bug when multiple order are the same
-    if (orderedGroupObjs[order]) {
-      debug("current node:", node)
-      debug("  order ", order, " already exists:", orderedGroupObjs[order])
-      let possibleOrder = Object.keys(orderedGroupObjs)
-      if (orderedGroupObjs[possibleOrder.length]) {
-        possibleOrder = possibleOrder.reduce((acc, n) => n > acc ? n : acc, -1)
-        possibleOrder++
-      }
-      order = possibleOrder
-    }
-    orderedGroupObjs[order] = node
+    const ordern: rdf.Literal | null = store.any(node, property, null) as rdf.Literal
+    if (!ordern) nodeUriToPropValue[node.uri] = 0
+    const asnum = rdfLitAsNumber(ordern)
+    nodeUriToPropValue[node.uri] = asnum == null ? 0 : asnum
   }
-  orders = Object.keys(orderedGroupObjs).sort((a, b) => a - b)
-  const res: Array<rdf.NamedNode> = []
-  for (const order of orders) {
-    res.push(orderedGroupObjs[order])
-  }
-  return res
+  // TODO: untested
+  return [...nodelist].sort((a: rdf.NamedNode, b: rdf.NamedNode) => {
+    return nodeUriToPropValue[a.uri] - nodeUriToPropValue[b.uri]
+  })
 }
 
 export class Path {

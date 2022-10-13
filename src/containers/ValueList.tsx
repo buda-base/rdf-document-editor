@@ -1857,7 +1857,7 @@ const ExtEntityComponent: FC<{
   owner?: Subject
   title: string
   updateEntityState: (es: EditedEntityState) => void
-  shape: Shape
+  shape: NodeShape
 }> = ({
   extRes,
   subject,

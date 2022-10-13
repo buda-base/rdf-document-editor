@@ -15,7 +15,7 @@ import {
   RecoilState,
 } from "recoil"
 import { uiHistoryState } from "../../atoms/common"
-import { getParentPath } from "../observer"
+import { getParentPath, history, updateHistory } from "../observer"
 import { nanoid } from "nanoid"
 
 const debug = require("debug")("rde:rdf:types")
@@ -112,6 +112,7 @@ export class EntityGraphValues {
               // val.node happens to be undefined when list has been updated in UI
               if (val.node) {
                 collection.append(val.node)
+              // TODO: ???
               } else collection.append(val)
             } else store.add(subject, property, val.node, defaultGraphNode)
             if (val instanceof Subject) {
@@ -147,7 +148,7 @@ export class EntityGraphValues {
       default: [],
       effects_UNSTABLE: [this.propsUpdateEffect(subjectUri, pathString)],
       // disable immutability in production
-      dangerouslyAllowMutability: !config.__DEV__,
+      dangerouslyAllowMutability: true,
     })
   }
 
@@ -228,10 +229,13 @@ export class EntityGraph {
       if (!graph.connexGraph) {
         throw "trying to access inexistant associatedStore"
       }
-      const lits: Array<rdf.Literal> = graph.connexGraph.each(res, prefLabel, null) as Array<rdf.Literal>
       const perLang: Record<string, string> = {}
-      for (const lit of lits) {
-        perLang[lit.language] = lit.value
+      for (const p of graph.labelProperties) {
+        const lits: Array<rdf.Literal> = graph.connexGraph.each(res, p, null) as Array<rdf.Literal>
+        for (const lit of lits) {
+          if (lit.language in perLang) continue
+          perLang[lit.language] = lit.value
+        }
       }
       return new ExtRDFResourceWithLabel(res.uri, perLang)
     })
@@ -441,8 +445,12 @@ export class RDFResource {
 }
 
 export class RDFResourceWithLabel extends RDFResource {
+
+  node: rdf.NamedNode
+
   constructor(node: rdf.NamedNode, graph: EntityGraph, labelProp?: rdf.NamedNode) {
     super(node, graph)
+    this.node = node
   }
 
   @Memoize()
@@ -486,10 +494,9 @@ export class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
     uri: string,
     prefLabels: Record<string, string>,
     data: Record<string, any> = {},
-    config: RDEConfig,
     description: Record<string, any> | null = null
   ) {
-    super(new rdf.NamedNode(uri), new EntityGraph(new rdf.Store(), uri, config))
+    super(new rdf.NamedNode(uri), new EntityGraph(new rdf.Store(), uri))
     this._prefLabels = prefLabels
     this._description = description
     //debug("data", data)
@@ -497,7 +504,7 @@ export class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
   }
 
   public addOtherData(key: string, value: any): ExtRDFResourceWithLabel {
-    return new ExtRDFResourceWithLabel(this.node.uri, this._prefLabels, { ...this._otherData, [key]: value })
+    return new ExtRDFResourceWithLabel(this.uri, this._prefLabels, { ...this._otherData, [key]: value })
   }
 }
 
@@ -540,6 +547,11 @@ export type Value = Subject | LiteralWithId | RDFResourceWithLabel
 export class Subject extends RDFResource {
 
   node: rdf.NamedNode
+
+  constructor(node: rdf.NamedNode, graph: EntityGraph) {
+    super(node, graph)
+    this.node = node
+  }
 
   getUnitializedValues(property: PropertyShape): Array<Value> | null {
     return this.graph.getUnitializedValues(this, property)

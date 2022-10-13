@@ -221,21 +221,25 @@ export const possiblePrefLabelsSelector = selectorFamily<Record<string,Value[]>,
         const labels: Value[] = [],
           atoms = []
         const canPushPrefLabelGroup: canPushPrefLabelGroupType = args.canPushPrefLabelGroups[g]
-        Object.keys(canPushPrefLabelGroup.subprops).map((k: string) => {
-          if (!canPushPrefLabelGroup.subprops[k].atom) return []
-          const names = get(canPushPrefLabelGroup.subprops[k].atom)
-          for (const n of names) {
-            for (const a of canPushPrefLabelGroup.subprops[k].allowPush) {
-              const vals = get(n.getAtomForProperty(a))
-              vals.map((v: Value) => labels.push(v))
+        if (canPushPrefLabelGroup.subprops) {
+          Object.keys(canPushPrefLabelGroup.subprops).map((k: string) => {
+            if (!canPushPrefLabelGroup.subprops || !canPushPrefLabelGroup.subprops[k].atom) return []
+            const names = get(canPushPrefLabelGroup.subprops[k].atom)
+            for (const n of names) {
+              for (const a of canPushPrefLabelGroup.subprops[k].allowPush) {
+                const vals = get(n.getAtomForProperty(a))
+                vals.map((v: Value) => labels.push(v))
+              }
             }
-          }
-          canPushPrefLabelGroup.props.map((a: RecoilValue<Value[]>) => {
-            const vals: Value[] = get(a)
-            vals.map((v: Value) => labels.push(v))
+            if (canPushPrefLabelGroup.props) {
+              canPushPrefLabelGroup.props.map((a: RecoilValue<Value[]>) => {
+                const vals: Value[] = get(a)
+                vals.map((v: Value) => labels.push(v))
+              })
+            }
+            return labels
           })
-          return labels
-        })
+        }
         if (labels.length) res[g] = labels
       }
       return res

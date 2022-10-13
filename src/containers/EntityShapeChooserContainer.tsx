@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react"
-import { TimeTravelObserver } from "../../helpers/observer"
-//import { ShapeFetcher, debugStore, EntityFetcher } from "../helpers/rdf/io"
-import { setDefaultPrefixes } from "../helpers/rdf/ns"
+import { ShapeFetcher, EntityFetcher } from "../helpers/rdf/io"
 import { RDFResource, Subject, RDFResourceWithLabel } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
@@ -11,7 +9,8 @@ import PropertyGroupContainer from "./PropertyGroupContainer"
 import { uiLangState } from "../atoms/common"
 import * as lang from "../helpers/lang"
 import { atom, useRecoilState } from "recoil"
-import { AppProps, IdTypeParams } from "../../../containers/AppContainer"
+import { RDEProps, IdTypeParams } from "../helpers/editor_props"
+import RDEConfig from "../helpers/rde_config"
 import Button from "@material-ui/core/Button"
 import * as rdf from "rdflib"
 import { BrowserRouter as Router, Switch, Route, Link, Redirect } from "react-router-dom"
@@ -19,7 +18,7 @@ import { TextField, MenuItem } from "@material-ui/core"
 
 const debug = require("debug")("rde:entity:shape")
 
-function EntityShapeChooserContainer(props: AppProps) {
+function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
   const [entityQname, setEntityQname] = useState(props.match.params.entityQname)
   const [uiLang] = useRecoilState(uiLangState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
@@ -41,9 +40,8 @@ function EntityShapeChooserContainer(props: AppProps) {
 
   // here we create the entity in the list if it's not there yet:
   const entityFromList = entities.find((e) => e.subjectQname === entityQname)
-  if (entityFromList && entityFromList.shapeRef) {
-    let shapeQname = entityFromList.shapeRef
-    if (shapeQname.qname) shapeQname = shapeQname.qname
+  if (entityFromList && entityFromList.shapeQname) {
+    let shapeQname = entityFromList.shapeQname
     props.history.replace("/edit/" + entityQname + "/" + shapeQname)
     return (
       <div>
@@ -51,13 +49,10 @@ function EntityShapeChooserContainer(props: AppProps) {
       </div>
     )
   }
-  const { entityLoadingState, entity } = {} //EntityFetcher(entityQname, null, unmounting)
+  const { entityLoadingState, entity } = EntityFetcher(entityQname, null, config, unmounting)
 
   if (entity) {
-    /* // refactoring needed
-    const possibleShapes = shapes.shapeRefsForEntity(entity)
-    */
-    const possibleShapes = []
+    const possibleShapes = config.possibleShapeRefsForEntity(entity.node)
     if (entityLoadingState.status === "fetching") {
       return (
         <div>
@@ -71,7 +66,7 @@ function EntityShapeChooserContainer(props: AppProps) {
             <span>{i18n.t("error.exist", { id: entityQname })}</span>
             <br />
             <Link style={{ fontWeight: 700 }} to="/new">
-              {i18n.t("error.redirect")}
+              <>{i18n.t("error.redirect")}</>
             </Link>
           </div>
         </div>
@@ -84,7 +79,7 @@ function EntityShapeChooserContainer(props: AppProps) {
             <span>{i18n.t("error.shape", { id: entityQname })}</span>
             <br />
             <Link style={{ fontWeight: 700 }} to="/new">
-              {i18n.t("error.redirect")}
+              <>{i18n.t("error.redirect")}</>
             </Link>
           </div>
         </div>
@@ -96,7 +91,7 @@ function EntityShapeChooserContainer(props: AppProps) {
         for (const i in newEntities) {
           const e = newEntities[i]
           if (e.subjectQname === entityQname) {
-            newEntities[i] = { ...e, shapeRef: shape }
+            newEntities[i] = { ...e, shapeQname: shape.qname }
             setEntities(newEntities)
             break
           }
@@ -112,15 +107,10 @@ function EntityShapeChooserContainer(props: AppProps) {
               helperText={"List of all possible shapes"}
               id="shapeSelec"
               className="shapeSelector"
-              /*
-              // reactoring needed
-              value={
-                shapes.possibleShapeRefs[0].qname}
-              }
-              */
+              value={config.possibleShapeRefs[0].qname}
               style={{ marginTop: "3px", marginLeft: "10px" }}
             >
-              {/* shapes.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (
+              { config.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (
                 <MenuItem key={shape.qname} value={shape.qname} style={{ padding: 0 }}>
                   <Link
                     to={"/edit/" + entityQname + "/" + shape.qname}
@@ -130,7 +120,7 @@ function EntityShapeChooserContainer(props: AppProps) {
                     {lang.ValueByLangToStrPrefLang(shape.prefLabels, uiLang)}
                   </Link>
                 </MenuItem>
-              )) */}
+              ))}
             </TextField>
           </div>
         </div>

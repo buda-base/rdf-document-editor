@@ -2,7 +2,7 @@ import * as rdf from "rdflib"
 import i18n from "i18next"
 import { useState, useEffect, useContext } from "react"
 import { useRecoilState } from "recoil"
-import { RDFResource, RDFResourceWithLabel, EntityGraph, Subject, history } from "./types"
+import { RDFResource, RDFResourceWithLabel, EntityGraph, Subject } from "./types"
 import { NodeShape, prefLabel } from "./shapes"
 import {
   profileIdState,
@@ -163,7 +163,7 @@ export function ShapeFetcher(shapeQname: string, entityQname: string, config: RD
             const newEntities = [...entities]
             newEntities[index] = {
               ...newEntities[index],
-              shapeRef: shape.qname,
+              shapeQname: shape.qname,
             }
             //debug("shape:", shape, entityQname, index, newEntities, newEntities[index])
             setEntities(newEntities)
@@ -187,7 +187,7 @@ export function ShapeFetcher(shapeQname: string, entityQname: string, config: RD
   return retVal //{ loadingState, shape, reset }
 }
 
-export function EntityFetcher(entityQname: string, shapeQname: string | null, config: RDEConfig, unmounting = { val: false }) {
+export function EntityFetcher(entityQname: string, shapeQname: string, config: RDEConfig, unmounting = { val: false }) {
   const [entityLoadingState, setEntityLoadingState] = useState<IFetchState>({ status: "idle", error: undefined })
   const [entity, setEntity] = useState<Subject>(Subject.createEmpty())
   const [uiReady, setUiReady] = useRecoilState(uiReadyState)
@@ -283,11 +283,11 @@ export function EntityFetcher(entityQname: string, shapeQname: string | null, co
             _entities.push({
               subjectQname: k,
               subject: null,
-              shapeRef: obj[k].shape,
+              shapeQname: obj[k].shapeQname,
               subjectLabelState: defaultEntityLabelAtom,
               state: EditedEntityState.NotLoaded,
-              preloadedLabel: obj[k].label,
-              alreadySaved: obj[k].etag,
+              preloadedLabel: obj[k].preloadedLabel,
+              etag: obj[k].etag,
               loadedUnsavedFromLocalStorage: true
             })
           }
@@ -324,7 +324,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string | null, co
             shapeQname: shapeQname,
             subject: null,
             subjectLabelState: defaultEntityLabelAtom,
-            alreadySaved: !!etag,
+            etag: etag,
             loadedUnsavedFromLocalStorage: false
           })
           index = newEntities.length - 1
@@ -336,7 +336,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string | null, co
             state: EditedEntityState.Saved,
             subjectLabelState: subject.getAtomForProperty(prefLabel.uri),
             preloadedLabel: "",
-            alreadySaved: !!etag,
+            etag: etag,
             ...etag ? { loadedUnsavedFromLocalStorage: needsSaving } : {},
           }
 

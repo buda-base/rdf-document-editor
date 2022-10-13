@@ -1,5 +1,5 @@
 import * as rdf from "rdflib"
-import { RDFResource, Subject, LiteralWithId, EntityGraph } from "../src/helpers/rdf/types"
+import { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel } from "../src/helpers/rdf/types"
 import { fetchTtl, IFetchState } from "../src/helpers/rdf/io"
 import * as shapes from "../src/helpers/rdf/shapes"
 import * as ns from "../src/helpers/rdf/ns"
@@ -194,6 +194,14 @@ export const setUserLocalEntity = async (
   localStorage.setItem("rde_entities", dataNewStr)
 }
 
+const personShapeRef = new ExtRDFResourceWithLabel(demoShape.uri, { en: "Person" }),
+
+const possibleShapeRefs = [ personShapeRef ]
+
+const possibleShapeRefsForEntity = (entity: rdf.NamedNode) => {
+  return possibleShapeRefs
+}
+
 export const demoConfig: RDEConfig = {
   generateSubnode: generateSubnode,
   valueByLangToStrPrefLang: ValueByLangToStrPrefLang,
@@ -211,5 +219,6 @@ export const demoConfig: RDEConfig = {
   getUserMenuState: getUserMenuState,
   setUserMenuState: setUserMenuState,
   getUserLocalEntities: getUserLocalEntities,
-  setUserLocalEntity: setUserLocalEntity
+  setUserLocalEntity: setUserLocalEntity,
+  possibleShapeRefs: possibleShapeRefs
 }

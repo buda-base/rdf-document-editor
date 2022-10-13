@@ -1,5 +1,5 @@
 import * as rdf from "rdflib"
-import { RDFResource, Subject, LiteralWithId } from "./rdf/types"
+import { RDFResource, Subject, LiteralWithId, RDFResourceWithLabel } from "./rdf/types"
 import { NodeShape } from "./rdf/shapes"
 import { PrefixMap } from "./rdf/ns"
 import { IFetchState } from "./rdf/io"
@@ -106,7 +106,11 @@ interface iconFromEntity {
   (entity: Entity): string
 }
 
+type ShapeRef = RDFResourceWithLabel
 
+interface possibleShapeRefsForEntity {
+  (entity: rdf.NamedNode): ShapeRef[]
+}
 
 export default interface RDEConfig {
   readonly generateSubnode: generateSubnode
@@ -132,4 +136,6 @@ export default interface RDEConfig {
   readonly lngProp: rdf.NamedNode
   readonly gisPropertyGroup?: rdf.NamedNode
   readonly iconFromEntity: iconFromEntity
+  readonly possibleShapeRefs: ShapeRef[]
+  possibleShapeRefsForEntity: possibleShapeRefsForEntity
 }

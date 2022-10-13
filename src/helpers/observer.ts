@@ -28,7 +28,7 @@ export const getHistoryStatus = (entityUri: string): HistoryStatus => {
   return { top, first, current }
 }
 
-const updateHistory = (
+export const updateHistory = (
   entity: string,
   qname: string,
   prop: string,
@@ -47,7 +47,7 @@ const updateHistory = (
   }
 
   // don't add empty value to history (fix adding undo steps when showing secondary properties in Person/Kinship)
-  if (val.length === 1 && (val[0].uri === "tmp:uri" || val[0].value === "")) return
+  if (val.length === 1 && (((!(val[0] instanceof LiteralWithId)) && val[0].uri === "tmp:uri") || val[0].value === "")) return
 
   // some value modifications must not be added to history (some autocreation of empty values for example)
   if (noHisto === -1) {

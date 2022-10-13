@@ -1,6 +1,7 @@
 import React, { useState, FC } from "react"
 import { RDFResource, Subject, LiteralWithId, ObjectType } from "../helpers/rdf/types"
 import { PropertyShape, NodeShape } from "../helpers/rdf/shapes"
+import RDEConfig from "../helpers/rde_config"
 import { uiLangState } from "../atoms/common"
 import * as lang from "../helpers/lang"
 import { atom, useRecoilState, atomFamily } from "recoil"
@@ -18,7 +19,8 @@ const PropertyContainer: FC<{
   owner?: Subject
   topEntity?: Subject
   shape: NodeShape
-  siblingsPath?: string
+  siblingsPath?: string,
+  config: RDEConfig
 }> = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath }) => {
   const objectType = property.objectType
 
@@ -26,7 +28,7 @@ const PropertyContainer: FC<{
 
   const [css, setCss] = useState("")
 
-  const setCssClass = (txt, add = true) => {
+  const setCssClass = (txt: string, add = true) => {
     if (add) {
       if (!css.includes(txt)) setCss(css + txt + " ")
     } else {
