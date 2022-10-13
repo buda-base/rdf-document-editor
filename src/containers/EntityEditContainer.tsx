@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect, useCallback, useRef } from "react"
-//import { ShapeFetcher, EntityFetcher, setUserLocalEntities, debugStore } from "../helpers/rdf/io"
+import { ShapeFetcher, EntityFetcher, IFetchState } from "../helpers/rdf/io"
 //import { setDefaultPrefixes } from "../helpers/rdf/ns"
-import { RDFResource, Subject, ExtRDFResourceWithLabel, history, LiteralWithId, Value } from "../helpers/rdf/types"
+import { RDFResource, Subject, ExtRDFResourceWithLabel, LiteralWithId, Value } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
 import { PropertyShape, PropertyGroup } from "../helpers/rdf/shapes"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
@@ -28,6 +28,7 @@ import {
   canPushPrefLabelGroupsType
 } from "../atoms/common"
 import * as lang from "../helpers/lang"
+import RDEConfig from "../helpers/rde_config"
 import { atom, useRecoilState, useRecoilSnapshot, useRecoilValue, RecoilState } from "recoil"
 import { RDEProps } from "../helpers/editor_props"
 import * as rdf from "rdflib"
@@ -36,9 +37,8 @@ import * as ns from "../helpers/rdf/ns"
 import { Redirect } from "react-router-dom"
 import { replaceItemAtIndex } from "../helpers/atoms"
 import { HashLink as Link } from "react-router-hash-link"
-import { useAuth0 } from "@auth0/auth0-react"
 import queryString from "query-string"
-import { getParentPath } from "../helpers/observer"
+import { getParentPath, history } from "../helpers/observer"
 import Button from "@material-ui/core/Button"
 //import { demoUserId } from "../../../containers/DemoContainer"
 
@@ -138,6 +138,7 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
       })
     return { ... acc, [q[0]]: literals }
     }, {})
+  }
 
   //debug("copy:",copy,props.copy)
 
@@ -145,7 +146,7 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
     (subject && copy && Object.keys(copy).length)
       ?
         toCopySelector({
-          list: Object.keys(copy).map((p) => ({
+          list: Object.keys(copy).map((p: string) => ({
             property: p,
             atom: subject.getAtomForProperty(ns.defaultPrefixMap.uriFromQname(p)),
           })),
@@ -153,16 +154,18 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
       : initListAtom
   )
 
-  debug("LIST:", list, atom, props.copy, copy, props.prefLabel)
+  debug("LIST:", list, atom, props.copy, copy)
 
   useEffect(() => {
     if (copy) {
       // we have to delay this a bit for value to be propagated to EntityGraph and be exported to ttl when saving
       setTimeout(() => {
-        for (const k of Object.keys(copy)) {
-          setProp({ k, val: copy[k] })
+        if (copy) {
+          for (const k of Object.keys(copy)) {
+            setProp({ k, val: copy[k] })
+          }
         }
-      }, 1150) // eslint-disable-line no-magic-numbers
+       }, 1150) // eslint-disable-line no-magic-numbers
     }
 
     const newObject = new ExtRDFResourceWithLabel(ns.defaultPrefixMap.uriFromQname(props.objectQname), {}, {})
@@ -174,13 +177,12 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
   return <Redirect to={"/edit/" + props.objectQname + "/" + shapeQname} />
 }
 
-function EntityEditContainer(props: RDEProps) {
+function EntityEditContainer(props: RDEProps, config: RDEConfig) {
   //const [shapeQname, setShapeQname] = useState(props.match.params.shapeQname)
   //const [entityQname, setEntityQname] = useState(props.match.params.entityQname)
-  const shapeQname = props.shapeQname ?? props.match.params.shapeQname
-  const entityQname = props.entityQname ?? props.match.params.entityQname
+  const shapeQname = props.match.params.shapeQname
+  const entityQname = props.match.params.entityQname
   const [entities, setEntities] = useRecoilState(entitiesAtom)
-  const auth0 = useAuth0()
 
   const [uiLang] = useRecoilState(uiLangState)
   const [edit, setEdit] = useRecoilState(uiEditState)
@@ -198,7 +200,7 @@ function EntityEditContainer(props: RDEProps) {
   )
   const icon = getIcon(entityObj.length ? entityObj[0] : null)
 
-  const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname)
+  const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config)
 
   const canPushPrefLabelGroups = shape?.groups.reduce((acc: canPushPrefLabelGroupsType, group: PropertyGroup) => {
     const props = group.properties
@@ -247,7 +249,7 @@ function EntityEditContainer(props: RDEProps) {
     })
   }, [entities, profileId])
 
-  let init = 0
+  let init: number = 0
   useEffect(() => {
     if (entityQname === "tmp:user" && !profileId) return
 
@@ -257,7 +259,7 @@ function EntityEditContainer(props: RDEProps) {
 
     // wait for all data to be loaded then add flag in history
     if (init) clearInterval(init)
-    init = setInterval(() => {
+    init = window.setInterval(() => {
       if (history[entityUri]) {
         if (history[entityUri].some((h) => h["tmp:allValuesLoaded"])) {
           clearInterval(init)
@@ -287,17 +289,16 @@ function EntityEditContainer(props: RDEProps) {
           const store = new rdf.Store()
           ns.defaultPrefixMap.setDefaultPrefixes(store)
           obj[0]?.subject?.graph.addNewValuestoStore(store)
-          debug(store)
-          debugStore(store)
+          //debug(store)
+          //debugStore(store)
           rdf.serialize(defaultRef, store, undefined, "text/turtle", async function (err, str) {
-            if (err) {
+            if (err || !str) {
               debug(err, store)
               throw "error when serializing"
             }
             let shape = obj[0]?.shapeRef
             if (shape?.qname) shape = shape.qname
-            setUserLocalEntities(
-              auth0,
+            config.setUserLocalEntity(
               obj[0]?.subject?.qname,
               shape,
               str,
@@ -317,7 +318,7 @@ function EntityEditContainer(props: RDEProps) {
 
   // trick to get current value when unmounting
   // (see https://stackoverflow.com/questions/55139386/componentwillunmount-with-react-useeffect-hook)
-  const entityObjRef = useRef(null)
+  const entityObjRef = useRef<Entity[]>(null)
 
   useEffect(() => {
     // no luck for now
@@ -332,14 +333,14 @@ function EntityEditContainer(props: RDEProps) {
 
   useEffect(() => {
     return async () => {
-      debug("unmounting /edit", entityObjRef.current[0]?.state)
+      debug("unmounting /edit", entityObjRef.current)
       await save(entityObjRef.current)
     }
   }, [])
 
-  const [warning, setWarning] = useState(() => (event) => {}) // eslint-disable-line @typescript-eslint/no-empty-function
+  const [warning, setWarning] = useState(() => (event: BeforeUnloadEvent) => {}) // eslint-disable-line @typescript-eslint/no-empty-function
   useEffect(() => {
-    const willSave = []
+    const willSave: Entity[] = []
     for (const e of entities) {
       if (e.state !== EditedEntityState.Saved && e.state !== EditedEntityState.NotLoaded) {
         willSave.push(e)
@@ -349,7 +350,7 @@ function EntityEditContainer(props: RDEProps) {
     //debug("wS:",willSave,entities)
     if (willSave.length) {
       window.removeEventListener("beforeunload", warning, true)
-      setWarning(() => async (event) => {
+      setWarning(() => async (event: BeforeUnloadEvent) => {
         //debug("unload?",willSave)
         for (const w of willSave) {
           await save([w])
@@ -361,7 +362,7 @@ function EntityEditContainer(props: RDEProps) {
       })
     } else {
       window.removeEventListener("beforeunload", warning, true)
-      setWarning(() => (event) => {}) // eslint-disable-line @typescript-eslint/no-empty-function
+      setWarning(() => (event: BeforeUnloadEvent) => {}) // eslint-disable-line @typescript-eslint/no-empty-function
     }
   }, [entities])
 
@@ -374,21 +375,14 @@ function EntityEditContainer(props: RDEProps) {
   // refactoring needed
   //if (entityQname === "tmp:user" && !auth0.isAuthenticated && userId != demoUserId) return <span>unauthorized</span>
 
-  // useEffect(() => {
-  //   debug("params", props.match.params.entityQname)
-  //   if (props.match.params.entityQname) setEntityQname(props.match.params.entsityQname)
-  //   if (props.match.params.shapeQname) setShapeQname(props.match.params.shapeQname)
-  // }, [props.match.params])
-
   // refactoring needed
   //if (!(shapeQname in shapes.shapeRefsMap)) return <span>invalid shape!</span>
 
   // TODO: update highlighted tab
 
-  // eslint-disable-next-line prefer-const
-  let { entityLoadingState, entity } = {} //EntityFetcher(entityQname, shapes.shapeRefsMap[shapeQname])
+  let { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config)
 
-  // TODO: check that shape can be properly applied to entuty
+  // TODO: check that shape can be properly applied to entity
 
   if (loadingState.status === "error" || entityLoadingState.status === "error") {
     return (
@@ -401,7 +395,7 @@ function EntityEditContainer(props: RDEProps) {
     )
   }
 
-  if (loadingState.status === "fetching" || entityLoadingState.status === "fetching" || entity.isEmpty()) {
+  if (loadingState.status === "fetching" || entityLoadingState.status === "fetching" || !entity || entity.isEmpty()) {
     return (
       <div>
         <div>{i18n.t("types.loading")}</div>

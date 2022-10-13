@@ -81,6 +81,9 @@
     "demo/**/*.{js,jsx,json,css,tsx,ts}": [
       "prettier --write --config ./.prettierrc",
       "eslint --color --fix"
+    ],
+    "**/*.{ts,tsx}": [
+      "tsc-files --noEmit"
     ]
   },
   "eslintConfig": {

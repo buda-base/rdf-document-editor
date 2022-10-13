@@ -126,13 +126,18 @@ export const RIDprefixState = atom<string | null>({
   default: null,
 })
 
-type orderedByPropSelectorArgs = {
+export type orderedByPropSelectorArgs = {
   atom: RecoilValue<Array<Subject>>
   propertyPath: string
   order: string
-  toJSON: () => any
 }
-export const orderedByPropSelector = selectorFamily({
+
+// I don't quite understand why TS complains here, but it does, see
+// https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+export const orderedByPropSelector = selectorFamily<any,orderedByPropSelectorArgs>({
   key: "orderedByPropSelector",
   get:
     (args: orderedByPropSelectorArgs) =>
@@ -160,10 +165,12 @@ export const orderedByPropSelector = selectorFamily({
     },
 })
 
-type personNamesLabelsSelectorArgs = {
+export type personNamesLabelsSelectorArgs = {
   atom: RecoilValue<Array<Subject>>
-  toJSON: () => any
 }
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 export const personNamesLabelsSelector = selectorFamily<any,personNamesLabelsSelectorArgs>({
   key: "personNamesLabelsSelector",
   get:
@@ -188,16 +195,17 @@ export const initListAtom = atom<Array<Value>>({ key: "initListAtom", default: [
 
 export const initMapAtom = atom<Record<string, Value>>({ key: "initMapAtom", default: {} })
 
-type canPushPrefLabelGroupType = {
+export type canPushPrefLabelGroupType = {
   props: RecoilState<Value[]>[]
   subprops: Record<string, { atom: RecoilState<Subject[]>; allowPush: string[] }>
 }
 
-type canPushPrefLabelGroupsType = {
+export type canPushPrefLabelGroupsType = {
  canPushPrefLabelGroups: Record<string,canPushPrefLabelGroupType>,
- toJSON: () => any
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 export const possiblePrefLabelsSelector = selectorFamily<any,canPushPrefLabelGroupsType>({
   key: "possiblePrefLabelsSelector",
   get:
@@ -233,13 +241,14 @@ export const possiblePrefLabelsSelector = selectorFamily<any,canPushPrefLabelGro
     },
 })
 
-type orderedNewValSelectorType = {
+export type orderedNewValSelectorType = {
   atom: RecoilState<Subject[]> | null
   propertyPath: string
   order?: "asc" | "desc"
-  toJSON: () => any
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 export const orderedNewValSelector = selectorFamily<any,orderedNewValSelectorType>({
   key: "orderedNewValSelector",
   get:
@@ -268,16 +277,17 @@ export const orderedNewValSelector = selectorFamily<any,orderedNewValSelectorTyp
     },
 })
 
-type toCopySelectorsType = Array<{
+export type toCopySelectorsType = Array<{
   property: string
   atom: RecoilState<Value[]>
 }>
 
-type toCopySelectorType = {
+export type toCopySelectorType = {
   list: toCopySelectorsType
-  toJSON: () => any
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 export const toCopySelector = selectorFamily<any,toCopySelectorType>({
   key: "toCopySelector",
   get:
@@ -306,7 +316,7 @@ export const savePopupState = atom<boolean>({
   default: false,
 })
 
-type ESfromRecoilSelectorType = {
+export type ESfromRecoilSelectorType = {
   property: shapes.PropertyShape,
   subject: Subject,
   entityQname: string,
@@ -386,13 +396,14 @@ export const ESfromRecoilSelector = selectorFamily<any,{}>({
     },
 })
 
-type isUniqueTestSelectorType = {
+export type isUniqueTestSelectorType = {
   checkUnique: boolean
   siblingsAtom: RecoilState<Subject[]>,
-  propertyPath: string,
-  toJSON: () => any
+  propertyPath: string
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 export const isUniqueTestSelector = selectorFamily<any,isUniqueTestSelectorType>({
   key: "isUniqueTestSelector",
   get:

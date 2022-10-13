@@ -74,6 +74,27 @@ interface entityCreator {
   (shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, unmounting: {val: boolean}): { entityLoadingState: IFetchState, entity: Subject | null, reset: () => void }
 }
 
+type localEntityInfo = {
+  rid: string,
+  shapeQname: string,
+  ttl: string,
+  del: boolean,
+  userId: string,
+  etag: string | null,
+  needsSaving: boolean
+}
+
+interface setUserLocalEntity {
+  (
+  rid: string,
+  shapeQname: string,
+  ttl: string,
+  del: boolean,
+  userId: string,
+  etag: string | null,
+  needsSaving: boolean
+  ): Promise<void>
+}
 
 export default interface RDEConfig {
   readonly generateSubnode: generateSubnode
@@ -94,4 +115,5 @@ export default interface RDEConfig {
   readonly setUserLocalEntities: setUserLocalEntities
   readonly getUserMenuState: getUserMenuState
   readonly setUserMenuState: setUserMenuState
+  readonly setUserLocalEntity: setUserLocalEntity
 }

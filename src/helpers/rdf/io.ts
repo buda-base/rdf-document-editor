@@ -187,7 +187,7 @@ export function ShapeFetcher(shapeQname: string, entityQname: string, config: RD
   return retVal //{ loadingState, shape, reset }
 }
 
-export function EntityFetcher(entityQname: string, shapeRef: RDFResourceWithLabel | null, config: RDEConfig, unmounting = { val: false }) {
+export function EntityFetcher(entityQname: string, shapeQname: string | null, config: RDEConfig, unmounting = { val: false }) {
   const [entityLoadingState, setEntityLoadingState] = useState<IFetchState>({ status: "idle", error: undefined })
   const [entity, setEntity] = useState<Subject>(Subject.createEmpty())
   const [uiReady, setUiReady] = useRecoilState(uiReadyState)
@@ -226,15 +226,15 @@ export function EntityFetcher(entityQname: string, shapeRef: RDFResourceWithLabe
     async function fetchResource(entityQname: string) {
       setEntityLoadingState({ status: "fetching", error: undefined })
 
-      debug("fetching", entity, shapeRef, entityQname, entities) //, isAuthenticated, idToken)
+      debug("fetching", entity, shapeQname, entityQname, entities) //, isAuthenticated, idToken)
 
       // TODO: UI "save draft" / "publish"
 
       let loadRes, loadLabels, localRes, useLocal, notFound, etag, res, needsSaving
       const localEntities = await config.getUserLocalEntities()
       // 1 - check if entity has local edits (once shape is defined)
-      //debug("local?", shapeRef, reloadEntity,entityQname, localEntities[entityQname])
-      if (reloadEntity !== entityQname && shapeRef && localEntities[entityQname] !== undefined) {
+      //debug("local?", shapeQname, reloadEntity,entityQname, localEntities[entityQname])
+      if (reloadEntity !== entityQname && shapeQname && localEntities[entityQname] !== undefined) {
         useLocal = window.confirm("found previous local edits for this resource, load them?")
         const store: rdf.Store = rdf.graph()
         if (useLocal) {
@@ -321,7 +321,7 @@ export function EntityFetcher(entityQname: string, shapeRef: RDFResourceWithLabe
           newEntities.push({
             subjectQname: actualQname,
             state: EditedEntityState.Loading,
-            shapeRef: shapeRef,
+            shapeQname: shapeQname,
             subject: null,
             subjectLabelState: defaultEntityLabelAtom,
             alreadySaved: !!etag,
@@ -384,7 +384,7 @@ export function EntityFetcher(entityQname: string, shapeRef: RDFResourceWithLabe
       if (unmounting.val) return
       else setUiReady(true)
     }
-  }, [current, shapeRef, idToken, profileId, reloadEntity])
+  }, [current, shapeQname, idToken, profileId, reloadEntity])
 
   const retVal =
     entityQname === current

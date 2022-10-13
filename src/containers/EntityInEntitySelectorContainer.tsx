@@ -38,7 +38,7 @@ function a11yProps(index: number) {
   }
 }
 
-export const getIcon = (entity: Entity) => {
+export const getIcon = (entity: Entity | null) => {
   if (!entity) return
   let icon
   if (entity.subject) {

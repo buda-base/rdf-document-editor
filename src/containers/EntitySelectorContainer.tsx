@@ -6,7 +6,6 @@ import {
   RDFResource,
   Value,
   LiteralWithId,
-  history as undoHistory,
 } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
 import { FiPower as LogoutIcon } from "react-icons/fi"
@@ -16,7 +15,9 @@ import i18n from "i18next"
 import { atom, useRecoilState, useRecoilValue, selectorFamily, RecoilState } from "recoil"
 import { useAuth0 } from "@auth0/auth0-react"
 import { FormHelperText, FormControl } from "@material-ui/core"
-import { AppProps, IdTypeParams } from "./AppContainer"
+import { RDEProps, IdTypeParams } from "../helpers/editor_props"
+import { history } from "../helpers/observer"
+import RDEConfig from "../helpers/rde_config"
 import { BrowserRouter as Router, Switch, Route, Link, useHistory } from "react-router-dom"
 import {
   uiLangState,
@@ -63,7 +64,7 @@ export enum EditedEntityState {
 export type Entity = {
   subjectQname: string
   subject: Subject | null
-  shapeRef: RDFResourceWithLabel | null | string
+  shapeQname: string
   state: EditedEntityState
   subjectLabelState: RecoilState<Array<Value>> | null
   preloadedLabel?: string
@@ -81,7 +82,7 @@ export const defaultEntityLabelAtom = atom<Array<Value>>({
   default: [new LiteralWithId("...", "en")], // TODO: use the i18n stuff
 })
 
-const EntitySelector: FC<Record<string, unknown>> = (props: AppProps) => {
+const EntitySelector: FC<Record<string, unknown>> = (props: AppProps, config: RDEConfig) => {
   const classes = useStyles()
   const { user, isAuthenticated, isLoading, logout } = useAuth0()
   const [entities, setEntities] = useRecoilState(entitiesAtom)
@@ -160,12 +161,12 @@ const EntitySelector: FC<Record<string, unknown>> = (props: AppProps) => {
       await setUserSession(auth0, entity.subjectQname, shapeQname, "", true)
 
       // remove data in local storage
-      await setUserLocalEntities(auth0, entity.subjectQname, shapeQname, "", true, userId, entity.alreadySaved)
+      await config.setUserLocalEntity(entity.subjectQname, shapeQname, "", true, userId, entity.alreadySaved, false)
 
       // remove history for entity
-      if (undoHistory) {
+      if (history) {
         const uri = ns.defaultPrefixMap.uriFromQname(entity.subjectQname)
-        if (undoHistory[uri]) delete undoHistory[uri]
+        if (history[uri]) delete history[uri]
       }
     }
 
