@@ -13,13 +13,13 @@ import {
 } from "../helpers/rdf/types"
 import { putTtl } from "../helpers/rdf/io"
 import * as shapes from "../helpers/rdf/shapes"
-import { PropertyShape } from "../helpers/rdf/shapes"
+import { generateSubnode, NodeShape, PropertyShape } from "../helpers/rdf/shapes"
 import * as ns from "../helpers/rdf/ns"
 // import { generateSubnode, reserveLname } from "../../../helpers/rdf/construct"
 import { useRecoilState, useSetRecoilState, useRecoilValue, atomFamily, atom, selectorFamily } from "recoil"
 import { makeStyles } from "@material-ui/core/styles"
 import { TextField, MenuItem, Tooltip, IconButton, InputLabel, Select } from "@material-ui/core"
-import { getId, replaceItemAtIndex, removeItemAtIndex } from "../helpers/atoms"
+import { replaceItemAtIndex, removeItemAtIndex } from "../helpers/atoms"
 import {
   AddIcon,
   RemoveIcon,
@@ -45,13 +45,13 @@ import {
   uiEditState,
   uiUndosState,
   orderedByPropSelector,
+  orderedByPropSelectorArgs,
   initListAtom,
   RIDprefixState,
   orderedNewValSelector,
-  latestNewValSelector,
   ESfromRecoilSelector,
   isUniqueTestSelector,
-  demoAtom,
+  //demoAtom,
 } from "../atoms/common"
 import ResourceSelector from "./ResourceSelector"
 import { entitiesAtom, Entity, EditedEntityState } from "./EntitySelectorContainer"
@@ -83,19 +83,22 @@ export const MinimalAddButton: FC<{
   )
 }
 
-export const BlockAddButton: FC<{ add: React.MouseEventHandler<HTMLButtonElement>; label?: string; count: number }> = ({
+export const BlockAddButton: FC<{ add: (e:React.MouseEvent<HTMLButtonElement>, n:number) => void;  label?: string; count: number }> = ({
   add,
   label,
   count = 1,
 }) => {
   const [n, setN] = useState(1)
   const [disable, setDisable] = useState(false)
+
+  /* // TODO: disable batch operations in demo mode 
   const [demo, setDemo] = useRecoilState(demoAtom)
 
   // #36 disable batch add in demo mode
   useEffect(() => {
     if (count > 1 && demo && !disable) setDisable(true)
   })
+  */
 
   return (
     <div
@@ -112,19 +115,21 @@ export const BlockAddButton: FC<{ add: React.MouseEventHandler<HTMLButtonElement
         onClick={(e) => add(e, n)}
         //disabled={disable}
       >
-        {i18n.t("general.add_another", { val: label, count })}
-        &nbsp;
-        <AddIcon />
+        <>
+          {i18n.t("general.add_another", { val: label, count })}
+          &nbsp;
+          <AddIcon />
+        </>
       </button>
       {count > 1 && (
         <TextField
-          label={i18n.t("general.add_nb", { val: label })}
+          label={<>{i18n.t("general.add_nb", { val: label })}</>}
           style={{ width: 200 }}
           value={n}
           className="ml-2"
           type="number"
           InputLabelProps={{ shrink: true }}
-          onChange={(e) => setN(e.target.value)}
+          onChange={(e) => setN(Number(e.target.value))}
           InputProps={{ inputProps: { min: 1, max: 500 } }}
           /*
         {...(error
@@ -190,8 +195,9 @@ const generateDefault = async (
   parent: Subject,
   RIDprefix: string,
   idToken: string | null,
-  val = ""
-): Value | Value[] => {
+  val = "",
+  config: RDEConfig
+): Promise<Value | Value[]> => {
   //debug("genD:", property, parent)
   switch (property.objectType) {
     case ObjectType.ResExt:
@@ -202,15 +208,15 @@ const generateDefault = async (
       */
 
       // TODO might be a better way but "" isn't authorized
-      return new ExtRDFResourceWithLabel("tmp:uri", {})
+      return new ExtRDFResourceWithLabel("tmp:uri", {}, {}, config)
       break
     case ObjectType.Internal:
       if (property.targetShape == null) throw "no target shape for " + property.uri
-      return generateSubnode(property.targetShape, parent, RIDprefix, idToken) //, n)
+      return generateSubnode(property.targetShape, parent) //, RIDprefix, idToken) //, n)
       break
     case ObjectType.ResInList:
       // DONE: fix save (default value for select like bdo:material)
-      if (property.defaultValue) return new ExtRDFResourceWithLabel(property.defaultValue.value, {})
+      if (property.defaultValue) return new ExtRDFResourceWithLabel(property.defaultValue.value, {}, {}, config)
       // if a select property is not required, we don't select anything by default
       if (!property.minCount) return noneSelected
       // else we select the first one automatically
@@ -266,9 +272,9 @@ const ValueList: FC<{
   editable: boolean
   owner?: Subject
   topEntity?: Subject
-  shape: Shape
+  shape: NodeShape
   siblingsPath?: string
-  setCssClass?: (string) => void
+  setCssClass?: (s:string) => void
 }> = ({ subject, property, embedded, force, editable, owner, topEntity, shape, siblingsPath, setCssClass }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [unsortedList, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
@@ -284,14 +290,14 @@ const ValueList: FC<{
   const orderedList = useRecoilValue(
     orderedByPropSelector({
       atom: subject.getAtomForProperty(property.path.sparqlString),
-      propertyPath: sortOnPath,
+      propertyPath: sortOnPath || "",
       //order: "desc" // default is "asc"
-    })
+    } as orderedByPropSelectorArgs)
   )
   let list = unsortedList
   if (orderedList.length) list = orderedList
 
-  const withOrder = shape.properties.filter((p) => p.sortOnProperty?.value === property.path.sparqlString)
+  const withOrder = shape.properties.filter((p) => p.sortOnProperty?.value === property.path?.sparqlString)
   let newVal = useRecoilValue(
     orderedNewValSelector({
       atom: withOrder.length
