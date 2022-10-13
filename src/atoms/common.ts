@@ -127,7 +127,7 @@ export const RIDprefixState = atom<string | null>({
 })
 
 export type orderedByPropSelectorArgs = {
-  atom: RecoilValue<Array<Subject>>
+  atom: RecoilValue<Array<Value>>
   propertyPath: string
   order: string
 }
@@ -147,17 +147,21 @@ export const orderedByPropSelector = selectorFamily<any,orderedByPropSelectorArg
         if (!order) order = "asc"
         const unorderedList = get(atom)
         const orderedList = _.orderBy(
-          unorderedList.map((s) => {
-            let k
-            const v: Value[] = get(s.getAtomForProperty(propertyPath))
-            if (Array.isArray(v) && v.length) k = Number(v[0].value)
-            else if (order === "desc") k = Number.MIN_SAFE_INTEGER
-            else k = Number.MAX_SAFE_INTEGER
-            return { s, k }
+          unorderedList.map((w:Value) => {
+            if(w instanceof Subject) {
+              const s:Subject = w
+              let k
+              const v: Value[] = get(s.getAtomForProperty(propertyPath))
+              if (Array.isArray(v) && v.length) k = Number(v[0].value)
+              else if (order === "desc") k = Number.MIN_SAFE_INTEGER
+              else k = Number.MAX_SAFE_INTEGER
+              return { s, k }
+            }
+            return { s:w, k:order === "asc" ? Number.MAX_SAFE_INTEGER : Number.MIN_SAFE_INTEGER } 
           }),
           ["k"],
           [order === "asc" ? "asc" : "desc"]
-        ).map((i: {s: Subject, k: number}) => i.s)
+        ).map((i: {s: Subject|Value, k: number}) => i.s)
         //debug("sort:", atom, propertyPath, orderedList)
         return orderedList
       }
