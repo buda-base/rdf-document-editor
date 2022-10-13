@@ -138,4 +138,5 @@ export default interface RDEConfig {
   readonly iconFromEntity: iconFromEntity
   readonly possibleShapeRefs: ShapeRef[]
   possibleShapeRefsForEntity: possibleShapeRefsForEntity
+  libraryUrl?: string
 }

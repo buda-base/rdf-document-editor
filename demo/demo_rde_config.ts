@@ -220,5 +220,7 @@ export const demoConfig: RDEConfig = {
   setUserMenuState: setUserMenuState,
   getUserLocalEntities: getUserLocalEntities,
   setUserLocalEntity: setUserLocalEntity,
-  possibleShapeRefs: possibleShapeRefs
+  possibleShapeRefs: possibleShapeRefs,
+  possibleShapeRefsForEntity: possibleShapeRefsForEntity,
+  libraryUrl: "https://library.bdrc.io/"
 }

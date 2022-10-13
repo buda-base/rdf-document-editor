@@ -6,12 +6,14 @@ import i18n from "i18next"
 import { useHistory, Link } from "react-router-dom"
 import * as shapes from "../helpers/rdf/shapes"
 import * as lang from "../helpers/lang"
+import RDEConfig from "../helpers/rde_config"
 import { uiLangState, uiLitLangState, uiTabState, initListAtom, initMapAtom, toCopySelector } from "../atoms/common"
 import {
   RDFResource,
   ExtRDFResourceWithLabel,
   RDFResourceWithLabel,
   Subject,
+  Value,
   LiteralWithId,
 } from "../helpers/rdf/types"
 import { PropertyShape, NodeShape } from "../helpers/rdf/shapes"
@@ -55,7 +57,9 @@ type messagePayload = {
   "tmp:propid": string
   "@id": string
   "skos:prefLabel"?: Array<valueLang>
+  "skos:altLabel"?: Array<valueLang>
   "tmp:keyword": valueLang
+  "tmp:notFound": boolean
   "tmp:otherData": Record<string, string | string[]>
 }
 
@@ -74,7 +78,8 @@ const ResourceSelector: FC<{
   title: string
   globalError: string
   updateEntityState: (es: EditedEntityState) => void
-  shape: NodeShape
+  shape: NodeShape,
+  config: RDEConfig
 }> = ({
   value,
   onChange,
@@ -88,6 +93,7 @@ const ResourceSelector: FC<{
   globalError,
   updateEntityState,
   shape,
+  config
 }) => {
   const classes = useStyles()
   const [keyword, setKeyword] = useState("")
@@ -96,14 +102,14 @@ const ResourceSelector: FC<{
   const [libraryURL, setLibraryURL] = useState("")
   const [uiLang, setUiLang] = useRecoilState(uiLangState)
   const [uiLitLang, setUiLitLang] = useRecoilState(uiLitLangState)
-  const [error, setError] = useState()
+  const [error, setError] = useState<string>()
   const [entities, setEntities] = useRecoilState(entitiesAtom)
   const history = useHistory()
   const msgId = subject.qname + property.qname + idx
   const [popupNew, setPopupNew] = useState(false)
   const [tab, setTab] = useRecoilState(uiTabState)
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [canCopy, setCanCopy] = useState([])
+  const [canCopy, setCanCopy] = useState<{k: string, val: Value[]}[]>([])
 
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i)
 
@@ -131,7 +137,7 @@ const ResourceSelector: FC<{
           copy.push({
             k: propQname,
             val: value.otherData[propQname].map(
-              (v) => new LiteralWithId(v["@value"], v["@language"], shapes.rdfLangString)
+              (v:Record<string,string>) => new LiteralWithId(v["@value"], v["@language"], shapes.rdfLangString)
             ),
           })
       }
@@ -158,7 +164,8 @@ const ResourceSelector: FC<{
       debug("if:", iframeRef.current)
       iframeRef.current.click()
       const wn = iframeRef.current.contentWindow
-      wn.postMessage("click", "*") //https://editor.bdrc.io/")
+      if (wn)
+        wn.postMessage("click", "*") //https://editor.bdrc.io/")
       /*
       try {
         const iDocument = iWindow.document
@@ -175,17 +182,16 @@ const ResourceSelector: FC<{
 
   //debug("ext:", value.qname)
 
-  let updateRes, msgHandler
+  let msgHandler: null | ((ev: MessageEvent) => void) = null
   useEffect(() => {
     //debug("url:", libraryURL)
 
-    updateRes = (data: messagePayload) => {
-      let isTypeOk = false,
-        actual,
-        allow
+    let updateRes = (data: messagePayload) => {
+      let isTypeOk = false
+      let actual
       if (property.expectedObjectTypes) {
-        allow = property.expectedObjectTypes.map((t) => t.qname)
-        if (!Array.isArray(allow)) allow = [allow]
+        let allow = property.expectedObjectTypes.map((t) => t.qname)
+        //if (!Array.isArray(allow)) allow = [allow]
         actual = data["tmp:otherData"]["tmp:type"]
         if (!Array.isArray(actual)) actual = [actual]
         actual = actual.map((a) => a.replace(/Product/, "Collection"))
@@ -275,19 +281,6 @@ const ResourceSelector: FC<{
       setKeyword(value.otherData["tmp:keyword"]["@value"])
       setLanguage(value.otherData["tmp:keyword"]["@language"])
     }
-    /*
-
-    // moved to effect on libraryURL
-    window.addEventListener("message", msgHandler)
-
-    //document.addEventListener("click", closeIframe)
-
-    // clean up
-    return () => {
-      if(msgHandler) window.removeEventListener("message", msgHandler, true)
-      //document.removeEventListener("click", closeIframe)
-    }
-    */
   }, []) // empty array => run only once
 
   const updateLibrary = (ev?: Event | React.FormEvent, newlang?: string, newtype?: string) => {
@@ -298,7 +291,7 @@ const ResourceSelector: FC<{
       if (isRid) {
         // TODO: return dates in library
         setLibraryURL(
-          config.LIBRARY_URL + "/simple/" + (!keyword.startsWith("bdr:") ? "bdr:" : "") + keyword + "?for=" + msgId
+          "https://library.bdrc.io/simple/" + (!keyword.startsWith("bdr:") ? "bdr:" : "") + keyword + "?for=" + msgId
         )
       } else {
         let lang = language
@@ -321,8 +314,7 @@ const ResourceSelector: FC<{
         // DONE move url to config + use dedicated route in library
         // TODO get type from ontology
         setLibraryURL(
-          config.LIBRARY_URL +
-            "/simplesearch?q=" +
+            "https://library.bdrc.io/simplesearch?q=" +
             key +
             "&lg=" +
             lang +
@@ -340,6 +332,7 @@ const ResourceSelector: FC<{
   if (value.uri && value.uri !== "tmp:uri" && value.otherData) {
     dates = ""
 
+    // TODO: switch to EDTF through eventWhen
     const getDate = (d: Array<dateDate>) => {
       const onY = d.filter((i) => i.onYear != undefined)
       const nB = d.filter((i) => i.notBefore != undefined)
@@ -352,18 +345,6 @@ const ResourceSelector: FC<{
         if (nA[0].notAfter) date += nA[0].notAfter
         return date
       } else if (onY.length) return onY[0].onYear
-
-      /*
-      if (d.onYear) return d.onYear
-      // TODO use notBefore/notAfter
-      else if (d.notBefore || d.notAfter) {
-        let date = ""
-        if (d.notBefore) date = d.notBefore
-        date += "~"
-        if (d.notAfter) date += d.notAfter
-        return date
-      }
-      */
 
       return ""
     }
@@ -381,31 +362,8 @@ const ResourceSelector: FC<{
   // TODO: very dirty! this should be taken from the shape but this is another
   // level of asynchronous indirection
 
-  // -> add shape:Shape as parameter of ResourceSelector component could work
-  //  + put all identifierPrefix-es in each "high-level" shape
-
-  const typeToQnamePrefix = (type: RDFResourceWithLabel): string => {
-    const typeLname = type.lname
-    if (typeLname == "Work") return "bdr:WA"
-    if (typeLname == "Instance") return "bdr:MW"
-    if (typeLname == "ImageInstance") return "bdr:W"
-    if (typeLname == "EtextInstance") return "bdr:IE"
-    if (typeLname == "SerialWork") return "bdr:WAS"
-    throw "cannot find prefix for " + type.uri
-  }
-
   const createAndUpdate = useCallback(
-    (type: RDFResourceWithLabel, named = "") => {
-      /*
-      debug(
-        "uri:",
-        type.uri,
-        shapes.typeUriToShape,
-        shapes.bdsIdentifierPrefix,
-        property.targetShape?.getPropStringValue(shapes.bdsIdentifierPrefix.value)
-      )
-      */
-
+    async (type: RDFResourceWithLabel, named = "") => {
       let url = ""
       url =
         "/new/" +
@@ -415,24 +373,19 @@ const ResourceSelector: FC<{
         "/" +
         (owner?.qname && owner.qname !== subject.qname ? owner.qname : subject.qname) +
         "/" +
-        ns.defaultPrefixMap.qnameFromUri(property?.path?.sparqlString) +
+        config.prefixMap.qnameFromUri(property?.path?.sparqlString) +
         "/" +
         idx +
         (owner?.qname && owner.qname !== subject.qname ? "/" + subject.qname : "")
 
-      /* // refactoring needed
-
       if (property.connectIDs) {
-        const lname = subject.lname
-        const unprefixedLname = ns.removeEntityPrefix(subject.lname)
-        // the bdr: here should be more safe
-        const newId = typeToQnamePrefix(type) + unprefixedLname
+        const newNode = await config.generateConnectedID(subject, shape, property.targetShape as shapes.NodeShape)
+        const newQname = config.prefixMap.qnameFromUri(newNode.uri)
         //debug("nId:",newId,exists(newId),exists)
 
         // use this id only if not already in current value list
-        if (!exists(newId)) url += "/named/" + (named ? named : newId)
+        if (!exists(newQname)) url += "/named/" + (named ? named : newQname)
       }
-      */
 
       // add requested values from this entity as url params
       let urlParams = ""
@@ -442,7 +395,7 @@ const ResourceSelector: FC<{
           if (urlParams) urlParams += ";"
           let val = ""
           for (const l of toCopy[k]) {
-            if (l.value) {
+            if (l instanceof LiteralWithId) {
               val += "," + encodeURIComponent('"' + l.value + (l.language ? '"@' + l.language : ""))
             }
           }
@@ -509,7 +462,7 @@ const ResourceSelector: FC<{
   const inputRef = useRef<HTMLInputElement>()
   const [withPreview, setWithPreview] = useState(false)
   useLayoutEffect(() => {
-    setWithPreview(language === "bo-x-ewts" && keyword && !isRid && document.activeElement === inputRef.current)
+    setWithPreview(language === "bo-x-ewts" && !!keyword && !isRid && document.activeElement === inputRef.current)
   })
 
   return (
@@ -621,15 +574,6 @@ const ResourceSelector: FC<{
         )}
         {value.uri !== "tmp:uri" && (
           <React.Fragment>
-            {/*
-            <TextField
-              className={classes.root}
-              InputLabelProps={{ shrink: true }}
-              style={{ width: "90%" }}
-              value={lang.ValueByLangToStrPrefLang(value.prefLabels, uiLang) + " " + dates + " | " + value.uri}
-              helperText={label}
-              disabled
-            /> */}
             <div className="selected">
               {name}
               <div style={{ fontSize: "12px", opacity: "0.5", display: "flex", alignItems: "center" }}>
@@ -675,37 +619,8 @@ const ResourceSelector: FC<{
                     />
                   </span>
                 )}
-                {/* // deprecated                
-                  value.otherData["tmp:keyword"] && (
-                  <a title={i18n.t("search.help.replace")}>
-                    <SearchIcon
-                      style={{ width: "18px", cursor: "pointer" }}
-                      onClick={() =>
-                        onChange(
-                          new ExtRDFResourceWithLabel(
-                            "tmp:uri",
-                            {},
-                            {
-                              ...value.otherData["tmp:keyword"]
-                                ? { "tmp:keyword": { ...value.otherData["tmp:keyword"] } }
-                                : {},
-                            }
-                          ),
-                          idx,
-                          true
-                        )
-                      }
-                    />
-                  </a>
-                ) */}
               </div>
             </div>
-            {/* <button
-              className="btn btn-sm btn-outline-primary py-3 ml-2"
-              style={{ boxShadow: "none", alignSelf: "center" }}
-               */}
-            {/* {i18n.t("search.change")}
-            </button> */}
           </React.Fragment>
         )}
       </div>
@@ -744,7 +659,7 @@ const ResourceSelector: FC<{
                 e?.subjectQname != owner?.qname &&
                 property.expectedObjectTypes?.some((t) =>
                   // DONE shapeRef is updated upon shape selection
-                  (e.shapeRef?.qname ?? e.shapeRef)?.startsWith(t.qname.replace(/^bdo:/, "bds:"))
+                  e.shapeQname?.startsWith(t.qname.replace(/^bdo:/, "bds:"))
                 )
               ) {
                 //debug("diff ok:",property.expectedObjectTypes,e,e.subjectQname,subject.qname,owner?.qname)
@@ -763,8 +678,8 @@ const ResourceSelector: FC<{
                   {...(r.qname === "bdo:EtextInstance" ? { disabled: true } : {})}
                   key={r.qname}
                   value={r.qname}
-                  onClick={() => {
-                    const url = createAndUpdate(r)
+                  onClick={async () => {
+                    const url = await createAndUpdate(r)
                     //debug("CaU?", url, property.qname, r.qname, createAndUpdate)
                     history.push(url)
                   }}
