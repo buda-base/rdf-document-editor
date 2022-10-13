@@ -1,16 +1,14 @@
 /* eslint-disable no-extra-parens */
 import React, { useState, FC, useEffect, ChangeEvent } from "react"
-import { Subject, RDFResourceWithLabel, RDFResource, history as undoHistory } from "../helpers/rdf/types"
-//import { setUserSession, setUserLocalEntities } from "../helpers/rdf/io"
+import { Subject, RDFResourceWithLabel, RDFResource } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
 import { FiPower as LogoutIcon } from "react-icons/fi"
 import { InputLabel, Select, MenuItem } from "@material-ui/core"
 import i18n from "i18next"
 import { atom, useRecoilState, useRecoilValue, selectorFamily } from "recoil"
-import { useAuth0 } from "@auth0/auth0-react"
 import { FormHelperText, FormControl } from "@material-ui/core"
-import { AppProps, IdTypeParams } from "./AppContainer"
-import { DialogBeforeClose } from "../components/Dialog"
+import { RDEProps, IdTypeParams } from "../helpers/editor_props"
+import { history as undoHistory } from "../helpers/observer"
 import { BrowserRouter as Router, Switch, Route, Link, useHistory } from "react-router-dom"
 import {
   uiDisabledTabsState,
@@ -24,6 +22,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import Tabs from "@material-ui/core/Tabs"
 import Tab from "@material-ui/core/Tab"
 import * as lang from "../helpers/lang"
+import RDEConfig from "../helpers/rde_config"
 import * as ns from "../helpers/rdf/ns"
 import { Entity, EditedEntityState, entitiesAtom, defaultEntityLabelAtom } from "./EntitySelectorContainer"
 import * as rdf from "rdflib"
@@ -38,29 +37,7 @@ function a11yProps(index: number) {
   }
 }
 
-export const getIcon = (entity: Entity | null) => {
-  if (!entity) return
-  let icon
-  if (entity.subject) {
-    const rdfType = ns.RDF("type") as rdf.NamedNode
-    if (entity?.subject?.graph?.store?.statements)
-      for (const s of entity.subject.graph.store.statements) {
-        if (s.predicate.value === rdfType.value && s.subject.value === entity.subject.node.value) {
-          icon = s.object.value.replace(/.*?[/]([^/]+)$/, "$1") // .toLowerCase()
-          if (icon.toLowerCase() === "user") break
-        }
-      }
-  }
-  let shapeQname = entity.shapeRef
-  if (entity.shapeRef && entity.shapeRef.qname) shapeQname = entity.shapeRef.qname
-  if (!icon && shapeQname) {
-    // TODO: might be something better than that...
-    icon = shapeQname.replace(/^[^:]+:([^:]+?)Shape[^/]*$/, "$1")
-  }
-  return icon
-}
-
-export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number }> = ({ entity, index }) => {
+export const EntityInEntitySelectorContainer: FC<{ entity: Entity, index: number, config: RDEConfig }> = ({ entity, index, config }) => {
   const [uiLang] = useRecoilState(uiLangState)
   const [uiLitLang] = useRecoilState(uiLitLangState)
   const [labelValues] = useRecoilState(!entity.preloadedLabel ? entity.subjectLabelState : defaultEntityLabelAtom)
@@ -71,22 +48,15 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
   const [popupOn, setPopupOn] = useRecoilState(savePopupState)
 
   const history = useHistory()
-  const auth0 = useAuth0()
 
-  const prefLabels = labelValues ? RDFResource.valuesByLang(labelValues) : ""
+  const prefLabels = labelValues ? RDFResource.valuesByLang(labelValues) : null
   const label = !entity.preloadedLabel ? lang.ValueByLangToStrPrefLang(prefLabels, uiLitLang) : entity.preloadedLabel
-  const icon = getIcon(entity)
-  const shapeQname = entity.shapeRef
-    ? entity.shapeRef.qname
-      ? entity.shapeRef.qname
-      : entity.shapeRef
-    : entities[index] && entities[index].shapeRef
-    ? entities[index].shapeRef.qname
-      ? entities[index].shapeRef.qname
-      : entities[index].shapeRef
-    : icon
-    ? "bds:" + icon[0].toUpperCase() + icon.substring(1) + "Shape"
-    : ""
+  const icon = config.iconFromEntity(entity)
+  const shapeQname = entity.shapeQname
+    ? entity.shapeQname
+    : entities[index] && entities[index].shapeQname
+    ? entities[index].shapeQname
+    : null
 
   //debug("sQn:", icon) //, index, tab, shapeQname, entity.shapeRef?.qname, entity.shapeRef, entity.subjectQname)
 
@@ -103,25 +73,25 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
     }
   }
 
-  const closeEntity = async (ev: MouseEvent) => {
+  const closeEntity = async (ev: React.MouseEvent) => {
     ev.persist()
     if (entity.state === EditedEntityState.NeedsSaving || entity.state === EditedEntityState.Error) {
       const go = window.confirm("unsaved data will be lost")
       if (!go) return
     }
     // update user session
-    setUserSession(
-      auth0,
+    config.setUserMenuState(
       entity.subjectQname,
       shapeQname,
       !entity.preloadedLabel ? (label && entity.subject?.lname ? entity.subject?.lname : label) : entity.preloadedLabel,
-      true
+      true,
+      null
     )
     // remove data in local storage
-    await setUserLocalEntities(auth0, entity.subjectQname, shapeQname, "", true, userId, entity.alreadySaved)
+    await config.setUserLocalEntity(entity.subjectQname, shapeQname, "", true, userId, entity.etag, false)
     // remove history for entity
     if (undoHistory) {
-      const uri = ns.defaultPrefixMap.uriFromQname(entity.subjectQname)
+      const uri = config.prefixMap.uriFromQname(entity.subjectQname)
       if (undoHistory[uri]) delete undoHistory[uri]
     }
 
@@ -138,7 +108,7 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
       history.push("/")
     } else if (tab <= newList.length && tab !== -1) {
       // keep current tab open
-      const newIndex = newList.findIndex((e) => e.entityQname === entities[index].entityQname)
+      const newIndex = newList.findIndex((e) => e.subjectQname === entities[index].subjectQname)
       setTab(newIndex)
     } else {
       // case of closing from /new route
@@ -150,16 +120,13 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
   //debug("entity?", entity.alreadySaved, entity, tab, entities[tab], entities.map(e => e.subjectQname+":"+e.alreadySaved))
 
   // update user session
-  setUserSession(
-    auth0,
+  config.setUserMenuState(
     entity.subjectQname,
     shapeQname,
     !entity.preloadedLabel ? (entity.subject?.lname ? entity.subject?.lname : label) : entity.preloadedLabel,
     false,
-    entity.alreadySaved
+    entity.etag
   )
-
-  //debug("label?",label,entity.subject?.lname)
 
   return (
     <>
