@@ -14,7 +14,7 @@ import {
   Subject,
   LiteralWithId,
 } from "../helpers/rdf/types"
-import { PropertyShape } from "../helpers/rdf/shapes"
+import { PropertyShape, NodeShape } from "../helpers/rdf/shapes"
 import {
   SearchIcon,
   LaunchIcon,
@@ -26,11 +26,9 @@ import {
   CloseIcon,
   ContentPasteIcon,
 } from "../routes/layout/icons"
-import { entitiesAtom, Entity } from "./EntitySelectorContainer"
+import { entitiesAtom, EditedEntityState, Entity } from "./EntitySelectorContainer"
 import { LangSelect } from "./ValueList"
 import * as ns from "../helpers/rdf/ns"
-
-//import config from "../../../config"
 
 const debug = require("debug")("rde:atom:event:RS")
 
@@ -76,7 +74,7 @@ const ResourceSelector: FC<{
   title: string
   globalError: string
   updateEntityState: (es: EditedEntityState) => void
-  shape: Shape
+  shape: NodeShape
 }> = ({
   value,
   onChange,
@@ -133,7 +131,7 @@ const ResourceSelector: FC<{
           copy.push({
             k: propQname,
             val: value.otherData[propQname].map(
-              (v) => new LiteralWithId(v["@value"], v["@language"], ns.RDF("langString").value)
+              (v) => new LiteralWithId(v["@value"], v["@language"], shapes.rdfLangString)
             ),
           })
       }
@@ -395,18 +393,6 @@ const ResourceSelector: FC<{
     if (typeLname == "SerialWork") return "bdr:WAS"
     throw "cannot find prefix for " + type.uri
   }
-
-  /*
-   // not needed 
-  const qnamePrefixToType = (qname:string): string => {    
-    if(qname.startsWith("bdr:")) qname = qname.replace(/bdr:/,"") 
-    if(qname.startsWith("WA")) return "Work"
-    else if(qname.startsWith("MW")) return "Instance"
-    else if(qname.startsWith("W")) return "ImageInstance"
-    else if(qname.startsWith("IE")) return "EtextInstance"
-    throw "cannot find type for qname " + qname
-  }
-  */
 
   const createAndUpdate = useCallback(
     (type: RDFResourceWithLabel, named = "") => {

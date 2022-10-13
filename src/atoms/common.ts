@@ -193,11 +193,11 @@ export const personNamesLabelsSelector = selectorFamily<any,personNamesLabelsSel
 
 export const initListAtom = atom<Array<Value>>({ key: "initListAtom", default: [] })
 
-export const initMapAtom = atom<Record<string, Value>>({ key: "initMapAtom", default: {} })
+export const initMapAtom = atom<Record<string, Value[]>>({ key: "initMapAtom", default: {} })
 
 export type canPushPrefLabelGroupType = {
-  props: RecoilState<Value[]>[]
-  subprops: Record<string, { atom: RecoilState<Subject[]>; allowPush: string[] }>
+  props?: RecoilState<Value[]>[]
+  subprops?: Record<string, { atom: RecoilState<Subject[]>; allowPush: string[] }>
 }
 
 export type canPushPrefLabelGroupsType = {

@@ -119,7 +119,7 @@ export function EntityEditContainerMayUpdate(props: RDEProps) {
   else return <div></div>
 }
 
-function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
+function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig) {
   const shapeQname = props.match.params.shapeQname
   const atom = props.subject.getAtomForProperty(ns.defaultPrefixMap.uriFromQname(props.propertyQname))
   const [list, setList] = useRecoilState(atom)
@@ -148,10 +148,10 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
         toCopySelector({
           list: Object.keys(copy).map((p: string) => ({
             property: p,
-            atom: subject.getAtomForProperty(ns.defaultPrefixMap.uriFromQname(p)),
+            atom: subject.getAtomForProperty(config.prefixMap.uriFromQname(p)),
           })),
         })
-      : initListAtom
+      : initMapAtom
   )
 
   debug("LIST:", list, atom, props.copy, copy)
@@ -202,16 +202,16 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
 
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config)
 
-  const canPushPrefLabelGroups: canPushPrefLabelGroupsType | undefined = shape?.groups.reduce((acc: canPushPrefLabelGroupsType, group: PropertyGroup) => {
-    const props = group.properties
+  const canPushPrefLabelGroups: Record<string,canPushPrefLabelGroupType> | undefined = shape?.groups.reduce((acc: Record<string,canPushPrefLabelGroupType>, group: PropertyGroup): Record<string,canPushPrefLabelGroupType> => {
+    const props:RecoilState<Value[]>[] = group.properties
       .filter((p: PropertyShape) => p.allowPushToTopLevelLabel)
       .map((p: PropertyShape) => {
         if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
           return entityObj[0].subject.getAtomForProperty(p.path.sparqlString)
       })
       // removes undefined values
-      .filter((a: RecoilState<Value[]> | undefined) => a)
-    const subprops: Record<string,{atom: RecoilState<Value[]>, allowPush: string}> = group.properties.reduce((accG, p) => {
+      .filter((a: RecoilState<Value[]> | undefined): RecoilState<Value[]>[] => a!!)
+    const subprops: Record<string,{atom: RecoilState<Subject[]>, allowPush: string[]}> = group.properties.reduce((accG, p) => {
       const allowPush: (string|undefined)[]|undefined = p.targetShape?.properties
         .filter((s: PropertyShape) => s.allowPushToTopLevelLabel)
         .map((s: PropertyShape) => s.path?.sparqlString)
@@ -224,7 +224,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
     }, {})
     if (props?.length || Object.keys(subprops).length) return { ...acc, [group.qname]: { props, subprops } }
     return { ...acc }
-  }, {})
+  }, {} as Record<string,canPushPrefLabelGroupType>)
 
   let possiblePrefLabels: Record<string,Value[]> | null = null
   if (canPushPrefLabelGroups)
@@ -376,9 +376,6 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
 
   // refactoring needed
   //if (entityQname === "tmp:user" && !auth0.isAuthenticated && userId != demoUserId) return <span>unauthorized</span>
-
-  // refactoring needed
-  //if (!(shapeQname in shapes.shapeRefsMap)) return <span>invalid shape!</span>
 
   // TODO: update highlighted tab
 
