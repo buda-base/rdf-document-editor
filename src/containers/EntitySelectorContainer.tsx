@@ -16,7 +16,7 @@ import { atom, useRecoilState, useRecoilValue, selectorFamily, RecoilState } fro
 import { useAuth0 } from "@auth0/auth0-react"
 import { FormHelperText, FormControl } from "@material-ui/core"
 import { RDEProps, IdTypeParams } from "../helpers/editor_props"
-import { history } from "../helpers/observer"
+import { history as undoHistory } from "../helpers/observer"
 import RDEConfig from "../helpers/rde_config"
 import { BrowserRouter as Router, Switch, Route, Link, useHistory } from "react-router-dom"
 import {
@@ -34,7 +34,6 @@ import Tab from "@material-ui/core/Tab"
 import * as lang from "../helpers/lang"
 import * as ns from "../helpers/rdf/ns"
 import { EntityInEntitySelectorContainer } from "./EntityInEntitySelectorContainer"
-//import { getUserSession, setUserSession, setUserLocalEntities } from "../helpers/rdf/io"
 import { sessionLoadedState } from "../atoms/common"
 
 const debug = require("debug")("rde:entity:selector")
@@ -82,7 +81,7 @@ export const defaultEntityLabelAtom = atom<Array<Value>>({
   default: [new LiteralWithId("...", "en")], // TODO: use the i18n stuff
 })
 
-const EntitySelector: FC<Record<string, unknown>> = (props: AppProps, config: RDEConfig) => {
+export const EntitySelector: FC<{ props: RDEProps, config: RDEConfig }> = ({ props, config }) => {
   const classes = useStyles()
   const { user, isAuthenticated, isLoading, logout } = useAuth0()
   const [entities, setEntities] = useRecoilState(entitiesAtom)
@@ -98,27 +97,25 @@ const EntitySelector: FC<Record<string, unknown>> = (props: AppProps, config: RD
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
   const [userId, setUserId] = useRecoilState(userIdState)
 
-  const auth0 = useAuth0()
   const history = useHistory()
 
   // restore user session on startup
   useEffect(() => {
-    // no need for doing it more than once - fixes loading session from open entity tab
-    //if (!isLoading && !entities.length) {
-
-    const session = getUserSession(auth0)
-    session.then((obj) => {
+    const session = config.getUserMenuState()
+    session.then((entities) => {
       //debug("session:", obj, props, props.location)
-      if (!obj) return
-      const newEntities = []
-      for (const k of Object.keys(obj)) {
+      if (!entities) return
+      const newEntities: Entity[] = []
+      for (const k of Object.keys(entities)) {
         newEntities.push({
           subjectQname: k,
           subject: null,
-          shapeRef: obj[k].shape,
+          shapeQname: entities[k].shapeQname,
           subjectLabelState: defaultEntityLabelAtom,
           state: EditedEntityState.NotLoaded,
-          preloadedLabel: obj[k].label,
+          preloadedLabel: entities[k].preloadedLabel,
+          etag: entities[k].etag,
+          loadedUnsavedFromLocalStorage: true
         })
       }
       if (newEntities.length) {
@@ -141,7 +138,7 @@ const EntitySelector: FC<Record<string, unknown>> = (props: AppProps, config: RD
     })
   }, [])
 
-  const closeEntities = async (ev: MouseEvent) => {
+  const closeEntities = async (ev: React.MouseEvent) => {
     let warn = false
     for (const entity of entities) {
       if (entity.state === EditedEntityState.NeedsSaving || entity.state === EditedEntityState.Error) {
@@ -154,19 +151,18 @@ const EntitySelector: FC<Record<string, unknown>> = (props: AppProps, config: RD
       if (!go) return
     }
     for (const entity of entities) {
-      let shapeQname = entity.shapeRef
-      if (shapeQname?.qname) shapeQname = shapeQname.qname
+      let shapeQname = entity.shapeQname
 
       // update user session
-      await setUserSession(auth0, entity.subjectQname, shapeQname, "", true)
+      await config.setUserMenuState(entity.subjectQname, shapeQname, "", true, null)
 
       // remove data in local storage
-      await config.setUserLocalEntity(entity.subjectQname, shapeQname, "", true, userId, entity.alreadySaved, false)
+      await config.setUserLocalEntity(entity.subjectQname, shapeQname, "", true, userId, entity.etag, false)
 
       // remove history for entity
-      if (history) {
-        const uri = ns.defaultPrefixMap.uriFromQname(entity.subjectQname)
-        if (history[uri]) delete history[uri]
+      if (undoHistory) {
+        const uri = config.prefixMap.uriFromQname(entity.subjectQname)
+        if (undoHistory[uri]) delete undoHistory[uri]
       }
     }
 
@@ -194,7 +190,7 @@ const EntitySelector: FC<Record<string, unknown>> = (props: AppProps, config: RD
       </h4>
       <Tabs value={tab === -1 ? false : tab} onChange={handleChange} aria-label="entities">
         {entities.map((entity: Entity, index) => {
-          return <EntityInEntitySelectorContainer entity={entity} index={index} key={index} />
+          return <EntityInEntitySelectorContainer entity={entity} index={index} key={index} config={config} />
         })}
         <Tab
           key="new"

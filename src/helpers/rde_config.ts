@@ -52,7 +52,7 @@ interface setUserLocalEntities {
 }
 
 interface getUserMenuState {
-  (): Promise<Entity[]>
+  (): Promise<Record<string, Entity>>
 }
 
 interface setUserMenuState {

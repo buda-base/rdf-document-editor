@@ -152,7 +152,7 @@ export const iconFromEntity = (entity: Entity | null): string => {
   return icon as string
 }
 
-export const getUserMenuState = async (): Promise<Entity[]>  => {
+export const getUserMenuState = async (): Promise<Record<string, Entity>>  => {
   const datastr = localStorage.getItem("rde_menu_state")
   return datastr ? await JSON.parse(datastr) : {}
 }
