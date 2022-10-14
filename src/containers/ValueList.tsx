@@ -1,4 +1,4 @@
-import React, { useEffect, FC, ChangeEvent, useState, useRef, useLayoutEffect, useCallback } from "react"
+import React, { useEffect, FC, ChangeEvent, useState, useRef, useLayoutEffect, useCallback, useMemo } from "react"
 import PropTypes from "prop-types"
 import * as rdf from "rdflib"
 import {
@@ -52,6 +52,7 @@ import {
   ESfromRecoilSelector,
   isUniqueTestSelector,
   orderedNewValSelectorType,
+  isUniqueTestSelectorType,
   //demoAtom,
 } from "../atoms/common"
 import ResourceSelector from "./BUDAResourceSelector"
@@ -389,7 +390,7 @@ const ValueList: FC<{
           else if (owner) owner.noHisto()
           else subject.noHisto()
           //debug("setNoH:2",subject,owner,topEntity)
-          setList((oldList) => [res, ...oldList])
+          setList((oldList) => (Array.isArray(res)?res:[res]).concat(oldList))
         }
         setListAsync()
       } else {
@@ -400,19 +401,19 @@ const ValueList: FC<{
           else if (owner) owner.noHisto()
           else subject.noHisto()
           //debug("setNoH:2",subject,owner,topEntity)
-          setList((oldList) => [...oldList, res])
+          setList((oldList) => oldList.concat(Array.isArray(res)?res:[res]))
         }
         setListAsync()
       }
     } else if (property.objectType == ObjectType.Internal && property.minCount && list.length < property.minCount) {
       const setListAsync = async () => {
-        const res = await generateDefault(property, subject, RIDprefix, idToken, newVal, config)
+        const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config)
         // dont store empty value autocreation
         if (topEntity) topEntity.noHisto()
         else if (owner) owner.noHisto()
         else subject.noHisto()
         //debug("setNoH:3",subject,owner,topEntity)
-        setList((oldList) => [res, ...oldList])
+        setList((oldList) => (Array.isArray(res)?res:[res]).concat(oldList))
       }
       setListAsync()
     } else if (
@@ -436,12 +437,12 @@ const ValueList: FC<{
       // this makes sure that there's at least one value for select forms, and the value is either
       // the first one (when it's mandatory that there's a value), or tmp:none
       const setListAsync = async () => {
-        const res = await generateDefault(property, subject, RIDprefix, idToken, newVal, config)
+        const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config)
         if (topEntity) topEntity.noHisto()
         else if (owner) owner.noHisto()
         else subject.noHisto()
         //debug("setNoH:5",subject,owner,topEntity)
-        setList([res])
+        setList(Array.isArray(res)?res:[res])
       }
       setListAsync()
     }
@@ -518,10 +519,11 @@ const ValueList: FC<{
       checkUnique: property.uniqueValueAmongSiblings,
       siblingsAtom: siblingsPath ? (owner ? owner : subject).getAtomForProperty(siblingsPath) : initListAtom,
       propertyPath: property.path.sparqlString,
-    })
+    } as isUniqueTestSelectorType)
   )
 
-  const renderListElem = useCallback((val: Value, i: number, nbvalues: number) => {
+  // see https://stackoverflow.com/questions/55026139/whats-the-difference-between-usecallback-with-an-empty-array-as-inputs-and-u
+  const renderListElem = useMemo(() => (val: Value, i: number, nbvalues: number) => {
     //debug("render:", property.qname, isUniqueValueAmongSiblings, property, val, i)
 
     if (
@@ -536,7 +538,7 @@ const ValueList: FC<{
             subject={subject}
             property={property}
             extRes={val as ExtRDFResourceWithLabel}
-            canDel={canDel && (i > 0 || val.uri !== "tmp:uri")}
+            canDel={canDel && (i > 0 || !(val instanceof LiteralWithId) && val.uri !== "tmp:uri")}
             onChange={onChange}
             idx={i}
             exists={exists}
@@ -613,7 +615,7 @@ const ValueList: FC<{
         />
       )
     }
-  })
+  }, undefined)
 
   return (
     <React.Fragment>
@@ -858,7 +860,7 @@ const EditLangString: FC<{
   label: string
   globalError?: string
   editable?: boolean
-  updateEntityState: (es: EditedEntityState) => void
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet: boolean, forceRemove: boolean) => void
   entity: Subject
   index: number
 }> = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index }) => {
@@ -1828,7 +1830,7 @@ const ExtEntityComponent: FC<{
   editable: boolean
   owner?: Subject
   title: string
-  updateEntityState: (es: EditedEntityState) => void
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet:boolean, forceRemove: boolean) => void
   shape: NodeShape
 }> = ({
   extRes,
@@ -1933,7 +1935,7 @@ const SelectComponent: FC<{
   selectIdx: number
   editable: boolean
   create?: Element
-  updateEntityState: (es: EditedEntityState) => void
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet:boolean, forceRemove: boolean) => void
 }> = ({ res, subject, property, canDel, canSelectNone, selectIdx, editable, create, updateEntityState }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
