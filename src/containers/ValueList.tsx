@@ -676,17 +676,19 @@ const ValueList: FC<{
   )
 }
 
-/**
- * Create component
- */
-const Create: FC<{
+type CreateComponentType = FC<{
   subject: Subject
   property: PropertyShape
   embedded?: boolean
   disable?: boolean
   newVal?: number
   shape?: NodeShape
-}> = ({ subject, property, embedded, disable, newVal, shape }) => {
+}>
+
+/**
+ * Create component
+ */
+const Create: CreateComponentType = ({ subject, property, embedded, disable, newVal, shape }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
   const collec = list.length === 1 && list[0] instanceof RDFResource && list[0].node instanceof rdf.Collection && list[0].node?.termType === "Collection" ? list[0].node.elements : undefined
@@ -1225,7 +1227,7 @@ const EditString: FC<{
   onChange: (value: LiteralWithId) => void
   label: React.ReactNode
   editable?: boolean
-  updateEntityState: (es: EditedEntityState) => void
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
   entity: Subject
   index: number
 }> = ({ property, lit, onChange, label, editable, updateEntityState, entity, index }) => {
@@ -1370,7 +1372,7 @@ const EditBool: FC<{
 
   const dt = property.datatype
 
-  let val = !lit.value || lit.value == "false" || lit.value == "0" ? false : true
+  let val: boolean | string = !lit.value || lit.value == "false" || lit.value == "0" ? false : true
   if (property.defaultValue === null && lit.value == "") val = "unset"
 
   //debug("bool:",property.qname,property.defaultValue,lit)
@@ -1522,7 +1524,7 @@ const LiteralComponent: FC<{
   canDel: boolean
   isUniqueLang: boolean
   isUniqueValueAmongSiblings: boolean
-  create?: Create
+  create?: CreateComponentType
   editable: boolean
   topEntity?: Subject
   updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
