@@ -6,6 +6,7 @@ import {
   Subject,
   Value,
   ObjectType,
+  RDFResource,
   RDFResourceWithLabel,
   ExtRDFResourceWithLabel,
   errors,
@@ -139,20 +140,6 @@ export const BlockAddButton: FC<{ add: (e:React.MouseEvent<HTMLButtonElement>, n
           InputLabelProps={{ shrink: true }}
           onChange={(e) => setN(Number(e.target.value))}
           InputProps={{ inputProps: { min: 1, max: 500 } }}
-          /*
-        {...(error
-          ? {
-              helperText: (
-                <React.Fragment>
-                  <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} />
-                  <i> {error}</i>
-                </React.Fragment>
-              ),
-              error: true,
-            }
-          : {})}
-        {...(!editable ? { disabled: true } : {})}
-        */
         />
       )}
     </div>
@@ -176,32 +163,10 @@ export const OtherButton: FC<{ onClick: React.MouseEventHandler<HTMLButtonElemen
   )
 }
 
-/* // breaks history
-export const updateEntitiesRDF = (
-  subject: Subject,
-  updateFunction: (rdf: string) => Subject,
-  rdf: string,
-  entities: Array<Entity>,
-  setEntities: (newEntities: Array<Entity>) => void
-) => {
-  debug("update with RDF:", rdf)
-  const nEnt = entities.findIndex((e) => e.subjectQname === subject.qname)
-  if (nEnt >= 0 && entities[nEnt].subject) {
-    const subject = entities[nEnt].subject
-    if (subject) {
-      const newSubject = updateFunction.call(subject, rdf)
-      const newEntities = [...entities]
-      newEntities[nEnt] = { ...entities[nEnt], subject: newSubject }
-      setEntities(newEntities)
-    }
-  }
-}
-*/
-
 const generateDefault = async (
   property: PropertyShape,
   parent: Subject,
-  RIDprefix: string,
+  RIDprefix: string | null,
   idToken: string | null,
   val = "",
   config: RDEConfig
@@ -209,12 +174,6 @@ const generateDefault = async (
   //debug("genD:", property, parent)
   switch (property.objectType) {
     case ObjectType.ResExt:
-      /*
-      // to speed up dev/testing
-      return new ExtRDFResourceWithLabel("bdr:P2JM192", { "en":"Delek Gyatso", "bo-x-ewts":"bde legs rgya mtsho/" },
-        { PersonBirth: { onYear: "1724" }, PersonDeath: { onYear: "1777" } })
-      */
-
       // TODO might be a better way but "" isn't authorized
       return new ExtRDFResourceWithLabel("tmp:uri", {}, {}, config)
       break
@@ -282,7 +241,7 @@ const ValueList: FC<{
   topEntity?: Subject
   shape: NodeShape
   siblingsPath?: string
-  setCssClass?: (s:string) => void
+  setCssClass?: (s:string, add: boolean) => void
   config: RDEConfig
 }> = ({ subject, property, embedded, force, editable, owner, topEntity, shape, siblingsPath, setCssClass, config }) => {
   if (property.path == null) throw "can't find path of " + property.qname
@@ -309,17 +268,17 @@ const ValueList: FC<{
   const withOrder = shape.properties.filter((p) => p.sortOnProperty?.value === property.path?.sparqlString)
   let newVal:string|number = useRecoilValue(
     orderedNewValSelector({
-      atom: withOrder.length
-        ? (topEntity ? topEntity : subject).getAtomForProperty(withOrder[0].path?.sparqlString || "")
+      atom: withOrder.length && withOrder[0].path
+        ? (topEntity ? topEntity : subject).getAtomForProperty(withOrder[0].path.sparqlString)
         : null,
       propertyPath: property.path.sparqlString,
       //order: "desc" // default is "asc"
     } as orderedNewValSelectorType)
   )
   if (newVal != "") {
-    newVal = Number(newVal)
-    if (property.minInclusive && newVal < property.minInclusive) newVal = property.minInclusive
-    if (property.maxInclusive && newVal > property.maxInclusive) newVal = property.maxInclusive
+    const newValNum = Number(newVal)
+    if (property.minInclusive && newValNum < property.minInclusive) newVal = property.minInclusive.toString()
+    if (property.maxInclusive && newValNum > property.maxInclusive) newVal = property.maxInclusive.toString()
   }
 
   const [getESfromRecoil, setESfromRecoil] = useRecoilState(ESfromRecoilSelector({}))
@@ -399,7 +358,7 @@ const ValueList: FC<{
     if (vals && vals.length) {
       if (property.minCount && vals.length < property.minCount) {
         const setListAsync = async () => {
-          const res = await generateDefault(property, subject, RIDprefix || "", idToken, newVal.toString(), config)
+          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config)
           // dont store empty value autocreation
           if (topEntity) topEntity.noHisto()
           else if (owner) owner.noHisto()
@@ -424,7 +383,7 @@ const ValueList: FC<{
     ) {
       if (!firstValueIsEmptyField) {
         const setListAsync = async () => {
-          const res = await generateDefault(property, subject, RIDprefix||"", idToken, newVal.toString(),config)
+          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(),config)
           // dont store empty value autocreation
           if (topEntity) topEntity.noHisto()
           else if (owner) owner.noHisto()
@@ -435,7 +394,7 @@ const ValueList: FC<{
         setListAsync()
       } else {
         const setListAsync = async () => {
-          const res = await generateDefault(property, subject, RIDprefix||"", idToken, newVal.toString(),config)
+          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(),config)
           // dont store empty value autocreation
           if (topEntity) topEntity.noHisto()
           else if (owner) owner.noHisto()
@@ -447,7 +406,7 @@ const ValueList: FC<{
       }
     } else if (property.objectType == ObjectType.Internal && property.minCount && list.length < property.minCount) {
       const setListAsync = async () => {
-        const res = await generateDefault(property, subject, RIDprefix, idToken, newVal)
+        const res = await generateDefault(property, subject, RIDprefix, idToken, newVal, config)
         // dont store empty value autocreation
         if (topEntity) topEntity.noHisto()
         else if (owner) owner.noHisto()
@@ -477,7 +436,7 @@ const ValueList: FC<{
       // this makes sure that there's at least one value for select forms, and the value is either
       // the first one (when it's mandatory that there's a value), or tmp:none
       const setListAsync = async () => {
-        const res = await generateDefault(property, subject, RIDprefix, idToken, newVal)
+        const res = await generateDefault(property, subject, RIDprefix, idToken, newVal, config)
         if (topEntity) topEntity.noHisto()
         else if (owner) owner.noHisto()
         else subject.noHisto()
@@ -520,7 +479,7 @@ const ValueList: FC<{
 
   useEffect(() => {
     if (setCssClass) {
-      if (!hasNonEmptyValue) setCssClass("unset")
+      if (!hasNonEmptyValue) setCssClass("unset", true)
       else setCssClass("unset", false)
     }
   }, [hasNonEmptyValue])
@@ -552,7 +511,7 @@ const ValueList: FC<{
     return s[0].toUpperCase() + s.substring(1)
   }
 
-  const canPush = property.allowPushToTopLevelSkosPrefLabel
+  const canPush = property.allowPushToTopLevelLabel
 
   const isUniqueValueAmongSiblings = useRecoilValue(
     isUniqueTestSelector({
@@ -724,12 +683,12 @@ const Create: FC<{
   property: PropertyShape
   embedded?: boolean
   disable?: boolean
-  newVal?: integer
-  shape?: Shape
+  newVal?: number
+  shape?: NodeShape
 }> = ({ subject, property, embedded, disable, newVal, shape }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
-  const collec = list.length === 1 && list[0].node?.termType === "Collection" ? list[0].node.elements : undefined
+  const collec = list.length === 1 && list[0] instanceof RDFResource && list[0].node instanceof rdf.Collection && list[0].node?.termType === "Collection" ? list[0].node.elements : undefined
   const listOrCollec = collec ? collec : list
   const [uiLang] = useRecoilState(uiLangState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
@@ -741,19 +700,22 @@ const Create: FC<{
   const { getIdTokenClaims } = useAuth0()
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState)
 
-  let nextVal = useRecoilValue(
-    orderedNewValSelector({
-      atom: property.sortOnProperty ? subject.getAtomForProperty(property.path.sparqlString) : false,
-      propertyPath: property.sortOnProperty?.value,
-      //order: "desc" // default is "asc"
-    })
+  let nextVal = null
+  if (property.sortOnProperty)
+    nextVal = useRecoilValue(
+      orderedNewValSelector({
+        atom: property.sortOnProperty ? subject.getAtomForProperty(property.path.sparqlString) : null,
+        propertyPath: property.sortOnProperty.value,
+        //order: "desc" // default is "asc"
+      })
   )
-  let sortProp = property.targetShape?.properties.filter((p) => p.path.sparqlString === property.sortOnProperty?.value)
-  if (sortProp?.length) sortProp = sortProp[0]
-  if (sortProp?.minInclusive != null && nextVal < sortProp.minInclusive) nextVal = sortProp.minInclusive
-  if (sortProp?.maxInclusive != null && nextVal > sortProp.maxInclusive) nextVal = sortProp.maxInclusive
-  //debug("create:",shape,nextVal,newVal,property.qname,property) //,subject.getAtomForProperty(property.path.sparqlString))
-
+  const sortProps = property.targetShape?.properties.filter((p) => p.path?.sparqlString === property.sortOnProperty?.value)
+  if (sortProps?.length) {
+    const sortProp = sortProps[0]
+    if (sortProp?.minInclusive != null && Number(nextVal) < sortProp.minInclusive) nextVal = sortProp.minInclusive.toString()
+    if (sortProp?.maxInclusive != null && Number(nextVal) > sortProp.maxInclusive) nextVal = sortProp.maxInclusive.toString()
+    //debug("create:",shape,nextVal,newVal,property.qname,property) //,subject.getAtomForProperty(property.path.sparqlString))
+  }
   let waitForNoHisto = false
 
   const addItem = async (event, n) => {
@@ -2048,7 +2010,7 @@ const SelectComponent: FC<{
     return () => {
       const inOtherEntity = !window.location.href.includes("/" + entities[entity]?.qname + "/")
       if (!inOtherEntity)
-        updateEntityState(EditedEntityState.Saved, property.path.sparqlString + "_" + selectIdx, false, !inOtherEntity)
+        updateEntityState(EditedEntityState.Saved, property.path?.sparqlString + "_" + selectIdx, false, !inOtherEntity)
     }
   }, [])
 
@@ -2119,7 +2081,7 @@ const SelectComponent: FC<{
               style={{ color: "red" }}
               disabled
             >
-              {val?.uri?.includes("purl.bdrc.io") ? val?.qname : val?.uri}
+              {val?.value}
             </MenuItem>
           )}
         </TextField>
