@@ -834,6 +834,7 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
       property.objectType == ObjectType.ResInList ||
       property.objectType == ObjectType.LitInList)
     /*
+      // TODO: refactor
       property.path.sparqlString === ns.SKOS("prefLabel").value ||
       property.path.sparqlString === ns.SKOS("altLabel").value ||
       property.path.sparqlString === ns.BDO("catalogInfo").value ||
@@ -882,14 +883,10 @@ const EditLangString: FC<{
     let err = ""
     if (!val && property.minCount) err = i18n.t("error.empty")
     else if (globalError) err = globalError
-
-    //if(err) debug("error!",lit.id, lit, errors)
-    //else debug("no err?",lit.id, lit, errors)
-
     return err
   }
 
-  const [error, setError] = useState("")
+  const [error, setError] = useState<React.ReactNode | null>(null)
 
   //debug("val:", lit.id, lit.value, error, globalError)
 
@@ -922,13 +919,19 @@ const EditLangString: FC<{
     error: true,
   }
 
-  const [withPreview, setWithPreview] = useState(false)
+  const [preview, setPreview] = useState<string|null>(null)
   useLayoutEffect(() => {
-    setWithPreview(lit.language === "bo-x-ewts" && lit.value && document.activeElement === inputRef.current ? true : false)
+    if (document.activeElement === inputRef.current) {
+      const { value, error } = config.previewLiteral(lit, uiLang)
+      setPreview(value)
+      setError(error)
+    } else {
+      setPreview(null)
+    }
   })
 
   let padBot = "0px"
-  if (withPreview) {
+  if (preview) {
     padBot = "40px"
   } else if (property.singleLine && editMD) {
     padBot = "1px"
@@ -973,7 +976,7 @@ const EditLangString: FC<{
       found = false
     for (const l in prefLabels) {
       if (prefLabels[l] instanceof LiteralWithId) { 
-        if(prefLabels[l].language === lit.language) {
+        if((prefLabels[l] as LiteralWithId).language === lit.language) {
           found = true
           newPrefLabels = replaceItemAtIndex(prefLabels, Number(l), lit)
           break
@@ -986,7 +989,7 @@ const EditLangString: FC<{
 
   return (
     <div
-      className={"mb-0" + (withPreview ? " withPreview" : "")}
+      className={"mb-0" + (preview ? " withPreview" : "")}
       style={{
         display: "flex",
         width: "100%",
@@ -1021,11 +1024,15 @@ const EditLangString: FC<{
               else updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id)
               onChange(lit.copyWithUpdatedValue(e.target.value))
             }}
-            {...(error ? errorData : {})}
+            {...(error ? error : {})}
             {...(!editable ? { disabled: true } : {})}
-            onFocus={() => setWithPreview(lit.language === "bo-x-ewts" && lit.value ? true : false)}
+            onFocus={() => {
+              const { value, error } = config.previewLiteral(lit, uiLang)
+              setPreview(value)
+              setError(error)
+            }}
             onBlur={() => {
-              setWithPreview(false)
+              setPreview(null)
               setTimeout(() => {
                 if (inputRef.current && document.activeElement != inputRef.current) setKeyboard(false)
               }, 350)
@@ -1130,10 +1137,11 @@ const EditLangString: FC<{
         property={property}
         {...(error ? { error: true } : {})}
         editable={editable}
+        config={config}
       />
-      {withPreview && ( // TODO see if fromWylie & MD can both be used ('escape' some chars?)
+      {preview && ( // TODO see if fromWylie & MD can both be used ('escape' some chars?)
         <div className="preview-ewts">
-          <TextField disabled value={fromWylie(lit.value)} />
+          <TextField disabled value={preview} />
           {/*editMD && <MDEditor.Markdown source={fromWylie(lit.value)} /> // not really working  */}
         </div>
       )}
@@ -1148,12 +1156,13 @@ export const LangSelect: FC<{
   disabled?: boolean
   error?: boolean
   editable?: boolean
-}> = ({ onChange, value, property, disabled, error, editable }) => {
+  config: RDEConfig
+}> = ({ onChange, value, property, disabled, error, editable, config }) => {
   const onChangeHandler = (event: React.ChangeEvent<{ value: unknown }>) => {
     onChange(event.target.value as string)
   }
 
-  const languages = property?.defaultLanguage ? langsWithDefault(property.defaultLanguage) : langs
+  const languages = property?.defaultLanguage ? langsWithDefault(property.defaultLanguage, config.possibleLiteralLangs) : config.possibleLiteralLangs
 
   return (
     <div style={{ position: "relative" }}>
@@ -1447,6 +1456,7 @@ const LiteralComponent: FC<{
   editable: boolean
   topEntity?: Subject
   updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
+  config: RDEConfig
 }> = ({
   lit,
   subject,
@@ -1458,6 +1468,7 @@ const LiteralComponent: FC<{
   editable,
   topEntity,
   updateEntityState,
+  config
 }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
@@ -1518,6 +1529,7 @@ const LiteralComponent: FC<{
         updateEntityState={updateEntityState}
         entity={topEntity ? topEntity : subject}
         index={index}
+        config={config}
       />
     )
     // eslint-disable-next-line no-extra-parens
@@ -1580,6 +1592,7 @@ const LiteralComponent: FC<{
         updateEntityState={updateEntityState}
         entity={subject}
         index={index}
+        config={config}
       />
     )
   }
