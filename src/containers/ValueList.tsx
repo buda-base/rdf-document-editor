@@ -20,7 +20,6 @@ import * as ns from "../helpers/rdf/ns"
 import { useRecoilState, useSetRecoilState, useRecoilValue, atomFamily, atom, selectorFamily } from "recoil"
 import { makeStyles } from "@material-ui/core/styles"
 import { TextField, MenuItem, Tooltip, IconButton, InputLabel, Select } from "@material-ui/core"
-import { replaceItemAtIndex, removeItemAtIndex } from "../helpers/atoms"
 import {
   AddIcon,
   RemoveIcon,
@@ -52,9 +51,10 @@ import {
   orderedNewValSelector,
   ESfromRecoilSelector,
   isUniqueTestSelector,
+  orderedNewValSelectorType,
   //demoAtom,
 } from "../atoms/common"
-import ResourceSelector from "./ResourceSelector"
+import ResourceSelector from "./BUDAResourceSelector"
 import { entitiesAtom, Entity, EditedEntityState } from "./EntitySelectorContainer"
 
 import MDEditor, { commands } from "@uiw/react-md-editor"
@@ -66,11 +66,11 @@ import { useAuth0 } from "@auth0/auth0-react"
 
 const debug = require("debug")("rde:entity:container:ValueList")
 
-function replaceItemAtIndex(arr, index, newValue) {
+function replaceItemAtIndex(arr:Value[], index:number, newValue: Value): Value[] {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)]
 }
 
-function removeItemAtIndex(arr, index) {
+function removeItemAtIndex(arr:Value[], index:number): Value[] {
   return [...arr.slice(0, index), ...arr.slice(index + 1)]
 }
 
@@ -255,25 +255,25 @@ const ValueList: FC<{
   const [entities, setEntities] = useRecoilState(entitiesAtom)
 
   const sortOnPath = property?.sortOnProperty?.value
-  const orderedList = useRecoilValue(
+  const orderedList:Value[] = useRecoilValue(
     orderedByPropSelector({
       atom: subject.getAtomForProperty(property.path.sparqlString),
       propertyPath: sortOnPath || "",
       //order: "desc" // default is "asc"
     } as orderedByPropSelectorArgs)
   )
-  let list = unsortedList
+  let list:Value[] = unsortedList
   if (orderedList.length) list = orderedList
 
   const withOrder = shape.properties.filter((p) => p.sortOnProperty?.value === property.path?.sparqlString)
-  let newVal = useRecoilValue(
+  let newVal:string|number = useRecoilValue(
     orderedNewValSelector({
       atom: withOrder.length && withOrder[0].path
         ? (topEntity ? topEntity : subject).getAtomForProperty(withOrder[0].path.sparqlString)
         : null,
       propertyPath: property.path.sparqlString,
       //order: "desc" // default is "asc"
-    })
+    } as orderedNewValSelectorType)
   )
   if (newVal != "") {
     const newValNum = Number(newVal)
@@ -358,13 +358,13 @@ const ValueList: FC<{
     if (vals && vals.length) {
       if (property.minCount && vals.length < property.minCount) {
         const setListAsync = async () => {
-          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal, config)
+          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config)
           // dont store empty value autocreation
           if (topEntity) topEntity.noHisto()
           else if (owner) owner.noHisto()
           else subject.noHisto()
           //debug("setNoH:1a",subject,owner,topEntity)
-          setList([...vals, res])
+          setList(vals.concat(Array.isArray(res)?res:[res]))
         }
         setListAsync()
       } else {
@@ -383,7 +383,7 @@ const ValueList: FC<{
     ) {
       if (!firstValueIsEmptyField) {
         const setListAsync = async () => {
-          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal, config)
+          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(),config)
           // dont store empty value autocreation
           if (topEntity) topEntity.noHisto()
           else if (owner) owner.noHisto()
@@ -394,7 +394,7 @@ const ValueList: FC<{
         setListAsync()
       } else {
         const setListAsync = async () => {
-          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal, config)
+          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(),config)
           // dont store empty value autocreation
           if (topEntity) topEntity.noHisto()
           else if (owner) owner.noHisto()
