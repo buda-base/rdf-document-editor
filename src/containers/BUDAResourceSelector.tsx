@@ -443,6 +443,10 @@ const BUDAResourceSelector: FC<{
     updateLibrary(e)
   }
 
+  const onClickKB = (e: React.KeyboardEvent) => {
+    updateLibrary(e)
+  }
+
   let name = (
     <div style={{ fontSize: "16px" /*, borderBottom:"1px solid #ccc"*/ }}>
       {lang.ValueByLangToStrPrefLang(value.prefLabels, uiLitLang) + " " + dates}
@@ -489,7 +493,7 @@ const BUDAResourceSelector: FC<{
               )}
               <TextField
                 onKeyPress={(e) => {
-                  if (e.key === "Enter") onClick(e)
+                  if (e.key === "Enter") onClickKB(e)
                 }}
                 onFocus={() => {
                   if (!keyword || isRid)

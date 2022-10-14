@@ -169,7 +169,7 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig)
 
     const newObject = new ExtRDFResourceWithLabel(ns.defaultPrefixMap.uriFromQname(props.objectQname), {}, {})
     // DONE: must also give set index in url
-    const newList = replaceItemAtIndex(list, props.index, newObject)
+    const newList = replaceItemAtIndex(list as [], props.index, newObject)
     setList(newList)
   }, [])
 
@@ -204,14 +204,14 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
   const canPushPrefLabelGroups: Record<string,canPushPrefLabelGroupType> | undefined = 
     shape?.groups.reduce((acc: Record<string,canPushPrefLabelGroupType>, 
         group: PropertyGroup): Record<string,canPushPrefLabelGroupType> => {
-    const props:RecoilState<Value[]>[] = group.properties
+    const props:Array<RecoilState<Value[]>|undefined> = group.properties
       .filter((p: PropertyShape) => p.allowPushToTopLevelLabel)
       .map((p: PropertyShape) => {
         if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
           return entityObj[0].subject.getAtomForProperty(p.path.sparqlString)
       })
       // removes undefined values
-      .filter((a: RecoilState<Value[]> | undefined): RecoilState<Value[]>[] => a)
+      .filter(a => a != undefined)
     const subprops: Record<string,{atom: RecoilState<Subject[]>, allowPush: string[]}> = group.properties.reduce((accG, p) => {
       const allowPush: (string|undefined)[]|undefined = p.targetShape?.properties
         .filter((s: PropertyShape) => s.allowPushToTopLevelLabel)
@@ -223,13 +223,14 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
         }
       return accG
     }, {})
-    if (props?.length || Object.keys(subprops).length) return { ...acc, [group.qname]: { props, subprops } }
-    return { ...acc }
+    if (props?.length || Object.keys(subprops).length) 
+      return { ...acc, [group.qname]: { props, subprops } } as Record<string,canPushPrefLabelGroupType>
+    return { ...acc } 
   }, {} as Record<string,canPushPrefLabelGroupType>)
 
   const possiblePrefLabels = useRecoilValue(canPushPrefLabelGroups 
-      ? possiblePrefLabelsSelector({ canPushPrefLabelGroups })
-      : initListAtom)
+      ? possiblePrefLabelsSelector({ canPushPrefLabelGroups } as canPushPrefLabelGroupsType)
+      : initMapAtom)
 
   let prefLabelAtom = entityObj[0]?.subject?.getAtomForProperty(ns.SKOS("prefLabel").value)
   if (!prefLabelAtom) prefLabelAtom = initListAtom
