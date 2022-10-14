@@ -1,21 +1,14 @@
-import React, { FC } from "react"
 import * as rdf from "rdflib"
 import * as ns from "./ns"
 import { PropertyShape, Path, defaultLabelProperties, defaultDescriptionProperties } from "./shapes"
-import RDEConfig from "../rde_config"
 import { Memoize } from "typescript-memoize"
 import {
   atom,
-  useRecoilState,
-  useRecoilValue,
-  selectorFamily,
-  atomFamily,
   DefaultValue,
   AtomEffect,
   RecoilState,
 } from "recoil"
-import { uiHistoryState } from "../../atoms/common"
-import { getParentPath, history, updateHistory } from "../observer"
+import { history, updateHistory } from "../observer"
 import { nanoid } from "nanoid"
 
 const debug = require("debug")("rde:rdf:types")
@@ -30,10 +23,6 @@ export const rdfLitAsNumber = (lit: rdf.Literal): number | null => {
     return +n
   }
   return null
-}
-
-const getRandomIntInclusive = (min: number, max: number): number => {
-  return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
 // an EntityGraphValues represents the global state of an entity we're editing, in a javascript object (and not an RDF store)

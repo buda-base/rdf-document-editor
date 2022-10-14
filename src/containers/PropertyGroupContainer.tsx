@@ -3,7 +3,7 @@ import PropertyContainer from "./PropertyContainer"
 import { RDFResource, Subject, errors, LiteralWithId } from "../helpers/rdf/types"
 import RDEConfig from "../helpers/rde_config"
 import { PropertyGroup, PropertyShape, NodeShape } from "../helpers/rdf/shapes"
-import { uiLangState, uiEditState, uiNavState, uiGroupState } from "../atoms/common"
+import { uiLangState, uiEditState, uiNavState, uiGroupState, initListAtom } from "../atoms/common"
 import * as lang from "../helpers/lang"
 import * as ns from "../helpers/rdf/ns"
 import { ErrorIcon } from "../routes/layout/icons"
@@ -140,8 +140,8 @@ const PropertyGroupContainer: FC<{
   const [edit, setEdit] = useRecoilState(uiEditState)
   const [groupEd, setGroupEd] = useRecoilState(uiGroupState)
 
-  const [lat, setLat] = useRecoilState(subject.getAtomForProperty(config.latProp.uri))
-  const [lng, setLng] = useRecoilState(subject.getAtomForProperty(config.lngProp.uri))
+  const [lat, setLat] = config.latProp ? useRecoilState(subject.getAtomForProperty(config.latProp.uri)) : useRecoilState(initListAtom)
+  const [lng, setLng] = config.lngProp ? useRecoilState(subject.getAtomForProperty(config.lngProp.uri)) : useRecoilState(initListAtom)
   const [redraw, setRedraw] = useState(false)
   let coords: L.LatLng,
     zoom = 5,

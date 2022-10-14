@@ -18,7 +18,7 @@ import {
 import RDEConfig from "../src/helpers/rde_config"
 import { LocalEntityInfo } from "../src/helpers/rde_config"
 import { Lang, ValueByLangToStrPrefLang } from "../src/helpers/lang"
-import { FC, useState, useEffect } from "react"
+import React, { FC, useState, useEffect } from "react"
 import { nanoid, customAlphabet } from "nanoid"
 import edtf, { parse } from "edtf" // see https://github.com/inukshuk/edtf.js/issues/36#issuecomment-1073778277
 
@@ -267,7 +267,7 @@ const previewLiteral = (lit: rdf.Literal, uiLangs: string[]) => {
       const edtfMin = edtf(edtfObj.min)?.values[0]
       const edtfMax = edtf(edtfObj.max)?.values[0]
       if (edtfMin <= -4000 || edtfMax >= 2100) throw Error(i18n.t("error.year", { min: -4000, max: 2100 }))
-      return humanizeEDTF(obj, lit.value, uiLangs[0])
+      return { value: humanizeEDTF(obj, lit.value, uiLangs[0]), error: null }
     } catch (e) {
       return { value: null, error :
         <>
@@ -285,7 +285,7 @@ const previewLiteral = (lit: rdf.Literal, uiLangs: string[]) => {
       }
     }
   }
-  return null
+  return { value: null, error: null }
 }
 
 export const demoConfig: RDEConfig = {
@@ -310,5 +310,6 @@ export const demoConfig: RDEConfig = {
   possibleShapeRefsForType: possibleShapeRefsForEntity,
   libraryUrl: "https://library.bdrc.io/",
   resourceSelector: BUDAResourceSelector,
-  previewLiteral: previewLiteral
+  previewLiteral: previewLiteral,
+  getPreviewLink: (entity) => { return null }
 }
