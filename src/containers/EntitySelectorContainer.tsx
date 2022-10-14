@@ -151,7 +151,7 @@ export const EntitySelector: FC<{ props: RDEProps, config: RDEConfig }> = ({ pro
       if (!go) return
     }
     for (const entity of entities) {
-      let shapeQname = entity.shapeQname
+      const shapeQname = entity.shapeQname
 
       // update user session
       await config.setUserMenuState(entity.subjectQname, shapeQname, "", true, null)

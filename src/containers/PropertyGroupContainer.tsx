@@ -31,7 +31,7 @@ const redIcon = new L.Icon({
 
 function DraggableMarker({ pos, icon, setCoords }: {pos: L.LatLng, icon: L.Icon, setCoords: (val: L.LatLng) => void}) {
   const [position, setPosition] = useState<L.LatLng>(pos)
-  const markerRef = useRef<L.Marker<L.LatLng>>(null)
+  const markerRef = useRef<any>(null)
   const eventHandlers = useMemo(
     () => ({
       dragend() {
@@ -47,7 +47,7 @@ function DraggableMarker({ pos, icon, setCoords }: {pos: L.LatLng, icon: L.Icon,
 
   //debug("mark:",markerRef,pos)
   useEffect(() => {
-    if (markerRef.current && (markerRef.current?.lat != pos.lat || markerRef.current?.lng != pos.lng)) {
+    if (markerRef.current && (markerRef.current.lat != pos.lat || markerRef.current.lng != pos.lng)) {
       markerRef.current.setLatLng(pos)
     }
   })
@@ -73,7 +73,7 @@ const MapEventHandler = ({ coords, redraw, setCoords, config }: { coords: L.LatL
   useEffect(() => {
     const provider = config.googleMapsAPIKey ? new GoogleProvider({ apiKey: config.googleMapsAPIKey }) : new OpenStreetMapProvider()
 
-    const searchControl = new GeoSearchControl({
+    const searchControl = GeoSearchControl({
       provider,
       showPopUp: false,
       showMarker: false,

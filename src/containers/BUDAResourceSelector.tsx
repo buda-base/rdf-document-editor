@@ -190,11 +190,11 @@ const BUDAResourceSelector: FC<{
   useEffect(() => {
     //debug("url:", libraryURL)
 
-    let updateRes = (data: messagePayload) => {
+    const updateRes = (data: messagePayload) => {
       let isTypeOk = false
       let actual
       if (property.expectedObjectTypes) {
-        let allow = property.expectedObjectTypes.map((t) => t.qname)
+        const allow = property.expectedObjectTypes.map((t) => t.qname)
         //if (!Array.isArray(allow)) allow = [allow]
         actual = data["tmp:otherData"]["tmp:type"]
         if (!Array.isArray(actual)) actual = [actual]
@@ -372,7 +372,7 @@ const BUDAResourceSelector: FC<{
       url =
         "/new/" +
         // TODO: perhaps users might want to choose between different shapes?
-        config.possibleShapeRefsForType(type.node)[0].qname
+        config.possibleShapeRefsForType(type.node)[0].qname +
         "/" +
         (owner?.qname && owner.qname !== subject.qname ? owner.qname : subject.qname) +
         "/" +

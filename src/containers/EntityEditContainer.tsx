@@ -201,7 +201,9 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
 
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config)
 
-  const canPushPrefLabelGroups: Record<string,canPushPrefLabelGroupType> | undefined = shape?.groups.reduce((acc: Record<string,canPushPrefLabelGroupType>, group: PropertyGroup): Record<string,canPushPrefLabelGroupType> => {
+  const canPushPrefLabelGroups: Record<string,canPushPrefLabelGroupType> | undefined = 
+    shape?.groups.reduce((acc: Record<string,canPushPrefLabelGroupType>, 
+        group: PropertyGroup): Record<string,canPushPrefLabelGroupType> => {
     const props:RecoilState<Value[]>[] = group.properties
       .filter((p: PropertyShape) => p.allowPushToTopLevelLabel)
       .map((p: PropertyShape) => {
@@ -225,9 +227,9 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
     return { ...acc }
   }, {} as Record<string,canPushPrefLabelGroupType>)
 
-  let possiblePrefLabels: Record<string,Value[]> | null = null
-  if (canPushPrefLabelGroups)
-    possiblePrefLabels = useRecoilValue(possiblePrefLabelsSelector({ canPushPrefLabelGroups }))
+  const possiblePrefLabels = useRecoilValue(canPushPrefLabelGroups 
+      ? possiblePrefLabelsSelector({ canPushPrefLabelGroups })
+      : initListAtom)
 
   let prefLabelAtom = entityObj[0]?.subject?.getAtomForProperty(ns.SKOS("prefLabel").value)
   if (!prefLabelAtom) prefLabelAtom = initListAtom
@@ -250,7 +252,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
     })
   }, [entities, profileId])
 
-  let init: number = 0
+  let init = 0
   useEffect(() => {
     if (entityQname === "tmp:user" && !profileId) return
 
@@ -296,7 +298,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
               debug(err, store)
               throw "error when serializing"
             }
-            let shape = obj[0]?.shapeQname
+            const shape = obj[0]?.shapeQname
             config.setUserLocalEntity(
               obj[0].subjectQname,
               shape,
@@ -317,7 +319,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
 
   // trick to get current value when unmounting
   // (see https://stackoverflow.com/questions/55139386/componentwillunmount-with-react-useeffect-hook)
-  const entityObjRef = useRef<Entity[]>(null)
+  const entityObjRef = useRef<Entity[]>(entityObj)
 
   useEffect(() => {
     // no luck for now
@@ -327,13 +329,17 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
         save(entityObjRef.current)
       }
     }
-    entityObjRef.current = entityObj
   })
 
   useEffect(() => {
-    return async () => {
-      debug("unmounting /edit", entityObjRef.current)
-      await save(entityObjRef.current)
+    return () => {
+      const fun = async () => {
+        if(entityObjRef.current) {
+          debug("unmounting /edit", entityObjRef.current)
+          await save(entityObjRef.current)
+        }
+      }
+      fun()
     }
   }, [])
 
@@ -376,7 +382,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
 
   // TODO: update highlighted tab
 
-  let { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config)
+  const { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config)
 
   // TODO: check that shape can be properly applied to entity
 
@@ -457,7 +463,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
                   rel="noreferrer"
                   {...(!entityObj[0]?.etag ? { title: i18n.t("error.preview") } : { href: previewLink })}
                 >
-                  {i18n.t("general.preview")}
+                  <>{i18n.t("general.preview")}</>
                 </a>
               </div>
             )}
@@ -465,7 +471,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
         </div>
       </div>
       <div role="navigation" className="innerNav">
-        <p className="text-uppercase small my-2">{i18n.t("home.nav")}</p>
+        <p className="text-uppercase small my-2"><>{i18n.t("home.nav")}</></p>
         {shape.groups.map((group, index) => {
           const label = lang.ValueByLangToStrPrefLang(group.prefLabels, uiLang)
           return (

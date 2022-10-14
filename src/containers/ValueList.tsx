@@ -694,13 +694,12 @@ type CreateComponentType = FC<{
 const Create: CreateComponentType = ({ subject, property, embedded, disable, newVal, shape, config }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
-  const collec = list.length === 1
-    && list[0] instanceof RDFResource
-    && list[0].node
-      && list[0].node instanceof rdf.Collection
-        && list[0].node.termType === "Collection"
-           ? list[0].node.elements
-           : undefined
+  let collecNode:rdf.Collection|null = null
+  if(list.length === 1 && list[0] instanceof RDFResource
+     && list[0].node && list[0].node instanceof rdf.Collection) {
+    collecNode = list[0].node
+  }
+  const collec:any[]|undefined = collecNode?.termType === "Collection" ? collecNode?.elements : undefined
   const listOrCollec = collec ? collec : list
   const [uiLang] = useRecoilState(uiLangState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
@@ -1029,7 +1028,7 @@ const EditLangString: FC<{
               else updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id)
               onChange(lit.copyWithUpdatedValue(e.target.value))
             }}
-            {...(error ? { error } : {})}
+            {...(error ? { error: true, helperText: error } : {})}
             {...(!editable ? { disabled: true } : {})}
             onFocus={() => {
               const { value, error } = config.previewLiteral(lit, uiLang)
@@ -1284,7 +1283,7 @@ const EditString: FC<{
         onFocus={(e) => changeCallback(e.target.value)}
         onChange={(e) => changeCallback(e.target.value)}
         {...(!editable ? { disabled: true } : {})}
-        { ...error ? { error } : {} }
+        { ...error ? { error: true, helperText: error } : {} }
       />
       {preview && (
         <div className="preview-EDTF" style={{ width: "100%" }}>       

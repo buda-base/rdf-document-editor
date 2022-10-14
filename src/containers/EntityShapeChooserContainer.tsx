@@ -41,29 +41,29 @@ function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
   // here we create the entity in the list if it's not there yet:
   const entityFromList = entities.find((e) => e.subjectQname === entityQname)
   if (entityFromList && entityFromList.shapeQname) {
-    let shapeQname = entityFromList.shapeQname
+    const shapeQname = entityFromList.shapeQname
     props.history.replace("/edit/" + entityQname + "/" + shapeQname)
     return (
       <div>
-        <div>{i18n.t("types.redirect")}</div>
+        <div><>{i18n.t("types.redirect")}</></div>
       </div>
     )
   }
-  const { entityLoadingState, entity } = EntityFetcher(entityQname, null, config, unmounting)
+  const { entityLoadingState, entity } = EntityFetcher(entityQname, "", config, unmounting)
 
   if (entity) {
     const possibleShapes = config.possibleShapeRefsForEntity(entity.node)
     if (entityLoadingState.status === "fetching") {
       return (
         <div>
-          <div>{i18n.t("types.loading")}</div>
+          <div><>{i18n.t("types.loading")}</></div>
         </div>
       )
     } else if (entityLoadingState.error === "not found") {
       return (
         <div className="error">
           <div>
-            <span>{i18n.t("error.exist", { id: entityQname })}</span>
+            <span><>{i18n.t("error.exist", { id: entityQname })}</></span>
             <br />
             <Link style={{ fontWeight: 700 }} to="/new">
               <>{i18n.t("error.redirect")}</>
@@ -76,7 +76,7 @@ function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
       return (
         <div className="error">
           <div>
-            <span>{i18n.t("error.shape", { id: entityQname })}</span>
+            <span><>{i18n.t("error.shape", { id: entityQname })}</></span>
             <br />
             <Link style={{ fontWeight: 700 }} to="/new">
               <>{i18n.t("error.redirect")}</>
@@ -133,7 +133,7 @@ function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
   return (
     <>
     <div>
-      <div>{i18n.t("types.loading")}</div>
+      <div><>{i18n.t("types.loading")}</></div>
     </div>
     </>
   )
