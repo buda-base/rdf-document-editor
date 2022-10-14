@@ -974,13 +974,15 @@ const EditLangString: FC<{
 
   const pushAsPrefLabel = () => {
     //debug("pL:",prefLabels,lit)
-    let newPrefLabels = [],
+    let newPrefLabels:Value[] = [],
       found = false
     for (const l in prefLabels) {
-      if (prefLabels[l].language === lit.language) {
-        found = true
-        newPrefLabels = replaceItemAtIndex(prefLabels, l, lit)
-        break
+      if (prefLabels[l] instanceof LiteralWithId) { 
+        if(prefLabels[l].language === lit.language) {
+          found = true
+          newPrefLabels = replaceItemAtIndex(prefLabels, Number(l), lit)
+          break
+        }
       }
     }
     if (!found) newPrefLabels = [...prefLabels, lit.copy()]
@@ -1026,7 +1028,7 @@ const EditLangString: FC<{
             }}
             {...(error ? errorData : {})}
             {...(!editable ? { disabled: true } : {})}
-            onFocus={() => setWithPreview(lit.language === "bo-x-ewts" && lit.value)}
+            onFocus={() => setWithPreview(lit.language === "bo-x-ewts" && lit.value ? true : false)}
             onBlur={() => {
               setWithPreview(false)
               setTimeout(() => {
@@ -1536,7 +1538,7 @@ const LiteralComponent: FC<{
   canDel: boolean
   isUniqueLang: boolean
   isUniqueValueAmongSiblings: boolean
-  create?: CreateComponentType
+  create?: JSX.Element
   editable: boolean
   topEntity?: Subject
   updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
