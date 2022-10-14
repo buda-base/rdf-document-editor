@@ -71,7 +71,7 @@ function removeItemAtIndex(arr:Value[], index:number): Value[] {
 }
 
 export const MinimalAddButton: FC<{
-  add: React.MouseEventHandler<HTMLButtonElement>
+  add: (e:React.MouseEvent<HTMLButtonElement>, n:number) => Promise<void>
   className: string
   disable?: boolean
 }> = ({ add, className, disable }) => {
@@ -81,7 +81,8 @@ export const MinimalAddButton: FC<{
         "minimalAdd " + "disable_" + disable + (className !== undefined ? className : " text-right")
       } /*style={{ width: "100%" }}*/
     >
-      <button className="btn btn-link ml-2 px-0" onClick={add} {...(disable ? { disabled: true } : {})}>
+      <button className="btn btn-link ml-2 px-0" 
+        onClick={(ev:React.MouseEvent<HTMLButtonElement>) => add(ev,1)} {...(disable ? { disabled: true } : {})}>
         <AddIcon />
       </button>
     </div>
@@ -117,7 +118,7 @@ export const BlockAddButton: FC<{ add: (e:React.MouseEvent<HTMLButtonElement>, n
           pointerEvents: disable ? "none" : "auto",
           ...disable ? { opacity: 0.5, pointerEvents: "none" } : {},
         }}
-        onClick={(e) => add(e, n)}
+        onClick={(e:React.MouseEvent<HTMLButtonElement>) => add(e, n)}
         //disabled={disable}
       >
         <>
@@ -542,6 +543,7 @@ const ValueList: FC<{
             title={titleCase(propLabel)}
             updateEntityState={updateEntityState}
             shape={shape}
+            config={config}
           />
         )
       else if(val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
@@ -725,7 +727,7 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
   }
   let waitForNoHisto = false
 
-  const addItem = async (event:MouseEvent, n:number) => {
+  const addItem = async (event:React.MouseEvent<HTMLButtonElement>, n:number) => {
     /* // refactoring needed
 
     if (n > 1) {
@@ -865,15 +867,16 @@ const EditLangString: FC<{
   label: React.ReactNode
   globalError?: string
   editable?: boolean
-  updateEntityState: (status: EditedEntityState, id: string, removingFacet: boolean, forceRemove: boolean) => void
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
   entity: Subject
   index: number
-}> = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index }) => {
+  config: RDEConfig
+}> = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
   const classes = useStyles()
   const [editMD, setEditMD] = useState(false)
   const [keyboard, setKeyboard] = useState(false)
 
-  const canPushPrefLabel = property.allowPushToTopLevelSkosPrefLabel
+  const canPushPrefLabel = property.allowPushToTopLevelLabel
 
   const getLangStringError = (val: string) => {
     let err = ""
@@ -921,7 +924,7 @@ const EditLangString: FC<{
 
   const [withPreview, setWithPreview] = useState(false)
   useLayoutEffect(() => {
-    setWithPreview(lit.language === "bo-x-ewts" && lit.value && document.activeElement === inputRef.current)
+    setWithPreview(lit.language === "bo-x-ewts" && lit.value && document.activeElement === inputRef.current ? true : false)
   })
 
   let padBot = "0px"
@@ -934,7 +937,7 @@ const EditLangString: FC<{
   const codeEdit = { ...commands.codeEdit, icon: <EditIcon style={{ width: "12px", height: "12px" }} /> },
     codePreview = { ...commands.codePreview, icon: <VisibilityIcon style={{ width: "12px", height: "12px" }} /> }
 
-  const hasKB = RDEConfig.possibleLiteralLangs.filter((l) => l.value === lit.language)
+  const hasKB = config.possibleLiteralLangs.filter((l) => l.value === lit.language)
 
   const inputRef = useRef<HTMLInputElement>()
 
@@ -966,13 +969,15 @@ const EditLangString: FC<{
 
   const pushAsPrefLabel = () => {
     //debug("pL:",prefLabels,lit)
-    let newPrefLabels = [],
+    let newPrefLabels:Value[] = [],
       found = false
     for (const l in prefLabels) {
-      if (prefLabels[l].language === lit.language) {
-        found = true
-        newPrefLabels = replaceItemAtIndex(prefLabels, l, lit)
-        break
+      if (prefLabels[l] instanceof LiteralWithId) { 
+        if(prefLabels[l].language === lit.language) {
+          found = true
+          newPrefLabels = replaceItemAtIndex(prefLabels, Number(l), lit)
+          break
+        }
       }
     }
     if (!found) newPrefLabels = [...prefLabels, lit.copy()]
@@ -1018,7 +1023,7 @@ const EditLangString: FC<{
             }}
             {...(error ? errorData : {})}
             {...(!editable ? { disabled: true } : {})}
-            onFocus={() => setWithPreview(lit.language === "bo-x-ewts" && lit.value)}
+            onFocus={() => setWithPreview(lit.language === "bo-x-ewts" && lit.value ? true : false)}
             onBlur={() => {
               setWithPreview(false)
               setTimeout(() => {
@@ -1438,7 +1443,7 @@ const LiteralComponent: FC<{
   canDel: boolean
   isUniqueLang: boolean
   isUniqueValueAmongSiblings: boolean
-  create?: CreateComponentType
+  create?: JSX.Element
   editable: boolean
   topEntity?: Subject
   updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
