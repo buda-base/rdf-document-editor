@@ -15,8 +15,13 @@ interface valueByLangToStrPrefLang {
   (vbl: Record<string, string> | null, prefLang: string | Array<string>): string
 }
 
+export type previewResults = {
+  value: string | null,
+  error: React.ReactNode | null
+}
+
 interface previewLiteral {
-  (literal: rdf.Literal): string | null
+  (literal: rdf.Literal, uiLangs: string[]): previewResults
 }
 
 interface generateConnectedID {

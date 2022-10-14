@@ -53,15 +53,10 @@ import {
   isUniqueTestSelector,
   orderedNewValSelectorType,
   isUniqueTestSelectorType,
-  initStringAtom,
-  //demoAtom,
 } from "../atoms/common"
 import { entitiesAtom, Entity, EditedEntityState } from "./EntitySelectorContainer"
 
 import MDEditor, { commands } from "@uiw/react-md-editor"
-
-//import edtf, { parse } from "edtf/dist/../index.js" // finally got it to work!! not in prod...
-import edtf, { parse } from "edtf" // see https://github.com/inukshuk/edtf.js/issues/36#issuecomment-1073778277
 
 import { useAuth0 } from "@auth0/auth0-react"
 
@@ -1141,53 +1136,6 @@ const EditLangString: FC<{
   )
 }
 
-export const humanizeEDTF = (obj, str, locale = "en-US", dbg = false) => {
-  if (!obj) return ""
-
-  const conc = (values, sepa) => {
-    sepa = sepa ? " " + sepa + " " : ""
-    return values.reduce((acc, v, i, array) => {
-      if (i > 0) acc += i < array.length - 1 ? ", " : sepa
-      acc += humanizeEDTF(v)
-      return acc
-    }, "")
-  }
-
-  // just output EDTF object
-  if (dbg /*|| true*/) return JSON.stringify(obj, null, 3)
-
-  if (obj.type === "Set") return conc(obj.values, "or")
-  else if (obj.type === "List") return conc(obj.values, "and")
-  else if (obj.type === "Interval" && !obj.values[0]) return "not after " + conc([obj.values[1]])
-  else if (obj.type === "Interval" && !obj.values[1]) return "not before " + conc([obj.values[0]])
-  else if (obj.type === "Interval") return "between " + conc(obj.values, "and")
-  else if (obj.approximate) {
-    if (obj.type === "Century") return "circa " + (Number(obj.values[0]) + 1) + "th c."
-    return "circa " + humanizeEDTF({ ...obj, approximate: false }, str, locale, dbg)
-  } else if (obj.uncertain) {
-    if (obj.type === "Century") return Number(obj.values[0]) + 1 + "th c. ?"
-    return humanizeEDTF({ ...obj, uncertain: false }, str, locale, dbg) + "?"
-  } else if (obj.unspecified === 12) return obj.values[0] / 100 + 1 + "th c."
-  else if (obj.type === "Century") return Number(obj.values[0]) + 1 + "th c."
-  else if (obj.unspecified === 8) return obj.values[0] + "s"
-  else if (obj.type === "Decade") return obj.values[0] + "0s"
-  else if (!obj.unspecified && obj.values.length === 1) return obj.values[0]
-  else if (!obj.unspecified && obj.values.length === 3) {
-    try {
-      const event = new Date(Date.UTC(obj.values[0], obj.values[1], obj.values[2], 0, 0, 0))
-      const options = { year: "numeric", month: "numeric", day: "numeric" }
-      const val = event.toLocaleDateString(locale, options)
-      //debug("val:",locale,val)
-      return val
-    } catch (e) {
-      debug("locale error:", e, str, obj)
-    }
-    return str
-  } else {
-    return str
-  }
-}
-
 export const LangSelect: FC<{
   onChange: (value: string) => void
   value: string
@@ -1239,14 +1187,16 @@ const EditString: FC<{
   updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
   entity: Subject
   index: number
-}> = ({ property, lit, onChange, label, editable, updateEntityState, entity, index }) => {
+  config: RDEConfig
+}> = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
   const classes = useStyles()
   const [uiLang] = useRecoilState(uiLangState)
 
   const dt = property.datatype
   const pattern = property.pattern ? new RegExp(property.pattern) : undefined
 
-  const [error, setError] = useState("") //getIntError(lit.value))
+  const [error, setError] = useState<React.ReactNode|null>(null)
+  const [preview, setPreview] = useState<string|null>(null)
 
   const getPatternError = (val: string) => {
     let err = ""
@@ -1257,76 +1207,37 @@ const EditString: FC<{
     return err
   }
 
-  const locales = { en: "en-US", "zh-hans": "zh-Hans-CN", bo: "bo-CN" }
-
-  let //timerEdtf = 0,
-    changeCallback = () => false
+  let timerPreview = 0
+  let changeCallback = (val: string):void => { return }
   useEffect(() => {
-    //debug("cCb?",uiLang,locales[uiLang])
     changeCallback = (val: string) => {
-      //debug("change!",val)
       if (val === "") {
-        setError("")
-        setReadableEDTF("")
+        setError(null)
+        setPreview(null)
         updateEntityState(EditedEntityState.Saved, lit.id)
       } else {
-        /* // refactoring neede
-
-       else if (useEdtf) {
-        if (timerEdtf) clearTimeout(timerEdtf)
+        if (timerPreview) window.clearTimeout(timerPreview)
         const delay = 350
-        timerEdtf = setTimeout(() => {
-          try {
-            //debug("edtf:val", val, edtf, parse)
-            const obj = parse(val)
-            //debug("edtf:parse", obj)
-            const edtfObj = edtf(val)
-            //debug("edtf:obj", obj, edtfObj)
-
-            const edtfMin = edtf(edtfObj.min)?.values[0]
-            const edtfMax = edtf(edtfObj.max)?.values[0]
-            // TODO: not sure how to get min/maxExclusive for onYear from shape here...
-            if (edtfMin <= -4000 || edtfMax >= 2100) throw Error(i18n.t("error.year", { min: -4000, max: 2100 }))
-
-            setError("")
-            setReadableEDTF(humanizeEDTF(obj, val, locales[uiLang[0]]))
-            //setEDTFtoOtherFields({ lit, val, obj })
-            updateEntityState(EditedEntityState.Saved, lit.id)
-          } catch (e) {
-            //debug("EDTF error:", e.message)
-            setReadableEDTF("")
-            setError(
-              <>
-                This field must be in EDTF format, see&nbsp;
-                <a href="https://www.loc.gov/standards/datetime/" rel="noopener noreferrer" target="_blank">
-                  https://www.loc.gov/standards/datetime/
-                </a>
-                .
-                {!["No possible parsing", "Syntax error"].some((err) => e.message?.includes(err)) && (
-                  <>
-                    <br />[{e.message}
-                    ]
-                  </>
-                )}
-              </>
-            )
-            updateEntityState(EditedEntityState.Error, lit.id)
-          }
+        timerPreview = window.setTimeout(() => {
+          let { value, error } = config.previewLiteral(new rdf.Literal(val, lit.language, lit.datatype), uiLang)
+          setPreview(value)
+          if (!error)
+            error = getPatternError(val)
+          setError(error)
+          updateEntityState(error ? EditedEntityState.Error : EditedEntityState.Saved, lit.id)
         }, delay)
-      } 
-      */
-        const newError = getPatternError(val)
-        setError(newError)
-        updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id)
       }
       onChange(lit.copyWithUpdatedValue(val))
     }
   })
 
-  const getEmptyStringError = (val: string) => {
-    let err = ""
-    if (!val && property.minCount) err = i18n.t("error.empty")
-    return err
+  const getEmptyStringError = (val: string): React.ReactNode | null => {
+    if (!val && property.minCount)
+      return
+        <>
+          <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} /> <i>{i18n.t("error.empty")}</i>
+        </>
+    return null
   }
 
   useEffect(() => {
@@ -1345,27 +1256,21 @@ const EditString: FC<{
         label={label}
         style={{ width: "100%" }}
         value={lit.value}
+        // TODO: refactor
         {...(property.qname !== "bds:NoteShape-contentLocationStatement" ? { InputLabelProps: { shrink: true } } : {})}
-        onBlur={(e) => setReadableEDTF("")}
+        onBlur={(e) => setPreview(null)}
         onFocus={(e) => changeCallback(e.target.value)}
         onChange={(e) => changeCallback(e.target.value)}
         {...(!editable ? { disabled: true } : {})}
         {...(error
-          ? {
-              helperText: (
-                <React.Fragment>
-                  <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} /> <i>{error}</i>
-                </React.Fragment>
-              ),
-              error: true,
-            }
+          ? error
           : {})}
       />
-      {/*readableEDTF && (
+      {preview && (
         <div className="preview-EDTF" style={{ width: "100%" }}>       
-          <pre>{readableEDTF}</pre>
+          <pre>{preview}</pre>
         </div>
-      )*/}
+      )}
     </div>
   )
 }
