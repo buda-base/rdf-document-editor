@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/core/styles"
 import { TextField, MenuItem } from "@material-ui/core"
 import i18n from "i18next"
 import { useHistory, Link } from "react-router-dom"
+import * as rdf from "rdflib"
 import * as shapes from "../helpers/rdf/shapes"
 import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
@@ -80,7 +81,7 @@ const BUDAResourceSelector: FC<{
   owner?: Subject
   title: string
   globalError: string
-  updateEntityState: (es: EditedEntityState) => void
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
   shape: NodeShape,
   config: RDEConfig
 }> = ({
@@ -168,7 +169,7 @@ const BUDAResourceSelector: FC<{
       iframeRef.current.click()
       const wn = iframeRef.current.contentWindow
       if (wn)
-        wn.postMessage("click", "*") //https://editor.bdrc.io/")
+        wn.postMessage("click", "*")
       /*
       try {
         const iDocument = iWindow.document
@@ -294,7 +295,7 @@ const BUDAResourceSelector: FC<{
       if (isRid) {
         // TODO: return dates in library
         setLibraryURL(
-          "https://library.bdrc.io/simple/" + (!keyword.startsWith("bdr:") ? "bdr:" : "") + keyword + "?for=" + msgId
+          config.libraryUrl+"/simple/" + (!keyword.startsWith("bdr:") ? "bdr:" : "") + keyword + "?for=" + msgId
         )
       } else {
         let lang = language
@@ -317,7 +318,7 @@ const BUDAResourceSelector: FC<{
         // DONE move url to config + use dedicated route in library
         // TODO get type from ontology
         setLibraryURL(
-            "https://library.bdrc.io/simplesearch?q=" +
+            config.libraryUrl+"/simplesearch?q=" +
             key +
             "&lg=" +
             lang +
@@ -370,9 +371,8 @@ const BUDAResourceSelector: FC<{
       let url = ""
       url =
         "/new/" +
-        // refactoring needed
-        //shapes.typeUriToShape[type.uri][0].qname +
-
+        // TODO: perhaps users might want to choose between different shapes?
+        config.possibleShapeRefsForType(type.node)[0].qname
         "/" +
         (owner?.qname && owner.qname !== subject.qname ? owner.qname : subject.qname) +
         "/" +
@@ -457,15 +457,14 @@ const BUDAResourceSelector: FC<{
   useEffect(() => {
     if (error) {
       debug("error:", error)
-    } else {
-      //
     }
   }, [error])
 
   const inputRef = useRef<HTMLInputElement>()
-  const [withPreview, setWithPreview] = useState(false)
+  const [preview, setPreview] = useState<string|null>(null)
   useLayoutEffect(() => {
-    setWithPreview(language === "bo-x-ewts" && !!keyword && !isRid && document.activeElement === inputRef.current)
+    if (document.activeElement === inputRef.current && !isRid && keyword)
+      setPreview(config.previewLiteral(new rdf.Literal(keyword, language)))
   })
 
   return (
@@ -476,21 +475,21 @@ const BUDAResourceSelector: FC<{
       >
         {value.uri === "tmp:uri" && (
           <div
-            className={withPreview ? "withPreview" : ""}
+            className={preview ? "withPreview" : ""}
             style={{ display: "flex", justifyContent: "space-between", alignItems: "end" }}
           >
             <React.Fragment>
-              {withPreview && (
+              {preview && (
                 <div className="preview-ewts">
-                  <TextField disabled value={fromWylie(keyword)} />
+                  <TextField disabled value={preview} />
                 </div>
               )}
               <TextField
                 onKeyPress={(e) => {
                   if (e.key === "Enter") onClick(e)
                 }}
-                onFocus={() => setWithPreview(language === "bo-x-ewts" && keyword && !isRid)}
-                onBlur={() => setWithPreview(false)}
+                onFocus={() => setPreview(keyword && !isRid ? config.previewLiteral(new rdf.Literal(keyword, language)) : null)}
+                onBlur={() => setPreview(null)}
                 inputRef={inputRef}
                 //className={classes.root}
                 InputLabelProps={{ shrink: true }}
@@ -503,8 +502,7 @@ const BUDAResourceSelector: FC<{
                   ? {
                       helperText: (
                         <React.Fragment>
-                          {/*label*/} <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} />
-                          {/* <br /> */}
+                          <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} />
                           <i>{error}</i>
                         </React.Fragment>
                       ),
@@ -517,13 +515,12 @@ const BUDAResourceSelector: FC<{
                 value={language}
                 onChange={(lang: string) => {
                   setLanguage(lang)
-                  //debug("yeah, changing lang!!", lang)
                   debug(lang)
                   if (libraryURL) updateLibrary(undefined, lang)
                 }}
                 {...(isRid ? { disabled: true } : { disabled: false })}
                 editable={editable}
-                error={error}
+                error={!!error}
               />
               {property.expectedObjectTypes?.length > 1 && (
                 <TextField
@@ -541,10 +538,8 @@ const BUDAResourceSelector: FC<{
                         error: true,
                       }
                     : {})}
-                  // DONE: we need some prefLabels for types here (ontology? i18n?)
                 >
                   {property.expectedObjectTypes?.map((r) => {
-                    //debug("type:", r)
                     const label = lang.ValueByLangToStrPrefLang(r.prefLabels, uiLang)
                     return (
                       <MenuItem key={r.qname} value={r.qname}>
@@ -584,13 +579,11 @@ const BUDAResourceSelector: FC<{
                 &nbsp;
                 <a
                   title={i18n.t("search.help.preview")}
-                  /* // reafctoring needed
                   onClick={() => {
                     if (libraryURL) setLibraryURL("")
                     else if (value.otherData["tmp:externalUrl"]) setLibraryURL(value.otherData["tmp:externalUrl"])
-                    else setLibraryURL(config.LIBRARY_URL + "/simple/" + value.qname + "?view=true")
+                    else setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true")
                   }}
-                  */
                 >
                   {!libraryURL && <InfoOutlinedIcon style={{ width: "18px", cursor: "pointer" }} />}
                   {libraryURL && <InfoIcon style={{ width: "18px", cursor: "pointer" }} />}
@@ -598,9 +591,7 @@ const BUDAResourceSelector: FC<{
                 &nbsp;
                 <a
                   title={i18n.t("search.help.open")}
-                  /* // refactoring needed
-                  href={config.LIBRARY_URL + "/show/" + value.qname}
-                  */
+                  href={config.libraryUrl+ "/show/" + value.qname}
                   rel="noopener noreferrer"
                   target="_blank"
                 >
