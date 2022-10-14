@@ -114,9 +114,11 @@ export function EntityCreationContainer(props: RDEProps, config: RDEConfig) {
     )
   }
   return (
+    <>
     <div>
-      <div>{i18n.t("types.creating")}</div>
+      <div><>{i18n.t("types.creating")}</></div>
     </div>
+    </>
   )
 }
 
@@ -167,9 +169,11 @@ export function EntityCreationContainerAlreadyOpen(props: RDEProps) {
   else return <Redirect to={"/edit/" + entityQname + "/" + shapeQname} />
 
   return (
+    <>
     <div>
-      <div>{i18n.t("types.loading")}</div>
+      <div><>{i18n.t("types.loading")}</></div>
     </div>
+    </>
   )
 }
 

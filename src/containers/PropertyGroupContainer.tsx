@@ -31,7 +31,7 @@ const redIcon = new L.Icon({
 
 function DraggableMarker({ pos, icon, setCoords }: {pos: L.LatLng, icon: L.Icon, setCoords: (val: L.LatLng) => void}) {
   const [position, setPosition] = useState<L.LatLng>(pos)
-  const markerRef = useRef<L.Marker<any>|null>(null)
+  const markerRef = useRef<L.Marker<L.LatLng>|null>(null)
   const eventHandlers = useMemo(
     () => ({
       dragend() {
@@ -208,6 +208,7 @@ const PropertyGroupContainer: FC<{
                       subject={subject}
                       editable={property.readOnly !== true}
                       shape={shape}
+                      config={config}
                     />
                   ))}
                   {withDisplayPriority.map((property, index) => (
@@ -218,6 +219,7 @@ const PropertyGroupContainer: FC<{
                       force={force}
                       editable={property.readOnly !== true}
                       shape={shape}
+                      config={config}
                     />
                   ))}
                   {

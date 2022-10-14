@@ -5,11 +5,7 @@ import * as ns from "../helpers/rdf/ns"
 import * as shapes from "../helpers/rdf/shapes"
 import { Value, Subject, LiteralWithId, errors, emptyLiteral } from "../helpers/rdf/types"
 import { HistoryStatus } from "../helpers/observer"
-import { humanizeEDTF } from "../containers/ValueList"
 import { entitiesAtom, EditedEntityState, Entity } from "../containers/EntitySelectorContainer"
-
-//import edtf from "edtf/dist/../index.js"
-import edtf, { parse } from "edtf" // see https://github.com/inukshuk/edtf.js/issues/36#issuecomment-1073778277
 
 const debug = require("debug")("rde:common")
 
@@ -371,7 +367,7 @@ export const ESfromRecoilSelector = selectorFamily<any,{}>({
         }
         // DONE: update status to NeedsSaving for newly created entity and not for loaded entity
         const status =
-          ent.alreadySaved && (!args.undo || args.undo.prev && !args.undo.prev.enabled) && !ent.loadedUnsavedFromLocalStorage
+          ent.etag && (!args.undo || args.undo.prev && !args.undo.prev.enabled) && !ent.loadedUnsavedFromLocalStorage
             ? EditedEntityState.Saved
             : EditedEntityState.NeedsSaving
 

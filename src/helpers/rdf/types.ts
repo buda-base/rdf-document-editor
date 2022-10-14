@@ -315,12 +315,14 @@ export class EntityGraph {
 }
 
 export class RDFResource {
-  node: rdf.NamedNode | rdf.BlankNode
+  node: rdf.NamedNode | rdf.BlankNode | rdf.Collection
   graph: EntityGraph
+  isCollection: boolean
 
   constructor(node: rdf.NamedNode | rdf.BlankNode | rdf.Collection, graph: EntityGraph) {
     this.node = node
     this.graph = graph
+    this.isCollection = node instanceof rdf.Collection
   }
 
   public get id(): string {
@@ -358,6 +360,7 @@ export class RDFResource {
   }
 
   public getPropValueByLang(p: rdf.NamedNode): Record<string, string> {
+    if (this.node instanceof rdf.Collection) return {}
     const lits: Array<rdf.Literal> = this.graph.store.each(this.node, p, null) as Array<rdf.Literal>
     const res: Record<string, string> = {}
     for (const lit of lits) {
@@ -367,6 +370,7 @@ export class RDFResource {
   }
 
   public getPropValueOrNullByLang(p: rdf.NamedNode): Record<string, string> | null {
+    if (this.node instanceof rdf.Collection) return {}
     const lits: Array<rdf.Literal> = this.graph.store.each(this.node, p, null) as Array<rdf.Literal>
     const res: Record<string, string> = {}
     let i = 0
@@ -379,14 +383,17 @@ export class RDFResource {
   }
 
   public getPropLitValues(p: rdf.NamedNode): Array<rdf.Literal> {
+    if (this.node instanceof rdf.Collection) return []
     return this.graph.store.each(this.node, p, null) as Array<rdf.Literal>
   }
 
   public getPropResValues(p: rdf.NamedNode): Array<rdf.NamedNode> {
+    if (this.node instanceof rdf.Collection) return []
     return this.graph.store.each(this.node, p, null) as Array<rdf.NamedNode>
   }
 
   public getPropResValuesFromList(p: rdf.NamedNode): Array<rdf.NamedNode> | null {
+    if (this.node instanceof rdf.Collection) return null
     const colls = this.graph.store.each(this.node, p, null) as Array<rdf.Collection>
     for (const coll of colls) {
       return coll.elements as Array<rdf.NamedNode>
@@ -395,6 +402,7 @@ export class RDFResource {
   }
 
   public getPropLitValuesFromList(p: rdf.NamedNode): Array<rdf.Literal> | null {
+    if (this.node instanceof rdf.Collection) return null
     const colls = this.graph.store.each(this.node, p, null) as Array<rdf.Collection>
     for (const coll of colls) {
       return coll.elements as Array<rdf.Literal>
@@ -403,23 +411,27 @@ export class RDFResource {
   }
 
   public getPropIntValue(p: rdf.NamedNode): number | null {
+    if (this.node instanceof rdf.Collection) return null
     const lit: rdf.Literal | null = this.graph.store.any(this.node, p, null) as rdf.Literal | null
     if (lit === null) return null
     return rdfLitAsNumber(lit)
   }
 
   public getPropStringValue(p: rdf.NamedNode): string | null {
+    if (this.node instanceof rdf.Collection) return null
     const lit: rdf.Literal | null = this.graph.store.any(this.node, p, null) as rdf.Literal | null
     if (lit === null) return null
     return lit.value
   }
 
   public getPropResValue(p: rdf.NamedNode): rdf.NamedNode | null {
+    if (this.node instanceof rdf.Collection) return null
     const res: rdf.NamedNode | null = this.graph.store.any(this.node, p, null) as rdf.NamedNode | null
     return res
   }
 
   public getPropResValuesFromPath(p: Path): Array<rdf.NamedNode> {
+    if (this.node instanceof rdf.Collection) return []
     if (p.directPathNode) {
       return this.graph.store.each(this.node, p.directPathNode, null) as Array<rdf.NamedNode>
     }
@@ -427,6 +439,7 @@ export class RDFResource {
   }
 
   public getPropResValueFromPath(p: Path): rdf.NamedNode | null {
+    if (this.node instanceof rdf.Collection) return null
     if (p.directPathNode) {
       return this.graph.store.any(this.node, p.directPathNode, null) as rdf.NamedNode | null
     }
@@ -434,6 +447,7 @@ export class RDFResource {
   }
 
   public getPropBooleanValue(p: rdf.NamedNode, dflt = false): boolean {
+    if (this.node instanceof rdf.Collection) return dflt
     const lit: rdf.Literal = this.graph.store.any(this.node, p, null) as rdf.Literal
     if (!lit) return dflt
     const n = Boolean(lit.value)

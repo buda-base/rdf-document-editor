@@ -53,6 +53,7 @@ import {
   isUniqueTestSelector,
   orderedNewValSelectorType,
   isUniqueTestSelectorType,
+  initStringAtom
 } from "../atoms/common"
 import { entitiesAtom, Entity, EditedEntityState } from "./EntitySelectorContainer"
 
@@ -611,6 +612,7 @@ const ValueList: FC<{
           editable={editable}
           topEntity={topEntity}
           updateEntityState={updateEntityState}
+          config={config}
         />
       )
     }
@@ -694,8 +696,9 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
   const collec = list.length === 1
     && list[0] instanceof RDFResource
+    && list[0].node
       && list[0].node instanceof rdf.Collection
-        && list[0].node?.termType === "Collection"
+        && list[0].node.termType === "Collection"
            ? list[0].node.elements
            : undefined
   const listOrCollec = collec ? collec : list

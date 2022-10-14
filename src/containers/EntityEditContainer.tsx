@@ -7,7 +7,6 @@ import { PropertyShape, PropertyGroup } from "../helpers/rdf/shapes"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
 import i18n from "i18next"
 import { entitiesAtom, EditedEntityState, Entity } from "./EntitySelectorContainer"
-import { getIcon } from "./EntityInEntitySelectorContainer"
 import PropertyGroupContainer from "./PropertyGroupContainer"
 import {
   reloadEntityState,
@@ -35,7 +34,6 @@ import * as rdf from "rdflib"
 import qs from "query-string"
 import * as ns from "../helpers/rdf/ns"
 import { Redirect } from "react-router-dom"
-import { replaceItemAtIndex } from "../helpers/atoms"
 import { HashLink as Link } from "react-router-hash-link"
 import queryString from "query-string"
 import { getParentPath, history } from "../helpers/observer"
@@ -48,6 +46,10 @@ interface RDEPropsDoUpdate extends RDEProps {
   propertyQname: string
   objectQname: string
   index: number
+}
+
+function replaceItemAtIndex(arr: [], index: number, newValue) {
+  return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)]
 }
 
 export function EntityEditContainerMayUpdate(props: RDEProps) {
@@ -195,7 +197,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
   const entityObj = entities.filter(
     (e) => e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user"
   )
-  const icon = getIcon(entityObj.length ? entityObj[0] : null)
+  const icon = config.iconFromEntity(entityObj.length ? entityObj[0] : null)
 
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config)
 
@@ -278,11 +280,10 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
   const [userId, setUserId] = useRecoilState(userIdState)
 
   const save = useCallback(
-    (obj) => {
+    (obj: Entity[]) => {
       return new Promise(async (resolve) => {
         //debug("saving?",obj[0]?.subjectQname,obj[0]?.state,obj[0].alreadySaved)
-        if ([EditedEntityState.NeedsSaving, EditedEntityState.Error].includes(obj[0]?.state)) {
-          //debug("yes")
+        if ([EditedEntityState.NeedsSaving, EditedEntityState.Error].includes(obj[0].state)) {
           // save to localStorage
           const defaultRef = new rdf.NamedNode(rdf.Store.defaultGraphURI)
           const store = new rdf.Store()
@@ -295,15 +296,14 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
               debug(err, store)
               throw "error when serializing"
             }
-            let shape = obj[0]?.shapeRef
-            if (shape?.qname) shape = shape.qname
+            let shape = obj[0]?.shapeQname
             config.setUserLocalEntity(
-              obj[0]?.subject?.qname,
+              obj[0].subjectQname,
               shape,
               str,
               false,
               userId,
-              obj[0].alreadySaved,
+              obj[0].etag,
               obj[0].state === EditedEntityState.NeedsSaving
             )
             //debug("RESOLVED")
@@ -393,30 +393,35 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
 
   if (loadingState.status === "fetching" || entityLoadingState.status === "fetching" || !entity || entity.isEmpty()) {
     return (
+      <>
       <div>
-        <div>{i18n.t("types.loading")}</div>
+        <div><>{i18n.t("types.loading")}</></div>
       </div>
+      </>
     )
   }
 
   if (!shape || !entity)
     return (
+      <>
       <div>
-        <div>{i18n.t("types.loading")}</div>
+        <div><>{i18n.t("types.loading")}</></div>
       </div>
+      </>
     )
 
   //debug("entity:", entity, shape)
 
   const shapeLabel = lang.ValueByLangToStrPrefLang(shape.targetClassPrefLabels, uiLang)
 
-  const checkPushNameAsPrefLabel = (e: MouseEvent, currentGroupName: string) => {
+  const checkPushNameAsPrefLabel = (e: React.MouseEvent, currentGroupName: string) => {
     //debug("closing: ", currentGroupName, possiblePrefLabels[currentGroupName])
     if (possiblePrefLabels && possiblePrefLabels[currentGroupName]?.length) {
       //debug("names:",personNamesLabels,prefLabels)
       const newLabels = [...prefLabels]
       for (const n of possiblePrefLabels[currentGroupName]) {
         if (
+          n instanceof LiteralWithId &&
           !newLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language)) &&
           !altLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language))
         )
@@ -447,10 +452,10 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
             {previewLink && (
               <div className="buda-link">
                 <a
-                  className={"btn-rouge" + (!entityObj[0]?.alreadySaved ? " disabled" : "")}
+                  className={"btn-rouge" + (!entityObj[0]?.etag ? " disabled" : "")}
                   target="_blank"
                   rel="noreferrer"
-                  {...(!entityObj[0]?.alreadySaved ? { title: i18n.t("error.preview") } : { href: previewLink })}
+                  {...(!entityObj[0]?.etag ? { title: i18n.t("error.preview") } : { href: previewLink })}
                 >
                   {i18n.t("general.preview")}
                 </a>
@@ -483,7 +488,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
         {shape.groups.map((group, index) => (
           <>
             {groupEd === group.qname && (
-              <div className="group-edit-BG" onClick={(e) => checkPushNameAsPrefLabel(e, group.qname)}></div>
+              <div className="group-edit-BG" onClick={(e: React.MouseEvent) => checkPushNameAsPrefLabel(e, group.qname)}></div>
             )}
             <PropertyGroupContainer
               key={group.uri}
@@ -491,6 +496,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
               subject={entity}
               onGroupOpen={checkPushNameAsPrefLabel}
               shape={shape}
+              config={config}
             />
           </>
         ))}

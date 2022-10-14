@@ -4,8 +4,9 @@ import { RDFResourceWithLabel } from "../helpers/rdf/types"
 import { entitiesAtom, EditedEntityState, defaultEntityLabelAtom } from "./EntitySelectorContainer"
 import { uiDisabledTabsState, uiLangState, uiTabState, RIDprefixState, userIdState } from "../atoms/common"
 import * as lang from "../helpers/lang"
+import RDEConfig from "../helpers/rde_config"
 import { useRecoilState } from "recoil"
-import { AppProps } from "../../../containers/AppContainer"
+import { RDEProps } from "../helpers/editor_props"
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
 import React, { ChangeEvent } from "react"
 import qs from "query-string"
@@ -15,7 +16,7 @@ import { TextField, MenuItem } from "@material-ui/core"
 
 const debug = require("debug")("rde:entity:newentity")
 
-function NewEntityContainer(props: AppProps) {
+function NewEntityContainer(props: RDEProps, config: RDEConfig) {
   const [uiLang] = useRecoilState(uiLangState)
   const [RID, setRID] = useState("")
   const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
@@ -38,20 +39,18 @@ function NewEntityContainer(props: AppProps) {
             helperText={"List of all possible shapes"}
             id="shapeSelec"
             className="shapeSelector"
-            /* // refactoring needed
             value={ 
-              shapes.possibleShapeRefs[0].qname
+              config.possibleShapeRefs[0].qname
             }
-            */
             style={{ marginTop: "3px", marginLeft: "10px" }}
           >
-            {/*shapes.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (
+            {config.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (
               <MenuItem key={shape.qname} value={shape.qname} style={{ padding: 0 }}>
                 <Link to={"/new/" + shape.qname} className="popLink">
                   {lang.ValueByLangToStrPrefLang(shape.prefLabels, uiLang)}
                 </Link>
               </MenuItem>
-            ))*/}
+            ))}
           </TextField>
           {disabled && RIDprefix === "" && (
             <span className="pl-2" style={{ fontStyle: "italic", fontWeight: 500, color: "#d73449", fontSize: 14 }}>

@@ -131,9 +131,11 @@ function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
   }
 
   return (
+    <>
     <div>
       <div>{i18n.t("types.loading")}</div>
     </div>
+    </>
   )
 }
 

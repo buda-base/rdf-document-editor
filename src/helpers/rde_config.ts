@@ -108,7 +108,7 @@ interface setUserLocalEntity {
 }
 
 interface iconFromEntity {
-  (entity: Entity): string
+  (entity: Entity | null): string
 }
 
 type ShapeRef = RDFResourceWithLabel

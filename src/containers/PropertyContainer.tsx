@@ -21,7 +21,7 @@ const PropertyContainer: FC<{
   shape: NodeShape
   siblingsPath?: string,
   config: RDEConfig
-}> = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath }) => {
+}> = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
   const objectType = property.objectType
 
   //debug("propertyCtn:", property.qname, property, subject.qname, subject, siblingsPath)
@@ -55,6 +55,7 @@ const PropertyContainer: FC<{
               shape={shape}
               siblingsPath={siblingsPath}
               setCssClass={setCssClass}
+              config={config}
             />
           </div>
         </section>

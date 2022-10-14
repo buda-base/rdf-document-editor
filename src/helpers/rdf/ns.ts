@@ -90,7 +90,7 @@ export class PrefixMap {
 
     const localid = qname.slice(j + 1)
     const prefix = qname.slice(0, j)
-    const uri_base = prefixToURI[prefix]
+    const uri_base = this.prefixToURI[prefix]
 
     if (!uri_base) throw new Error("Cannot make uri out of <" + qname + ">")
 

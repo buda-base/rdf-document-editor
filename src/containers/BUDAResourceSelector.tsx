@@ -463,8 +463,11 @@ const BUDAResourceSelector: FC<{
   const inputRef = useRef<HTMLInputElement>()
   const [preview, setPreview] = useState<string|null>(null)
   useLayoutEffect(() => {
-    if (document.activeElement === inputRef.current && !isRid && keyword)
-      setPreview(config.previewLiteral(new rdf.Literal(keyword, language)))
+    if (document.activeElement === inputRef.current && !isRid && keyword) {
+      const previewVal = config.previewLiteral(new rdf.Literal(keyword, language), uiLang)
+      setPreview(previewVal.value)
+      setPreview(previewVal.value)
+    }
   })
 
   return (
@@ -488,7 +491,12 @@ const BUDAResourceSelector: FC<{
                 onKeyPress={(e) => {
                   if (e.key === "Enter") onClick(e)
                 }}
-                onFocus={() => setPreview(keyword && !isRid ? config.previewLiteral(new rdf.Literal(keyword, language)) : null)}
+                onFocus={() => {
+                  if (!keyword || isRid)
+                    setPreview(null)
+                  const { value, error } = config.previewLiteral(new rdf.Literal(keyword, language), uiLang)
+                  setPreview(value)
+                }}
                 onBlur={() => setPreview(null)}
                 inputRef={inputRef}
                 //className={classes.root}
@@ -521,6 +529,7 @@ const BUDAResourceSelector: FC<{
                 {...(isRid ? { disabled: true } : { disabled: false })}
                 editable={editable}
                 error={!!error}
+                config={config}
               />
               {property.expectedObjectTypes?.length > 1 && (
                 <TextField
@@ -565,7 +574,7 @@ const BUDAResourceSelector: FC<{
                 onClick={togglePopup}
                 {...(!editable ? { disabled: true } : {})}
               >
-                {i18n.t("search.create")}
+                <>{i18n.t("search.create")}</>
               </button>
             </React.Fragment>
           </div>
