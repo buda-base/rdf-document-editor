@@ -197,6 +197,8 @@ export const personNamesLabelsSelector = selectorFamily<any,personNamesLabelsSel
 
 export const initListAtom = atom<Array<Value>>({ key: "initListAtom", default: [] })
 
+export const initStringAtom = atom<string>({ key: "initStringAtom", default: "" })
+
 export const initMapAtom = atom<Record<string, Value[]>>({ key: "initMapAtom", default: {} })
 
 export type canPushPrefLabelGroupType = {
