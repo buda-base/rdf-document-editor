@@ -140,8 +140,8 @@ const PropertyGroupContainer: FC<{
   const [edit, setEdit] = useRecoilState(uiEditState)
   const [groupEd, setGroupEd] = useRecoilState(uiGroupState)
 
-  const [lat, setLat] = config.latProp ? useRecoilState(subject.getAtomForProperty(config.latProp.uri)) : useRecoilState(initListAtom)
-  const [lng, setLng] = config.lngProp ? useRecoilState(subject.getAtomForProperty(config.lngProp.uri)) : useRecoilState(initListAtom)
+  const [lat, setLat] = useRecoilState(config.latProp ? subject.getAtomForProperty(config.latProp.uri) : initListAtom)
+  const [lng, setLng] = useRecoilState(config.lngProp ? subject.getAtomForProperty(config.lngProp.uri) : initListAtom)
   const [redraw, setRedraw] = useState(false)
   let coords: L.LatLng,
     zoom = 5,
