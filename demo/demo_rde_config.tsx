@@ -1,3 +1,4 @@
+import React from "react"
 import * as rdf from "rdflib"
 import { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel } from "../src/helpers/rdf/types"
 import { fetchTtl, IFetchState } from "../src/helpers/rdf/io"
@@ -85,7 +86,7 @@ const getDocument = async (entity: rdf.NamedNode) => {
   const documentGraph: rdf.Store = await getDocumentGraph(entity)
   const connexGraph: rdf.Store = await getConnexGraph(entity)
   const res = new Subject(entity, new EntityGraph(documentGraph, entity.uri, prefixMap, connexGraph))
-  return Promise.resolve({subject: res, etag: ""})
+  return Promise.resolve({ subject: res, etag: "" })
 }
 
 const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8) // eslint-disable-line no-magic-numbers
@@ -150,7 +151,7 @@ export const iconFromEntity = (entity: Entity | null): string => {
         }
       }
   }
-  let shapeQname = entity.shapeQname
+  const shapeQname = entity.shapeQname
   if (!icon && shapeQname) {
     // TODO: might be something better than that...
     icon = shapeQname.replace(/^[^:]+:([^:]+?)Shape[^/]*$/, "$1")
@@ -200,7 +201,7 @@ export const setUserLocalEntity = async (
   localStorage.setItem("rde_entities", dataNewStr)
 }
 
-const personShapeRef = new ExtRDFResourceWithLabel(demoShape.uri, { en: "Person" }),
+const personShapeRef = new ExtRDFResourceWithLabel(demoShape.uri, { en: "Person" })
 
 const possibleShapeRefs = [ personShapeRef ]
 
@@ -214,7 +215,7 @@ const EDTF_DT = rdf.sym("http://id.loc.gov/datatypes/edtf/EDTF")
 export const humanizeEDTF = (obj: Record<string,any>, str="", locale = "en-US", dbg = false): string => {
   if (!obj) return ""
 
-  const conc = (values: Array<{}>, separator?: string) => {
+  const conc = (values: Array<any>, separator?: string) => {
     separator = separator ? " " + separator + " " : ""
     return values.reduce((acc: string, v, i, array) => {
       if (i > 0) acc += i < array.length - 1 ? ", " : separator
@@ -224,7 +225,7 @@ export const humanizeEDTF = (obj: Record<string,any>, str="", locale = "en-US", 
   }
 
   // just output EDTF object
-  if (dbg) return JSON.stringify(obj, null, 3)
+  if (dbg) return JSON.stringify(obj, null, 3) // eslint-disable-line no-magic-numbers
 
   if (obj.type === "Set") return conc(obj.values, "or")
   else if (obj.type === "List") return conc(obj.values, "and")
@@ -237,14 +238,14 @@ export const humanizeEDTF = (obj: Record<string,any>, str="", locale = "en-US", 
   } else if (obj.uncertain) {
     if (obj.type === "Century") return Number(obj.values[0]) + 1 + "th c. ?"
     return humanizeEDTF({ ...obj, uncertain: false }, str, locale, dbg) + "?"
-  } else if (obj.unspecified === 12) return obj.values[0] / 100 + 1 + "th c."
+  } else if (obj.unspecified === 12) return obj.values[0] / 100 + 1 + "th c." // eslint-disable-line no-magic-numbers
   else if (obj.type === "Century") return Number(obj.values[0]) + 1 + "th c."
-  else if (obj.unspecified === 8) return obj.values[0] + "s"
+  else if (obj.unspecified === 8) return obj.values[0] + "s" // eslint-disable-line no-magic-numbers
   else if (obj.type === "Decade") return obj.values[0] + "0s"
   else if (!obj.unspecified && obj.values.length === 1) return obj.values[0]
-  else if (!obj.unspecified && obj.values.length === 3) {
+  else if (!obj.unspecified && obj.values.length === 3) { // eslint-disable-line no-magic-numbers
     try {
-      const event = new Date(Date.UTC(obj.values[0], obj.values[1], obj.values[2], 0, 0, 0))
+      const event = new Date(Date.UTC(obj.values[0], obj.values[1], obj.values[2], 0, 0, 0)) // eslint-disable-line no-magic-numbers
       const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "numeric", day: "numeric" }
       const val = event.toLocaleDateString(locale, options)
       return val
@@ -266,9 +267,9 @@ const previewLiteral = (lit: rdf.Literal, uiLangs: string[]) => {
       const edtfObj = edtf(lit.value)
       const edtfMin = edtf(edtfObj.min)?.values[0]
       const edtfMax = edtf(edtfObj.max)?.values[0]
-      if (edtfMin <= -4000 || edtfMax >= 2100) throw Error(i18n.t("error.year", { min: -4000, max: 2100 }))
+      if (edtfMin <= -4000 || edtfMax >= 2100) throw Error(i18n.t("error.year", { min: -4000, max: 2100 })) // eslint-disable-line no-magic-numbers
       return humanizeEDTF(obj, lit.value, uiLangs[0])
-    } catch (e) {
+    } catch (e:any) {
       return { value: null, error :
         <>
           This field must be in EDTF format, see&nbsp;
