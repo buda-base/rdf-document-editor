@@ -35,7 +35,7 @@ export const fetchTtl = async (
 
     // eslint-disable-next-line no-magic-numbers
     if (allow404 && response.status == 404) {
-      resolve({store: rdf.graph(), etag: null})
+      resolve({ store: rdf.graph(), etag: null })
       return
     }
     // eslint-disable-next-line no-magic-numbers
@@ -50,7 +50,7 @@ export const fetchTtl = async (
       return
     }
 
-    let body = await response.text()
+    const body = await response.text()
     const store: rdf.Store = rdf.graph()
     try {
       rdf.parse(body, store, rdf.Store.defaultGraphURI, "text/turtle")
@@ -303,7 +303,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
         etag = resInfo.etag
         if (!res) res = await loadRes
 
-        let actualQname = entityQname,
+        const actualQname = entityQname,
           actualUri = entityUri
         /* TODO: refactor
         if (entityQname === "tmp:user") {
@@ -350,7 +350,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
         setUiReady(true)
 
         if (reloadEntity) setReloadEntity("")
-      } catch (e) {
+      } catch (e:any) {
         debug("e:", e.message, e)
         setDisabled(false)
         setEntityLoadingState({

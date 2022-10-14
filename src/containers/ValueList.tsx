@@ -979,7 +979,8 @@ const EditLangString: FC<{
       found = false
     for (const l in prefLabels) {
       if (prefLabels[l] instanceof LiteralWithId) { 
-        if((prefLabels[l] as LiteralWithId).language === lit.language) {
+        const litWi = prefLabels[l] as LiteralWithId
+        if(litWi.language === lit.language) {
           found = true
           newPrefLabels = replaceItemAtIndex(prefLabels, Number(l), lit)
           break
@@ -1013,6 +1014,7 @@ const EditLangString: FC<{
       {(property.singleLine || !editMD) && (
         <div style={{ width: "100%", position: "relative" }}>
           <TextField
+            variant="standard"
             inputRef={inputRef}
             className={lit.language === "bo" ? " lang-bo" : ""}
             label={label}
@@ -1027,7 +1029,7 @@ const EditLangString: FC<{
               else updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id)
               onChange(lit.copyWithUpdatedValue(e.target.value))
             }}
-            {...(error ? error : {})}
+            {...(error ? { error } : {})}
             {...(!editable ? { disabled: true } : {})}
             onFocus={() => {
               const { value, error } = config.previewLiteral(lit, uiLang)
@@ -1236,7 +1238,9 @@ const EditString: FC<{
         if (timerPreview) window.clearTimeout(timerPreview)
         const delay = 350
         timerPreview = window.setTimeout(() => {
-          let { value, error } = config.previewLiteral(new rdf.Literal(val, lit.language, lit.datatype), uiLang)
+          const obj = config.previewLiteral(new rdf.Literal(val, lit.language, lit.datatype), uiLang)
+          const { value } = obj
+          let { error } = obj
           setPreview(value)
           if (!error)
             error = getPatternError(val)
@@ -1252,7 +1256,7 @@ const EditString: FC<{
     if (!val && property.minCount)
       return
         <>
-          <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} /> <i>{i18n.t("error.empty")}</i>
+          <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} /> <i><>{i18n.t("error.empty")}</></i>
         </>
     return null
   }
@@ -1269,6 +1273,7 @@ const EditString: FC<{
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
       <TextField
+        variant="standard"
         //className={/*classes.root +*/ " mt-2"}
         label={label}
         style={{ width: "100%" }}
@@ -1279,9 +1284,7 @@ const EditString: FC<{
         onFocus={(e) => changeCallback(e.target.value)}
         onChange={(e) => changeCallback(e.target.value)}
         {...(!editable ? { disabled: true } : {})}
-        {...(error
-          ? error
-          : {})}
+        { ...error ? { error } : {} }
       />
       {preview && (
         <div className="preview-EDTF" style={{ width: "100%" }}>       
@@ -1735,7 +1738,7 @@ const FacetComponent: FC<{
           ))}
           {hasExtra && (
             <span className="toggle-btn btn btn-rouge mt-4" onClick={toggleExtra}>
-              {i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })}
+              <>{i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })}</>
             </span>
           )}
           <div className="close-btn">

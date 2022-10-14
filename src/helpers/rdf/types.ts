@@ -112,8 +112,11 @@ export class EntityGraphValues {
               // val.node happens to be undefined when list has been updated in UI
               if (val.node) {
                 collection.append(val.node)
-              // TODO: ???
-              } else collection.append(val)
+              } 
+              // TODO: ???                 
+              else if(val instanceof rdf.Literal) {
+                collection.append(val)
+              } else throw "could not add "+val+" to collection "+collection
             } else store.add(subject, property, val.node, defaultGraphNode)
             if (val instanceof Subject) {
               this.addNewValuestoStore(store, val.uri)

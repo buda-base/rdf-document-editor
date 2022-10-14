@@ -48,7 +48,7 @@ interface RDEPropsDoUpdate extends RDEProps {
   index: number
 }
 
-function replaceItemAtIndex(arr: [], index: number, newValue) {
+function replaceItemAtIndex(arr: [], index: number, newValue: Value) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)]
 }
 
@@ -101,7 +101,7 @@ export function EntityEditContainerMayUpdate(props: RDEProps) {
   //debug("subj:", subject, propertyQname, entityQname, index)
 
   if (subject && propertyQname && entityQname && index) {
-    const propsForCall = { ... props, copy: copy}
+    const propsForCall = { ...props, copy: copy }
     return (
       <EntityEditContainerDoUpdate
         subject={subject}
@@ -142,7 +142,7 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig)
   //debug("copy:",copy,props.copy)
 
   const [getProp, setProp] = useRecoilState(
-    (subject && copy && Object.keys(copy).length)
+      subject && copy && Object.keys(copy).length
       ?
         toCopySelector({
           list: Object.keys(copy).map((p: string) => ({

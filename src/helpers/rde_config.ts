@@ -82,7 +82,8 @@ type EntityCreatorArgs = {shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | 
 type EntityCreatorProps = PropsWithChildren<EntityCreatorArgs>
 
 interface entityCreator {
-  (shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, unmounting: {val: boolean}): { entityLoadingState: IFetchState, entity: Subject | null, reset: () => void }
+  (shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, 
+      unmounting: {val: boolean}): { entityLoadingState: IFetchState, entity: Subject | null, reset: () => void }
 }
 
 type localEntityInfo = {

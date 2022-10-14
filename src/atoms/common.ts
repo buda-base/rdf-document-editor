@@ -331,8 +331,7 @@ export type ESfromRecoilSelectorType = {
   forceRemove: boolean
 }
 
-
-export const ESfromRecoilSelector = selectorFamily<any,{}>({
+export const ESfromRecoilSelector = selectorFamily<any,any>({
   key: "ESfromRecoilSelector",
   get:
     ({}) =>

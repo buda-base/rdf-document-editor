@@ -303,7 +303,7 @@ export class PropertyShape extends RDFResourceWithLabel {
     graph: EntityGraph
   ): Array<RDFResourceWithLabel> {
     const res: Array<RDFResourceWithLabel> = []
-    for (const node of nodes) {
+    for (const node of nodes) if(node instanceof rdf.NamedNode) {
       const r = new RDFResourceWithLabel(node, graph)
       // just a way to intialize the value before the object gets frozen like a yogurt by Recoil
       let justforinit = r.description

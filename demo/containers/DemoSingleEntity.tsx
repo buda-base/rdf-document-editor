@@ -14,6 +14,7 @@ import {
   useHistory,
   Redirect,
 } from "react-router-dom"
+import { IdTypeParams } from "../../src/helpers/editor_props"
 
 const target = document.querySelector("#root")
 
@@ -32,12 +33,14 @@ function App(props: AppProps) {
         <main>
           <div>
             <Switch>
-              <Route exact path="/" component={HomeContainer} />
+              {/* // TODO: not sure what yet :-)
+              <Route exact path="/" component={HomeContainer} /> 
+              */}
               <Route
                 exact
                 path="/profile"
                 render={(rprops) => (
-                  <EntityEditContainer {...rprops} entityQname="tmp:user" shapeQname="bds:UserProfileShape" />
+                  <EntityEditContainer {...rprops} subjectQname="tmp:user" shapeQname="bds:UserProfileShape" />
                 )}
               />
               <Route exact path="/new" component={NewEntityContainer} />

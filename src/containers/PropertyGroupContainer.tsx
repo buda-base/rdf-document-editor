@@ -31,7 +31,7 @@ const redIcon = new L.Icon({
 
 function DraggableMarker({ pos, icon, setCoords }: {pos: L.LatLng, icon: L.Icon, setCoords: (val: L.LatLng) => void}) {
   const [position, setPosition] = useState<L.LatLng>(pos)
-  const markerRef = useRef<L.Marker<L.LatLng>|null>(null)
+  const markerRef = useRef<L.Marker<L.LatLng>>(null)
   const eventHandlers = useMemo(
     () => ({
       dragend() {
@@ -47,7 +47,7 @@ function DraggableMarker({ pos, icon, setCoords }: {pos: L.LatLng, icon: L.Icon,
 
   //debug("mark:",markerRef,pos)
   useEffect(() => {
-    if (markerRef.current && (markerRef.current.lat != pos.lat || markerRef.current.lng != pos.lng)) {
+    if (markerRef.current && (markerRef.current?.lat != pos.lat || markerRef.current?.lng != pos.lng)) {
       markerRef.current.setLatLng(pos)
     }
   })
@@ -57,7 +57,8 @@ function DraggableMarker({ pos, icon, setCoords }: {pos: L.LatLng, icon: L.Icon,
   )
 }
 
-const MapEventHandler = ({ coords, redraw, setCoords, config }: { coords: L.LatLng, redraw: boolean, setCoords: (val: L.LatLng) => void, config: RDEConfig}) => {
+const MapEventHandler = ({ coords, redraw, setCoords, config }: { coords: L.LatLng, 
+    redraw: boolean, setCoords: (val: L.LatLng) => void, config: RDEConfig}) => {
   const map = useMapEvents({
     click: (ev) => {
       debug("click:", ev)
@@ -82,11 +83,12 @@ const MapEventHandler = ({ coords, redraw, setCoords, config }: { coords: L.LatL
       //debug("found",params)
 
       // fix for first click not triggering marker event
-      const elem = document.querySelector(".leaflet-container")
+      const elem:HTMLElement|null = document.querySelector(".leaflet-container")
       if (elem) elem.click()
     })
 
-    return () => map.removeControl(searchControl)
+    //return () => 
+    map.removeControl(searchControl)
   }, [])
 
   return null
@@ -148,8 +150,8 @@ const PropertyGroupContainer: FC<{
   if (lat.length && lng.length && lat[0].value != "" && lat[0].value != "") coords = new L.LatLng(Number(lat[0].value), Number(lng[0].value))
   else {
     unset = true
-    coords = new L.LatLng(30, 0)
-    zoom = 2
+    coords = new L.LatLng(30, 0) //eslint-disable-line no-magic-numbers
+    zoom = 2 //eslint-disable-line no-magic-numbers
   }
 
   useEffect(() => {
@@ -223,7 +225,7 @@ const PropertyGroupContainer: FC<{
                     />
                   ))}
                   {
-                    (config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri) &&
+                    config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri &&
                     groupEd === group.qname && // to force updating map when switching between two place entities
                     coords && ( // TODO: add a property in shape to enable this instead
                       <div style={{ position: "relative", overflow: "hidden", marginTop: "16px" }}>
@@ -258,7 +260,7 @@ const PropertyGroupContainer: FC<{
                     ) }
                   {hasExtra && (
                     <span className="toggle-btn  btn btn-rouge my-4" onClick={toggleExtra}>
-                      {i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })}
+                      <>{i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })}</>
                     </span>
                   )}
                 </div>

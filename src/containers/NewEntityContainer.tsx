@@ -81,7 +81,7 @@ function NewEntityContainer(props: RDEProps, config: RDEConfig) {
             className={"btn btn-sm btn-outline-primary py-3 ml-2 lookup btn-rouge " + (!RID ? "disabled" : "")}
             style={{ boxShadow: "none", alignSelf: "center", marginBottom: "15px" }}
           >
-            {i18n.t("search.open")}
+            <>{i18n.t("search.open")}</>
           </Link>
         </div>
       </div>
