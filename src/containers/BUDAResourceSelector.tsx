@@ -121,14 +121,12 @@ const BUDAResourceSelector: FC<{
 
   /// DONE: handle bdsCopyObjectsOfProperty
   const [toCopy, setProp] = useRecoilState(
-    property.copyObjectsOfProperty?.length
-      ? toCopySelector({
-          list: property.copyObjectsOfProperty.map((p) => ({
+    toCopySelector({
+          list: property.copyObjectsOfProperty?.map((p) => ({
             property: ns.defaultPrefixMap.qnameFromUri(p.value),
             atom: (owner ? owner : subject).getAtomForProperty(p.uri),
           })),
         })
-      : initkvAtom
   )
 
   useEffect(() => {
@@ -385,15 +383,15 @@ const BUDAResourceSelector: FC<{
       let urlParams = ""
       if (property.copyObjectsOfProperty?.length) {
         //debug("tC:",toCopy)
-        for (const k of Object.keys(toCopy)) {
+        for (const kv of toCopy) {
           if (urlParams) urlParams += ";"
           let val = ""
-          for (const l of toCopy[k]) {
+          for (const l of kv.val) {
             if (l instanceof LiteralWithId) {
               val += "," + encodeURIComponent('"' + l.value + (l.language ? '"@' + l.language : ""))
             }
           }
-          if (val) urlParams += k + val
+          if (val) urlParams += kv.k + val
         }
         if (urlParams) {
           url += "?copy=" + urlParams
@@ -611,7 +609,7 @@ const BUDAResourceSelector: FC<{
                     <ContentPasteIcon
                       style={{ width: "17px", cursor: "pointer" }}
                       onClick={() => {
-                        for (const v of canCopy) setProp(v)
+                        setProp(canCopy)
                         setCanCopy([])
                       }}
                     />

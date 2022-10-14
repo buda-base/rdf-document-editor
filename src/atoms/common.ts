@@ -289,29 +289,29 @@ export type toCopySelectorsType = Array<{
 }>
 
 export type toCopySelectorType = {
-  list: toCopySelectorsType
+  list?: toCopySelectorsType
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const toCopySelector = selectorFamily<{k: string, val:Value[]},toCopySelectorType>({
+export const toCopySelector = selectorFamily<{k: string, val:Value[]}[],toCopySelectorType>({
   key: "toCopySelector",
   get:
     (args: toCopySelectorType) =>
     ({ get }) => {
-      const res: Record<string, Value[]> = {}
-      args.list.map(({ property, atom }) => {
+      const res: {k: string, val:Value[]}[] = []
+      args.list?.map(({ property, atom }) => {
         const val = get(atom)
         //debug("copy:",property, val, atom)
-        res[property] = val
+        res.push({ k: property, val: val })
       })
       return res
     },
   set:
     (args: toCopySelectorType) =>
-    ({ get, set }, { k, val }: {k: string, val: Value[]}) => {
+    ({ get, set }, [{ k, val }]: {k: string, val: Value[]}[]) => {
       //debug("set:", list, k, val)
-      args.list.map(({ property, atom }) => {
+      args.list?.map(({ property, atom }) => {
         if (k == property) set(atom, [...get(atom).filter((lit) => lit.value), ...val])
       })
     },

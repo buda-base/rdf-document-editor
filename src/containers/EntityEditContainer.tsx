@@ -142,15 +142,12 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig)
   //debug("copy:",copy,props.copy)
 
   const [getProp, setProp] = useRecoilState(
-      subject && copy && Object.keys(copy).length
-      ?
         toCopySelector({
-          list: Object.keys(copy).map((p: string) => ({
+          list: subject && copy ? (Object.keys(copy).map((p: string) => ({
             property: p,
             atom: subject.getAtomForProperty(config.prefixMap.uriFromQname(p)),
-          })),
+          } ))) : undefined,
         })
-      : initMapAtom
   )
 
   debug("LIST:", list, atom, props.copy, copy)
@@ -160,9 +157,11 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig)
       // we have to delay this a bit for value to be propagated to EntityGraph and be exported to ttl when saving
       setTimeout(() => {
         if (copy) {
+          const p = []
           for (const k of Object.keys(copy)) {
-            setProp({ k, val: copy[k] })
+            p.push({ k, val: copy[k] })
           }
+          setProp(p)
         }
        }, 1150) // eslint-disable-line no-magic-numbers
     }
