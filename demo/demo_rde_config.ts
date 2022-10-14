@@ -214,7 +214,7 @@ export const demoConfig: RDEConfig = {
   generateConnectedID: generateConnectedID,
   getShapesDocument: getShapesDocument,
   getDocument: getDocument,
-  previewLiteral: (literal: LiteralWithId) => null,
+  previewLiteral: (literal: rdf.Literal) => null,
   entityCreator: EntityCreator,
   iconFromEntity: iconFromEntity,
   getUserMenuState: getUserMenuState,
@@ -223,6 +223,7 @@ export const demoConfig: RDEConfig = {
   setUserLocalEntity: setUserLocalEntity,
   possibleShapeRefs: possibleShapeRefs,
   possibleShapeRefsForEntity: possibleShapeRefsForEntity,
+  possibleShapeRefsForType: possibleShapeRefsForEntity,
   libraryUrl: "https://library.bdrc.io/",
   resourceSelector: BUDAResourceSelector
 }

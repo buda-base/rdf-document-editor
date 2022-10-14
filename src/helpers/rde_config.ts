@@ -16,7 +16,7 @@ interface valueByLangToStrPrefLang {
 }
 
 interface previewLiteral {
-  (literal: LiteralWithId): string | null
+  (literal: rdf.Literal): string | null
 }
 
 interface generateConnectedID {
@@ -112,6 +112,10 @@ interface possibleShapeRefsForEntity {
   (entity: rdf.NamedNode): ShapeRef[]
 }
 
+interface possibleShapeRefsForType {
+  (type: rdf.NamedNode): ShapeRef[]
+}
+
 type ResourceSelector = FC<{
   value: ExtRDFResourceWithLabel
   onChange: (value: ExtRDFResourceWithLabel, idx: number, removeFirst: boolean | undefined) => void
@@ -154,6 +158,7 @@ export default interface RDEConfig {
   readonly iconFromEntity: iconFromEntity
   readonly possibleShapeRefs: ShapeRef[]
   possibleShapeRefsForEntity: possibleShapeRefsForEntity
+  possibleShapeRefsForType: possibleShapeRefsForType
   libraryUrl?: string
   resourceSelector: ResourceSelector
 }
