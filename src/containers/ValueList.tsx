@@ -53,6 +53,7 @@ import {
   isUniqueTestSelector,
   orderedNewValSelectorType,
   isUniqueTestSelectorType,
+  initStringAtom,
   //demoAtom,
 } from "../atoms/common"
 import { entitiesAtom, Entity, EditedEntityState } from "./EntitySelectorContainer"
@@ -548,7 +549,7 @@ const ValueList: FC<{
             shape={shape}
           />
         )
-      else {
+      else if(val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
         addBtn = false
         // eslint-disable-next-line no-extra-parens
         const canSelectNone = (i == 0 && !property.minCount) || (i > 0 && i == nbvalues - 1)
@@ -563,9 +564,9 @@ const ValueList: FC<{
             canDel={canDel && val != noneSelected}
             editable={editable}
             create={
-              canAdd && (
-                <Create subject={subject} property={property} embedded={embedded} newVal={newVal} shape={shape} />
-              )
+              canAdd
+              ?  <Create subject={subject} property={property} embedded={embedded} newVal={Number(newVal)} shape={shape} config={config}/>
+              : undefined
             }
             updateEntityState={updateEntityState}
           />
@@ -585,6 +586,7 @@ const ValueList: FC<{
           {...(topEntity ? { topEntity } : { topEntity: subject })}
           updateEntityState={updateEntityState}
           shape={shape}
+          config={config}
         />
       )
     } else if (val instanceof LiteralWithId) {
@@ -604,8 +606,9 @@ const ValueList: FC<{
               subject={subject}
               property={property}
               embedded={embedded}
-              newVal={newVal}
+              newVal={Number(newVal)}
               shape={shape}
+              config={config}
             />
           }
           editable={editable}
@@ -670,7 +673,7 @@ const ValueList: FC<{
         </div>
       </div>
       {canAdd && addBtn && (
-        <Create subject={subject} property={property} embedded={embedded} newVal={newVal} shape={shape} />
+        <Create subject={subject} property={property} embedded={embedded} newVal={Number(newVal)} shape={shape} config={config}/>
       )}
     </React.Fragment>
   )
@@ -683,15 +686,21 @@ type CreateComponentType = FC<{
   disable?: boolean
   newVal?: number
   shape?: NodeShape
+  config: RDEConfig
 }>
 
 /**
  * Create component
  */
-const Create: CreateComponentType = ({ subject, property, embedded, disable, newVal, shape }) => {
+const Create: CreateComponentType = ({ subject, property, embedded, disable, newVal, shape, config }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
-  const collec = list.length === 1 && list[0] instanceof RDFResource && list[0].node instanceof rdf.Collection && list[0].node?.termType === "Collection" ? list[0].node.elements : undefined
+  const collec = list.length === 1
+    && list[0] instanceof RDFResource
+      && list[0].node instanceof rdf.Collection
+        && list[0].node?.termType === "Collection"
+           ? list[0].node.elements
+           : undefined
   const listOrCollec = collec ? collec : list
   const [uiLang] = useRecoilState(uiLangState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
@@ -703,14 +712,14 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
   const { getIdTokenClaims } = useAuth0()
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState)
 
-  let nextVal = null
-  if (property.sortOnProperty)
-    nextVal = useRecoilValue(
-      orderedNewValSelector({
-        atom: property.sortOnProperty ? subject.getAtomForProperty(property.path.sparqlString) : null,
-        propertyPath: property.sortOnProperty.value,
-        //order: "desc" // default is "asc"
-      })
+  let nextVal = useRecoilValue(
+      property.sortOnProperty
+      ? orderedNewValSelector({
+          atom: property.sortOnProperty ? subject.getAtomForProperty(property.path.sparqlString) : null,
+          propertyPath: property.sortOnProperty.value,
+          //order: "desc" // default is "asc"
+        } as orderedNewValSelectorType)
+      : initStringAtom
   )
   const sortProps = property.targetShape?.properties.filter((p) => p.path?.sparqlString === property.sortOnProperty?.value)
   if (sortProps?.length) {
@@ -721,7 +730,7 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
   }
   let waitForNoHisto = false
 
-  const addItem = async (event, n) => {
+  const addItem = async (event:MouseEvent, n:number) => {
     /* // refactoring needed
 
     if (n > 1) {
@@ -803,7 +812,7 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
       waitForNoHisto = true
       subject.noHisto(false, 1) // allow parent node in history but default empty subnodes before tmp:allValuesLoaded
     }
-    const item = await generateDefault(property, subject, RIDprefix, idToken, newVal)
+    const item = await generateDefault(property, subject, RIDprefix, idToken, newVal?.toString(), config)
     setList([...listOrCollec, item]) //(oldList) => [...oldList, item])
     if (property.objectType === ObjectType.Internal && item instanceof Subject) {
       //setEdit(property.qname+item.qname)  // won't work...
@@ -1943,7 +1952,7 @@ const SelectComponent: FC<{
   canSelectNone: boolean
   selectIdx: number
   editable: boolean
-  create?: Element
+  create?: JSX.Element
   updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
 }> = ({ res, subject, property, canDel, canSelectNone, selectIdx, editable, create, updateEntityState }) => {
   if (property.path == null) throw "can't find path of " + property.qname
