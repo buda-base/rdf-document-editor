@@ -127,7 +127,7 @@ type ResourceSelector = FC<{
   owner?: Subject
   title: string
   globalError: string
-  updateEntityState: (es: EditedEntityState) => void
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
   shape: NodeShape,
   config: RDEConfig
 }>

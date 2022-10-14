@@ -55,7 +55,6 @@ import {
   isUniqueTestSelectorType,
   //demoAtom,
 } from "../atoms/common"
-import ResourceSelector from "./BUDAResourceSelector"
 import { entitiesAtom, Entity, EditedEntityState } from "./EntitySelectorContainer"
 
 import MDEditor, { commands } from "@uiw/react-md-editor"
@@ -857,7 +856,7 @@ const EditLangString: FC<{
   property: PropertyShape
   lit: LiteralWithId
   onChange: (value: LiteralWithId) => void
-  label: string
+  label: React.ReactNode
   globalError?: string
   editable?: boolean
   updateEntityState: (status: EditedEntityState, id: string, removingFacet: boolean, forceRemove: boolean) => void
@@ -1224,7 +1223,7 @@ const EditString: FC<{
   property: PropertyShape
   lit: LiteralWithId
   onChange: (value: LiteralWithId) => void
-  label: string
+  label: React.ReactNode
   editable?: boolean
   updateEntityState: (es: EditedEntityState) => void
   entity: Subject
@@ -1364,7 +1363,7 @@ const EditBool: FC<{
   property: PropertyShape
   lit: LiteralWithId
   onChange: (value: LiteralWithId) => void
-  label: string
+  label: React.ReactNode
   editable?: boolean
 }> = ({ property, lit, onChange, label, editable }) => {
   const classes = useStyles()
@@ -1404,9 +1403,9 @@ const EditInt: FC<{
   property: PropertyShape
   lit: LiteralWithId
   onChange: (value: LiteralWithId) => void
-  label: string
+  label: React.ReactNode
   editable?: boolean
-  updateEntityState: (es: EditedEntityState) => void
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
   hasNoOtherValue: boolean
   index: number
   globalError?: string
@@ -1488,7 +1487,7 @@ const EditInt: FC<{
         ? {
             helperText: (
               <React.Fragment>
-                {/*eventType // "Number"*/} <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} />
+                <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} />
                 <i> {error}</i>
               </React.Fragment>
             ),
@@ -1526,7 +1525,7 @@ const LiteralComponent: FC<{
   create?: Create
   editable: boolean
   topEntity?: Subject
-  updateEntityState: (es: EditedEntityState) => void
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
 }> = ({
   lit,
   subject,
@@ -1836,7 +1835,8 @@ const ExtEntityComponent: FC<{
   owner?: Subject
   title: string
   updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
-  shape: NodeShape
+  shape: NodeShape,
+  config: RDEConfig
 }> = ({
   extRes,
   subject,
@@ -1850,6 +1850,7 @@ const ExtEntityComponent: FC<{
   title,
   updateEntityState,
   shape,
+  config
 }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
@@ -1870,7 +1871,7 @@ const ExtEntityComponent: FC<{
 
   useEffect(() => {
     let newError
-    const nonEmptyList = list.filter((e) => e.uri !== "tmp:uri")
+    const nonEmptyList = list.filter((e) => e instanceof RDFResource && e.uri !== "tmp:uri")
     if (property.minCount && nonEmptyList.length < property.minCount) {
       newError = i18n.t("error.minC", { count: property.minCount })
     } else if (property.maxCount && nonEmptyList.length > property.maxCount) {
@@ -1905,7 +1906,7 @@ const ExtEntityComponent: FC<{
         }}
         {...(extRes.uri !== "tmp:uri" ? { className: "px-2 py-1 mr-2 mt-2 card" } : {})}
       >
-        <ResourceSelector
+        <config.resourceSelector
           value={extRes}
           onChange={onChange}
           property={property}
@@ -1918,6 +1919,7 @@ const ExtEntityComponent: FC<{
           globalError={error}
           updateEntityState={updateEntityState}
           shape={shape}
+          config={config}
         />
         {extRes.uri !== "tmp:uri" && (
           <button className={"btn btn-link ml-2 px-0"} onClick={deleteItem} {...(!canDel ? { disabled: true } : {})}>
