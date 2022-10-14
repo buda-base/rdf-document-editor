@@ -197,6 +197,9 @@ export const initStringAtom = atom<string>({ key: "initStringAtom", default: "" 
 
 export const initMapAtom = atom<Record<string, Value[]>>({ key: "initMapAtom", default: {} })
 
+// TODO: the as is not great...
+export const initkvAtom = atom<{k: string, val: Value[]}>({ key: "initkvAtom", default: {} as {k: string, val: Value[]} })
+
 export type canPushPrefLabelGroupType = {
   props?: RecoilState<Value[]>[]
   subprops?: Record<string, { atom: RecoilState<Subject[]>; allowPush: string[] }>
@@ -291,7 +294,7 @@ export type toCopySelectorType = {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const toCopySelector = selectorFamily<Record<string,Value[]>,toCopySelectorType>({
+export const toCopySelector = selectorFamily<{k: string, val:Value[]},toCopySelectorType>({
   key: "toCopySelector",
   get:
     (args: toCopySelectorType) =>

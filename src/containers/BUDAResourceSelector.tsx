@@ -8,7 +8,7 @@ import * as rdf from "rdflib"
 import * as shapes from "../helpers/rdf/shapes"
 import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
-import { uiLangState, uiLitLangState, uiTabState, initListAtom, initMapAtom, toCopySelector } from "../atoms/common"
+import { uiLangState, uiLitLangState, uiTabState, initListAtom, initkvAtom, initMapAtom, toCopySelector } from "../atoms/common"
 import {
   RDFResource,
   ExtRDFResourceWithLabel,
@@ -128,7 +128,7 @@ const BUDAResourceSelector: FC<{
             atom: (owner ? owner : subject).getAtomForProperty(p.uri),
           })),
         })
-      : initMapAtom
+      : initkvAtom
   )
 
   useEffect(() => {
@@ -170,15 +170,6 @@ const BUDAResourceSelector: FC<{
       const wn = iframeRef.current.contentWindow
       if (wn)
         wn.postMessage("click", "*")
-      /*
-      try {
-        const iDocument = iWindow.document
-        const elem = iDocument.getElementByClassName("resource simple")
-        elem.click()
-      } catch (e) {
-        debug("does not work on localhost, you must click in iframe", e.message)
-      }
-      */
     } else {
       if (libraryURL) setLibraryURL("")
     }
