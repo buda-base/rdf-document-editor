@@ -1665,6 +1665,7 @@ const LiteralComponent: FC<{
   }
 
   return (
+    <>
     <div className={classN} style={{ display: "flex", alignItems: "flex-end" /*, width: "100%"*/ }}>
       {edit}
       <div className="hoverPart">
@@ -1678,6 +1679,7 @@ const LiteralComponent: FC<{
         {create}
       </div>
     </div>
+    </>
   )
 }
 
@@ -1690,9 +1692,10 @@ const FacetComponent: FC<{
   //force?: boolean
   editable: boolean
   topEntity: Subject
-  updateEntityState: (es: EditedEntityState) => void
-  shape: Shape
-}> = ({ subNode, subject, property, canDel, /*force,*/ editable, topEntity, updateEntityState, shape }) => {
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
+  shape: NodeShape
+  config: RDEConfig
+}> = ({ subNode, subject, property, canDel, /*force,*/ editable, topEntity, updateEntityState, shape, config }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
   const [uiLang] = useRecoilState(uiLangState)
@@ -1751,7 +1754,7 @@ const FacetComponent: FC<{
   }
 
   return (
-    <React.Fragment>
+    <>
       <div
         className={"facet " + editClass + " editable-" + editable + " force-" + force}
         onClick={(ev) => {
@@ -1775,7 +1778,8 @@ const FacetComponent: FC<{
               owner={subject}
               topEntity={topEntity}
               shape={shape}
-              siblingsPath={property.path.sparqlString}
+              siblingsPath={property.path?.sparqlString}
+              config={config}
             />
           ))}
           {withDisplayPriority.map((p, index) => (
@@ -1789,7 +1793,8 @@ const FacetComponent: FC<{
               owner={subject}
               topEntity={topEntity}
               shape={shape}
-              siblingsPath={property.path.sparqlString}
+              siblingsPath={property.path?.sparqlString}
+              config={config}
             />
           ))}
           {hasExtra && (
@@ -1813,7 +1818,7 @@ const FacetComponent: FC<{
           </div>
         </div>
       </div>
-    </React.Fragment>
+    </>
   )
 }
 
@@ -1830,7 +1835,7 @@ const ExtEntityComponent: FC<{
   editable: boolean
   owner?: Subject
   title: string
-  updateEntityState: (status: EditedEntityState, id: string, removingFacet:boolean, forceRemove: boolean) => void
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
   shape: NodeShape
 }> = ({
   extRes,
@@ -1935,7 +1940,7 @@ const SelectComponent: FC<{
   selectIdx: number
   editable: boolean
   create?: Element
-  updateEntityState: (status: EditedEntityState, id: string, removingFacet:boolean, forceRemove: boolean) => void
+  updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
 }> = ({ res, subject, property, canDel, canSelectNone, selectIdx, editable, create, updateEntityState }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
@@ -1962,6 +1967,7 @@ const SelectComponent: FC<{
   }
 
   const getElementFromValue = (value: string, checkActualValue = false) => {
+    if (possibleValues === null) return null
     for (const v of possibleValues) {
       if (v.id === value || checkActualValue && v.value === value) {
         return v
@@ -2001,23 +2007,23 @@ const SelectComponent: FC<{
   useEffect(() => {
     if (valueNotInList) {
       //debug("not in list:",property.path.sparqlString+"_"+selectIdx,res,val,possibleValues)
-      setError(i18n.t("error.select", { val: val?.uri.includes("purl.bdrc.io") ? val?.qname : val?.uri }))
-      updateEntityState(EditedEntityState.Error, property.path.sparqlString + "_" + selectIdx)
+      setError(i18n.t("error.select", { val: val?.value }))
+      updateEntityState(EditedEntityState.Error, property.path?.sparqlString + "_" + selectIdx)
     } else {
-      updateEntityState(EditedEntityState.Saved, property.path.sparqlString + "_" + selectIdx)
+      updateEntityState(EditedEntityState.Saved, property.path?.sparqlString + "_" + selectIdx)
     }
   }, [valueNotInList])
 
   useEffect(() => {
     return () => {
-      const inOtherEntity = !window.location.href.includes("/" + entities[entity]?.qname + "/")
+      const inOtherEntity = !window.location.href.includes("/" + entities[entity]?.subjectQname + "/")
       if (!inOtherEntity)
         updateEntityState(EditedEntityState.Saved, property.path?.sparqlString + "_" + selectIdx, false, !inOtherEntity)
     }
   }, [])
 
-  return (
-    (possibleValues.length > 1 || error) && (
+  if (possibleValues.length > 1 || error) {
+  return <>
       <div className="resSelect" style={{ display: "inline-flex", alignItems: "flex-end" }}>
         <TextField
           select
@@ -2096,8 +2102,9 @@ const SelectComponent: FC<{
           {create}
         </div>
       </div>
-    )
-  )
+      </>
+    }
+    return <></>
 }
 
 export default ValueList
