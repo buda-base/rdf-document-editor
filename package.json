@@ -72,7 +72,7 @@
     "predeploy": "npm run build",
     "lint": "eslint --ignore-path .gitignore .",
     "generate-build-metaq": "./node_modules/react-clear-cache/bin/cli.js",
-    "rollup": "rollup -c rollup.config.js",
+    "rollup": "if[ ! -r dist/ ] ; then mkdir dist ; fi ; rollup -c rollup.config.js",
     "postinstall":"yarn rollup",
     "build": "npm run build-css && REACT_APP_VERSION=$npm_package_version react-scripts build && rm -rf dist && mv build dist && yarn rollup"
   },
