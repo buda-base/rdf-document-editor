@@ -73,7 +73,7 @@
     "predeploy": "npm run build",
     "lint": "eslint --ignore-path .gitignore .",
     "generate-build-metaq": "./node_modules/react-clear-cache/bin/cli.js",
-    "rollup": "rollup -c"
+    "rollup": "rollup -c rollup.config.js"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css,tsx,ts}": [
@@ -94,6 +94,7 @@
     "@rollup/plugin-typescript": "^8.5.0",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
+    "esbuild": "^0.15.11",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",
@@ -107,6 +108,7 @@
     "react-scripts": "^4.0.0",
     "rollup": "^2.79.1",
     "rollup-plugin-dts": "^4.2.3",
+    "rollup-plugin-esbuild": "^4.10.1",
     "type-fest": "^0.13.1"
   },
   "browserslist": [
@@ -118,5 +120,8 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
-  }
+  },
+  "main": "dist/rde.js",
+  "module": "dist/rde.mjs",
+  "typings": "dist/rde.d.ts"
 }

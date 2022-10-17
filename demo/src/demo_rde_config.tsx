@@ -1,10 +1,10 @@
 import * as rdf from "rdflib"
-import { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel } from "../src/helpers/rdf/types"
-import { fetchTtl, IFetchState } from "../src/helpers/rdf/io"
-import * as shapes from "../src/helpers/rdf/shapes"
-import * as ns from "../src/helpers/rdf/ns"
-import { Entity } from "../src/containers/EntitySelectorContainer"
-import BUDAResourceSelector from "../src/containers/BUDAResourceSelector"
+import { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel } from "./rde/helpers/rdf/types"
+import { fetchTtl, IFetchState } from "./rde/helpers/rdf/io"
+import * as shapes from "./rde/helpers/rdf/shapes"
+import * as ns from "./rde/helpers/rdf/ns"
+import { Entity } from "./rde/containers/EntitySelectorContainer"
+import BUDAResourceSelector from "./rde/containers/BUDAResourceSelector"
 import {
   NodeShape,
   generateSubnode,
@@ -14,10 +14,10 @@ import {
   shDescription,
   skosDefinition,
   rdfsComment,
-} from "../src/helpers/rdf/shapes"
-import RDEConfig from "../src/helpers/rde_config"
-import { LocalEntityInfo } from "../src/helpers/rde_config"
-import { Lang, ValueByLangToStrPrefLang } from "../src/helpers/lang"
+} from "./rde/helpers/rdf/shapes"
+import RDEConfig from "./rde/helpers/rde_config"
+import { LocalEntityInfo } from "./rde/helpers/rde_config"
+import { Lang, ValueByLangToStrPrefLang } from "./rde/helpers/lang"
 import React, { FC, useState, useEffect } from "react"
 import { nanoid, customAlphabet } from "nanoid"
 import edtf, { parse } from "edtf" // see https://github.com/inukshuk/edtf.js/issues/36#issuecomment-1073778277

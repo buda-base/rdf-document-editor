@@ -1,10 +1,8 @@
 import React from "react"
-import { render } from "react-dom"
-import { RecoilRoot } from "recoil"
-import EntityEditContainer, { EntityEditContainerMayUpdate } from "../../src/containers/EntityEditContainer"
-import NewEntityContainer from "../../src/containers/NewEntityContainer"
-import EntityCreationContainer, { EntityCreationContainerRoute } from "../../src/containers/EntityCreationContainer"
-import EntityShapeChooserContainer from "../../src/containers/EntityShapeChooserContainer"
+import EntityEditContainer, { EntityEditContainerMayUpdate } from "./rde/containers/EntityEditContainer"
+import NewEntityContainer from "./rde/containers/NewEntityContainer"
+import EntityCreationContainer, { EntityCreationContainerRoute } from "./rde/containers/EntityCreationContainer"
+import EntityShapeChooserContainer from "./rde/containers/EntityShapeChooserContainer"
 import {
   BrowserRouter as Router,
   Route,
@@ -14,9 +12,8 @@ import {
   useHistory,
   Redirect,
 } from "react-router-dom"
-import { IdTypeParams } from "../../src/helpers/editor_props"
+import { IdTypeParams } from "./rde/helpers/editor_props"
 
-const target = document.querySelector("#root")
 
 export interface AppProps extends RouteComponentProps<IdTypeParams> {}
 
@@ -75,13 +72,4 @@ function App(props: AppProps) {
   )
 }
 
-render(
-  <Router>
-    <RecoilRoot>
-      <Switch>
-        <Route component={App} />
-      </Switch>
-    </RecoilRoot>
-  </Router>,
-  target
-)
+export default App
