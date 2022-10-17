@@ -9166,8 +9166,9 @@ rdf-canonize@^3.0.0:
   dependencies:
     setimmediate "^1.0.5"
 
-rdf-document-editor@../../rdf-document-editor:
+"rdf-document-editor@https://github.com/buda-base/rdf-document-editor":
   version "0.1.0"
+  resolved "https://github.com/buda-base/rdf-document-editor#f734b20655409ca1834696281198a074c608b25b"
   dependencies:
     "@auth0/auth0-react" "^1.1.0"
     "@material-ui/core" "^4.11.0"
