@@ -122,7 +122,6 @@ export function EntityCreationContainer(props: RDEProps, config: RDEConfig) {
   )
 }
 
-
 export function EntityCreationContainerAlreadyOpen(props: RDEProps) {
   const subjectQname = props.match.params.subjectQname
   const shapeQname = props.match.params.shapeQname

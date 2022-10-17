@@ -33,16 +33,6 @@ function App(props: AppProps) {
         <main>
           <div>
             <Switch>
-              {/* // TODO: not sure what yet :-)
-              <Route exact path="/" component={HomeContainer} /> 
-              */}
-              <Route
-                exact
-                path="/profile"
-                render={(rprops) => (
-                  <EntityEditContainer {...rprops} subjectQname="tmp:user" shapeQname="bds:UserProfileShape" />
-                )}
-              />
               <Route exact path="/new" component={NewEntityContainer} />
               <Route exact path="/new/:shapeQname" component={EntityCreationContainer} />
               <Route // we need that route to link back value to property where entity was created

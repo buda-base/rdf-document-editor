@@ -135,7 +135,7 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig)
         const lit = decodeURIComponent(v).split("@")
         return new LiteralWithId(lit[0].replace(/(^")|("$)/g, ""), lit[1], shapes.rdfLangString)
       })
-    return { ... acc, [q[0]]: literals }
+    return { ...acc, [q[0]]: literals }
     }, {})
   }
 
@@ -143,10 +143,10 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig)
 
   const [getProp, setProp] = useRecoilState(
         toCopySelector({
-          list: subject && copy ? (Object.keys(copy).map((p: string) => ({
+          list: subject && copy ? Object.keys(copy).map((p: string) => ({
             property: p,
             atom: subject.getAtomForProperty(config.prefixMap.uriFromQname(p)),
-          } ))) : undefined,
+          } )) : undefined,
         })
   )
 
