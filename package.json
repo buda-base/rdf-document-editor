@@ -67,13 +67,14 @@
     "watch-css": "npm run build-css && node-sass-chokidar src/stylesheets -o public/ --watch --recursive",
     "start-js": "react-scripts start",
     "start": "export NODE_ENV=development && REACT_APP_VERSION=$npm_package_version npm-run-all -p watch-css start-js",
-    "build": "npm run build-css && REACT_APP_VERSION=$npm_package_version react-scripts build && rm -rf dist && mv build dist",
     "eject": "react-scripts eject",
     "analyze": "source-map-explorer 'dist/static/js/*.js'",
     "predeploy": "npm run build",
     "lint": "eslint --ignore-path .gitignore .",
     "generate-build-metaq": "./node_modules/react-clear-cache/bin/cli.js",
-    "rollup": "rollup -c rollup.config.js"
+    "rollup": "rollup -c rollup.config.js",
+    "build":"yarn rollup",
+    "old_build": "npm run build-css && REACT_APP_VERSION=$npm_package_version react-scripts build && rm -rf dist && mv build dist && yarn rollup"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css,tsx,ts}": [
@@ -121,7 +122,7 @@
       "pre-commit": "lint-staged"
     }
   },
-  "main": "dist/rde.js",
-  "module": "dist/rde.mjs",
-  "typings": "dist/rde.d.ts"
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "typings": "dist/index.d.ts"
 }

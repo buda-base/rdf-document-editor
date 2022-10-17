@@ -1,8 +1,14 @@
 import React from "react"
-import EntityEditContainer, { EntityEditContainerMayUpdate } from "./rde/containers/EntityEditContainer"
-import NewEntityContainer from "./rde/containers/NewEntityContainer"
-import EntityCreationContainer, { EntityCreationContainerRoute } from "./rde/containers/EntityCreationContainer"
-import EntityShapeChooserContainer from "./rde/containers/EntityShapeChooserContainer"
+import { 
+  EntityEditContainer, 
+  EntityEditContainerMayUpdate, 
+  NewEntityContainer,
+  EntityCreationContainer, 
+  EntityCreationContainerRoute,
+  EntityShapeChooserContainer,
+  IdTypeParams
+} from "rdf-document-editor"
+
 import {
   BrowserRouter as Router,
   Route,
@@ -12,8 +18,6 @@ import {
   useHistory,
   Redirect,
 } from "react-router-dom"
-import { IdTypeParams } from "./rde/helpers/editor_props"
-
 
 export interface AppProps extends RouteComponentProps<IdTypeParams> {}
 

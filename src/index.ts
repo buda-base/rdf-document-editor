@@ -1,1 +1,5 @@
-export { default as EntityEditContainer } from "./containers/EntityEditContainer"
+export { default as EntityEditContainer, EntityEditContainerMayUpdate } from "./containers/EntityEditContainer"
+export { default as NewEntityContainer } from "./containers/NewEntityContainer"
+export { default as EntityCreationContainer, EntityCreationContainerRoute } from "./containers/EntityCreationContainer"
+export { default as EntityShapeChooserContainer } from "./containers/EntityShapeChooserContainer"
+export type { IdTypeParams } from "./helpers/editor_props"
