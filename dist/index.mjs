@@ -7,29 +7,29 @@ import { Memoize } from 'typescript-memoize';
 import { customAlphabet, nanoid } from 'nanoid';
 import _ from 'lodash';
 import { Img } from 'react-image';
-import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import ErrorIcon from '@material-ui/icons/Error';
-import CloseIcon from '@material-ui/icons/Close';
-import '@material-ui/icons/FindReplace';
-import '@material-ui/icons/Search';
-import '@material-ui/icons/Launch';
-import '@material-ui/icons/Info';
-import '@material-ui/icons/InfoOutlined';
-import '@material-ui/icons/Settings';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import '@material-ui/icons/VisibilityOff';
-import EditIcon from '@material-ui/icons/Edit';
-import KeyboardIcon from '@material-ui/icons/Keyboard';
-import HelpIcon from '@material-ui/icons/Help';
-import '@material-ui/icons/AssignmentReturned';
+import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline.js'
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline.js'
+import ErrorIcon from '@material-ui/icons/Error.js'
+import CloseIcon from '@material-ui/icons/Close.js'
+import '@material-ui/icons/FindReplace.js'
+import '@material-ui/icons/Search.js'
+import '@material-ui/icons/Launch.js'
+import '@material-ui/icons/Info.js'
+import '@material-ui/icons/InfoOutlined.js'
+import '@material-ui/icons/Settings.js'
+import VisibilityIcon from '@material-ui/icons/Visibility.js'
+import '@material-ui/icons/VisibilityOff.js'
+import EditIcon from '@material-ui/icons/Edit.js'
+import KeyboardIcon from '@material-ui/icons/Keyboard.js'
+import HelpIcon from '@material-ui/icons/Help.js'
+import '@material-ui/icons/AssignmentReturned.js'
 import { useAuth0 } from '@auth0/auth0-react';
 import { Redirect, Link, useHistory } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
-import '@material-ui/core/Tabs';
-import '@material-ui/core/Tab';
-import NotFoundIcon from '@material-ui/icons/BrokenImage';
-import { Tooltip, TextField, MenuItem } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles/index.js'
+import '@material-ui/core/Tabs/index.js'
+import '@material-ui/core/Tab/index.js'
+import NotFoundIcon from '@material-ui/icons/BrokenImage.js'
+import { Tooltip, TextField, MenuItem } from '@material-ui/core/index.js'
 import MDEditor, { commands } from '@uiw/react-md-editor';
 import { MapContainer, LayersControl, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import ReactLeafletGoogleLayer from 'react-leaflet-google-layer';
@@ -40,12 +40,12 @@ import 'leaflet-geosearch/dist/geosearch.css';
 import { HashLink } from 'react-router-hash-link';
 import queryString from 'query-string';
 import { Trans } from 'react-i18next';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button/index.js'
+import Dialog from '@material-ui/core/Dialog/index.js'
+import DialogActions from '@material-ui/core/DialogActions/index.js'
+import DialogContent from '@material-ui/core/DialogContent/index.js'
+import DialogContentText from '@material-ui/core/DialogContentText/index.js'
+import DialogTitle from '@material-ui/core/DialogTitle/index.js'
 
 const DASH_uri = "http://datashapes.org/dash#";
 const DASH = rdf.Namespace(DASH_uri);
