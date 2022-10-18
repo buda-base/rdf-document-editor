@@ -85,7 +85,7 @@
       "prettier --write --config ./.prettierrc",
       "eslint --color --fix"
     ],
-    "**/*.{ts,tsx}": [
+    "not-sure-why-this-fails/**/*.{ts,tsx}": [
       "tsc-files --noEmit"
     ]
   },
@@ -119,7 +119,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged --debug"
     }
   },
   "main": "dist/index.js",

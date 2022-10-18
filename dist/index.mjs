@@ -1,10 +1,10 @@
-import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react';
 import * as rdf from 'rdflib';
-import i18n from 'i18next';
-import { DefaultValue, atom, selectorFamily, useRecoilState, useRecoilValue, useRecoilSnapshot } from 'recoil';
 import { Memoize } from 'typescript-memoize';
-import { customAlphabet, nanoid } from 'nanoid';
+import { DefaultValue, atom, selectorFamily, useRecoilState, useRecoilValue, useRecoilSnapshot } from 'recoil';
+import { nanoid, customAlphabet } from 'nanoid';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
+import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect, createElement } from 'react';
+import i18n from 'i18next';
 import _ from 'lodash';
 import { Img } from 'react-image';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline.js'
@@ -12,24 +12,24 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline.js'
 import ErrorIcon from '@material-ui/icons/Error.js'
 import CloseIcon from '@material-ui/icons/Close.js'
 import '@material-ui/icons/FindReplace.js'
-import '@material-ui/icons/Search.js'
-import '@material-ui/icons/Launch.js'
-import '@material-ui/icons/Info.js'
-import '@material-ui/icons/InfoOutlined.js'
+import LookupIcon from '@material-ui/icons/Search.js'
+import LaunchIcon from '@material-ui/icons/Launch.js'
+import InfoIcon from '@material-ui/icons/Info.js'
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined.js'
 import '@material-ui/icons/Settings.js'
 import VisibilityIcon from '@material-ui/icons/Visibility.js'
 import '@material-ui/icons/VisibilityOff.js'
 import EditIcon from '@material-ui/icons/Edit.js'
 import KeyboardIcon from '@material-ui/icons/Keyboard.js'
 import HelpIcon from '@material-ui/icons/Help.js'
-import '@material-ui/icons/AssignmentReturned.js'
+import ContentPasteIcon from '@material-ui/icons/AssignmentReturned.js'
 import { useAuth0 } from '@auth0/auth0-react';
 import { Redirect, Link, useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles/index.js'
 import '@material-ui/core/Tabs/index.js'
 import '@material-ui/core/Tab/index.js'
 import NotFoundIcon from '@material-ui/icons/BrokenImage.js'
-import { Tooltip, TextField, MenuItem } from '@material-ui/core/index.js'
+import { TextField, MenuItem, Tooltip } from '@material-ui/core/index.js'
 import MDEditor, { commands } from '@uiw/react-md-editor';
 import { MapContainer, LayersControl, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import ReactLeafletGoogleLayer from 'react-leaflet-google-layer';
@@ -50,7 +50,7 @@ import DialogTitle from '@material-ui/core/DialogTitle/index.js'
 const DASH_uri = "http://datashapes.org/dash#";
 const DASH = rdf.Namespace(DASH_uri);
 const OWL_uri = "http://www.w3.org/2002/07/owl#";
-rdf.Namespace(OWL_uri);
+const OWL = rdf.Namespace(OWL_uri);
 const RDFS_uri = "http://www.w3.org/2000/01/rdf-schema#";
 const RDFS = rdf.Namespace(RDFS_uri);
 const SH_uri = "http://www.w3.org/ns/shacl#";
@@ -62,7 +62,7 @@ const SKOS = rdf.Namespace(SKOS_uri);
 const XSD_uri = "http://www.w3.org/2001/XMLSchema#";
 const XSD = rdf.Namespace(XSD_uri);
 const FOAF_uri = "http://xmlns.com/foaf/0.1/";
-rdf.Namespace(FOAF_uri);
+const FOAF = rdf.Namespace(FOAF_uri);
 const RDE_uri = "https://github.com/buda-base/rdf-document-editor/";
 const RDE = rdf.Namespace(RDE_uri);
 require("debug")("rde:rdf:ns");
@@ -143,531 +143,29 @@ class PrefixMap {
 }
 const defaultPrefixMap = new PrefixMap({});
 
-var __defProp$1 = Object.defineProperty;
-var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
-var __decorateClass$1 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$1(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp$1(target, key, result);
-  return result;
-};
-const debug$8 = require("debug")("rde:rdf:shapes");
-RDF("type");
-const shProperty = SH("property");
-const shGroup = SH("group");
-const shOrder = SH("order");
-const rdfsLabel = RDFS("label");
-const prefLabel = SKOS("prefLabel");
-const shName = SH("name");
-const shPath = SH("path");
-const dashEditor = DASH("editor");
-const shNode = SH("node");
-const dashListShape = DASH("ListShape");
-const dashEnumSelectEditor = DASH("EnumSelectEditor");
-const shMessage = SH("message");
-const rdeDisplayPriority = RDE("displayPriority");
-const shMinCount = SH("minCount");
-const shMinInclusive = SH("minInclusive");
-const shMinExclusive = SH("minExclusive");
-const shClass = SH("class");
-const shMaxCount = SH("maxCount");
-const shMaxInclusive = SH("maxInclusive");
-const shMaxExclusive = SH("maxExclusive");
-const shDatatype = SH("datatype");
-const dashSingleLine = DASH("singleLine");
-const shTargetClass = SH("targetClass");
-const shTargetObjectsOf = SH("targetObjectsOf");
-const shTargetSubjectsOf = SH("targetSubjectsOf");
-const rdePropertyShapeType = RDE("propertyShapeType");
-const rdeInternalShape = RDE("InternalShape");
-const rdeExternalShape = RDE("ExternalShape");
-const rdeIgnoreShape = RDE("IgnoreShape");
-const rdeClassIn = RDE("classIn");
-const shIn = SH("in");
-const shInversePath = SH("inversePath");
-const shUniqueLang = SH("uniqueLang");
-const rdeReadOnly = RDE("readOnly");
-const rdeIdentifierPrefix = RDE("identifierPrefix");
-const rdeAllowMarkDown = RDE("allowMarkDown");
-const shNamespace = SH("namespace");
-const rdeDefaultLanguage = RDE("defaultLanguage");
-const rdeDefaultValue = RDE("defaultValue");
-SH("languageIn");
-const shPattern = SH("pattern");
-const rdeSortOnProperty = RDE("sortOnProperty");
-const rdeAllowPushToTopLevelLabel = RDE("allowPushToTopLevelLabel");
-const rdeIndependentIdentifiers = RDE("independentIdentifiers");
-const rdeSpecialPattern = RDE("specialPattern");
-const rdeConnectIDs = RDE("connectIDs");
-const rdeAllowBatchManagement = RDE("allowBatchManagement");
-const rdeCopyObjectsOfProperty = RDE("copyObjectsOfProperty");
-const rdeUniqueValueAmongSiblings = RDE("uniqueValueAmongSiblings");
-const rdfLangString = RDF("langString");
-const skosDefinition = SKOS("definition");
-const rdfsComment = RDFS("comment");
-const shDescription = SH("description");
-const defaultLabelProperties = [prefLabel, rdfsLabel, shName];
-const defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription];
-const sortByPropValue = (nodelist, property, store) => {
-  const nodeUriToPropValue = {};
-  for (const node of nodelist) {
-    const ordern = store.any(node, property, null);
-    if (!ordern)
-      nodeUriToPropValue[node.uri] = 0;
-    const asnum = rdfLitAsNumber(ordern);
-    nodeUriToPropValue[node.uri] = asnum == null ? 0 : asnum;
-  }
-  return [...nodelist].sort((a, b) => {
-    return nodeUriToPropValue[a.uri] - nodeUriToPropValue[b.uri];
-  });
-};
-class Path {
-  sparqlString;
-  directPathNode = null;
-  inversePathNode = null;
-  constructor(node, graph, listMode) {
-    const invpaths = graph.store.each(node, shInversePath, null);
-    if (invpaths.length > 1) {
-      throw "too many inverse path in shacl path:" + invpaths;
-    }
-    if (invpaths.length == 1) {
-      const invpath = invpaths[0];
-      this.sparqlString = "^" + invpath.value;
-      this.inversePathNode = invpath;
-    } else {
-      if (listMode) {
-        this.sparqlString = node.value + "[]";
-      } else {
-        this.sparqlString = node.value;
-      }
-      this.directPathNode = node;
-    }
-  }
-}
-const _PropertyShape = class extends RDFResourceWithLabel {
-  constructor(node, graph) {
-    super(node, graph, rdfsLabel);
-  }
-  get prefLabels() {
-    let res = {};
-    if (this.path && (this.path.directPathNode || this.path.inversePathNode)) {
-      const pathNode = this.path.directPathNode || this.path.inversePathNode;
-      if (pathNode) {
-        const propInOntology = new RDFResourceWithLabel(pathNode, this.graph);
-        res = propInOntology.prefLabels;
-      }
-    }
-    const resFromShape = this.getPropValueByLang(shName);
-    res = { ...res, ...resFromShape };
-    return res;
-  }
-  get helpMessage() {
-    let res = this.description;
-    if (res == null && this.path && (this.path.directPathNode || this.path.inversePathNode)) {
-      const pathNode = this.path.directPathNode || this.path.inversePathNode;
-      if (pathNode) {
-        const propInOntology = new RDFResourceWithLabel(pathNode, this.graph);
-        res = propInOntology.description;
-      }
-    }
-    return res;
-  }
-  get errorMessage() {
-    const res = this.getPropValueByLang(shMessage);
-    return res;
-  }
-  get defaultValue() {
-    return this.graph.store.any(this.node, rdeDefaultValue, null);
-  }
-  get singleLine() {
-    return this.getPropBooleanValue(dashSingleLine);
-  }
-  get connectIDs() {
-    return this.getPropBooleanValue(rdeConnectIDs, false);
-  }
-  get displayPriority() {
-    return this.getPropIntValue(rdeDisplayPriority);
-  }
-  get minCount() {
-    return this.getPropIntValue(shMinCount);
-  }
-  get maxCount() {
-    return this.getPropIntValue(shMaxCount);
-  }
-  get minInclusive() {
-    return this.getPropIntValue(shMinInclusive);
-  }
-  get maxInclusive() {
-    return this.getPropIntValue(shMaxInclusive);
-  }
-  get minExclusive() {
-    return this.getPropIntValue(shMinExclusive);
-  }
-  get maxExclusive() {
-    return this.getPropIntValue(shMaxExclusive);
-  }
-  get allowMarkDown() {
-    return this.getPropBooleanValue(rdeAllowMarkDown);
-  }
-  get allowBatchManagement() {
-    return this.getPropBooleanValue(rdeAllowBatchManagement);
-  }
-  get uniqueValueAmongSiblings() {
-    return this.getPropBooleanValue(rdeUniqueValueAmongSiblings);
-  }
-  get uniqueLang() {
-    return this.getPropBooleanValue(shUniqueLang);
-  }
-  get readOnly() {
-    return this.getPropBooleanValue(rdeReadOnly);
-  }
-  get defaultLanguage() {
-    return this.getPropStringValue(rdeDefaultLanguage);
-  }
-  get editorLname() {
-    const val = this.getPropResValue(dashEditor);
-    if (!val)
-      return null;
-    return defaultPrefixMap.lnameFromUri(val.value);
-  }
-  get group() {
-    return this.getPropResValue(shGroup);
-  }
-  get copyObjectsOfProperty() {
-    return this.graph.store.each(this.node, rdeCopyObjectsOfProperty, null);
-  }
-  get datatype() {
-    const res = this.getPropResValue(shDatatype);
-    if (res === null && this.hasListAsObject) {
-      const propNodes = this.graph.store.each(
-        this.node,
-        shProperty,
-        null
-      );
-      if (!propNodes)
-        return null;
-      const props = _PropertyShape.resourcizeWithInit(propNodes, this.graph);
-      for (const p of props) {
-        return p.getPropResValue(shDatatype);
-      }
-    }
-    return res;
-  }
-  get pattern() {
-    return this.getPropStringValue(shPattern);
-  }
-  get sortOnProperty() {
-    return this.getPropResValue(rdeSortOnProperty);
-  }
-  get allowPushToTopLevelLabel() {
-    return this.getPropBooleanValue(rdeAllowPushToTopLevelLabel);
-  }
-  get specialPattern() {
-    return this.getPropResValue(rdeSpecialPattern);
-  }
-  static resourcizeWithInit(nodes, graph) {
-    const res = [];
-    for (const node of nodes)
-      if (node instanceof rdf.NamedNode) {
-        const r = new RDFResourceWithLabel(node, graph);
-        r.description;
-        r.prefLabels;
-        res.push(r);
-      }
-    return res;
-  }
-  get hasListAsObject() {
-    const res = this.graph.store.each(this.node, shNode, dashListShape);
-    if (res == null || res.length == 0)
-      return false;
-    return true;
-  }
-  get in() {
-    if (this.hasListAsObject) {
-      const propNodes = this.graph.store.each(
-        this.node,
-        shProperty,
-        null
-      );
-      if (!propNodes)
-        return null;
-      const props = _PropertyShape.resourcizeWithInit(propNodes, this.graph);
-      for (const p of props) {
-        if (p.getPropResValue(shDatatype)) {
-          const nodes = p.getPropLitValuesFromList(shIn);
-          if (nodes)
-            return EntityGraph.addIdToLitList(nodes);
-        } else {
-          const nodes = p.getPropResValuesFromList(shIn);
-          if (nodes)
-            return _PropertyShape.resourcizeWithInit(nodes, this.graph);
-        }
-      }
-    }
-    if (this.datatype) {
-      const nodes = this.getPropLitValuesFromList(shIn);
-      if (nodes)
-        return EntityGraph.addIdToLitList(nodes);
-    } else {
-      const nodes = this.getPropResValuesFromList(shIn);
-      if (nodes)
-        return _PropertyShape.resourcizeWithInit(nodes, this.graph);
-    }
-    return null;
-  }
-  get expectedObjectTypes() {
-    let nodes = this.getPropResValuesFromList(rdeClassIn);
-    if (!nodes) {
-      const cl = this.getPropResValues(shClass);
-      if (cl.length)
-        nodes = cl;
-    }
-    if (!nodes)
-      return null;
-    return _PropertyShape.resourcizeWithInit(nodes, this.graph);
-  }
-  get path() {
-    const pathNode = this.getPropResValue(shPath);
-    if (!pathNode)
-      return null;
-    return new Path(pathNode, this.graph, this.hasListAsObject);
-  }
-  get objectType() {
-    const propertyShapeType = this.getPropResValue(rdePropertyShapeType);
-    if (!propertyShapeType) {
-      const editor = this.getPropResValue(dashEditor);
-      if (!editor)
-        return ObjectType.Literal;
-      if (editor.value == dashEnumSelectEditor.value) {
-        if (this.datatype)
-          return ObjectType.LitInList;
-        return ObjectType.ResInList;
-      }
-      return ObjectType.Literal;
-    }
-    if (propertyShapeType.value == rdeInternalShape.value)
-      return ObjectType.Internal;
-    else if (propertyShapeType.value == rdeExternalShape.value)
-      return ObjectType.ResExt;
-    else if (propertyShapeType.value == rdeIgnoreShape.value)
-      return ObjectType.ResIgnore;
-    throw "can't handle property shape type " + propertyShapeType.value + " for property shape " + this.qname;
-  }
-  get targetShape() {
-    const path = this.path;
-    if (!path) {
-      debug$8("can't find path for " + this.uri);
-      return null;
-    }
-    let val;
-    if (path.directPathNode) {
-      val = this.graph.store.any(null, shTargetObjectsOf, path.directPathNode);
-      if (val == null)
-        return null;
-      return new NodeShape(val, this.graph);
-    }
-    if (path.inversePathNode) {
-      val = this.graph.store.any(null, shTargetSubjectsOf, path.inversePathNode);
-      if (val == null)
-        return null;
-      return new NodeShape(val, this.graph);
-    }
-    return null;
-  }
-};
-let PropertyShape = _PropertyShape;
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "prefLabels", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "helpMessage", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "errorMessage", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "defaultValue", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "singleLine", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "connectIDs", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "displayPriority", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "minCount", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "maxCount", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "minInclusive", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "maxInclusive", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "minExclusive", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "maxExclusive", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "allowMarkDown", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "allowBatchManagement", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "uniqueValueAmongSiblings", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "uniqueLang", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "readOnly", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "defaultLanguage", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "editorLname", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "group", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "copyObjectsOfProperty", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "datatype", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "pattern", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "sortOnProperty", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "allowPushToTopLevelLabel", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "specialPattern", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "hasListAsObject", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "in", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "expectedObjectTypes", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "path", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "objectType", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyShape.prototype, "targetShape", 1);
-class PropertyGroup extends RDFResourceWithLabel {
-  constructor(node, graph) {
-    super(node, graph, rdfsLabel);
-  }
-  get properties() {
-    const res = [];
-    let propsingroup = this.graph.store.each(null, shGroup, this.node);
-    propsingroup = sortByPropValue(propsingroup, shOrder, this.graph.store);
-    for (const prop of propsingroup) {
-      res.push(new PropertyShape(prop, this.graph));
-    }
-    return res;
-  }
-  get prefLabels() {
-    return this.getPropValueByLang(rdfsLabel);
-  }
-}
-__decorateClass$1([
-  Memoize()
-], PropertyGroup.prototype, "properties", 1);
-__decorateClass$1([
-  Memoize()
-], PropertyGroup.prototype, "prefLabels", 1);
-class NodeShape extends RDFResourceWithLabel {
-  constructor(node, graph) {
-    super(node, graph, rdfsLabel);
-  }
-  get targetClassPrefLabels() {
-    const targetClass = this.graph.store.any(this.node, shTargetClass, null);
-    if (targetClass == null)
-      return null;
-    const classInOntology = new RDFResourceWithLabel(targetClass, this.graph);
-    return classInOntology.prefLabels;
-  }
-  get properties() {
-    const res = [];
-    let props = this.graph.store.each(this.node, shProperty, null);
-    props = sortByPropValue(props, shOrder, this.graph.store);
-    for (const prop of props) {
-      res.push(new PropertyShape(prop, this.graph));
-    }
-    return res;
-  }
-  get independentIdentifiers() {
-    return this.getPropBooleanValue(rdeIndependentIdentifiers, false);
-  }
-  get groups() {
-    const res = [];
-    const props = this.graph.store.each(this.node, shProperty, null);
-    let grouplist = [];
-    for (const prop of props) {
-      const group = this.graph.store.any(prop, shGroup, null);
-      if (group && !grouplist.some((e) => e.value === group.value)) {
-        grouplist.push(group);
-      }
-    }
-    grouplist = sortByPropValue(grouplist, shOrder, this.graph.store);
-    for (const group of grouplist) {
-      res.push(new PropertyGroup(group, this.graph));
-    }
-    return res;
-  }
-}
-__decorateClass$1([
-  Memoize()
-], NodeShape.prototype, "targetClassPrefLabels", 1);
-__decorateClass$1([
-  Memoize()
-], NodeShape.prototype, "properties", 1);
-__decorateClass$1([
-  Memoize()
-], NodeShape.prototype, "independentIdentifiers", 1);
-__decorateClass$1([
-  Memoize()
-], NodeShape.prototype, "groups", 1);
-const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
-const generateSubnode = async (subshape, parent) => {
-  const prefix = subshape.getPropStringValue(rdeIdentifierPrefix);
-  if (prefix == null)
-    throw "cannot find entity prefix for " + subshape.qname;
-  let namespace = subshape.getPropStringValue(shNamespace);
-  if (namespace == null)
-    namespace = parent.namespace;
-  let uri = namespace + prefix + parent.lname + nanoidCustom();
-  while (parent.graph.hasSubject(uri)) {
-    uri = namespace + prefix + nanoidCustom();
-  }
-  const res = new Subject(new rdf.NamedNode(uri), parent.graph);
-  return Promise.resolve(res);
-};
+var ns = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  DASH_uri: DASH_uri,
+  DASH: DASH,
+  OWL_uri: OWL_uri,
+  OWL: OWL,
+  RDFS_uri: RDFS_uri,
+  RDFS: RDFS,
+  SH_uri: SH_uri,
+  SH: SH,
+  RDF_uri: RDF_uri,
+  RDF: RDF,
+  SKOS_uri: SKOS_uri,
+  SKOS: SKOS,
+  XSD_uri: XSD_uri,
+  XSD: XSD,
+  FOAF_uri: FOAF_uri,
+  FOAF: FOAF,
+  RDE_uri: RDE_uri,
+  RDE: RDE,
+  PrefixMap: PrefixMap,
+  defaultPrefixMap: defaultPrefixMap
+});
 
 require("debug")("bdrc:observer");
 const history = {};
@@ -733,15 +231,15 @@ function getParentPath(entityUri, sub) {
   return parentPath;
 }
 
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+var __defProp$1 = Object.defineProperty;
+var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
+var __decorateClass$1 = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$1(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
     if (decorator = decorators[i])
       result = (kind ? decorator(target, key, result) : decorator(result)) || result;
   if (kind && result)
-    __defProp(target, key, result);
+    __defProp$1(target, key, result);
   return result;
 };
 require("debug")("rde:rdf:types");
@@ -862,7 +360,7 @@ class EntityGraphValues {
     return subjectUri in this.newSubjectProps;
   }
 }
-__decorateClass([
+__decorateClass$1([
   Memoize((pathString, subjectUri) => {
     return subjectUri + pathString;
   })
@@ -1150,10 +648,10 @@ class RDFResourceWithLabel extends RDFResource {
     return null;
   }
 }
-__decorateClass([
+__decorateClass$1([
   Memoize()
 ], RDFResourceWithLabel.prototype, "prefLabels", 1);
-__decorateClass([
+__decorateClass$1([
   Memoize()
 ], RDFResourceWithLabel.prototype, "description", 1);
 class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
@@ -1245,6 +743,598 @@ const sameLanguage = (lang1, lang2) => {
   return lang1 == lang2;
 };
 
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result)
+    __defProp(target, key, result);
+  return result;
+};
+const debug$9 = require("debug")("rde:rdf:shapes");
+const rdfType = RDF("type");
+const shProperty = SH("property");
+const shGroup = SH("group");
+const shOrder = SH("order");
+const rdfsLabel = RDFS("label");
+const prefLabel = SKOS("prefLabel");
+const shName = SH("name");
+const shPath = SH("path");
+const dashEditor = DASH("editor");
+const shNode = SH("node");
+const dashListShape = DASH("ListShape");
+const dashEnumSelectEditor = DASH("EnumSelectEditor");
+const shMessage = SH("message");
+const rdeDisplayPriority = RDE("displayPriority");
+const shMinCount = SH("minCount");
+const shMinInclusive = SH("minInclusive");
+const shMinExclusive = SH("minExclusive");
+const shClass = SH("class");
+const shMaxCount = SH("maxCount");
+const shMaxInclusive = SH("maxInclusive");
+const shMaxExclusive = SH("maxExclusive");
+const shDatatype = SH("datatype");
+const dashSingleLine = DASH("singleLine");
+const shTargetClass = SH("targetClass");
+const shTargetObjectsOf = SH("targetObjectsOf");
+const shTargetSubjectsOf = SH("targetSubjectsOf");
+const rdePropertyShapeType = RDE("propertyShapeType");
+const rdeInternalShape = RDE("InternalShape");
+const rdeExternalShape = RDE("ExternalShape");
+const rdeIgnoreShape = RDE("IgnoreShape");
+const rdeClassIn = RDE("classIn");
+const shIn = SH("in");
+const shInversePath = SH("inversePath");
+const shUniqueLang = SH("uniqueLang");
+const rdeReadOnly = RDE("readOnly");
+const rdeIdentifierPrefix = RDE("identifierPrefix");
+const rdeAllowMarkDown = RDE("allowMarkDown");
+const shNamespace = SH("namespace");
+const rdeDefaultLanguage = RDE("defaultLanguage");
+const rdeDefaultValue = RDE("defaultValue");
+const shLanguageIn = SH("languageIn");
+const shPattern = SH("pattern");
+const rdeSortOnProperty = RDE("sortOnProperty");
+const rdeAllowPushToTopLevelLabel = RDE("allowPushToTopLevelLabel");
+const rdeIndependentIdentifiers = RDE("independentIdentifiers");
+const rdeSpecialPattern = RDE("specialPattern");
+const rdeConnectIDs = RDE("connectIDs");
+const rdeAllowBatchManagement = RDE("allowBatchManagement");
+const rdeCopyObjectsOfProperty = RDE("copyObjectsOfProperty");
+const rdeUniqueValueAmongSiblings = RDE("uniqueValueAmongSiblings");
+const rdfLangString = RDF("langString");
+const skosDefinition = SKOS("definition");
+const rdfsComment = RDFS("comment");
+const shDescription = SH("description");
+const defaultLabelProperties = [prefLabel, rdfsLabel, shName];
+const defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription];
+const sortByPropValue = (nodelist, property, store) => {
+  const nodeUriToPropValue = {};
+  for (const node of nodelist) {
+    const ordern = store.any(node, property, null);
+    if (!ordern)
+      nodeUriToPropValue[node.uri] = 0;
+    const asnum = rdfLitAsNumber(ordern);
+    nodeUriToPropValue[node.uri] = asnum == null ? 0 : asnum;
+  }
+  return [...nodelist].sort((a, b) => {
+    return nodeUriToPropValue[a.uri] - nodeUriToPropValue[b.uri];
+  });
+};
+class Path {
+  sparqlString;
+  directPathNode = null;
+  inversePathNode = null;
+  constructor(node, graph, listMode) {
+    const invpaths = graph.store.each(node, shInversePath, null);
+    if (invpaths.length > 1) {
+      throw "too many inverse path in shacl path:" + invpaths;
+    }
+    if (invpaths.length == 1) {
+      const invpath = invpaths[0];
+      this.sparqlString = "^" + invpath.value;
+      this.inversePathNode = invpath;
+    } else {
+      if (listMode) {
+        this.sparqlString = node.value + "[]";
+      } else {
+        this.sparqlString = node.value;
+      }
+      this.directPathNode = node;
+    }
+  }
+}
+const _PropertyShape = class extends RDFResourceWithLabel {
+  constructor(node, graph) {
+    super(node, graph, rdfsLabel);
+  }
+  get prefLabels() {
+    let res = {};
+    if (this.path && (this.path.directPathNode || this.path.inversePathNode)) {
+      const pathNode = this.path.directPathNode || this.path.inversePathNode;
+      if (pathNode) {
+        const propInOntology = new RDFResourceWithLabel(pathNode, this.graph);
+        res = propInOntology.prefLabels;
+      }
+    }
+    const resFromShape = this.getPropValueByLang(shName);
+    res = { ...res, ...resFromShape };
+    return res;
+  }
+  get helpMessage() {
+    let res = this.description;
+    if (res == null && this.path && (this.path.directPathNode || this.path.inversePathNode)) {
+      const pathNode = this.path.directPathNode || this.path.inversePathNode;
+      if (pathNode) {
+        const propInOntology = new RDFResourceWithLabel(pathNode, this.graph);
+        res = propInOntology.description;
+      }
+    }
+    return res;
+  }
+  get errorMessage() {
+    const res = this.getPropValueByLang(shMessage);
+    return res;
+  }
+  get defaultValue() {
+    return this.graph.store.any(this.node, rdeDefaultValue, null);
+  }
+  get singleLine() {
+    return this.getPropBooleanValue(dashSingleLine);
+  }
+  get connectIDs() {
+    return this.getPropBooleanValue(rdeConnectIDs, false);
+  }
+  get displayPriority() {
+    return this.getPropIntValue(rdeDisplayPriority);
+  }
+  get minCount() {
+    return this.getPropIntValue(shMinCount);
+  }
+  get maxCount() {
+    return this.getPropIntValue(shMaxCount);
+  }
+  get minInclusive() {
+    return this.getPropIntValue(shMinInclusive);
+  }
+  get maxInclusive() {
+    return this.getPropIntValue(shMaxInclusive);
+  }
+  get minExclusive() {
+    return this.getPropIntValue(shMinExclusive);
+  }
+  get maxExclusive() {
+    return this.getPropIntValue(shMaxExclusive);
+  }
+  get allowMarkDown() {
+    return this.getPropBooleanValue(rdeAllowMarkDown);
+  }
+  get allowBatchManagement() {
+    return this.getPropBooleanValue(rdeAllowBatchManagement);
+  }
+  get uniqueValueAmongSiblings() {
+    return this.getPropBooleanValue(rdeUniqueValueAmongSiblings);
+  }
+  get uniqueLang() {
+    return this.getPropBooleanValue(shUniqueLang);
+  }
+  get readOnly() {
+    return this.getPropBooleanValue(rdeReadOnly);
+  }
+  get defaultLanguage() {
+    return this.getPropStringValue(rdeDefaultLanguage);
+  }
+  get editorLname() {
+    const val = this.getPropResValue(dashEditor);
+    if (!val)
+      return null;
+    return defaultPrefixMap.lnameFromUri(val.value);
+  }
+  get group() {
+    return this.getPropResValue(shGroup);
+  }
+  get copyObjectsOfProperty() {
+    return this.graph.store.each(this.node, rdeCopyObjectsOfProperty, null);
+  }
+  get datatype() {
+    const res = this.getPropResValue(shDatatype);
+    if (res === null && this.hasListAsObject) {
+      const propNodes = this.graph.store.each(
+        this.node,
+        shProperty,
+        null
+      );
+      if (!propNodes)
+        return null;
+      const props = _PropertyShape.resourcizeWithInit(propNodes, this.graph);
+      for (const p of props) {
+        return p.getPropResValue(shDatatype);
+      }
+    }
+    return res;
+  }
+  get pattern() {
+    return this.getPropStringValue(shPattern);
+  }
+  get sortOnProperty() {
+    return this.getPropResValue(rdeSortOnProperty);
+  }
+  get allowPushToTopLevelLabel() {
+    return this.getPropBooleanValue(rdeAllowPushToTopLevelLabel);
+  }
+  get specialPattern() {
+    return this.getPropResValue(rdeSpecialPattern);
+  }
+  static resourcizeWithInit(nodes, graph) {
+    const res = [];
+    for (const node of nodes)
+      if (node instanceof rdf.NamedNode) {
+        const r = new RDFResourceWithLabel(node, graph);
+        r.description;
+        r.prefLabels;
+        res.push(r);
+      }
+    return res;
+  }
+  get hasListAsObject() {
+    const res = this.graph.store.each(this.node, shNode, dashListShape);
+    if (res == null || res.length == 0)
+      return false;
+    return true;
+  }
+  get in() {
+    if (this.hasListAsObject) {
+      const propNodes = this.graph.store.each(
+        this.node,
+        shProperty,
+        null
+      );
+      if (!propNodes)
+        return null;
+      const props = _PropertyShape.resourcizeWithInit(propNodes, this.graph);
+      for (const p of props) {
+        if (p.getPropResValue(shDatatype)) {
+          const nodes = p.getPropLitValuesFromList(shIn);
+          if (nodes)
+            return EntityGraph.addIdToLitList(nodes);
+        } else {
+          const nodes = p.getPropResValuesFromList(shIn);
+          if (nodes)
+            return _PropertyShape.resourcizeWithInit(nodes, this.graph);
+        }
+      }
+    }
+    if (this.datatype) {
+      const nodes = this.getPropLitValuesFromList(shIn);
+      if (nodes)
+        return EntityGraph.addIdToLitList(nodes);
+    } else {
+      const nodes = this.getPropResValuesFromList(shIn);
+      if (nodes)
+        return _PropertyShape.resourcizeWithInit(nodes, this.graph);
+    }
+    return null;
+  }
+  get expectedObjectTypes() {
+    let nodes = this.getPropResValuesFromList(rdeClassIn);
+    if (!nodes) {
+      const cl = this.getPropResValues(shClass);
+      if (cl.length)
+        nodes = cl;
+    }
+    if (!nodes)
+      return null;
+    return _PropertyShape.resourcizeWithInit(nodes, this.graph);
+  }
+  get path() {
+    const pathNode = this.getPropResValue(shPath);
+    if (!pathNode)
+      return null;
+    return new Path(pathNode, this.graph, this.hasListAsObject);
+  }
+  get objectType() {
+    const propertyShapeType = this.getPropResValue(rdePropertyShapeType);
+    if (!propertyShapeType) {
+      const editor = this.getPropResValue(dashEditor);
+      if (!editor)
+        return ObjectType.Literal;
+      if (editor.value == dashEnumSelectEditor.value) {
+        if (this.datatype)
+          return ObjectType.LitInList;
+        return ObjectType.ResInList;
+      }
+      return ObjectType.Literal;
+    }
+    if (propertyShapeType.value == rdeInternalShape.value)
+      return ObjectType.Internal;
+    else if (propertyShapeType.value == rdeExternalShape.value)
+      return ObjectType.ResExt;
+    else if (propertyShapeType.value == rdeIgnoreShape.value)
+      return ObjectType.ResIgnore;
+    throw "can't handle property shape type " + propertyShapeType.value + " for property shape " + this.qname;
+  }
+  get targetShape() {
+    const path = this.path;
+    if (!path) {
+      debug$9("can't find path for " + this.uri);
+      return null;
+    }
+    let val;
+    if (path.directPathNode) {
+      val = this.graph.store.any(null, shTargetObjectsOf, path.directPathNode);
+      if (val == null)
+        return null;
+      return new NodeShape(val, this.graph);
+    }
+    if (path.inversePathNode) {
+      val = this.graph.store.any(null, shTargetSubjectsOf, path.inversePathNode);
+      if (val == null)
+        return null;
+      return new NodeShape(val, this.graph);
+    }
+    return null;
+  }
+};
+let PropertyShape = _PropertyShape;
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "prefLabels", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "helpMessage", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "errorMessage", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "defaultValue", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "singleLine", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "connectIDs", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "displayPriority", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "minCount", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "maxCount", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "minInclusive", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "maxInclusive", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "minExclusive", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "maxExclusive", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "allowMarkDown", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "allowBatchManagement", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "uniqueValueAmongSiblings", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "uniqueLang", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "readOnly", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "defaultLanguage", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "editorLname", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "group", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "copyObjectsOfProperty", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "datatype", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "pattern", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "sortOnProperty", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "allowPushToTopLevelLabel", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "specialPattern", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "hasListAsObject", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "in", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "expectedObjectTypes", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "path", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "objectType", 1);
+__decorateClass([
+  Memoize()
+], PropertyShape.prototype, "targetShape", 1);
+class PropertyGroup extends RDFResourceWithLabel {
+  constructor(node, graph) {
+    super(node, graph, rdfsLabel);
+  }
+  get properties() {
+    const res = [];
+    let propsingroup = this.graph.store.each(null, shGroup, this.node);
+    propsingroup = sortByPropValue(propsingroup, shOrder, this.graph.store);
+    for (const prop of propsingroup) {
+      res.push(new PropertyShape(prop, this.graph));
+    }
+    return res;
+  }
+  get prefLabels() {
+    return this.getPropValueByLang(rdfsLabel);
+  }
+}
+__decorateClass([
+  Memoize()
+], PropertyGroup.prototype, "properties", 1);
+__decorateClass([
+  Memoize()
+], PropertyGroup.prototype, "prefLabels", 1);
+class NodeShape extends RDFResourceWithLabel {
+  constructor(node, graph) {
+    super(node, graph, rdfsLabel);
+  }
+  get targetClassPrefLabels() {
+    const targetClass = this.graph.store.any(this.node, shTargetClass, null);
+    if (targetClass == null)
+      return null;
+    const classInOntology = new RDFResourceWithLabel(targetClass, this.graph);
+    return classInOntology.prefLabels;
+  }
+  get properties() {
+    const res = [];
+    let props = this.graph.store.each(this.node, shProperty, null);
+    props = sortByPropValue(props, shOrder, this.graph.store);
+    for (const prop of props) {
+      res.push(new PropertyShape(prop, this.graph));
+    }
+    return res;
+  }
+  get independentIdentifiers() {
+    return this.getPropBooleanValue(rdeIndependentIdentifiers, false);
+  }
+  get groups() {
+    const res = [];
+    const props = this.graph.store.each(this.node, shProperty, null);
+    let grouplist = [];
+    for (const prop of props) {
+      const group = this.graph.store.any(prop, shGroup, null);
+      if (group && !grouplist.some((e) => e.value === group.value)) {
+        grouplist.push(group);
+      }
+    }
+    grouplist = sortByPropValue(grouplist, shOrder, this.graph.store);
+    for (const group of grouplist) {
+      res.push(new PropertyGroup(group, this.graph));
+    }
+    return res;
+  }
+}
+__decorateClass([
+  Memoize()
+], NodeShape.prototype, "targetClassPrefLabels", 1);
+__decorateClass([
+  Memoize()
+], NodeShape.prototype, "properties", 1);
+__decorateClass([
+  Memoize()
+], NodeShape.prototype, "independentIdentifiers", 1);
+__decorateClass([
+  Memoize()
+], NodeShape.prototype, "groups", 1);
+const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
+const generateSubnode = async (subshape, parent) => {
+  const prefix = subshape.getPropStringValue(rdeIdentifierPrefix);
+  if (prefix == null)
+    throw "cannot find entity prefix for " + subshape.qname;
+  let namespace = subshape.getPropStringValue(shNamespace);
+  if (namespace == null)
+    namespace = parent.namespace;
+  let uri = namespace + prefix + parent.lname + nanoidCustom();
+  while (parent.graph.hasSubject(uri)) {
+    uri = namespace + prefix + nanoidCustom();
+  }
+  const res = new Subject(new rdf.NamedNode(uri), parent.graph);
+  return Promise.resolve(res);
+};
+
+var shapes = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  rdfType: rdfType,
+  shProperty: shProperty,
+  shGroup: shGroup,
+  shOrder: shOrder,
+  rdfsLabel: rdfsLabel,
+  prefLabel: prefLabel,
+  shName: shName,
+  shPath: shPath,
+  dashEditor: dashEditor,
+  shNode: shNode,
+  dashListShape: dashListShape,
+  dashEnumSelectEditor: dashEnumSelectEditor,
+  shMessage: shMessage,
+  rdeDisplayPriority: rdeDisplayPriority,
+  shMinCount: shMinCount,
+  shMinInclusive: shMinInclusive,
+  shMinExclusive: shMinExclusive,
+  shClass: shClass,
+  shMaxCount: shMaxCount,
+  shMaxInclusive: shMaxInclusive,
+  shMaxExclusive: shMaxExclusive,
+  shDatatype: shDatatype,
+  dashSingleLine: dashSingleLine,
+  shTargetClass: shTargetClass,
+  shTargetObjectsOf: shTargetObjectsOf,
+  shTargetSubjectsOf: shTargetSubjectsOf,
+  rdePropertyShapeType: rdePropertyShapeType,
+  rdeInternalShape: rdeInternalShape,
+  rdeExternalShape: rdeExternalShape,
+  rdeIgnoreShape: rdeIgnoreShape,
+  rdeClassIn: rdeClassIn,
+  shIn: shIn,
+  shInversePath: shInversePath,
+  shUniqueLang: shUniqueLang,
+  rdeReadOnly: rdeReadOnly,
+  rdeIdentifierPrefix: rdeIdentifierPrefix,
+  rdeAllowMarkDown: rdeAllowMarkDown,
+  shNamespace: shNamespace,
+  rdeDefaultLanguage: rdeDefaultLanguage,
+  rdeDefaultValue: rdeDefaultValue,
+  shLanguageIn: shLanguageIn,
+  shPattern: shPattern,
+  rdeSortOnProperty: rdeSortOnProperty,
+  rdeAllowPushToTopLevelLabel: rdeAllowPushToTopLevelLabel,
+  rdeIndependentIdentifiers: rdeIndependentIdentifiers,
+  rdeSpecialPattern: rdeSpecialPattern,
+  rdeConnectIDs: rdeConnectIDs,
+  rdeAllowBatchManagement: rdeAllowBatchManagement,
+  rdeCopyObjectsOfProperty: rdeCopyObjectsOfProperty,
+  rdeUniqueValueAmongSiblings: rdeUniqueValueAmongSiblings,
+  rdfLangString: rdfLangString,
+  skosDefinition: skosDefinition,
+  rdfsComment: rdfsComment,
+  shDescription: shDescription,
+  defaultLabelProperties: defaultLabelProperties,
+  defaultDescriptionProperties: defaultDescriptionProperties,
+  sortByPropValue: sortByPropValue,
+  Path: Path,
+  PropertyShape: PropertyShape,
+  PropertyGroup: PropertyGroup,
+  NodeShape: NodeShape,
+  generateSubnode: generateSubnode
+});
+
 const MDIcon = (props) => /* @__PURE__ */ jsx(Img, {
   src: "/icons/Markdown-mark.svg",
   ...props
@@ -1252,7 +1342,7 @@ const MDIcon = (props) => /* @__PURE__ */ jsx(Img, {
 const AddIcon = AddCircleOutlineIcon;
 const RemoveIcon = RemoveCircleOutlineIcon;
 
-const debug$7 = require("debug")("rde:rdf:lang");
+const debug$8 = require("debug")("rde:rdf:lang");
 const ValueByLangToStrPrefLang = (vbl, prefLang) => {
   if (vbl == null)
     return "";
@@ -1273,7 +1363,7 @@ const langsWithDefault = (defaultLanguage, langs) => {
     return cache[defaultLanguage];
   let res = langs.filter((l) => l.value === defaultLanguage);
   if (!res?.length) {
-    debug$7("can't find defaultLanguage ", defaultLanguage, " in languages");
+    debug$8("can't find defaultLanguage ", defaultLanguage, " in languages");
     return langs;
   }
   res = res.concat(langs.filter((l) => l.value !== defaultLanguage));
@@ -1573,9 +1663,36 @@ const isUniqueTestSelector = selectorFamily({
   }
 });
 
-const debug$6 = require("debug")("rde:rdf:io");
+const debug$7 = require("debug")("rde:rdf:io");
 const defaultFetchTtlHeaders = new Headers();
 defaultFetchTtlHeaders.set("Accept", "text/turtle");
+const fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, allowEmptyEtag = true) => {
+  return new Promise(async (resolve, reject) => {
+    const response = await fetch(url, { headers });
+    if (allow404 && response.status == 404) {
+      resolve({ store: rdf.graph(), etag: null });
+      return;
+    }
+    if (response.status != 200) {
+      reject(new Error("cannot fetch " + url));
+      return;
+    }
+    const etag = response.headers.get("etag");
+    if (!allowEmptyEtag && !etag) {
+      reject(new Error("no etag returned from " + url));
+      return;
+    }
+    const body = await response.text();
+    const store = rdf.graph();
+    try {
+      rdf.parse(body, store, rdf.Store.defaultGraphURI, "text/turtle");
+    } catch {
+      reject(new Error("cannot parse result of " + url + " in ttl"));
+      return;
+    }
+    resolve({ store, etag });
+  });
+};
 const defaultPutTtlHeaders = new Headers();
 defaultPutTtlHeaders.set("Content-Type", "text/turtle");
 const shapesMap = {};
@@ -1624,7 +1741,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
         }
         setLoadingState({ status: "fetched", error: void 0 });
       } catch (e) {
-        debug$6("shape error:", e);
+        debug$7("shape error:", e);
         setLoadingState({ status: "error", error: "error fetching shape or ontology" });
       }
     }
@@ -1667,7 +1784,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       return;
     async function fetchResource(entityQname2) {
       setEntityLoadingState({ status: "fetching", error: void 0 });
-      debug$6("fetching", entity, shapeQname, entityQname2, entities);
+      debug$7("fetching", entity, shapeQname, entityQname2, entities);
       let loadRes, useLocal, notFound, etag, res, needsSaving;
       const localEntities = await config.getUserLocalEntities();
       if (reloadEntity !== entityQname2 && shapeQname && localEntities[entityQname2] !== void 0) {
@@ -1678,10 +1795,10 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
             rdf.parse(localEntities[entityQname2].ttl, store, rdf.Store.defaultGraphURI, "text/turtle");
             etag = localEntities[entityQname2].etag;
             needsSaving = localEntities[entityQname2].needsSaving;
-            debug$6("nS:", needsSaving);
+            debug$7("nS:", needsSaving);
           } catch (e) {
-            debug$6(e);
-            debug$6(localEntities[entityQname2]);
+            debug$7(e);
+            debug$7(localEntities[entityQname2]);
             window.alert("could not load local data, fetching remote version");
             useLocal = false;
             delete localEntities[entityQname2];
@@ -1761,7 +1878,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
         if (reloadEntity)
           setReloadEntity("");
       } catch (e) {
-        debug$6("e:", e.message, e);
+        debug$7("e:", e.message, e);
         setDisabled(false);
         setEntityLoadingState({
           status: "error",
@@ -1800,7 +1917,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   return retVal;
 }
 
-const debug$5 = require("debug")("rde:entity:container:ValueList");
+const debug$6 = require("debug")("rde:entity:container:ValueList");
 function replaceItemAtIndex$1(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
@@ -2305,7 +2422,7 @@ const Create = ({ subject, property, embedded, disable, newVal, shape, config })
     });
   }
 };
-const useStyles = makeStyles((theme) => ({
+const useStyles$1 = makeStyles((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
@@ -2313,7 +2430,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 const EditLangString = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
-  useStyles();
+  useStyles$1();
   const [editMD, setEditMD] = useState(false);
   const [keyboard, setKeyboard] = useState(false);
   const canPushPrefLabel = property.allowPushToTopLevelLabel;
@@ -2619,7 +2736,7 @@ const LangSelect = ({ onChange, value, property, disabled, error, editable, conf
   });
 };
 const EditString = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
-  useStyles();
+  useStyles$1();
   const [uiLang] = useRecoilState(uiLangState);
   property.datatype;
   const pattern = property.pattern ? new RegExp(property.pattern) : void 0;
@@ -2629,7 +2746,7 @@ const EditString = ({ property, lit, onChange, label, editable, updateEntityStat
     let err = "";
     if (pattern !== void 0 && val !== "" && !val.match(pattern)) {
       err = ValueByLangToStrPrefLang(property.errorMessage, uiLang);
-      debug$5("err:", property.errorMessage);
+      debug$6("err:", property.errorMessage);
     }
     return err;
   };
@@ -2712,7 +2829,7 @@ const EditString = ({ property, lit, onChange, label, editable, updateEntityStat
   });
 };
 const EditBool = ({ property, lit, onChange, label, editable }) => {
-  useStyles();
+  useStyles$1();
   property.datatype;
   let val = !lit.value || lit.value == "false" || lit.value == "0" ? false : true;
   if (property.defaultValue === null && lit.value == "")
@@ -2738,7 +2855,7 @@ const EditBool = ({ property, lit, onChange, label, editable }) => {
   });
 };
 const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
-  useStyles();
+  useStyles$1();
   const dt = property.datatype;
   const minInclusive = property.minInclusive;
   const maxInclusive = property.maxInclusive;
@@ -3208,7 +3325,7 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
         return v;
       }
     }
-    debug$5("error cannot get element from value " + value);
+    debug$6("error cannot get element from value " + value);
     return null;
   };
   const val = res instanceof RDFResourceWithLabel ? res : getElementFromValue(list[index].value, true);
@@ -3225,7 +3342,7 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
     }
     setList(newList);
   };
-  useStyles();
+  useStyles$1();
   if (possibleValues.length == 1 && list.length == 0) {
     setList([possibleValues[0]]);
   }
@@ -3377,7 +3494,7 @@ const PropertyContainer = ({ property, subject, embedded, force, editable, owner
   });
 };
 
-const debug$4 = require("debug")("rde:entity:propertygroup");
+const debug$5 = require("debug")("rde:entity:propertygroup");
 const redIcon = new L.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
@@ -3417,7 +3534,7 @@ function DraggableMarker({ pos, icon, setCoords }) {
 const MapEventHandler = ({ coords, redraw, setCoords, config }) => {
   const map = useMapEvents({
     click: (ev) => {
-      debug$4("click:", ev);
+      debug$5("click:", ev);
       setCoords(ev.latlng);
     }
   });
@@ -3622,7 +3739,7 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
   });
 };
 
-const debug$3 = require("debug")("rde:entity:edit");
+const debug$4 = require("debug")("rde:entity:edit");
 function replaceItemAtIndex(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
@@ -3711,7 +3828,7 @@ function EntityEditContainerDoUpdate(props, config) {
       })) : void 0
     })
   );
-  debug$3("LIST:", list, atom2, props.copy, copy);
+  debug$4("LIST:", list, atom2, props.copy, copy);
   useEffect(() => {
     if (copy) {
       setTimeout(() => {
@@ -3818,7 +3935,7 @@ function EntityEditContainer(props, config) {
           obj[0]?.subject?.graph.addNewValuestoStore(store);
           rdf.serialize(defaultRef, store, void 0, "text/turtle", async function(err, str) {
             if (err || !str) {
-              debug$3(err, store);
+              debug$4(err, store);
               throw "error when serializing";
             }
             const shape2 = obj[0]?.shapeQname;
@@ -3850,7 +3967,7 @@ function EntityEditContainer(props, config) {
     return () => {
       const fun = async () => {
         if (entityObjRef.current) {
-          debug$3("unmounting /edit", entityObjRef.current);
+          debug$4("unmounting /edit", entityObjRef.current);
           await save(entityObjRef.current);
         }
       };
@@ -4110,13 +4227,13 @@ function NewEntityContainer(props, config) {
   });
 }
 
-const debug$2 = require("debug")("rde:entity:entitycreation");
+const debug$3 = require("debug")("rde:entity:entitycreation");
 function Dialog422(props) {
   const [open, setOpen] = React.useState(props.open);
   const shape = props.shaped.split(":")[1]?.replace(/Shape$/, "");
   const [createNew, setCreateNew] = useState(false);
   const [loadNamed, setLoadNamed] = useState(false);
-  debug$2("422:", props);
+  debug$3("422:", props);
   const handleLoad = () => {
     setLoadNamed(true);
     setOpen(false);
@@ -4191,7 +4308,7 @@ function Dialog422(props) {
     });
 }
 
-const debug$1 = require("debug")("rde:entity:entitycreation");
+const debug$2 = require("debug")("rde:entity:entitycreation");
 function EntityCreationContainer(props, config) {
   const subjectQname = props.match.params.subjectQname;
   const shapeQname = props.match.params.shapeQname;
@@ -4217,7 +4334,7 @@ function EntityCreationContainer(props, config) {
   const shapeNode = rdf.sym(config.prefixMap.uriFromQname(shapeQname));
   const entityNode = rdf.sym(config.prefixMap.uriFromQname(entityQname));
   const { entityLoadingState, entity } = unmounting.val ? { entityLoadingState: { status: "idle", error: void 0 }, entity: null } : config.entityCreator(shapeNode, entityNode, unmounting);
-  debug$1("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname);
+  debug$2("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname);
   if (entityLoadingState.error === "422" && entity) {
     const editUrl = subjectQname && propertyQname && index != void 0 ? "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "") : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname;
     const newUrl = routerHistory.location.pathname.replace(/\/named\/.*/, "") + routerHistory.location.search;
@@ -4300,7 +4417,7 @@ function EntityCreationContainerRoute(props) {
     });
 }
 
-const debug = require("debug")("rde:entity:shape");
+const debug$1 = require("debug")("rde:entity:shape");
 function EntityShapeChooserContainer(props, config) {
   const [entityQname, setEntityQname] = useState(props.match.params.entityQname);
   const [uiLang] = useRecoilState(uiLangState);
@@ -4362,7 +4479,7 @@ function EntityShapeChooserContainer(props, config) {
         })
       });
     } else if (!possibleShapes) {
-      debug("cannot find", entity, entityLoadingState);
+      debug$1("cannot find", entity, entityLoadingState);
       return /* @__PURE__ */ jsx("div", {
         className: "error",
         children: /* @__PURE__ */ jsxs("div", {
@@ -4441,5 +4558,601 @@ function EntityShapeChooserContainer(props, config) {
   });
 }
 
-export { EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityShapeChooserContainer, NewEntityContainer };
+const debug = require("debug")("rde:atom:event:RS");
+const useStyles = makeStyles((theme) => ({
+  root: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main
+    }
+  }
+}));
+const BDR_uri = "http://purl.bdrc.io/resource/";
+const BUDAResourceSelector = ({
+  value,
+  onChange,
+  property,
+  idx,
+  exists,
+  subject,
+  editable,
+  owner,
+  title,
+  globalError,
+  updateEntityState,
+  shape,
+  config
+}) => {
+  useStyles();
+  const [keyword, setKeyword] = useState("");
+  const [language, setLanguage] = useState("bo-x-ewts");
+  const [type, setType] = useState(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
+  const [libraryURL, setLibraryURL] = useState("");
+  const [uiLang, setUiLang] = useRecoilState(uiLangState);
+  const [uiLitLang, setUiLitLang] = useRecoilState(uiLitLangState);
+  const [error, setError] = useState();
+  const [entities, setEntities] = useRecoilState(entitiesAtom);
+  const history = useHistory();
+  const msgId = subject.qname + property.qname + idx;
+  const [popupNew, setPopupNew] = useState(false);
+  useRecoilState(uiTabState);
+  const iframeRef = useRef(null);
+  const [canCopy, setCanCopy] = useState([]);
+  const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i);
+  const [toCopy, setProp] = useRecoilState(
+    toCopySelector({
+      list: property.copyObjectsOfProperty?.map((p) => ({
+        property: defaultPrefixMap.qnameFromUri(p.value),
+        atom: (owner ? owner : subject).getAtomForProperty(p.uri)
+      }))
+    })
+  );
+  useEffect(() => {
+    if (property.copyObjectsOfProperty?.length) {
+      const copy = [];
+      for (const prop of property.copyObjectsOfProperty) {
+        const propQname = defaultPrefixMap.qnameFromUri(prop.value);
+        if (value.otherData[propQname]?.length)
+          copy.push({
+            k: propQname,
+            val: value.otherData[propQname].map(
+              (v) => new LiteralWithId(v["@value"], v["@language"], rdfLangString)
+            )
+          });
+      }
+      setCanCopy(copy);
+    }
+  }, []);
+  useEffect(() => {
+    if (globalError && !error)
+      setError(globalError);
+  }, [globalError]);
+  if (!property.expectedObjectTypes) {
+    debug(property);
+    throw "can't get the types for property " + property.qname;
+  }
+  const closeFrame = () => {
+    debug("close?", value, isRid, libraryURL);
+    if (iframeRef.current && isRid) {
+      debug("if:", iframeRef.current);
+      iframeRef.current.click();
+      const wn = iframeRef.current.contentWindow;
+      if (wn)
+        wn.postMessage("click", "*");
+    } else {
+      if (libraryURL)
+        setLibraryURL("");
+    }
+  };
+  let msgHandler = null;
+  useEffect(() => {
+    const updateRes = (data) => {
+      let isTypeOk = false;
+      let actual;
+      if (property.expectedObjectTypes) {
+        const allow = property.expectedObjectTypes.map((t) => t.qname);
+        actual = data["tmp:otherData"]["tmp:type"];
+        if (!Array.isArray(actual))
+          actual = [actual];
+        actual = actual.map((a) => a.replace(/Product/, "Collection"));
+        if (actual.filter((t) => allow.includes(t)).length)
+          isTypeOk = true;
+        const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
+        if (!isTypeOk) {
+          setError(i18n.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+          if (libraryURL)
+            setLibraryURL("");
+        }
+      }
+      if (isTypeOk) {
+        if (data["@id"] && !exists(data["@id"])) {
+          const newRes = new ExtRDFResourceWithLabel(
+            data["@id"].replace(/bdr:/, BDR_uri),
+            {
+              ...data["skos:prefLabel"] ? {
+                ...data["skos:prefLabel"].reduce(
+                  (acc, l) => ({ ...acc, [l["@language"]]: l["@value"] }),
+                  {}
+                )
+              } : {}
+            },
+            {
+              "tmp:keyword": { ...data["tmp:keyword"] },
+              ...data["tmp:otherData"],
+              ...data["skos:prefLabel"] ? { "skos:prefLabel": data["skos:prefLabel"] } : {},
+              ...data["skos:altLabel"] ? { "skos:altLabel": data["skos:altLabel"] } : {}
+            }
+          );
+          onChange(newRes, idx, false);
+        } else if (isTypeOk) {
+          if (data["@id"])
+            setError(data["@id"] + " already selected");
+          else
+            throw "no '@id' field in data";
+          setLibraryURL("");
+        } else {
+          setLibraryURL("");
+        }
+      }
+    };
+    if (msgHandler)
+      window.removeEventListener("message", msgHandler, true);
+    msgHandler = (ev) => {
+      try {
+        if (!window.location.href.includes(ev.origin)) {
+          const data = JSON.parse(ev.data);
+          if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
+            debug("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            setLibraryURL("");
+            setError(i18n.t("error.notF", { RID: data["@id"] }));
+          } else if (data["tmp:propid"] === msgId && data["@id"]) {
+            debug("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            updateRes(data);
+          } else {
+            setLibraryURL("");
+          }
+        }
+      } catch (err) {
+        debug("error: %o", err);
+      }
+    };
+    window.addEventListener("message", msgHandler, true);
+    return () => {
+      if (msgHandler)
+        window.removeEventListener("message", msgHandler, true);
+    };
+  }, [libraryURL]);
+  useEffect(() => {
+    if (value.otherData["tmp:keyword"]) {
+      setKeyword(value.otherData["tmp:keyword"]["@value"]);
+      setLanguage(value.otherData["tmp:keyword"]["@language"]);
+    }
+  }, []);
+  const updateLibrary = (ev, newlang, newtype) => {
+    debug("updLib: %o", msgId);
+    if (ev && libraryURL) {
+      setLibraryURL("");
+    } else if (msgId) {
+      if (isRid) {
+        setLibraryURL(
+          config.libraryUrl + "/simple/" + (!keyword.startsWith("bdr:") ? "bdr:" : "") + keyword + "?for=" + msgId
+        );
+      } else {
+        let lang2 = language;
+        if (newlang)
+          lang2 = newlang;
+        else if (!lang2)
+          lang2 = "bo-x-ewts";
+        let key = encodeURIComponent(keyword);
+        key = '"' + key + '"';
+        if (lang2.startsWith("bo"))
+          key = key + "~1";
+        lang2 = encodeURIComponent(lang2);
+        let t = type;
+        if (newtype)
+          t = newtype;
+        if (!t)
+          throw "there should be a type here";
+        t = t.replace(/^bdo:/, "");
+        if (t.includes("ImageInstance"))
+          t = "Scan";
+        else if (t.includes("EtextInstance"))
+          t = "Etext";
+        else if (t.includes("Collection"))
+          t = "Product";
+        setLibraryURL(
+          config.libraryUrl + "/simplesearch?q=" + key + "&lg=" + lang2 + "&t=" + t + "&for=" + msgId + "&f=provider,inc,bda:CP021"
+        );
+      }
+    }
+  };
+  let dates;
+  if (value.uri && value.uri !== "tmp:uri" && value.otherData) {
+    dates = "";
+    const getDate = (d) => {
+      const onY = d.filter((i) => i.onYear != void 0);
+      const nB = d.filter((i) => i.notBefore != void 0);
+      const nA = d.filter((i) => i.notAfter != void 0);
+      if (nB.length || nA.length) {
+        let date = "";
+        if (nB[0].notBefore)
+          date = nB[0].notBefore;
+        date += "~";
+        if (nA[0].notAfter)
+          date += nA[0].notAfter;
+        return date;
+      } else if (onY.length)
+        return onY[0].onYear;
+      return "";
+    };
+    if (value.otherData.PersonBirth)
+      dates += getDate(value.otherData.PersonBirth) + " \u2013 ";
+    if (value.otherData.PersonDeath) {
+      if (!dates)
+        dates = "\u2013 ";
+      dates += getDate(value.otherData.PersonDeath);
+    }
+    if (dates)
+      dates = "(" + dates + ")";
+  }
+  const createAndUpdate = useCallback(
+    async (type2, named = "") => {
+      let url = "";
+      url = "/new/" + config.possibleShapeRefsForType(type2.node)[0].qname + "/" + (owner?.qname && owner.qname !== subject.qname ? owner.qname : subject.qname) + "/" + config.prefixMap.qnameFromUri(property?.path?.sparqlString) + "/" + idx + (owner?.qname && owner.qname !== subject.qname ? "/" + subject.qname : "");
+      if (property.connectIDs) {
+        const newNode = await config.generateConnectedID(subject, shape, property.targetShape);
+        const newQname = config.prefixMap.qnameFromUri(newNode.uri);
+        if (!exists(newQname))
+          url += "/named/" + (named ? named : newQname);
+      }
+      let urlParams = "";
+      if (property.copyObjectsOfProperty?.length) {
+        for (const kv of toCopy) {
+          if (urlParams)
+            urlParams += ";";
+          let val = "";
+          for (const l of kv.val) {
+            if (l instanceof LiteralWithId) {
+              val += "," + encodeURIComponent('"' + l.value + (l.language ? '"@' + l.language : ""));
+            }
+          }
+          if (val)
+            urlParams += kv.k + val;
+        }
+        if (urlParams) {
+          url += "?copy=" + urlParams;
+        }
+      }
+      return url;
+    },
+    [exists, entities, owner, subject, property, toCopy]
+  );
+  const chooseEntity = (ent, prefLabels) => () => {
+    togglePopup();
+    const newRes = new ExtRDFResourceWithLabel(ent.subjectQname, prefLabels, {});
+    onChange(newRes, idx, false);
+  };
+  const togglePopup = () => {
+    setPopupNew(!popupNew);
+  };
+  ValueByLangToStrPrefLang(property.prefLabels, uiLitLang);
+  const textOnChange = (e) => {
+    const newValue = e.currentTarget.value;
+    setKeyword(newValue);
+    if (libraryURL)
+      updateLibrary(e);
+  };
+  const textOnChangeType = (e) => {
+    const newValue = e.target.value;
+    setType(newValue);
+    if (libraryURL)
+      updateLibrary(void 0, void 0, newValue);
+  };
+  const onClick = (e) => {
+    updateLibrary(e);
+  };
+  const onClickKB = (e) => {
+    updateLibrary(e);
+  };
+  let name = /* @__PURE__ */ jsx("div", {
+    style: { fontSize: "16px" },
+    children: ValueByLangToStrPrefLang(value.prefLabels, uiLitLang) + " " + dates
+  });
+  const entity = entities.filter((e) => e.subjectQname === value.qname);
+  if (entity.length) {
+    name = /* @__PURE__ */ jsx(LabelWithRID, {
+      entity: entity[0]
+    });
+  }
+  useEffect(() => {
+    if (error) {
+      debug("error:", error);
+    }
+  }, [error]);
+  const inputRef = useRef();
+  const [preview, setPreview] = useState(null);
+  useLayoutEffect(() => {
+    if (document.activeElement === inputRef.current && !isRid && keyword) {
+      const previewVal = config.previewLiteral(new rdf.Literal(keyword, language), uiLang);
+      setPreview(previewVal.value);
+      setPreview(previewVal.value);
+    }
+  });
+  return /* @__PURE__ */ jsxs(React.Fragment, {
+    children: [
+      /* @__PURE__ */ jsxs("div", {
+        className: "resSelect " + (error ? "error" : ""),
+        style: { position: "relative", ...value.uri === "tmp:uri" ? { width: "100%" } : {} },
+        children: [
+          value.uri === "tmp:uri" && /* @__PURE__ */ jsx("div", {
+            className: preview ? "withPreview" : "",
+            style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
+            children: /* @__PURE__ */ jsxs(React.Fragment, {
+              children: [
+                preview && /* @__PURE__ */ jsx("div", {
+                  className: "preview-ewts",
+                  children: /* @__PURE__ */ jsx(TextField, {
+                    disabled: true,
+                    value: preview
+                  })
+                }),
+                /* @__PURE__ */ jsx(TextField, {
+                  onKeyPress: (e) => {
+                    if (e.key === "Enter")
+                      onClickKB(e);
+                  },
+                  onFocus: () => {
+                    if (!keyword || isRid)
+                      setPreview(null);
+                    const { value: value2, error: error2 } = config.previewLiteral(new rdf.Literal(keyword, language), uiLang);
+                    setPreview(value2);
+                  },
+                  onBlur: () => setPreview(null),
+                  inputRef,
+                  InputLabelProps: { shrink: true },
+                  style: { width: "90%" },
+                  value: keyword,
+                  onChange: textOnChange,
+                  placeholder: "Search name or RID for " + title,
+                  ...error ? {
+                    helperText: /* @__PURE__ */ jsxs(React.Fragment, {
+                      children: [
+                        /* @__PURE__ */ jsx(ErrorIcon, {
+                          style: { fontSize: "20px", verticalAlign: "-7px" }
+                        }),
+                        /* @__PURE__ */ jsx("i", {
+                          children: error
+                        })
+                      ]
+                    }),
+                    error: true
+                  } : {},
+                  ...!editable ? { disabled: true } : {}
+                }),
+                /* @__PURE__ */ jsx(LangSelect, {
+                  value: language,
+                  onChange: (lang2) => {
+                    setLanguage(lang2);
+                    debug(lang2);
+                    if (libraryURL)
+                      updateLibrary(void 0, lang2);
+                  },
+                  ...isRid ? { disabled: true } : { disabled: false },
+                  editable,
+                  error: !!error,
+                  config
+                }),
+                property.expectedObjectTypes?.length > 1 && /* @__PURE__ */ jsx(TextField, {
+                  select: true,
+                  style: { width: 100, flexShrink: 0 },
+                  value: type,
+                  className: "mx-2",
+                  onChange: textOnChangeType,
+                  label: "Type",
+                  ...isRid ? { disabled: true } : {},
+                  ...!editable ? { disabled: true } : {},
+                  ...error ? {
+                    helperText: /* @__PURE__ */ jsx("br", {}),
+                    error: true
+                  } : {},
+                  children: property.expectedObjectTypes?.map((r) => {
+                    const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
+                    return /* @__PURE__ */ jsx(MenuItem, {
+                      value: r.qname,
+                      children: label2
+                    }, r.qname);
+                  })
+                }),
+                /* @__PURE__ */ jsx("button", {
+                  ...!keyword || !isRid && (!language || !type) ? { disabled: true } : {},
+                  className: "btn btn-sm btn-outline-primary ml-2 lookup btn-rouge",
+                  style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
+                  onClick,
+                  ...!editable ? { disabled: true } : {},
+                  children: libraryURL ? /* @__PURE__ */ jsx(CloseIcon, {}) : /* @__PURE__ */ jsx(LookupIcon, {})
+                }),
+                /* @__PURE__ */ jsx("button", {
+                  className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
+                  style: { boxShadow: "none", alignSelf: "center" },
+                  onClick: togglePopup,
+                  ...!editable ? { disabled: true } : {},
+                  children: /* @__PURE__ */ jsx(Fragment, {
+                    children: i18n.t("search.create")
+                  })
+                })
+              ]
+            })
+          }),
+          value.uri !== "tmp:uri" && /* @__PURE__ */ jsx(React.Fragment, {
+            children: /* @__PURE__ */ jsxs("div", {
+              className: "selected",
+              children: [
+                name,
+                /* @__PURE__ */ jsxs("div", {
+                  style: { fontSize: "12px", opacity: "0.5", display: "flex", alignItems: "center" },
+                  children: [
+                    value.qname,
+                    "\xA0",
+                    /* @__PURE__ */ jsxs("a", {
+                      title: i18n.t("search.help.preview"),
+                      onClick: () => {
+                        if (libraryURL)
+                          setLibraryURL("");
+                        else if (value.otherData["tmp:externalUrl"])
+                          setLibraryURL(value.otherData["tmp:externalUrl"]);
+                        else
+                          setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
+                      },
+                      children: [
+                        !libraryURL && /* @__PURE__ */ jsx(InfoOutlinedIcon, {
+                          style: { width: "18px", cursor: "pointer" }
+                        }),
+                        libraryURL && /* @__PURE__ */ jsx(InfoIcon, {
+                          style: { width: "18px", cursor: "pointer" }
+                        })
+                      ]
+                    }),
+                    "\xA0",
+                    /* @__PURE__ */ jsx("a", {
+                      title: i18n.t("search.help.open"),
+                      href: config.libraryUrl + "/show/" + value.qname,
+                      rel: "noopener noreferrer",
+                      target: "_blank",
+                      children: /* @__PURE__ */ jsx(LaunchIcon, {
+                        style: { width: "16px" }
+                      })
+                    }),
+                    "\xA0",
+                    /* @__PURE__ */ jsx(Link, {
+                      title: i18n.t("search.help.edit"),
+                      to: "/edit/" + value.qname,
+                      children: /* @__PURE__ */ jsx(EditIcon, {
+                        style: { width: "16px" }
+                      })
+                    }),
+                    "\xA0",
+                    canCopy.length > 0 && /* @__PURE__ */ jsx("span", {
+                      title: i18n.t("general.import"),
+                      children: /* @__PURE__ */ jsx(ContentPasteIcon, {
+                        style: { width: "17px", cursor: "pointer" },
+                        onClick: () => {
+                          setProp(canCopy);
+                          setCanCopy([]);
+                        }
+                      })
+                    })
+                  ]
+                })
+              ]
+            })
+          })
+        ]
+      }),
+      libraryURL && /* @__PURE__ */ jsxs("div", {
+        className: "row card px-3 py-3 iframe",
+        style: {
+          position: "absolute",
+          zIndex: 10,
+          maxWidth: "800px",
+          minWidth: "670px",
+          ...value.uri === "tmp:uri" ? {
+            right: "calc(52px)",
+            width: "calc(100% - 100px)",
+            bottom: "calc(100%)"
+          } : {},
+          ...value.uri !== "tmp:uri" ? { left: "calc(1rem)", width: "calc(100%)", bottom: "calc(100% - 0.5rem)" } : {}
+        },
+        children: [
+          /* @__PURE__ */ jsx("iframe", {
+            style: { border: "none" },
+            height: "400",
+            src: libraryURL,
+            ref: iframeRef
+          }),
+          /* @__PURE__ */ jsx("div", {
+            className: "iframe-BG",
+            onClick: closeFrame
+          })
+        ]
+      }),
+      popupNew && /* @__PURE__ */ jsxs("div", {
+        className: "card popup-new",
+        children: [
+          /* @__PURE__ */ jsxs("div", {
+            className: "front",
+            children: [
+              entities.map((e, i) => {
+                if (!exists(e?.subjectQname) && e?.subjectQname != subject.qname && e?.subjectQname != owner?.qname && property.expectedObjectTypes?.some(
+                  (t) => e.shapeQname?.startsWith(t.qname.replace(/^bdo:/, "bds:"))
+                )) {
+                  return /* @__PURE__ */ jsx(MenuItem, {
+                    className: "px-0 py-0",
+                    children: /* @__PURE__ */ jsx(LabelWithRID, {
+                      choose: chooseEntity,
+                      entity: e
+                    })
+                  }, i + 1);
+                }
+              }),
+              /* @__PURE__ */ jsx("hr", {
+                className: "my-1"
+              }),
+              property.expectedObjectTypes?.map((r) => {
+                const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
+                return /* @__PURE__ */ createElement(MenuItem, {
+                  ...r.qname === "bdo:EtextInstance" ? { disabled: true } : {},
+                  key: r.qname,
+                  value: r.qname,
+                  onClick: async () => {
+                    const url = await createAndUpdate(r);
+                    history.push(url);
+                  }
+                }, i18n.t("search.new", { type: label2 }));
+              })
+            ]
+          }),
+          /* @__PURE__ */ jsx("div", {
+            className: "popup-new-BG",
+            onClick: togglePopup
+          })
+        ]
+      })
+    ]
+  });
+};
+const LabelWithRID = ({
+  entity,
+  choose
+}) => {
+  useRecoilState(uiLangState);
+  const [uiLitLang] = useRecoilState(uiLitLangState);
+  const [labelValues] = useRecoilState(entity.subjectLabelState);
+  const prefLabels = RDFResource.valuesByLang(labelValues);
+  const label = ValueByLangToStrPrefLang(prefLabels, uiLitLang);
+  let name = label && label != "..." ? label : entity.subject?.lname ? entity.subject.lname : entity.subjectQname.split(":")[1];
+  if (!name)
+    name = label;
+  if (!choose)
+    return /* @__PURE__ */ jsx("span", {
+      style: { fontSize: "16px" },
+      children: name
+    });
+  else
+    return /* @__PURE__ */ jsxs("div", {
+      className: "px-3 py-1",
+      style: { width: "100%" },
+      onClick: choose(entity, prefLabels),
+      children: [
+        /* @__PURE__ */ jsx("div", {
+          className: "label",
+          children: name
+        }),
+        /* @__PURE__ */ jsx("div", {
+          className: "RID",
+          children: entity.subjectQname
+        })
+      ]
+    });
+};
+
+export { BUDAResourceSelector, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntityShapeChooserContainer, ExtRDFResourceWithLabel, LiteralWithId, NewEntityContainer, NodeShape, RDFResource, Subject, ValueByLangToStrPrefLang, fetchTtl, generateSubnode, ns, shapes };
 //# sourceMappingURL=index.mjs.map

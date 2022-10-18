@@ -1,23 +1,24 @@
 import * as rdf from "rdflib"
-import { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel } from "./rde/helpers/rdf/types"
-import { fetchTtl, IFetchState } from "./rde/helpers/rdf/io"
-import * as shapes from "./rde/helpers/rdf/shapes"
-import * as ns from "./rde/helpers/rdf/ns"
-import { Entity } from "./rde/containers/EntitySelectorContainer"
-import BUDAResourceSelector from "./rde/containers/BUDAResourceSelector"
 import {
   NodeShape,
   generateSubnode,
-  rdfsLabel,
-  shName,
-  prefLabel,
-  shDescription,
-  skosDefinition,
-  rdfsComment,
-} from "./rde/helpers/rdf/shapes"
-import RDEConfig from "./rde/helpers/rde_config"
-import { LocalEntityInfo } from "./rde/helpers/rde_config"
-import { Lang, ValueByLangToStrPrefLang } from "./rde/helpers/lang"
+  RDEConfig,
+  LocalEntityInfo,
+  fetchTtl,
+  IFetchState,
+  RDFResource,
+  Subject,
+  LiteralWithId,
+  EntityGraph,
+  ExtRDFResourceWithLabel,
+  Entity,
+  BUDAResourceSelector,
+  Lang,
+  ValueByLangToStrPrefLang,
+  ns,
+  shapes,
+} from "rdf-document-editor"
+
 import React, { FC, useState, useEffect } from "react"
 import { nanoid, customAlphabet } from "nanoid"
 import edtf, { parse } from "edtf" // see https://github.com/inukshuk/edtf.js/issues/36#issuecomment-1073778277
@@ -96,8 +97,8 @@ const generateNode = async () => {
 
 export function EntityCreator(shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, unmounting = { val: false }) {
   const [entityLoadingState, setEntityLoadingState] = useState<IFetchState>({ status: "idle", error: undefined })
-  const [entity, setEntity] = useState<Subject|null>(null)
-  const [shape, setShape] = useState<NodeShape|null>(null)
+  const [entity, setEntity] = useState<Subject | null>(null)
+  const [shape, setShape] = useState<NodeShape | null>(null)
 
   useEffect(() => {
     return () => {
@@ -158,7 +159,7 @@ export const iconFromEntity = (entity: Entity | null): string => {
   return icon as string
 }
 
-export const getUserMenuState = async (): Promise<Record<string, Entity>>  => {
+export const getUserMenuState = async (): Promise<Record<string, Entity>> => {
   const datastr = localStorage.getItem("rde_menu_state")
   return datastr ? await JSON.parse(datastr) : {}
 }
@@ -202,7 +203,7 @@ export const setUserLocalEntity = async (
 
 const personShapeRef = new ExtRDFResourceWithLabel(demoShape.uri, { en: "Person" })
 
-const possibleShapeRefs = [ personShapeRef ]
+const possibleShapeRefs = [personShapeRef]
 
 const possibleShapeRefsForEntity = (entity: rdf.NamedNode) => {
   return possibleShapeRefs
@@ -211,7 +212,7 @@ const possibleShapeRefsForEntity = (entity: rdf.NamedNode) => {
 const EDTF_DT_uri = "http://id.loc.gov/datatypes/edtf/EDTF"
 const EDTF_DT = rdf.sym("http://id.loc.gov/datatypes/edtf/EDTF")
 
-export const humanizeEDTF = (obj: Record<string,any>, str="", locale = "en-US", dbg = false): string => {
+export const humanizeEDTF = (obj: Record<string, any>, str = "", locale = "en-US", dbg = false): string => {
   if (!obj) return ""
 
   const conc = (values: Array<any>, separator?: string) => {
@@ -242,7 +243,8 @@ export const humanizeEDTF = (obj: Record<string,any>, str="", locale = "en-US", 
   else if (obj.unspecified === 8) return obj.values[0] + "s" // eslint-disable-line no-magic-numbers
   else if (obj.type === "Decade") return obj.values[0] + "0s"
   else if (!obj.unspecified && obj.values.length === 1) return obj.values[0]
-  else if (!obj.unspecified && obj.values.length === 3) { // eslint-disable-line no-magic-numbers
+  else if (!obj.unspecified && obj.values.length === 3) {
+    // eslint-disable-line no-magic-numbers
     try {
       const event = new Date(Date.UTC(obj.values[0], obj.values[1], obj.values[2], 0, 0, 0)) // eslint-disable-line no-magic-numbers
       const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "numeric", day: "numeric" }
@@ -257,7 +259,7 @@ export const humanizeEDTF = (obj: Record<string,any>, str="", locale = "en-US", 
   }
 }
 
-const locales: Record<string,string> = { en: "en-US", "zh-hans": "zh-Hans-CN", bo: "bo-CN" }
+const locales: Record<string, string> = { en: "en-US", "zh-hans": "zh-Hans-CN", bo: "bo-CN" }
 
 const previewLiteral = (lit: rdf.Literal, uiLangs: string[]) => {
   if (lit.datatype == EDTF_DT) {
@@ -268,20 +270,23 @@ const previewLiteral = (lit: rdf.Literal, uiLangs: string[]) => {
       const edtfMax = edtf(edtfObj.max)?.values[0]
       if (edtfMin <= -4000 || edtfMax >= 2100) throw Error(i18n.t("error.year", { min: -4000, max: 2100 })) // eslint-disable-line no-magic-numbers
       return { value: humanizeEDTF(obj, lit.value, uiLangs[0]), error: null }
-    } catch (e:any) {
-      return { value: null, error :
-        <>
-          This field must be in EDTF format, see&nbsp;
-          <a href="https://www.loc.gov/standards/datetime/" rel="noopener noreferrer" target="_blank">
-            https://www.loc.gov/standards/datetime/
-          </a>
-          .
-          {!["No possible parsing", "Syntax error"].some((err) => e.message?.includes(err)) && (
-            <>
-              <br />[{e.message}]
-            </>
-          )}
-        </>
+    } catch (e: any) {
+      return {
+        value: null,
+        error: (
+          <>
+            This field must be in EDTF format, see&nbsp;
+            <a href="https://www.loc.gov/standards/datetime/" rel="noopener noreferrer" target="_blank">
+              https://www.loc.gov/standards/datetime/
+            </a>
+            .
+            {!["No possible parsing", "Syntax error"].some((err) => e.message?.includes(err)) && (
+              <>
+                <br />[{e.message}]
+              </>
+            )}
+          </>
+        ),
       }
     }
   }
@@ -311,5 +316,7 @@ export const demoConfig: RDEConfig = {
   libraryUrl: "https://library.bdrc.io/",
   resourceSelector: BUDAResourceSelector,
   previewLiteral: previewLiteral,
-  getPreviewLink: (entity) => { return null }
+  getPreviewLink: (entity) => {
+    return null
+  },
 }

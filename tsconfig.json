@@ -22,6 +22,7 @@
     "jsx": "react-jsx",
     "downlevelIteration":true, // fixes TS2569 in observer.tsx
 
+
     "sourceMap": true,
     "outDir": "dist",
     "target": "esnext"
