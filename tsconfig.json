@@ -27,7 +27,6 @@
     "target": "esnext"
   },
   "include": [
-    "src",
-    "demo"
+    "src"
   ]
 }

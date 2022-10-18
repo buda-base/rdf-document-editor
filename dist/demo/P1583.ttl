@@ -1,0 +1,56 @@
+@prefix :      <http://purl.bdrc.io/ontology/core/> .
+@prefix adm:   <http://purl.bdrc.io/ontology/admin/> .
+@prefix as:    <http://www.w3.org/ns/activitystreams#> .
+@prefix bda:   <http://purl.bdrc.io/admindata/> .
+@prefix bdo:   <http://purl.bdrc.io/ontology/core/> .
+@prefix bdr:   <http://purl.bdrc.io/resource/> .
+@prefix bf:    <http://id.loc.gov/ontologies/bibframe/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rsh:   <http://purl.bdrc.io/shacl/core/shape/> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+bda:P1583  a     adm:AdminData ;
+   adm:adminAbout  bdr:P1583 ;
+   adm:status    bda:StatusReleased .
+
+bdr:EV00B857229AAA1BF0
+   a             bdo:PersonDeath ;
+   bdo:eventWhen  "1364"^^<http://id.loc.gov/datatypes/edtf/EDTF> .
+
+bdr:EV81A442B676BCDB2A
+   a             bdo:PersonOccupiesSeat ;
+   bdo:eventWhere  bdr:G521 .
+
+bdr:EVDD9AB2BD104D0A7D
+   a             bdo:PersonBirth ;
+   bdo:eventWhen  "1308"^^<http://id.loc.gov/datatypes/edtf/EDTF> ;
+   bdo:eventWhere  bdr:G967 .
+
+bdr:NM27A9E6B52AE2AFD6
+   a             bdo:PersonTitle ;
+   rdfs:label    "klong chen rab 'byams/"@bo-x-ewts .
+
+bdr:NM9C8DEB6FF7CEC129
+   a             bdo:PersonPrimaryTitle ;
+   rdfs:label    "klong chen rab 'byams pa dri med 'od zer/"@bo-x-ewts .
+
+bdr:NT93D338F6A346B51D
+   a             bdo:Note ;
+   bdo:contentLocationStatement  "v. 2, pp.104-112" ;
+   bdo:noteSource  bdr:MW25268 ;
+   bdo:noteText  "biography\ndates: 1308-1363"@en .
+
+bdr:P1583  a     bdo:Person ;
+   skos:prefLabel  "klong chen rab 'byams pa dri med 'od zer/"@bo-x-ewts , "隆钦热降巴·赤墨俄色"@zh-hans ;
+   bdo:associatedTradition  bdr:TraditionNyingma ;
+   bdo:hasMother  bdr:P1585 ;
+   bdo:note      bdr:NT93D338F6A346B51D  ;
+   bdo:personEvent  bdr:EV00B857229AAA1BF0 , bdr:EV81A442B676BCDB2A , bdr:EVDD9AB2BD104D0A7D ;
+   bdo:personName  bdr:NM27A9E6B52AE2AFD6 , bdr:NM9C8DEB6FF7CEC129 ;
+   bdo:personStudentOf bdr:P1584 , bdr:P1586  .
