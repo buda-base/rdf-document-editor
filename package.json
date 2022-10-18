@@ -85,7 +85,7 @@
       "prettier --write --config ./.prettierrc",
       "eslint --color --fix"
     ],
-    "not-sure-why-this-fails/**/*.{ts,tsx}": [
+    "./*.{ts,tsx}": [
       "tsc-files --noEmit"
     ]
   },
