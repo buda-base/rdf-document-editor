@@ -9,7 +9,7 @@ import { atom, useRecoilState, useRecoilValue, selectorFamily } from "recoil"
 import { FormHelperText, FormControl } from "@material-ui/core"
 import { RDEProps, IdTypeParams } from "../helpers/editor_props"
 import { history as undoHistory } from "../helpers/observer"
-import { BrowserRouter as Router, Switch, Route, Link, useHistory } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom"
 import {
   uiDisabledTabsState,
   uiLangState,
@@ -47,7 +47,7 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity, index: number
   const [userId, setUserId] = useRecoilState(userIdState)
   const [popupOn, setPopupOn] = useRecoilState(savePopupState)
 
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const prefLabels = labelValues ? RDFResource.valuesByLang(labelValues) : null
   const label = !entity.preloadedLabel ? lang.ValueByLangToStrPrefLang(prefLabels, uiLitLang) : entity.preloadedLabel
@@ -105,7 +105,7 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity, index: number
     // if closing self, go back to home page
     if (index === tab) {
       setTab(-1)
-      history.push("/")
+      navigate("/")
     } else if (tab <= newList.length && tab !== -1) {
       // keep current tab open
       const newIndex = newList.findIndex((e) => e.subjectQname === entities[index].subjectQname)

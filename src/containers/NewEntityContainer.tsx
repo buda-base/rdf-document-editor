@@ -7,7 +7,7 @@ import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
 import { useRecoilState } from "recoil"
 import { RDEProps } from "../helpers/editor_props"
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
+import { BrowserRouter as Router, Route, Link, useNavigate } from "react-router-dom"
 import React, { ChangeEvent } from "react"
 import qs from "query-string"
 import i18n from "i18next"
@@ -16,11 +16,16 @@ import { TextField, MenuItem } from "@material-ui/core"
 
 const debug = require("debug")("rde:entity:newentity")
 
-function NewEntityContainer(props: RDEProps, config: RDEConfig) {
+function NewEntityContainer(props: RDEProps) {
+
+  const config = props.config || {}
+
   const [uiLang] = useRecoilState(uiLangState)
   const [RID, setRID] = useState("")
   const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
   const [userId, setUserId] = useRecoilState(userIdState)
+
+  const navigate = useNavigate()
 
   const disabled = !RIDprefix
 
@@ -71,7 +76,7 @@ function NewEntityContainer(props: RDEProps, config: RDEConfig) {
             onChange={(e) => setRID(e.target.value)}
             helperText={"select an entity to load here by its RID"}
             onKeyDown={(event) => {
-              if (event.key === "Enter") props.history.push("/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase())
+              if (event.key === "Enter") navigate("/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase())
             }}
           />
         </div>

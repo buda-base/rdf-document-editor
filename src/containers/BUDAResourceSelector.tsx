@@ -3,7 +3,7 @@ import { useRecoilState, useSetRecoilState, atomFamily, useRecoilValue } from "r
 import { makeStyles } from "@material-ui/core/styles"
 import { TextField, MenuItem } from "@material-ui/core"
 import i18n from "i18next"
-import { useHistory, Link } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import * as rdf from "rdflib"
 import * as shapes from "../helpers/rdf/shapes"
 import * as lang from "../helpers/lang"
@@ -108,7 +108,7 @@ const BUDAResourceSelector: FC<{
   const [uiLitLang, setUiLitLang] = useRecoilState(uiLitLangState)
   const [error, setError] = useState<string>()
   const [entities, setEntities] = useRecoilState(entitiesAtom)
-  const history = useHistory()
+  const navigate = useNavigate()
   const msgId = subject.qname + property.qname + idx
   const [popupNew, setPopupNew] = useState(false)
   const [tab, setTab] = useRecoilState(uiTabState)
@@ -677,7 +677,7 @@ const BUDAResourceSelector: FC<{
                   onClick={async () => {
                     const url = await createAndUpdate(r)
                     //debug("CaU?", url, property.qname, r.qname, createAndUpdate)
-                    history.push(url)
+                    navigate(url)
                   }}
                 >
                   {i18n.t("search.new", { type: label })}

@@ -24,7 +24,7 @@ import KeyboardIcon from '@material-ui/icons/Keyboard.js'
 import HelpIcon from '@material-ui/icons/Help.js'
 import ContentPasteIcon from '@material-ui/icons/AssignmentReturned.js'
 import { useAuth0 } from '@auth0/auth0-react';
-import { Redirect, Link, useHistory } from 'react-router-dom';
+import { Navigate, useNavigate, Link, useParams as useParams$1, useLocation as useLocation$1 } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles/index.js'
 import '@material-ui/core/Tabs/index.js'
 import '@material-ui/core/Tab/index.js'
@@ -39,6 +39,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-geosearch/dist/geosearch.css';
 import { HashLink } from 'react-router-hash-link';
 import queryString from 'query-string';
+import { useParams, useLocation } from 'react-router';
 import { Trans } from 'react-i18next';
 import Button from '@material-ui/core/Button/index.js'
 import Dialog from '@material-ui/core/Dialog/index.js'
@@ -3744,16 +3745,18 @@ function replaceItemAtIndex(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
 function EntityEditContainerMayUpdate(props) {
-  const shapeQname = props.match.params.shapeQname;
-  const entityQname = props.match.params.entityQname;
-  const subjectQname = props.match.params.subjectQname;
-  const propertyQname = props.match.params.propertyQname;
-  const index = props.match.params.index;
-  const subnodeQname = props.match.params.subnodeQname;
+  const params = useParams();
+  const location = useLocation();
+  const shapeQname = params.shapeQname;
+  const entityQname = params.entityQname;
+  const subjectQname = params.subjectQname;
+  const propertyQname = params.propertyQname;
+  const index = params.index;
+  const subnodeQname = params.subnodeQname;
   const [entities, setEntities] = useRecoilState(entitiesAtom);
   const snapshot = useRecoilSnapshot();
   const [subject, setSubject] = useState(null);
-  const { copy } = queryString.parse(props.location.search, { decode: false });
+  const { copy } = queryString.parse(location.search, { decode: false });
   useEffect(() => {
     const i = entities.findIndex((e) => e.subjectQname === subjectQname);
     let subj;
@@ -3796,14 +3799,15 @@ function EntityEditContainerMayUpdate(props) {
       ...props
     });
   } else if (subject != null)
-    return /* @__PURE__ */ jsx(Redirect, {
+    return /* @__PURE__ */ jsx(Navigate, {
       to: "/edit/" + entityQname + "/" + shapeQname
     });
   else
     return /* @__PURE__ */ jsx("div", {});
 }
 function EntityEditContainerDoUpdate(props, config) {
-  const shapeQname = props.match.params.shapeQname;
+  const params = useParams();
+  const shapeQname = params.shapeQname;
   const atom2 = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
   const [list, setList] = useRecoilState(atom2);
   const [entities, setEntities] = useRecoilState(entitiesAtom);
@@ -3845,13 +3849,14 @@ function EntityEditContainerDoUpdate(props, config) {
     const newList = replaceItemAtIndex(list, props.index, newObject);
     setList(newList);
   }, []);
-  return /* @__PURE__ */ jsx(Redirect, {
+  return /* @__PURE__ */ jsx(Navigate, {
     to: "/edit/" + props.objectQname + "/" + shapeQname
   });
 }
 function EntityEditContainer(props, config) {
-  const shapeQname = props.match.params.shapeQname;
-  const entityQname = props.match.params.entityQname;
+  const params = useParams();
+  const shapeQname = params.shapeQname || "";
+  const entityQname = params.entityQname || "";
   const [entities, setEntities] = useRecoilState(entitiesAtom);
   const [uiLang] = useRecoilState(uiLangState);
   const [edit, setEdit] = useRecoilState(uiEditState);
@@ -4137,11 +4142,13 @@ function EntityEditContainer(props, config) {
 }
 
 require("debug")("rde:entity:newentity");
-function NewEntityContainer(props, config) {
+function NewEntityContainer(props) {
+  const config = props.config || {};
   const [uiLang] = useRecoilState(uiLangState);
   const [RID, setRID] = useState("");
   const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState);
   useRecoilState(userIdState);
+  const navigate = useNavigate();
   const disabled = !RIDprefix;
   return /* @__PURE__ */ jsxs("div", {
     className: "new-fix",
@@ -4207,7 +4214,7 @@ function NewEntityContainer(props, config) {
               helperText: "select an entity to load here by its RID",
               onKeyDown: (event) => {
                 if (event.key === "Enter")
-                  props.history.push("/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase());
+                  navigate("/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase());
               }
             })
           }),
@@ -4243,11 +4250,11 @@ function Dialog422(props) {
     setOpen(false);
   };
   if (createNew)
-    return /* @__PURE__ */ jsx(Redirect, {
+    return /* @__PURE__ */ jsx(Navigate, {
       to: props.newUrl
     });
   else if (loadNamed)
-    return /* @__PURE__ */ jsx(Redirect, {
+    return /* @__PURE__ */ jsx(Navigate, {
       to: props.editUrl
     });
   else
@@ -4310,17 +4317,18 @@ function Dialog422(props) {
 
 const debug$2 = require("debug")("rde:entity:entitycreation");
 function EntityCreationContainer(props, config) {
-  const subjectQname = props.match.params.subjectQname;
-  const shapeQname = props.match.params.shapeQname;
-  const propertyQname = props.match.params.propertyQname;
-  const index = props.match.params.index;
-  const subnodeQname = props.match.params.subnodeQname;
-  const entityQname = props.match.params.entityQname;
+  const params = useParams$1();
+  const subjectQname = params.subjectQname;
+  const shapeQname = params.shapeQname || "";
+  const propertyQname = params.propertyQname;
+  const index = params.index;
+  const subnodeQname = params.subnodeQname;
+  const entityQname = params.entityQname || "";
   useRecoilState(userIdState);
   useRecoilState(entitiesAtom);
   const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState);
   useRecoilState(uiTabState);
-  const routerHistory = useHistory();
+  const location = useLocation$1();
   const unmounting = { val: false };
   useEffect(() => {
     return () => {
@@ -4328,7 +4336,7 @@ function EntityCreationContainer(props, config) {
     };
   }, []);
   if (RIDprefix == "")
-    return /* @__PURE__ */ jsx(Redirect, {
+    return /* @__PURE__ */ jsx(Navigate, {
       to: "/new"
     });
   const shapeNode = rdf.sym(config.prefixMap.uriFromQname(shapeQname));
@@ -4337,7 +4345,7 @@ function EntityCreationContainer(props, config) {
   debug$2("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname);
   if (entityLoadingState.error === "422" && entity) {
     const editUrl = subjectQname && propertyQname && index != void 0 ? "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "") : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname;
-    const newUrl = routerHistory.location.pathname.replace(/\/named\/.*/, "") + routerHistory.location.search;
+    const newUrl = location.pathname.replace(/\/named\/.*/, "") + location.search;
     return /* @__PURE__ */ jsx(Dialog422, {
       open: true,
       shaped: shapeQname,
@@ -4347,11 +4355,11 @@ function EntityCreationContainer(props, config) {
     });
   } else if (entity) {
     if (subjectQname && propertyQname && index != void 0)
-      return /* @__PURE__ */ jsx(Redirect, {
+      return /* @__PURE__ */ jsx(Navigate, {
         to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
       });
     else
-      return /* @__PURE__ */ jsx(Redirect, {
+      return /* @__PURE__ */ jsx(Navigate, {
         to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname
       });
   }
@@ -4377,12 +4385,13 @@ function EntityCreationContainer(props, config) {
   });
 }
 function EntityCreationContainerAlreadyOpen(props) {
-  const subjectQname = props.match.params.subjectQname;
-  const shapeQname = props.match.params.shapeQname;
-  const propertyQname = props.match.params.propertyQname;
-  const index = props.match.params.index;
-  const subnodeQname = props.match.params.subnodeQname;
-  const entityQname = props.match.params.entityQname;
+  const params = useParams$1();
+  const subjectQname = params.subjectQname;
+  const shapeQname = params.shapeQname;
+  const propertyQname = params.propertyQname;
+  const index = params.index;
+  const subnodeQname = params.subnodeQname;
+  const entityQname = params.entityQname;
   useRecoilState(userIdState);
   useRecoilState(entitiesAtom);
   useRecoilState(RIDprefixState);
@@ -4392,19 +4401,21 @@ function EntityCreationContainerAlreadyOpen(props) {
     };
   }, []);
   if (subjectQname && propertyQname && index != void 0)
-    return /* @__PURE__ */ jsx(Redirect, {
+    return /* @__PURE__ */ jsx(Navigate, {
       to: "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
     });
   else
-    return /* @__PURE__ */ jsx(Redirect, {
+    return /* @__PURE__ */ jsx(Navigate, {
       to: "/edit/" + entityQname + "/" + shapeQname
     });
 }
 function EntityCreationContainerRoute(props) {
+  const params = useParams$1();
   const [entities, setEntities] = useRecoilState(entitiesAtom);
-  const i = entities.findIndex((e) => e.subjectQname === props.match.params.entityQname);
+  const i = entities.findIndex((e) => e.subjectQname === params.entityQname);
   const theEntity = entities[i];
-  const { copy } = queryString.parse(props.location.search, { decode: false });
+  const location = useLocation$1();
+  const { copy } = queryString.parse(location.search, { decode: false });
   if (theEntity)
     return /* @__PURE__ */ jsx(EntityCreationContainerAlreadyOpen, {
       ...props,
@@ -4419,7 +4430,9 @@ function EntityCreationContainerRoute(props) {
 
 const debug$1 = require("debug")("rde:entity:shape");
 function EntityShapeChooserContainer(props, config) {
-  const [entityQname, setEntityQname] = useState(props.match.params.entityQname);
+  const params = useParams$1();
+  const navigate = useNavigate();
+  const [entityQname, setEntityQname] = useState(params.entityQname || "");
   const [uiLang] = useRecoilState(uiLangState);
   const [entities, setEntities] = useRecoilState(entitiesAtom);
   const unmounting = { val: false };
@@ -4431,13 +4444,13 @@ function EntityShapeChooserContainer(props, config) {
   useEffect(() => {
     if (unmounting.val)
       return;
-    else if (props.match.params.entityQname)
-      setEntityQname(props.match.params.entityQname);
-  }, [props.match.params]);
+    else if (params.entityQname)
+      setEntityQname(params.entityQname);
+  }, [params]);
   const entityFromList = entities.find((e) => e.subjectQname === entityQname);
   if (entityFromList && entityFromList.shapeQname) {
     const shapeQname = entityFromList.shapeQname;
-    props.history.replace("/edit/" + entityQname + "/" + shapeQname);
+    navigate("/edit/" + entityQname + "/" + shapeQname, { replace: true });
     return /* @__PURE__ */ jsx("div", {
       children: /* @__PURE__ */ jsx("div", {
         children: /* @__PURE__ */ jsx(Fragment, {
@@ -4542,7 +4555,7 @@ function EntityShapeChooserContainer(props, config) {
         })
       });
     } else {
-      return /* @__PURE__ */ jsx(Redirect, {
+      return /* @__PURE__ */ jsx(Navigate, {
         to: "/edit/" + entityQname + "/" + possibleShapes[0].qname
       });
     }
@@ -4591,7 +4604,7 @@ const BUDAResourceSelector = ({
   const [uiLitLang, setUiLitLang] = useRecoilState(uiLitLangState);
   const [error, setError] = useState();
   const [entities, setEntities] = useRecoilState(entitiesAtom);
-  const history = useHistory();
+  const navigate = useNavigate();
   const msgId = subject.qname + property.qname + idx;
   const [popupNew, setPopupNew] = useState(false);
   useRecoilState(uiTabState);
@@ -5104,7 +5117,7 @@ const BUDAResourceSelector = ({
                   value: r.qname,
                   onClick: async () => {
                     const url = await createAndUpdate(r);
-                    history.push(url);
+                    navigate(url);
                   }
                 }, i18n.t("search.new", { type: label2 }));
               })

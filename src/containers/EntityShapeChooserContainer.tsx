@@ -13,13 +13,17 @@ import { RDEProps, IdTypeParams } from "../helpers/editor_props"
 import RDEConfig from "../helpers/rde_config"
 import Button from "@material-ui/core/Button"
 import * as rdf from "rdflib"
-import { BrowserRouter as Router, Switch, Route, Link, Redirect } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useParams, useNavigate } from "react-router-dom"
 import { TextField, MenuItem } from "@material-ui/core"
 
 const debug = require("debug")("rde:entity:shape")
 
 function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
-  const [entityQname, setEntityQname] = useState(props.match.params.entityQname)
+
+  const params = useParams()
+  const navigate = useNavigate()
+
+  const [entityQname, setEntityQname] = useState(params.entityQname || "")
   const [uiLang] = useRecoilState(uiLangState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
 
@@ -35,14 +39,14 @@ function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
   useEffect(() => {
     //debug("params", props.match.params.entityQname)
     if (unmounting.val) return
-    else if (props.match.params.entityQname) setEntityQname(props.match.params.entityQname)
-  }, [props.match.params])
+    else if (params.entityQname) setEntityQname(params.entityQname)
+  }, [params])
 
   // here we create the entity in the list if it's not there yet:
   const entityFromList = entities.find((e) => e.subjectQname === entityQname)
   if (entityFromList && entityFromList.shapeQname) {
     const shapeQname = entityFromList.shapeQname
-    props.history.replace("/edit/" + entityQname + "/" + shapeQname)
+    navigate("/edit/" + entityQname + "/" + shapeQname, { replace: true })
     return (
       <div>
         <div><>{i18n.t("types.redirect")}</></div>
@@ -126,7 +130,7 @@ function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
         </div>
       )
     } else {
-      return <Redirect to={"/edit/" + entityQname + "/" + possibleShapes[0].qname} />
+      return <Navigate to={"/edit/" + entityQname + "/" + possibleShapes[0].qname} />
     }
   }
 

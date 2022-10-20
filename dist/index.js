@@ -43,6 +43,7 @@ require('leaflet/dist/leaflet.css');
 require('leaflet-geosearch/dist/geosearch.css');
 var reactRouterHashLink = require('react-router-hash-link');
 var queryString = require('query-string');
+var reactRouter = require('react-router');
 var reactI18next = require('react-i18next');
 var Button = require('@material-ui/core/Button');
 var Dialog = require('@material-ui/core/Dialog');
@@ -3797,16 +3798,18 @@ function replaceItemAtIndex(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
 function EntityEditContainerMayUpdate(props) {
-  const shapeQname = props.match.params.shapeQname;
-  const entityQname = props.match.params.entityQname;
-  const subjectQname = props.match.params.subjectQname;
-  const propertyQname = props.match.params.propertyQname;
-  const index = props.match.params.index;
-  const subnodeQname = props.match.params.subnodeQname;
+  const params = reactRouter.useParams();
+  const location = reactRouter.useLocation();
+  const shapeQname = params.shapeQname;
+  const entityQname = params.entityQname;
+  const subjectQname = params.subjectQname;
+  const propertyQname = params.propertyQname;
+  const index = params.index;
+  const subnodeQname = params.subnodeQname;
   const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
   const snapshot = recoil.useRecoilSnapshot();
   const [subject, setSubject] = React.useState(null);
-  const { copy } = queryString__default["default"].parse(props.location.search, { decode: false });
+  const { copy } = queryString__default["default"].parse(location.search, { decode: false });
   React.useEffect(() => {
     const i = entities.findIndex((e) => e.subjectQname === subjectQname);
     let subj;
@@ -3849,14 +3852,15 @@ function EntityEditContainerMayUpdate(props) {
       ...props
     });
   } else if (subject != null)
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Redirect, {
+    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
       to: "/edit/" + entityQname + "/" + shapeQname
     });
   else
     return /* @__PURE__ */ jsxRuntime.jsx("div", {});
 }
 function EntityEditContainerDoUpdate(props, config) {
-  const shapeQname = props.match.params.shapeQname;
+  const params = reactRouter.useParams();
+  const shapeQname = params.shapeQname;
   const atom2 = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
   const [list, setList] = recoil.useRecoilState(atom2);
   const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
@@ -3898,13 +3902,14 @@ function EntityEditContainerDoUpdate(props, config) {
     const newList = replaceItemAtIndex(list, props.index, newObject);
     setList(newList);
   }, []);
-  return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Redirect, {
+  return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
     to: "/edit/" + props.objectQname + "/" + shapeQname
   });
 }
 function EntityEditContainer(props, config) {
-  const shapeQname = props.match.params.shapeQname;
-  const entityQname = props.match.params.entityQname;
+  const params = reactRouter.useParams();
+  const shapeQname = params.shapeQname || "";
+  const entityQname = params.entityQname || "";
   const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
   const [uiLang] = recoil.useRecoilState(uiLangState);
   const [edit, setEdit] = recoil.useRecoilState(uiEditState);
@@ -4190,11 +4195,13 @@ function EntityEditContainer(props, config) {
 }
 
 require("debug")("rde:entity:newentity");
-function NewEntityContainer(props, config) {
+function NewEntityContainer(props) {
+  const config = props.config || {};
   const [uiLang] = recoil.useRecoilState(uiLangState);
   const [RID, setRID] = React.useState("");
   const [RIDprefix, setRIDprefix] = recoil.useRecoilState(RIDprefixState);
   recoil.useRecoilState(userIdState);
+  const navigate = reactRouterDom.useNavigate();
   const disabled = !RIDprefix;
   return /* @__PURE__ */ jsxRuntime.jsxs("div", {
     className: "new-fix",
@@ -4260,7 +4267,7 @@ function NewEntityContainer(props, config) {
               helperText: "select an entity to load here by its RID",
               onKeyDown: (event) => {
                 if (event.key === "Enter")
-                  props.history.push("/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase());
+                  navigate("/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase());
               }
             })
           }),
@@ -4296,11 +4303,11 @@ function Dialog422(props) {
     setOpen(false);
   };
   if (createNew)
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Redirect, {
+    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
       to: props.newUrl
     });
   else if (loadNamed)
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Redirect, {
+    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
       to: props.editUrl
     });
   else
@@ -4363,17 +4370,18 @@ function Dialog422(props) {
 
 const debug$2 = require("debug")("rde:entity:entitycreation");
 function EntityCreationContainer(props, config) {
-  const subjectQname = props.match.params.subjectQname;
-  const shapeQname = props.match.params.shapeQname;
-  const propertyQname = props.match.params.propertyQname;
-  const index = props.match.params.index;
-  const subnodeQname = props.match.params.subnodeQname;
-  const entityQname = props.match.params.entityQname;
+  const params = reactRouterDom.useParams();
+  const subjectQname = params.subjectQname;
+  const shapeQname = params.shapeQname || "";
+  const propertyQname = params.propertyQname;
+  const index = params.index;
+  const subnodeQname = params.subnodeQname;
+  const entityQname = params.entityQname || "";
   recoil.useRecoilState(userIdState);
   recoil.useRecoilState(entitiesAtom);
   const [RIDprefix, setRIDprefix] = recoil.useRecoilState(RIDprefixState);
   recoil.useRecoilState(uiTabState);
-  const routerHistory = reactRouterDom.useHistory();
+  const location = reactRouterDom.useLocation();
   const unmounting = { val: false };
   React.useEffect(() => {
     return () => {
@@ -4381,7 +4389,7 @@ function EntityCreationContainer(props, config) {
     };
   }, []);
   if (RIDprefix == "")
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Redirect, {
+    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
       to: "/new"
     });
   const shapeNode = rdf__namespace.sym(config.prefixMap.uriFromQname(shapeQname));
@@ -4390,7 +4398,7 @@ function EntityCreationContainer(props, config) {
   debug$2("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname);
   if (entityLoadingState.error === "422" && entity) {
     const editUrl = subjectQname && propertyQname && index != void 0 ? "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "") : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname;
-    const newUrl = routerHistory.location.pathname.replace(/\/named\/.*/, "") + routerHistory.location.search;
+    const newUrl = location.pathname.replace(/\/named\/.*/, "") + location.search;
     return /* @__PURE__ */ jsxRuntime.jsx(Dialog422, {
       open: true,
       shaped: shapeQname,
@@ -4400,11 +4408,11 @@ function EntityCreationContainer(props, config) {
     });
   } else if (entity) {
     if (subjectQname && propertyQname && index != void 0)
-      return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Redirect, {
+      return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
         to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
       });
     else
-      return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Redirect, {
+      return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
         to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname
       });
   }
@@ -4430,12 +4438,13 @@ function EntityCreationContainer(props, config) {
   });
 }
 function EntityCreationContainerAlreadyOpen(props) {
-  const subjectQname = props.match.params.subjectQname;
-  const shapeQname = props.match.params.shapeQname;
-  const propertyQname = props.match.params.propertyQname;
-  const index = props.match.params.index;
-  const subnodeQname = props.match.params.subnodeQname;
-  const entityQname = props.match.params.entityQname;
+  const params = reactRouterDom.useParams();
+  const subjectQname = params.subjectQname;
+  const shapeQname = params.shapeQname;
+  const propertyQname = params.propertyQname;
+  const index = params.index;
+  const subnodeQname = params.subnodeQname;
+  const entityQname = params.entityQname;
   recoil.useRecoilState(userIdState);
   recoil.useRecoilState(entitiesAtom);
   recoil.useRecoilState(RIDprefixState);
@@ -4445,19 +4454,21 @@ function EntityCreationContainerAlreadyOpen(props) {
     };
   }, []);
   if (subjectQname && propertyQname && index != void 0)
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Redirect, {
+    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
       to: "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
     });
   else
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Redirect, {
+    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
       to: "/edit/" + entityQname + "/" + shapeQname
     });
 }
 function EntityCreationContainerRoute(props) {
+  const params = reactRouterDom.useParams();
   const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
-  const i = entities.findIndex((e) => e.subjectQname === props.match.params.entityQname);
+  const i = entities.findIndex((e) => e.subjectQname === params.entityQname);
   const theEntity = entities[i];
-  const { copy } = queryString__default["default"].parse(props.location.search, { decode: false });
+  const location = reactRouterDom.useLocation();
+  const { copy } = queryString__default["default"].parse(location.search, { decode: false });
   if (theEntity)
     return /* @__PURE__ */ jsxRuntime.jsx(EntityCreationContainerAlreadyOpen, {
       ...props,
@@ -4472,7 +4483,9 @@ function EntityCreationContainerRoute(props) {
 
 const debug$1 = require("debug")("rde:entity:shape");
 function EntityShapeChooserContainer(props, config) {
-  const [entityQname, setEntityQname] = React.useState(props.match.params.entityQname);
+  const params = reactRouterDom.useParams();
+  const navigate = reactRouterDom.useNavigate();
+  const [entityQname, setEntityQname] = React.useState(params.entityQname || "");
   const [uiLang] = recoil.useRecoilState(uiLangState);
   const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
   const unmounting = { val: false };
@@ -4484,13 +4497,13 @@ function EntityShapeChooserContainer(props, config) {
   React.useEffect(() => {
     if (unmounting.val)
       return;
-    else if (props.match.params.entityQname)
-      setEntityQname(props.match.params.entityQname);
-  }, [props.match.params]);
+    else if (params.entityQname)
+      setEntityQname(params.entityQname);
+  }, [params]);
   const entityFromList = entities.find((e) => e.subjectQname === entityQname);
   if (entityFromList && entityFromList.shapeQname) {
     const shapeQname = entityFromList.shapeQname;
-    props.history.replace("/edit/" + entityQname + "/" + shapeQname);
+    navigate("/edit/" + entityQname + "/" + shapeQname, { replace: true });
     return /* @__PURE__ */ jsxRuntime.jsx("div", {
       children: /* @__PURE__ */ jsxRuntime.jsx("div", {
         children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
@@ -4595,7 +4608,7 @@ function EntityShapeChooserContainer(props, config) {
         })
       });
     } else {
-      return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Redirect, {
+      return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
         to: "/edit/" + entityQname + "/" + possibleShapes[0].qname
       });
     }
@@ -4644,7 +4657,7 @@ const BUDAResourceSelector = ({
   const [uiLitLang, setUiLitLang] = recoil.useRecoilState(uiLitLangState);
   const [error, setError] = React.useState();
   const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
-  const history = reactRouterDom.useHistory();
+  const navigate = reactRouterDom.useNavigate();
   const msgId = subject.qname + property.qname + idx;
   const [popupNew, setPopupNew] = React.useState(false);
   recoil.useRecoilState(uiTabState);
@@ -5157,7 +5170,7 @@ const BUDAResourceSelector = ({
                   value: r.qname,
                   onClick: async () => {
                     const url = await createAndUpdate(r);
-                    history.push(url);
+                    navigate(url);
                   }
                 }, i18n__default["default"].t("search.new", { type: label2 }));
               })

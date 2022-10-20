@@ -2,7 +2,6 @@ import * as rdflib_lib_tf_types from 'rdflib/lib/tf-types';
 import * as rdf from 'rdflib';
 import { RecoilState, AtomEffect } from 'recoil';
 import { FC } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
 
 declare const DASH_uri = "http://datashapes.org/dash#";
 declare const DASH: (ln: string) => rdflib_lib_tf_types.NamedNode;
@@ -448,14 +447,15 @@ interface IFetchState {
 }
 
 interface IdTypeParams {
-    shapeQname: string;
-    entityQname: string;
+    config: RDEConfig;
+    shapeQname?: string;
+    entityQname?: string;
     subjectQname?: string;
     propertyQname?: string;
-    index?: string;
+    index?: number;
     subnodeQname?: string;
 }
-interface RDEProps extends RouteComponentProps<IdTypeParams> {
+interface RDEProps extends IdTypeParams {
     copy?: string | null | (string | null)[];
 }
 
@@ -600,7 +600,7 @@ interface RDEConfig {
 declare function EntityEditContainerMayUpdate(props: RDEProps): JSX.Element;
 declare function EntityEditContainer(props: RDEProps, config: RDEConfig): JSX.Element;
 
-declare function NewEntityContainer(props: RDEProps, config: RDEConfig): JSX.Element;
+declare function NewEntityContainer(props: RDEProps): JSX.Element;
 
 declare function EntityCreationContainer(props: RDEProps, config: RDEConfig): JSX.Element;
 declare function EntityCreationContainerRoute(props: RDEProps): JSX.Element;

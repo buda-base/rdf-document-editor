@@ -8,7 +8,7 @@ import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
 import { useRecoilState } from "recoil"
 import { Dialog422 } from "./Dialog"
-import { BrowserRouter as Router, Switch, Route, Link, Redirect, useParams, useHistory } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useParams, useNavigate, useLocation } from "react-router-dom"
 import React, { useEffect, useState } from "react"
 import qs from "query-string"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
@@ -21,22 +21,25 @@ import * as rdf from "rdflib"
 const debug = require("debug")("rde:entity:entitycreation")
 
 export function EntityCreationContainer(props: RDEProps, config: RDEConfig) {
-  const subjectQname = props.match.params.subjectQname
-  const shapeQname = props.match.params.shapeQname
-  const propertyQname = props.match.params.propertyQname
-  const index = props.match.params.index
-  const subnodeQname = props.match.params.subnodeQname
+
+  const params = useParams()
+
+  const subjectQname = params.subjectQname
+  const shapeQname = params.shapeQname || ""
+  const propertyQname = params.propertyQname
+  const index = params.index
+  const subnodeQname = params.subnodeQname
 
   // entityQname is an ID desired by the user. In that case we must:
   // - if an entity with the same qname is already open in the editor, just redirect to it
   // - else call EntityCreator
-  const entityQname = props.match.params.entityQname
+  const entityQname = params.entityQname || ""
   const [userId, setUserId] = useRecoilState(userIdState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
   const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
   const [uiTab, setUiTab] = useRecoilState(uiTabState)
 
-  const routerHistory = useHistory()
+  const location = useLocation()
 
   const unmounting = { val: false }
   useEffect(() => {
@@ -46,7 +49,7 @@ export function EntityCreationContainer(props: RDEProps, config: RDEConfig) {
     }
   }, [])
 
-  if (RIDprefix == "") return <Redirect to="/new" />
+  if (RIDprefix == "") return <Navigate to="/new" />
 
   const shapeNode = rdf.sym(config.prefixMap.uriFromQname(shapeQname))
   const entityNode = rdf.sym(config.prefixMap.uriFromQname(entityQname))
@@ -80,13 +83,13 @@ export function EntityCreationContainer(props: RDEProps, config: RDEConfig) {
           (props.copy ? "?copy=" + props.copy : "")
         : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname
 
-    const newUrl = routerHistory.location.pathname.replace(/\/named\/.*/, "") + routerHistory.location.search
+    const newUrl = location.pathname.replace(/\/named\/.*/, "") + location.search
 
     return <Dialog422 open={true} shaped={shapeQname} named={entityQname} editUrl={editUrl} newUrl={newUrl} />
   } else if (entity) {
     if (subjectQname && propertyQname && index != undefined)
       return (
-        <Redirect
+        <Navigate
           to={
             "/edit/" +
             (entityQname ? entityQname : entity.qname) +
@@ -103,7 +106,7 @@ export function EntityCreationContainer(props: RDEProps, config: RDEConfig) {
           }
         />
       )
-    else return <Redirect to={"/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname} />
+    else return <Navigate to={"/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname} />
   }
   if (entityLoadingState.status === "error") {
     return (
@@ -123,16 +126,19 @@ export function EntityCreationContainer(props: RDEProps, config: RDEConfig) {
 }
 
 export function EntityCreationContainerAlreadyOpen(props: RDEProps) {
-  const subjectQname = props.match.params.subjectQname
-  const shapeQname = props.match.params.shapeQname
-  const propertyQname = props.match.params.propertyQname
-  const index = props.match.params.index
-  const subnodeQname = props.match.params.subnodeQname
+
+  const params = useParams()
+
+  const subjectQname = params.subjectQname
+  const shapeQname = params.shapeQname
+  const propertyQname = params.propertyQname
+  const index = params.index
+  const subnodeQname = params.subnodeQname
 
   // entityQname is an ID desired by the user. In that case we must:
   // - if an entity with the same qname is already open in the editor, just redirect to it
   // - else call EntityCreator
-  const entityQname = props.match.params.entityQname
+  const entityQname = params.entityQname
   const [userId, setUserId] = useRecoilState(userIdState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
   const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
@@ -148,7 +154,7 @@ export function EntityCreationContainerAlreadyOpen(props: RDEProps) {
 
   if (subjectQname && propertyQname && index != undefined)
     return (
-      <Redirect
+      <Navigate
         to={
           "/edit/" +
           entityQname +
@@ -165,7 +171,7 @@ export function EntityCreationContainerAlreadyOpen(props: RDEProps) {
         }
       />
     )
-  else return <Redirect to={"/edit/" + entityQname + "/" + shapeQname} />
+  else return <Navigate to={"/edit/" + entityQname + "/" + shapeQname} />
 
   return (
     <>
@@ -177,11 +183,16 @@ export function EntityCreationContainerAlreadyOpen(props: RDEProps) {
 }
 
 export function EntityCreationContainerRoute(props: RDEProps) {
+
+  const params = useParams()
+
   const [entities, setEntities] = useRecoilState(entitiesAtom)
-  const i = entities.findIndex((e) => e.subjectQname === props.match.params.entityQname)
+  const i = entities.findIndex((e) => e.subjectQname === params.entityQname)
   const theEntity = entities[i]
 
-  const { copy } = queryString.parse(props.location.search, { decode: false })
+  const location = useLocation()
+
+  const { copy } = queryString.parse(location.search, { decode: false })
 
   //debug("search/copy:", copy)
 

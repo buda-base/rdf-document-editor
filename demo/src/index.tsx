@@ -5,8 +5,10 @@ import { RecoilRoot } from "recoil"
 import {
   BrowserRouter as Router,
   Route,
-  Switch,
+  Routes
 } from "react-router-dom"
+
+import { AppProps } from './DemoSingleEntity';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -15,9 +17,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <Router>
     <RecoilRoot>
-      <Switch>
-        <Route component={App} />
-      </Switch>
+      <Routes>
+        <Route element={<App />} />
+      </Routes>
     </RecoilRoot>
   </Router>
 )

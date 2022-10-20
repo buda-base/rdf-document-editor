@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Redirect } from "react-router-dom"
+import { Navigate } from "react-router-dom"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
@@ -36,8 +36,8 @@ export function Dialog422(props: DialogProps) {
     setOpen(false)
   }
 
-  if (createNew) return <Redirect to={props.newUrl} />
-  else if (loadNamed) return <Redirect to={props.editUrl} />
+  if (createNew) return <Navigate to={props.newUrl} />
+  else if (loadNamed) return <Navigate to={props.editUrl} />
   else
     return (
       <div>

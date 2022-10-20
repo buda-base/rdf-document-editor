@@ -18,7 +18,7 @@ import { FormHelperText, FormControl } from "@material-ui/core"
 import { RDEProps, IdTypeParams } from "../helpers/editor_props"
 import { history as undoHistory } from "../helpers/observer"
 import RDEConfig from "../helpers/rde_config"
-import { BrowserRouter as Router, Switch, Route, Link, useHistory } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from "react-router-dom"
 import {
   uiLangState,
   uiTabState,
@@ -97,7 +97,8 @@ export const EntitySelector: FC<{ props: RDEProps, config: RDEConfig }> = ({ pro
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
   const [userId, setUserId] = useRecoilState(userIdState)
 
-  const history = useHistory()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   // restore user session on startup
   useEffect(() => {
@@ -122,9 +123,9 @@ export const EntitySelector: FC<{ props: RDEProps, config: RDEConfig }> = ({ pro
         setEntities(newEntities)
       }
       if (!sessionLoaded) setSessionLoaded(true)
-      if (props.location?.pathname == "/new") setTab(newEntities.length)
-      if (props.location?.pathname.startsWith("/edit/")) {
-        const id = props.location.pathname.split("/")[2] // eslint-disable-line no-magic-numbers
+      if (location?.pathname == "/new") setTab(newEntities.length)
+      if (location?.pathname.startsWith("/edit/")) {
+        const id = location.pathname.split("/")[2] // eslint-disable-line no-magic-numbers
         let found = false
         newEntities.map((e, i) => {
           if (e.subjectQname === id) {
@@ -168,7 +169,7 @@ export const EntitySelector: FC<{ props: RDEProps, config: RDEConfig }> = ({ pro
 
     setEntities([])
     setTab(-1)
-    history.push("/")
+    navigate("/")
 
     return false
   }

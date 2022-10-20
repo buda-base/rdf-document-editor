@@ -1,13 +1,12 @@
-import {
-  RouteComponentProps,
-} from "react-router-dom"
+import RDEConfig from "./rde_config"
 
 export interface IdTypeParams {
-  shapeQname: string
-  entityQname: string
+  config: RDEConfig
+  shapeQname?: string
+  entityQname?: string
   subjectQname?: string
   propertyQname?: string
-  index?: string
+  index?: number
   subnodeQname?: string
 }
 
@@ -16,10 +15,10 @@ export interface ExtendedParams {
   entityQname: string
   subjectQname: string
   propertyQname: string
-  index?: string
+  index?: number
   subnodeQname?: string
 }
 
-export interface RDEProps extends RouteComponentProps<IdTypeParams> { copy?: string | null | (string|null)[] }
+export interface RDEProps extends IdTypeParams { copy?: string | null | (string|null)[] }
 
-export interface RDEExtendedProps extends RouteComponentProps<IdTypeParams> { copy?: string | null | (string|null)[] }
+export interface RDEExtendedProps extends IdTypeParams { copy?: string | null | (string|null)[] }

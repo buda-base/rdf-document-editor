@@ -33,11 +33,12 @@ import { RDEProps } from "../helpers/editor_props"
 import * as rdf from "rdflib"
 import qs from "query-string"
 import * as ns from "../helpers/rdf/ns"
-import { Redirect } from "react-router-dom"
+import { Navigate } from "react-router-dom"
 import { HashLink as Link } from "react-router-hash-link"
 import queryString from "query-string"
 import { getParentPath, history } from "../helpers/observer"
 import Button from "@material-ui/core/Button"
+import { useLocation, useParams } from "react-router"
 
 const debug = require("debug")("rde:entity:edit")
 
@@ -45,7 +46,7 @@ interface RDEPropsDoUpdate extends RDEProps {
   subject: Subject
   propertyQname: string
   objectQname: string
-  index: number
+  index: number  
 }
 
 function replaceItemAtIndex(arr: [], index: number, newValue: Value) {
@@ -53,19 +54,23 @@ function replaceItemAtIndex(arr: [], index: number, newValue: Value) {
 }
 
 export function EntityEditContainerMayUpdate(props: RDEProps) {
-  const shapeQname = props.match.params.shapeQname
-  const entityQname = props.match.params.entityQname
-  const subjectQname = props.match.params.subjectQname
-  const propertyQname = props.match.params.propertyQname
-  const index = props.match.params.index
-  const subnodeQname = props.match.params.subnodeQname
+
+  const params = useParams()
+  const location = useLocation()
+
+  const shapeQname = params.shapeQname
+  const entityQname = params.entityQname
+  const subjectQname = params.subjectQname
+  const propertyQname = params.propertyQname
+  const index = params.index
+  const subnodeQname = params.subnodeQname
 
   const [entities, setEntities] = useRecoilState(entitiesAtom)
 
   const snapshot = useRecoilSnapshot()
   const [subject, setSubject] = useState<Subject | null>(null)
 
-  const { copy } = queryString.parse(props.location.search, { decode: false })
+  const { copy } = queryString.parse(location.search, { decode: false })
 
   useEffect(() => {
     const i = entities.findIndex((e) => e.subjectQname === subjectQname)
@@ -114,12 +119,15 @@ export function EntityEditContainerMayUpdate(props: RDEProps) {
     )
   }
   // TODO: add 'could not find subject' warning?
-  else if (subject != null) return <Redirect to={"/edit/" + entityQname + "/" + shapeQname} />
+  else if (subject != null) return <Navigate to={"/edit/" + entityQname + "/" + shapeQname} />
   else return <div></div>
 }
 
 function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig) {
-  const shapeQname = props.match.params.shapeQname
+
+  const params = useParams()
+
+  const shapeQname = params.shapeQname
   const atom = props.subject.getAtomForProperty(ns.defaultPrefixMap.uriFromQname(props.propertyQname))
   const [list, setList] = useRecoilState(atom)
 
@@ -172,14 +180,17 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig)
     setList(newList)
   }, [])
 
-  return <Redirect to={"/edit/" + props.objectQname + "/" + shapeQname} />
+  return <Navigate to={"/edit/" + props.objectQname + "/" + shapeQname} />
 }
 
 function EntityEditContainer(props: RDEProps, config: RDEConfig) {
+
+  const params = useParams()
+
   //const [shapeQname, setShapeQname] = useState(props.match.params.shapeQname)
   //const [entityQname, setEntityQname] = useState(props.match.params.entityQname)
-  const shapeQname = props.match.params.shapeQname
-  const entityQname = props.match.params.entityQname
+  const shapeQname = params.shapeQname || ""
+  const entityQname = params.entityQname || ""
   const [entities, setEntities] = useRecoilState(entitiesAtom)
 
   const [uiLang] = useRecoilState(uiLangState)
