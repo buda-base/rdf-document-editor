@@ -1,12 +1,6 @@
 /* eslint-disable no-extra-parens */
 import React, { useState, FC, useEffect, ChangeEvent } from "react"
-import {
-  Subject,
-  RDFResourceWithLabel,
-  RDFResource,
-  Value,
-  LiteralWithId,
-} from "../helpers/rdf/types"
+import { Subject, RDFResourceWithLabel, RDFResource, Value, LiteralWithId } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
 import { FiPower as LogoutIcon } from "react-icons/fi"
 import { InputLabel, Select, MenuItem } from "@material-ui/core"
@@ -81,7 +75,8 @@ export const defaultEntityLabelAtom = atom<Array<Value>>({
   default: [new LiteralWithId("...", "en")], // TODO: use the i18n stuff
 })
 
-export const EntitySelector: FC<{ props: RDEProps, config: RDEConfig }> = ({ props, config }) => {
+export function EntitySelector(props: RDEProps) {
+  const config = props.config
   const classes = useStyles()
   const { user, isAuthenticated, isLoading, logout } = useAuth0()
   const [entities, setEntities] = useRecoilState(entitiesAtom)
@@ -116,7 +111,7 @@ export const EntitySelector: FC<{ props: RDEProps, config: RDEConfig }> = ({ pro
           state: EditedEntityState.NotLoaded,
           preloadedLabel: entities[k].preloadedLabel,
           etag: entities[k].etag,
-          loadedUnsavedFromLocalStorage: true
+          loadedUnsavedFromLocalStorage: true,
         })
       }
       if (newEntities.length) {

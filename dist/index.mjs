@@ -3805,7 +3805,8 @@ function EntityEditContainerMayUpdate(props) {
   else
     return /* @__PURE__ */ jsx("div", {});
 }
-function EntityEditContainerDoUpdate(props, config) {
+function EntityEditContainerDoUpdate(props) {
+  const config = props.config;
   const params = useParams();
   const shapeQname = params.shapeQname;
   const atom2 = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
@@ -3853,7 +3854,8 @@ function EntityEditContainerDoUpdate(props, config) {
     to: "/edit/" + props.objectQname + "/" + shapeQname
   });
 }
-function EntityEditContainer(props, config) {
+function EntityEditContainer(props) {
+  const config = props.config;
   const params = useParams();
   const shapeQname = params.shapeQname || "";
   const entityQname = params.entityQname || "";
@@ -4316,7 +4318,8 @@ function Dialog422(props) {
 }
 
 const debug$2 = require("debug")("rde:entity:entitycreation");
-function EntityCreationContainer(props, config) {
+function EntityCreationContainer(props) {
+  const config = props.config;
   const params = useParams$1();
   const subjectQname = params.subjectQname;
   const shapeQname = params.shapeQname || "";
@@ -4429,7 +4432,8 @@ function EntityCreationContainerRoute(props) {
 }
 
 const debug$1 = require("debug")("rde:entity:shape");
-function EntityShapeChooserContainer(props, config) {
+function EntityShapeChooserContainer(props) {
+  const config = props.config;
   const params = useParams$1();
   const navigate = useNavigate();
   const [entityQname, setEntityQname] = useState(params.entityQname || "");

@@ -18,8 +18,8 @@ import { TextField, MenuItem } from "@material-ui/core"
 
 const debug = require("debug")("rde:entity:shape")
 
-function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
-
+function EntityShapeChooserContainer(props: RDEProps) {
+  const config = props.config
   const params = useParams()
   const navigate = useNavigate()
 
@@ -49,7 +49,9 @@ function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
     navigate("/edit/" + entityQname + "/" + shapeQname, { replace: true })
     return (
       <div>
-        <div><>{i18n.t("types.redirect")}</></div>
+        <div>
+          <>{i18n.t("types.redirect")}</>
+        </div>
       </div>
     )
   }
@@ -60,14 +62,18 @@ function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
     if (entityLoadingState.status === "fetching") {
       return (
         <div>
-          <div><>{i18n.t("types.loading")}</></div>
+          <div>
+            <>{i18n.t("types.loading")}</>
+          </div>
         </div>
       )
     } else if (entityLoadingState.error === "not found") {
       return (
         <div className="error">
           <div>
-            <span><>{i18n.t("error.exist", { id: entityQname })}</></span>
+            <span>
+              <>{i18n.t("error.exist", { id: entityQname })}</>
+            </span>
             <br />
             <Link style={{ fontWeight: 700 }} to="/new">
               <>{i18n.t("error.redirect")}</>
@@ -80,7 +86,9 @@ function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
       return (
         <div className="error">
           <div>
-            <span><>{i18n.t("error.shape", { id: entityQname })}</></span>
+            <span>
+              <>{i18n.t("error.shape", { id: entityQname })}</>
+            </span>
             <br />
             <Link style={{ fontWeight: 700 }} to="/new">
               <>{i18n.t("error.redirect")}</>
@@ -114,7 +122,7 @@ function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
               value={config.possibleShapeRefs[0].qname}
               style={{ marginTop: "3px", marginLeft: "10px" }}
             >
-              { config.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (
+              {config.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (
                 <MenuItem key={shape.qname} value={shape.qname} style={{ padding: 0 }}>
                   <Link
                     to={"/edit/" + entityQname + "/" + shape.qname}
@@ -136,9 +144,11 @@ function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig) {
 
   return (
     <>
-    <div>
-      <div><>{i18n.t("types.loading")}</></div>
-    </div>
+      <div>
+        <div>
+          <>{i18n.t("types.loading")}</>
+        </div>
+      </div>
     </>
   )
 }

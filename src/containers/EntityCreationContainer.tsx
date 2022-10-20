@@ -8,7 +8,16 @@ import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
 import { useRecoilState } from "recoil"
 import { Dialog422 } from "./Dialog"
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useParams, useNavigate, useLocation } from "react-router-dom"
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+  useParams,
+  useNavigate,
+  useLocation,
+} from "react-router-dom"
 import React, { useEffect, useState } from "react"
 import qs from "query-string"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
@@ -20,8 +29,8 @@ import * as rdf from "rdflib"
 
 const debug = require("debug")("rde:entity:entitycreation")
 
-export function EntityCreationContainer(props: RDEProps, config: RDEConfig) {
-
+export function EntityCreationContainer(props: RDEProps) {
+  const config = props.config
   const params = useParams()
 
   const subjectQname = params.subjectQname
@@ -118,15 +127,16 @@ export function EntityCreationContainer(props: RDEProps, config: RDEConfig) {
   }
   return (
     <>
-    <div>
-      <div><>{i18n.t("types.creating")}</></div>
-    </div>
+      <div>
+        <div>
+          <>{i18n.t("types.creating")}</>
+        </div>
+      </div>
     </>
   )
 }
 
 export function EntityCreationContainerAlreadyOpen(props: RDEProps) {
-
   const params = useParams()
 
   const subjectQname = params.subjectQname
@@ -175,15 +185,16 @@ export function EntityCreationContainerAlreadyOpen(props: RDEProps) {
 
   return (
     <>
-    <div>
-      <div><>{i18n.t("types.loading")}</></div>
-    </div>
+      <div>
+        <div>
+          <>{i18n.t("types.loading")}</>
+        </div>
+      </div>
     </>
   )
 }
 
 export function EntityCreationContainerRoute(props: RDEProps) {
-
   const params = useParams()
 
   const [entities, setEntities] = useRecoilState(entitiesAtom)

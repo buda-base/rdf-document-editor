@@ -24,7 +24,7 @@ import {
   initMapAtom,
   toCopySelector,
   canPushPrefLabelGroupType,
-  canPushPrefLabelGroupsType
+  canPushPrefLabelGroupsType,
 } from "../atoms/common"
 import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
@@ -46,7 +46,7 @@ interface RDEPropsDoUpdate extends RDEProps {
   subject: Subject
   propertyQname: string
   objectQname: string
-  index: number  
+  index: number
 }
 
 function replaceItemAtIndex(arr: [], index: number, newValue: Value) {
@@ -54,7 +54,6 @@ function replaceItemAtIndex(arr: [], index: number, newValue: Value) {
 }
 
 export function EntityEditContainerMayUpdate(props: RDEProps) {
-
   const params = useParams()
   const location = useLocation()
 
@@ -123,8 +122,8 @@ export function EntityEditContainerMayUpdate(props: RDEProps) {
   else return <div></div>
 }
 
-function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig) {
-
+function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
+  const config = props.config
   const params = useParams()
 
   const shapeQname = params.shapeQname
@@ -136,26 +135,29 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig)
   const subject = entities[i]?.subject
 
   let copy: Record<string, Value[]> | null = null
-  if (props.copy && typeof props.copy === 'string') {
-    copy = props.copy.split(";").reduce((acc: Record<string, Value[]>, p: string): Record<string,Value[]> => {
-    const q = p.split(",")
-    const literals = q.slice(1).map((v: string) => {
+  if (props.copy && typeof props.copy === "string") {
+    copy = props.copy.split(";").reduce((acc: Record<string, Value[]>, p: string): Record<string, Value[]> => {
+      const q = p.split(",")
+      const literals = q.slice(1).map((v: string) => {
         const lit = decodeURIComponent(v).split("@")
         return new LiteralWithId(lit[0].replace(/(^")|("$)/g, ""), lit[1], shapes.rdfLangString)
       })
-    return { ...acc, [q[0]]: literals }
+      return { ...acc, [q[0]]: literals }
     }, {})
   }
 
   //debug("copy:",copy,props.copy)
 
   const [getProp, setProp] = useRecoilState(
-        toCopySelector({
-          list: subject && copy ? Object.keys(copy).map((p: string) => ({
-            property: p,
-            atom: subject.getAtomForProperty(config.prefixMap.uriFromQname(p)),
-          } )) : undefined,
-        })
+    toCopySelector({
+      list:
+        subject && copy
+          ? Object.keys(copy).map((p: string) => ({
+              property: p,
+              atom: subject.getAtomForProperty(config.prefixMap.uriFromQname(p)),
+            }))
+          : undefined,
+    })
   )
 
   debug("LIST:", list, atom, props.copy, copy)
@@ -171,7 +173,7 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig)
           }
           setProp(p)
         }
-       }, 1150) // eslint-disable-line no-magic-numbers
+      }, 1150) // eslint-disable-line no-magic-numbers
     }
 
     const newObject = new ExtRDFResourceWithLabel(ns.defaultPrefixMap.uriFromQname(props.objectQname), {}, {})
@@ -183,8 +185,8 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate, config: RDEConfig)
   return <Navigate to={"/edit/" + props.objectQname + "/" + shapeQname} />
 }
 
-function EntityEditContainer(props: RDEProps, config: RDEConfig) {
-
+function EntityEditContainer(props: RDEProps) {
+  const config = props.config
   const params = useParams()
 
   //const [shapeQname, setShapeQname] = useState(props.match.params.shapeQname)
@@ -211,36 +213,45 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
 
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config)
 
-  const canPushPrefLabelGroups: Record<string,canPushPrefLabelGroupType> | undefined = 
-    shape?.groups.reduce((acc: Record<string,canPushPrefLabelGroupType>, 
-        group: PropertyGroup): Record<string,canPushPrefLabelGroupType> => {
-    const props:Array<RecoilState<Value[]>|undefined> = group.properties
-      .filter((p: PropertyShape) => p.allowPushToTopLevelLabel)
-      .map((p: PropertyShape) => {
-        if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
-          return entityObj[0].subject.getAtomForProperty(p.path.sparqlString)
-      })
-      // removes undefined values
-      .filter(a => a != undefined)
-    const subprops: Record<string,{atom: RecoilState<Subject[]>, allowPush: string[]}> = group.properties.reduce((accG, p) => {
-      const allowPush: (string|undefined)[]|undefined = p.targetShape?.properties
-        .filter((s: PropertyShape) => s.allowPushToTopLevelLabel)
-        .map((s: PropertyShape) => s.path?.sparqlString)
-      if (allowPush?.length && entityObj && entityObj[0] && entityObj[0].subject && p.path)
-        return {
-          ...accG,
-          [p.qname]: { atom: entityObj[0].subject.getAtomForProperty(p.path.sparqlString), allowPush },
-        }
-      return accG
-    }, {})
-    if (props?.length || Object.keys(subprops).length) 
-      return { ...acc, [group.qname]: { props, subprops } } as Record<string,canPushPrefLabelGroupType>
-    return { ...acc } 
-  }, {} as Record<string,canPushPrefLabelGroupType>)
+  const canPushPrefLabelGroups: Record<string, canPushPrefLabelGroupType> | undefined = shape?.groups.reduce(
+    (
+      acc: Record<string, canPushPrefLabelGroupType>,
+      group: PropertyGroup
+    ): Record<string, canPushPrefLabelGroupType> => {
+      const props: Array<RecoilState<Value[]> | undefined> = group.properties
+        .filter((p: PropertyShape) => p.allowPushToTopLevelLabel)
+        .map((p: PropertyShape) => {
+          if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
+            return entityObj[0].subject.getAtomForProperty(p.path.sparqlString)
+        })
+        // removes undefined values
+        .filter((a) => a != undefined)
+      const subprops: Record<string, { atom: RecoilState<Subject[]>; allowPush: string[] }> = group.properties.reduce(
+        (accG, p) => {
+          const allowPush: (string | undefined)[] | undefined = p.targetShape?.properties
+            .filter((s: PropertyShape) => s.allowPushToTopLevelLabel)
+            .map((s: PropertyShape) => s.path?.sparqlString)
+          if (allowPush?.length && entityObj && entityObj[0] && entityObj[0].subject && p.path)
+            return {
+              ...accG,
+              [p.qname]: { atom: entityObj[0].subject.getAtomForProperty(p.path.sparqlString), allowPush },
+            }
+          return accG
+        },
+        {}
+      )
+      if (props?.length || Object.keys(subprops).length)
+        return { ...acc, [group.qname]: { props, subprops } } as Record<string, canPushPrefLabelGroupType>
+      return { ...acc }
+    },
+    {} as Record<string, canPushPrefLabelGroupType>
+  )
 
-  const possiblePrefLabels = useRecoilValue(canPushPrefLabelGroups 
+  const possiblePrefLabels = useRecoilValue(
+    canPushPrefLabelGroups
       ? possiblePrefLabelsSelector({ canPushPrefLabelGroups } as canPushPrefLabelGroupsType)
-      : initMapAtom)
+      : initMapAtom
+  )
 
   let prefLabelAtom = entityObj[0]?.subject?.getAtomForProperty(ns.SKOS("prefLabel").value)
   if (!prefLabelAtom) prefLabelAtom = initListAtom
@@ -345,7 +356,7 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
   useEffect(() => {
     return () => {
       const fun = async () => {
-        if(entityObjRef.current) {
+        if (entityObjRef.current) {
           debug("unmounting /edit", entityObjRef.current)
           await save(entityObjRef.current)
         }
@@ -411,9 +422,11 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
   if (loadingState.status === "fetching" || entityLoadingState.status === "fetching" || !entity || entity.isEmpty()) {
     return (
       <>
-      <div>
-        <div><>{i18n.t("types.loading")}</></div>
-      </div>
+        <div>
+          <div>
+            <>{i18n.t("types.loading")}</>
+          </div>
+        </div>
       </>
     )
   }
@@ -421,9 +434,11 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
   if (!shape || !entity)
     return (
       <>
-      <div>
-        <div><>{i18n.t("types.loading")}</></div>
-      </div>
+        <div>
+          <div>
+            <>{i18n.t("types.loading")}</>
+          </div>
+        </div>
       </>
     )
 
@@ -482,7 +497,9 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
         </div>
       </div>
       <div role="navigation" className="innerNav">
-        <p className="text-uppercase small my-2"><>{i18n.t("home.nav")}</></p>
+        <p className="text-uppercase small my-2">
+          <>{i18n.t("home.nav")}</>
+        </p>
         {shape.groups.map((group, index) => {
           const label = lang.ValueByLangToStrPrefLang(group.prefLabels, uiLang)
           return (
@@ -505,7 +522,10 @@ function EntityEditContainer(props: RDEProps, config: RDEConfig) {
         {shape.groups.map((group, index) => (
           <>
             {groupEd === group.qname && (
-              <div className="group-edit-BG" onClick={(e: React.MouseEvent) => checkPushNameAsPrefLabel(e, group.qname)}></div>
+              <div
+                className="group-edit-BG"
+                onClick={(e: React.MouseEvent) => checkPushNameAsPrefLabel(e, group.qname)}
+              ></div>
             )}
             <PropertyGroupContainer
               key={group.uri}

@@ -446,19 +446,6 @@ interface IFetchState {
     error?: string;
 }
 
-interface IdTypeParams {
-    config: RDEConfig;
-    shapeQname?: string;
-    entityQname?: string;
-    subjectQname?: string;
-    propertyQname?: string;
-    index?: number;
-    subnodeQname?: string;
-}
-interface RDEProps extends IdTypeParams {
-    copy?: string | null | (string | null)[];
-}
-
 declare enum EditedEntityState {
     Error = 0,
     Saved = 1,
@@ -597,15 +584,28 @@ interface RDEConfig {
     resourceSelector: ResourceSelector;
 }
 
+interface IdTypeParams {
+    config: RDEConfig;
+    shapeQname?: string;
+    entityQname?: string;
+    subjectQname?: string;
+    propertyQname?: string;
+    index?: number;
+    subnodeQname?: string;
+}
+interface RDEProps extends IdTypeParams {
+    copy?: string | null | (string | null)[];
+}
+
 declare function EntityEditContainerMayUpdate(props: RDEProps): JSX.Element;
-declare function EntityEditContainer(props: RDEProps, config: RDEConfig): JSX.Element;
+declare function EntityEditContainer(props: RDEProps): JSX.Element;
 
 declare function NewEntityContainer(props: RDEProps): JSX.Element;
 
-declare function EntityCreationContainer(props: RDEProps, config: RDEConfig): JSX.Element;
+declare function EntityCreationContainer(props: RDEProps): JSX.Element;
 declare function EntityCreationContainerRoute(props: RDEProps): JSX.Element;
 
-declare function EntityShapeChooserContainer(props: RDEProps, config: RDEConfig): JSX.Element;
+declare function EntityShapeChooserContainer(props: RDEProps): JSX.Element;
 
 declare const BUDAResourceSelector: FC<{
     value: ExtRDFResourceWithLabel;
