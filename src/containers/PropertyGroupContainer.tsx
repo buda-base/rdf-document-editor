@@ -1,5 +1,5 @@
 import React, { useState, FC, ReactElement, useRef, useMemo, useCallback, useEffect } from "react"
-import PropertyContainer from "./PropertyContainer"
+import { PropertyContainer } from "./ValueList"
 import { RDFResource, Subject, errors, LiteralWithId } from "../helpers/rdf/types"
 import RDEConfig from "../helpers/rde_config"
 import { PropertyGroup, PropertyShape, NodeShape } from "../helpers/rdf/shapes"
@@ -29,7 +29,15 @@ const redIcon = new L.Icon({
   shadowSize: [41, 41], // eslint-disable-line no-magic-numbers
 })
 
-function DraggableMarker({ pos, icon, setCoords }: {pos: L.LatLng, icon: L.Icon, setCoords: (val: L.LatLng) => void}) {
+function DraggableMarker({
+  pos,
+  icon,
+  setCoords,
+}: {
+  pos: L.LatLng
+  icon: L.Icon
+  setCoords: (val: L.LatLng) => void
+}) {
   const [position, setPosition] = useState<L.LatLng>(pos)
   const markerRef = useRef<any>(null)
   const eventHandlers = useMemo(
@@ -57,8 +65,17 @@ function DraggableMarker({ pos, icon, setCoords }: {pos: L.LatLng, icon: L.Icon,
   )
 }
 
-const MapEventHandler = ({ coords, redraw, setCoords, config }: { coords: L.LatLng, 
-    redraw: boolean, setCoords: (val: L.LatLng) => void, config: RDEConfig}) => {
+const MapEventHandler = ({
+  coords,
+  redraw,
+  setCoords,
+  config,
+}: {
+  coords: L.LatLng
+  redraw: boolean
+  setCoords: (val: L.LatLng) => void
+  config: RDEConfig
+}) => {
   const map = useMapEvents({
     click: (ev) => {
       debug("click:", ev)
@@ -71,7 +88,9 @@ const MapEventHandler = ({ coords, redraw, setCoords, config }: { coords: L.LatL
   })
 
   useEffect(() => {
-    const provider = config.googleMapsAPIKey ? new GoogleProvider({ apiKey: config.googleMapsAPIKey }) : new OpenStreetMapProvider()
+    const provider = config.googleMapsAPIKey
+      ? new GoogleProvider({ apiKey: config.googleMapsAPIKey })
+      : new OpenStreetMapProvider()
 
     const searchControl = GeoSearchControl({
       provider,
@@ -83,11 +102,11 @@ const MapEventHandler = ({ coords, redraw, setCoords, config }: { coords: L.LatL
       //debug("found",params)
 
       // fix for first click not triggering marker event
-      const elem:HTMLElement|null = document.querySelector(".leaflet-container")
+      const elem: HTMLElement | null = document.querySelector(".leaflet-container")
       if (elem) elem.click()
     })
 
-    //return () => 
+    //return () =>
     map.removeControl(searchControl)
   }, [])
 
@@ -121,10 +140,7 @@ const PropertyGroupContainer: FC<{
       //debug("group with error:",group.qname,property.qname)
       hasError = true
     }
-    if (
-      property.displayPriority &&
-      property.displayPriority >= 1
-    ) {
+    if (property.displayPriority && property.displayPriority >= 1) {
       withDisplayPriority.push(property)
     } else {
       withoutDisplayPriority.push(property)
@@ -147,7 +163,8 @@ const PropertyGroupContainer: FC<{
     zoom = 5,
     unset = false
   //debug("coords:", coords, lat, lon)
-  if (lat.length && lng.length && lat[0].value != "" && lat[0].value != "") coords = new L.LatLng(Number(lat[0].value), Number(lng[0].value))
+  if (lat.length && lng.length && lat[0].value != "" && lat[0].value != "")
+    coords = new L.LatLng(Number(lat[0].value), Number(lng[0].value))
   else {
     unset = true
     coords = new L.LatLng(30, 0) //eslint-disable-line no-magic-numbers
@@ -163,16 +180,12 @@ const PropertyGroupContainer: FC<{
     //debug("val:",val)
     setRedraw(false)
     if (!isNaN(val.lat)) {
-      if (lat.length > 0 && lat[0] instanceof LiteralWithId)
-        setLat([lat[0].copyWithUpdatedValue("" + val.lat)])
-      if (lat.length == 0)
-        setLat([new LiteralWithId("" + val.lat)])
+      if (lat.length > 0 && lat[0] instanceof LiteralWithId) setLat([lat[0].copyWithUpdatedValue("" + val.lat)])
+      if (lat.length == 0) setLat([new LiteralWithId("" + val.lat)])
     }
     if (!isNaN(val.lng)) {
-      if (lng.length > 0 && lng[0] instanceof LiteralWithId)
-        setLng([lng[0].copyWithUpdatedValue("" + val.lng)])
-      if (lng.length == 0)
-        setLng([new LiteralWithId("" + val.lat)])
+      if (lng.length > 0 && lng[0] instanceof LiteralWithId) setLng([lng[0].copyWithUpdatedValue("" + val.lng)])
+      if (lng.length == 0) setLng([new LiteralWithId("" + val.lat)])
     }
   }
 
@@ -224,8 +237,8 @@ const PropertyGroupContainer: FC<{
                       config={config}
                     />
                   ))}
-                  {
-                    config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri &&
+                  {config.gisPropertyGroup &&
+                    group.uri === config.gisPropertyGroup.uri &&
                     groupEd === group.qname && // to force updating map when switching between two place entities
                     coords && ( // TODO: add a property in shape to enable this instead
                       <div style={{ position: "relative", overflow: "hidden", marginTop: "16px" }}>
@@ -257,7 +270,7 @@ const PropertyGroupContainer: FC<{
                           <MapEventHandler coords={coords} redraw={redraw} setCoords={setCoords} config={config} />
                         </MapContainer>
                       </div>
-                    ) }
+                    )}
                   {hasExtra && (
                     <span className="toggle-btn  btn btn-rouge my-4" onClick={toggleExtra}>
                       <>{i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })}</>

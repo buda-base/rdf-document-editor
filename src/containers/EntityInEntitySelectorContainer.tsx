@@ -1,6 +1,6 @@
 /* eslint-disable no-extra-parens */
 import React, { useState, FC, useEffect, ChangeEvent } from "react"
-import { Subject, RDFResourceWithLabel, RDFResource } from "../helpers/rdf/types"
+import { Subject, RDFResourceWithLabel, RDFResource, history as undoHistory } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
 import { FiPower as LogoutIcon } from "react-icons/fi"
 import { InputLabel, Select, MenuItem } from "@material-ui/core"
@@ -8,7 +8,6 @@ import i18n from "i18next"
 import { atom, useRecoilState, useRecoilValue, selectorFamily } from "recoil"
 import { FormHelperText, FormControl } from "@material-ui/core"
 import { RDEProps, IdTypeParams } from "../helpers/editor_props"
-import { history as undoHistory } from "../helpers/observer"
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom"
 import {
   uiDisabledTabsState,
@@ -24,7 +23,7 @@ import Tab from "@material-ui/core/Tab"
 import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
 import * as ns from "../helpers/rdf/ns"
-import { Entity, EditedEntityState, entitiesAtom, defaultEntityLabelAtom } from "./EntitySelectorContainer"
+import { Entity, EditedEntityState, entitiesAtom, defaultEntityLabelAtom } from "../atoms/common"
 import * as rdf from "rdflib"
 import { CloseIcon } from "../routes/layout/icons"
 
@@ -37,7 +36,11 @@ function a11yProps(index: number) {
   }
 }
 
-export const EntityInEntitySelectorContainer: FC<{ entity: Entity, index: number, config: RDEConfig }> = ({ entity, index, config }) => {
+export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number; config: RDEConfig }> = ({
+  entity,
+  index,
+  config,
+}) => {
   const [uiLang] = useRecoilState(uiLangState)
   const [uiLitLang] = useRecoilState(uiLitLangState)
   const [labelValues] = useRecoilState(!entity.preloadedLabel ? entity.subjectLabelState : defaultEntityLabelAtom)

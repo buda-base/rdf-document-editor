@@ -3,11 +3,38 @@ import { FC } from "react"
 import _ from "lodash"
 import * as ns from "../helpers/rdf/ns"
 import * as shapes from "../helpers/rdf/shapes"
-import { Value, Subject, LiteralWithId, errors, emptyLiteral } from "../helpers/rdf/types"
-import { HistoryStatus } from "../helpers/observer"
-import { entitiesAtom, EditedEntityState, Entity } from "../containers/EntitySelectorContainer"
+import { Value, Subject, LiteralWithId, errors, emptyLiteral, HistoryStatus } from "../helpers/rdf/types"
 
 const debug = require("debug")("rde:common")
+
+export enum EditedEntityState {
+  Error,
+  Saved,
+  NeedsSaving,
+  Loading,
+  NotLoaded,
+}
+
+export type Entity = {
+  subjectQname: string
+  subject: Subject | null
+  shapeQname: string
+  state: EditedEntityState
+  subjectLabelState: RecoilState<Array<Value>>
+  preloadedLabel?: string
+  etag: string | null
+  loadedUnsavedFromLocalStorage: boolean // true when localStorage has unsaved changes
+}
+
+export const entitiesAtom = atom<Array<Entity>>({
+  key: "entities",
+  default: [],
+})
+
+export const defaultEntityLabelAtom = atom<Array<Value>>({
+  key: "defaultEntityLabelAtom",
+  default: [new LiteralWithId("...", "en")], // TODO: use the i18n stuff
+})
 
 export const uiLangState = atom<Array<string>>({
   key: "uiLangState",
@@ -133,7 +160,7 @@ export type orderedByPropSelectorArgs = {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const orderedByPropSelector = selectorFamily<any,orderedByPropSelectorArgs>({
+export const orderedByPropSelector = selectorFamily<any, orderedByPropSelectorArgs>({
   key: "orderedByPropSelector",
   get:
     (args: orderedByPropSelectorArgs) =>
@@ -143,9 +170,9 @@ export const orderedByPropSelector = selectorFamily<any,orderedByPropSelectorArg
         if (!order) order = "asc"
         const unorderedList = get(atom)
         const orderedList = _.orderBy(
-          unorderedList.map((w:Value) => {
-            if(w instanceof Subject) {
-              const s:Subject = w
+          unorderedList.map((w: Value) => {
+            if (w instanceof Subject) {
+              const s: Subject = w
               let k
               const v: Value[] = get(s.getAtomForProperty(propertyPath))
               if (Array.isArray(v) && v.length) k = Number(v[0].value)
@@ -153,11 +180,11 @@ export const orderedByPropSelector = selectorFamily<any,orderedByPropSelectorArg
               else k = Number.MAX_SAFE_INTEGER
               return { s, k }
             }
-            return { s:w, k:order === "asc" ? Number.MAX_SAFE_INTEGER : Number.MIN_SAFE_INTEGER } 
+            return { s: w, k: order === "asc" ? Number.MAX_SAFE_INTEGER : Number.MIN_SAFE_INTEGER }
           }),
           ["k"],
           [order === "asc" ? "asc" : "desc"]
-        ).map((i: {s: Subject|Value, k: number}) => i.s)
+        ).map((i: { s: Subject | Value; k: number }) => i.s)
         //debug("sort:", atom, propertyPath, orderedList)
         return orderedList
       }
@@ -171,7 +198,7 @@ export type personNamesLabelsSelectorArgs = {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const personNamesLabelsSelector = selectorFamily<any,personNamesLabelsSelectorArgs>({
+export const personNamesLabelsSelector = selectorFamily<any, personNamesLabelsSelectorArgs>({
   key: "personNamesLabelsSelector",
   get:
     (args: personNamesLabelsSelectorArgs) =>
@@ -198,7 +225,10 @@ export const initStringAtom = atom<string>({ key: "initStringAtom", default: "" 
 export const initMapAtom = atom<Record<string, Value[]>>({ key: "initMapAtom", default: {} })
 
 // TODO: the as is not great...
-export const initkvAtom = atom<{k: string, val: Value[]}>({ key: "initkvAtom", default: {} as {k: string, val: Value[]} })
+export const initkvAtom = atom<{ k: string; val: Value[] }>({
+  key: "initkvAtom",
+  default: {} as { k: string; val: Value[] },
+})
 
 export type canPushPrefLabelGroupType = {
   props?: RecoilState<Value[]>[]
@@ -206,12 +236,12 @@ export type canPushPrefLabelGroupType = {
 }
 
 export type canPushPrefLabelGroupsType = {
- canPushPrefLabelGroups: Record<string,canPushPrefLabelGroupType>,
+  canPushPrefLabelGroups: Record<string, canPushPrefLabelGroupType>
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const possiblePrefLabelsSelector = selectorFamily<Record<string,Value[]>,canPushPrefLabelGroupsType>({
+export const possiblePrefLabelsSelector = selectorFamily<Record<string, Value[]>, canPushPrefLabelGroupsType>({
   key: "possiblePrefLabelsSelector",
   get:
     (args: canPushPrefLabelGroupsType) =>
@@ -255,7 +285,7 @@ export type orderedNewValSelectorType = {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const orderedNewValSelector = selectorFamily<string,orderedNewValSelectorType>({
+export const orderedNewValSelector = selectorFamily<string, orderedNewValSelectorType>({
   key: "orderedNewValSelector",
   get:
     (args: orderedNewValSelectorType) =>
@@ -294,12 +324,12 @@ export type toCopySelectorType = {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const toCopySelector = selectorFamily<{k: string, val:Value[]}[],toCopySelectorType>({
+export const toCopySelector = selectorFamily<{ k: string; val: Value[] }[], toCopySelectorType>({
   key: "toCopySelector",
   get:
     (args: toCopySelectorType) =>
     ({ get }) => {
-      const res: {k: string, val:Value[]}[] = []
+      const res: { k: string; val: Value[] }[] = []
       args.list?.map(({ property, atom }) => {
         const val = get(atom)
         //debug("copy:",property, val, atom)
@@ -309,7 +339,7 @@ export const toCopySelector = selectorFamily<{k: string, val:Value[]}[],toCopySe
     },
   set:
     (args: toCopySelectorType) =>
-    ({ get, set }, [{ k, val }]: {k: string, val: Value[]}[]) => {
+    ({ get, set }, [{ k, val }]: { k: string; val: Value[] }[]) => {
       //debug("set:", list, k, val)
       args.list?.map(({ property, atom }) => {
         if (k == property) set(atom, [...get(atom).filter((lit) => lit.value), ...val])
@@ -323,18 +353,18 @@ export const savePopupState = atom<boolean>({
 })
 
 export type ESfromRecoilSelectorType = {
-  property: shapes.PropertyShape,
-  subject: Subject,
-  entityQname: string,
-  undo: Record<string,undoState>,
-  hStatus: HistoryStatus,
+  property: shapes.PropertyShape
+  subject: Subject
+  entityQname: string
+  undo: Record<string, undoState>
+  hStatus: HistoryStatus
   status: EditedEntityState
   id: string
   removingFacet: boolean
   forceRemove: boolean
 }
 
-export const ESfromRecoilSelector = selectorFamily<any,any>({
+export const ESfromRecoilSelector = selectorFamily<any, any>({
   key: "ESfromRecoilSelector",
   get:
     ({}) =>
@@ -344,7 +374,6 @@ export const ESfromRecoilSelector = selectorFamily<any,any>({
   set:
     ({}) =>
     ({ get, set }, args: ESfromRecoilSelectorType) => {
-
       const entities = get(entitiesAtom)
       const setEntities = (val: Entity[]) => set(entitiesAtom, val)
 
@@ -374,7 +403,8 @@ export const ESfromRecoilSelector = selectorFamily<any,any>({
             : EditedEntityState.NeedsSaving
 
         const hasError =
-          errors[ent.subjectQname] && errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id]
+          errors[ent.subjectQname] &&
+          errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id]
 
         //debug("no error:", hasError, forceRemove, id, status, ent.state, ent, n, property.qname, errors)
         if (ent.state != status || hasError && args.forceRemove) {
@@ -403,13 +433,13 @@ export const ESfromRecoilSelector = selectorFamily<any,any>({
 
 export type isUniqueTestSelectorType = {
   checkUnique: boolean
-  siblingsAtom: RecoilState<Subject[]>,
+  siblingsAtom: RecoilState<Subject[]>
   propertyPath: string
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const isUniqueTestSelector = selectorFamily<boolean,isUniqueTestSelectorType>({
+export const isUniqueTestSelector = selectorFamily<boolean, isUniqueTestSelectorType>({
   key: "isUniqueTestSelector",
   get:
     (args: isUniqueTestSelectorType) =>
@@ -417,9 +447,9 @@ export const isUniqueTestSelector = selectorFamily<boolean,isUniqueTestSelectorT
       if (!args.checkUnique) return true
       //debug("iUvS:",siblingsAtom, propertyPath)
       const siblings = get(args.siblingsAtom),
-        vals:string[] = []
+        vals: string[] = []
       for (const s of siblings) {
-        const lit:Value[] = get(s.getAtomForProperty(args.propertyPath))
+        const lit: Value[] = get(s.getAtomForProperty(args.propertyPath))
         if (lit.length) {
           if (vals.includes(lit[0].value)) {
             //debug("non unique:",propertyPath,vals,lit,siblings)
@@ -432,4 +462,3 @@ export const isUniqueTestSelector = selectorFamily<boolean,isUniqueTestSelectorT
       return true
     },
 })
-

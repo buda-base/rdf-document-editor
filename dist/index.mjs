@@ -6,6 +6,9 @@ import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect, createElement } from 'react';
 import i18n from 'i18next';
 import _ from 'lodash';
+import NotFoundIcon from '@material-ui/icons/BrokenImage.js'
+import { makeStyles } from '@material-ui/core/styles/index.js'
+import { TextField, MenuItem, Tooltip } from '@material-ui/core/index.js'
 import { Img } from 'react-image';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline.js'
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline.js'
@@ -23,20 +26,15 @@ import EditIcon from '@material-ui/icons/Edit.js'
 import KeyboardIcon from '@material-ui/icons/Keyboard.js'
 import HelpIcon from '@material-ui/icons/Help.js'
 import ContentPasteIcon from '@material-ui/icons/AssignmentReturned.js'
-import { useAuth0 } from '@auth0/auth0-react';
-import { Navigate, useNavigate, Link, useParams as useParams$1, useLocation as useLocation$1 } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles/index.js'
-import '@material-ui/core/Tabs/index.js'
-import '@material-ui/core/Tab/index.js'
-import NotFoundIcon from '@material-ui/icons/BrokenImage.js'
-import { TextField, MenuItem, Tooltip } from '@material-ui/core/index.js'
 import MDEditor, { commands } from '@uiw/react-md-editor';
+import { useAuth0 } from '@auth0/auth0-react';
 import { MapContainer, LayersControl, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import ReactLeafletGoogleLayer from 'react-leaflet-google-layer';
 import { GoogleProvider, OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-geosearch/dist/geosearch.css';
+import { Navigate, useNavigate, Link, useParams as useParams$1, useLocation as useLocation$1 } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 import queryString from 'query-string';
 import { useParams, useLocation } from 'react-router';
@@ -168,23 +166,21 @@ var ns = /*#__PURE__*/Object.freeze({
   defaultPrefixMap: defaultPrefixMap
 });
 
-require("debug")("bdrc:observer");
-const history = {};
-const getHistoryStatus = (entityUri) => {
-  if (!history[entityUri])
-    return {};
-  const top = history[entityUri].length - 1;
-  let first = -1, current = -1;
-  for (const [i, h] of history[entityUri].entries()) {
-    if (h["tmp:allValuesLoaded"])
-      first = i;
-    else if (h["tmp:undone"])
-      current = i - 1;
-    if (first != -1 && current != -1)
-      break;
-  }
-  return { top, first, current };
+var __defProp$1 = Object.defineProperty;
+var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
+var __decorateClass$1 = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$1(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result)
+    __defProp$1(target, key, result);
+  return result;
 };
+require("debug")("rde:rdf:types");
+const defaultGraphNode = new rdf.NamedNode(rdf.Store.defaultGraphURI);
+const errors = {};
+const history = {};
 const updateHistory = (entity, qname, prop, val, noHisto = true) => {
   if (!history[entity])
     history[entity] = [];
@@ -207,6 +203,21 @@ const updateHistory = (entity, qname, prop, val, noHisto = true) => {
       history[entity].push(newVal);
   } else
     history[entity].push(newVal);
+};
+const getHistoryStatus = (entityUri) => {
+  if (!history[entityUri])
+    return {};
+  const top = history[entityUri].length - 1;
+  let first = -1, current = -1;
+  for (const [i, h] of history[entityUri].entries()) {
+    if (h["tmp:allValuesLoaded"])
+      first = i;
+    else if (h["tmp:undone"])
+      current = i - 1;
+    if (first != -1 && current != -1)
+      break;
+  }
+  return { top, first, current };
 };
 function getParentPath(entityUri, sub) {
   let parentPath = [];
@@ -231,21 +242,6 @@ function getParentPath(entityUri, sub) {
   }
   return parentPath;
 }
-
-var __defProp$1 = Object.defineProperty;
-var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
-var __decorateClass$1 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$1(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp$1(target, key, result);
-  return result;
-};
-require("debug")("rde:rdf:types");
-const defaultGraphNode = new rdf.NamedNode(rdf.Store.defaultGraphURI);
-const errors = {};
 const rdfLitAsNumber = (lit) => {
   const n = Number(lit.value);
   if (!isNaN(n)) {
@@ -1336,51 +1332,7 @@ var shapes = /*#__PURE__*/Object.freeze({
   generateSubnode: generateSubnode
 });
 
-const MDIcon = (props) => /* @__PURE__ */ jsx(Img, {
-  src: "/icons/Markdown-mark.svg",
-  ...props
-});
-const AddIcon = AddCircleOutlineIcon;
-const RemoveIcon = RemoveCircleOutlineIcon;
-
-const debug$8 = require("debug")("rde:rdf:lang");
-const ValueByLangToStrPrefLang = (vbl, prefLang) => {
-  if (vbl == null)
-    return "";
-  if (!Array.isArray(prefLang))
-    prefLang = [prefLang];
-  for (const pL of prefLang) {
-    if (pL in vbl)
-      return vbl[pL];
-  }
-  const vals = Object.values(vbl);
-  if (vals[0])
-    return vals[0];
-  return "";
-};
-const cache = {};
-const langsWithDefault = (defaultLanguage, langs) => {
-  if (defaultLanguage in cache)
-    return cache[defaultLanguage];
-  let res = langs.filter((l) => l.value === defaultLanguage);
-  if (!res?.length) {
-    debug$8("can't find defaultLanguage ", defaultLanguage, " in languages");
-    return langs;
-  }
-  res = res.concat(langs.filter((l) => l.value !== defaultLanguage));
-  cache[defaultLanguage] = res;
-  return res;
-};
-
-require("debug")("rde:entity:selector");
-
-require("debug")("rde:entity:selector");
-makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    backgroundColor: theme.palette.background.paper
-  }
-}));
+require("debug")("rde:common");
 var EditedEntityState = /* @__PURE__ */ ((EditedEntityState2) => {
   EditedEntityState2[EditedEntityState2["Error"] = 0] = "Error";
   EditedEntityState2[EditedEntityState2["Saved"] = 1] = "Saved";
@@ -1397,8 +1349,6 @@ const defaultEntityLabelAtom = atom({
   key: "defaultEntityLabelAtom",
   default: [new LiteralWithId("...", "en")]
 });
-
-require("debug")("rde:common");
 const uiLangState = atom({
   key: "uiLangState",
   default: ["en"]
@@ -1611,7 +1561,7 @@ const ESfromRecoilSelector = selectorFamily({
     const n = entities.findIndex((e) => e.subjectQname === args.entityQname);
     if (n > -1) {
       const ent = entities[n];
-      if (args.status === EditedEntityState.Error) {
+      if (args.status === 0 /* Error */) {
         if (!errors[ent.subjectQname])
           errors[ent.subjectQname] = {};
         errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id] = true;
@@ -1622,7 +1572,7 @@ const ESfromRecoilSelector = selectorFamily({
         }
         return;
       }
-      const status = ent.etag && (!args.undo || args.undo.prev && !args.undo.prev.enabled) && !ent.loadedUnsavedFromLocalStorage ? EditedEntityState.Saved : EditedEntityState.NeedsSaving;
+      const status = ent.etag && (!args.undo || args.undo.prev && !args.undo.prev.enabled) && !ent.loadedUnsavedFromLocalStorage ? 1 /* Saved */ : 2 /* NeedsSaving */;
       const hasError = errors[ent.subjectQname] && errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id];
       if (ent.state != status || hasError && args.forceRemove) {
         if (args.removingFacet) {
@@ -1664,7 +1614,7 @@ const isUniqueTestSelector = selectorFamily({
   }
 });
 
-const debug$7 = require("debug")("rde:rdf:io");
+const debug$8 = require("debug")("rde:rdf:io");
 const defaultFetchTtlHeaders = new Headers();
 defaultFetchTtlHeaders.set("Accept", "text/turtle");
 const fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, allowEmptyEtag = true) => {
@@ -1742,7 +1692,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
         }
         setLoadingState({ status: "fetched", error: void 0 });
       } catch (e) {
-        debug$7("shape error:", e);
+        debug$8("shape error:", e);
         setLoadingState({ status: "error", error: "error fetching shape or ontology" });
       }
     }
@@ -1785,7 +1735,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       return;
     async function fetchResource(entityQname2) {
       setEntityLoadingState({ status: "fetching", error: void 0 });
-      debug$7("fetching", entity, shapeQname, entityQname2, entities);
+      debug$8("fetching", entity, shapeQname, entityQname2, entities);
       let loadRes, useLocal, notFound, etag, res, needsSaving;
       const localEntities = await config.getUserLocalEntities();
       if (reloadEntity !== entityQname2 && shapeQname && localEntities[entityQname2] !== void 0) {
@@ -1796,10 +1746,10 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
             rdf.parse(localEntities[entityQname2].ttl, store, rdf.Store.defaultGraphURI, "text/turtle");
             etag = localEntities[entityQname2].etag;
             needsSaving = localEntities[entityQname2].needsSaving;
-            debug$7("nS:", needsSaving);
+            debug$8("nS:", needsSaving);
           } catch (e) {
-            debug$7(e);
-            debug$7(localEntities[entityQname2]);
+            debug$8(e);
+            debug$8(localEntities[entityQname2]);
             window.alert("could not load local data, fetching remote version");
             useLocal = false;
             delete localEntities[entityQname2];
@@ -1879,7 +1829,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
         if (reloadEntity)
           setReloadEntity("");
       } catch (e) {
-        debug$7("e:", e.message, e);
+        debug$8("e:", e.message, e);
         setDisabled(false);
         setEntityLoadingState({
           status: "error",
@@ -1918,6 +1868,42 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   return retVal;
 }
 
+const MDIcon = (props) => /* @__PURE__ */ jsx(Img, {
+  src: "/icons/Markdown-mark.svg",
+  ...props
+});
+const AddIcon = AddCircleOutlineIcon;
+const RemoveIcon = RemoveCircleOutlineIcon;
+
+const debug$7 = require("debug")("rde:rdf:lang");
+const ValueByLangToStrPrefLang = (vbl, prefLang) => {
+  if (vbl == null)
+    return "";
+  if (!Array.isArray(prefLang))
+    prefLang = [prefLang];
+  for (const pL of prefLang) {
+    if (pL in vbl)
+      return vbl[pL];
+  }
+  const vals = Object.values(vbl);
+  if (vals[0])
+    return vals[0];
+  return "";
+};
+const cache = {};
+const langsWithDefault = (defaultLanguage, langs) => {
+  if (defaultLanguage in cache)
+    return cache[defaultLanguage];
+  let res = langs.filter((l) => l.value === defaultLanguage);
+  if (!res?.length) {
+    debug$7("can't find defaultLanguage ", defaultLanguage, " in languages");
+    return langs;
+  }
+  res = res.concat(langs.filter((l) => l.value !== defaultLanguage));
+  cache[defaultLanguage] = res;
+  return res;
+};
+
 const debug$6 = require("debug")("rde:entity:container:ValueList");
 function replaceItemAtIndex$1(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
@@ -1925,6 +1911,45 @@ function replaceItemAtIndex$1(arr, index, newValue) {
 function removeItemAtIndex(arr, index) {
   return [...arr.slice(0, index), ...arr.slice(index + 1)];
 }
+const PropertyContainer = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
+  property.objectType;
+  const [css, setCss] = useState("");
+  const setCssClass = (txt, add = true) => {
+    if (add) {
+      if (!css.includes(txt))
+        setCss(css + txt + " ");
+    } else {
+      if (css.includes(txt))
+        setCss(css.replace(new RegExp(txt), ""));
+    }
+  };
+  return /* @__PURE__ */ jsx(React.Fragment, {
+    children: /* @__PURE__ */ jsx("div", {
+      role: "main",
+      ...css ? { className: css } : {},
+      children: /* @__PURE__ */ jsx("section", {
+        className: "album",
+        children: /* @__PURE__ */ jsx("div", {
+          className: "container" + (embedded ? " px-0" : "") + " editable-" + editable,
+          style: { border: "dashed 1px none" },
+          children: /* @__PURE__ */ jsx(ValueList, {
+            subject,
+            property,
+            embedded,
+            force,
+            editable,
+            ...owner ? { owner } : {},
+            ...topEntity ? { topEntity } : {},
+            shape,
+            siblingsPath,
+            setCssClass,
+            config
+          })
+        })
+      })
+    })
+  });
+};
 const MinimalAddButton = ({ add, className, disable }) => {
   return /* @__PURE__ */ jsx("div", {
     className: "minimalAdd disable_" + disable + (className !== void 0 ? className : " text-right"),
@@ -3454,47 +3479,6 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
   return /* @__PURE__ */ jsx(Fragment, {});
 };
 
-require("debug")("rde:entity:property");
-const PropertyContainer = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
-  property.objectType;
-  const [css, setCss] = useState("");
-  const setCssClass = (txt, add = true) => {
-    if (add) {
-      if (!css.includes(txt))
-        setCss(css + txt + " ");
-    } else {
-      if (css.includes(txt))
-        setCss(css.replace(new RegExp(txt), ""));
-    }
-  };
-  return /* @__PURE__ */ jsx(React.Fragment, {
-    children: /* @__PURE__ */ jsx("div", {
-      role: "main",
-      ...css ? { className: css } : {},
-      children: /* @__PURE__ */ jsx("section", {
-        className: "album",
-        children: /* @__PURE__ */ jsx("div", {
-          className: "container" + (embedded ? " px-0" : "") + " editable-" + editable,
-          style: { border: "dashed 1px none" },
-          children: /* @__PURE__ */ jsx(ValueList, {
-            subject,
-            property,
-            embedded,
-            force,
-            editable,
-            ...owner ? { owner } : {},
-            ...topEntity ? { topEntity } : {},
-            shape,
-            siblingsPath,
-            setCssClass,
-            config
-          })
-        })
-      })
-    })
-  });
-};
-
 const debug$5 = require("debug")("rde:entity:propertygroup");
 const redIcon = new L.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
@@ -3871,25 +3855,33 @@ function EntityEditContainer(props) {
   );
   const icon = config.iconFromEntity(entityObj.length ? entityObj[0] : null);
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config);
-  const canPushPrefLabelGroups = shape?.groups.reduce((acc, group) => {
-    const props2 = group.properties.filter((p) => p.allowPushToTopLevelLabel).map((p) => {
-      if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
-        return entityObj[0].subject.getAtomForProperty(p.path.sparqlString);
-    }).filter((a) => a != void 0);
-    const subprops = group.properties.reduce((accG, p) => {
-      const allowPush = p.targetShape?.properties.filter((s) => s.allowPushToTopLevelLabel).map((s) => s.path?.sparqlString);
-      if (allowPush?.length && entityObj && entityObj[0] && entityObj[0].subject && p.path)
-        return {
-          ...accG,
-          [p.qname]: { atom: entityObj[0].subject.getAtomForProperty(p.path.sparqlString), allowPush }
-        };
-      return accG;
-    }, {});
-    if (props2?.length || Object.keys(subprops).length)
-      return { ...acc, [group.qname]: { props: props2, subprops } };
-    return { ...acc };
-  }, {});
-  const possiblePrefLabels = useRecoilValue(canPushPrefLabelGroups ? possiblePrefLabelsSelector({ canPushPrefLabelGroups }) : initMapAtom);
+  const canPushPrefLabelGroups = shape?.groups.reduce(
+    (acc, group) => {
+      const props2 = group.properties.filter((p) => p.allowPushToTopLevelLabel).map((p) => {
+        if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
+          return entityObj[0].subject.getAtomForProperty(p.path.sparqlString);
+      }).filter((a) => a != void 0);
+      const subprops = group.properties.reduce(
+        (accG, p) => {
+          const allowPush = p.targetShape?.properties.filter((s) => s.allowPushToTopLevelLabel).map((s) => s.path?.sparqlString);
+          if (allowPush?.length && entityObj && entityObj[0] && entityObj[0].subject && p.path)
+            return {
+              ...accG,
+              [p.qname]: { atom: entityObj[0].subject.getAtomForProperty(p.path.sparqlString), allowPush }
+            };
+          return accG;
+        },
+        {}
+      );
+      if (props2?.length || Object.keys(subprops).length)
+        return { ...acc, [group.qname]: { props: props2, subprops } };
+      return { ...acc };
+    },
+    {}
+  );
+  const possiblePrefLabels = useRecoilValue(
+    canPushPrefLabelGroups ? possiblePrefLabelsSelector({ canPushPrefLabelGroups }) : initMapAtom
+  );
   let prefLabelAtom = entityObj[0]?.subject?.getAtomForProperty(SKOS("prefLabel").value);
   if (!prefLabelAtom)
     prefLabelAtom = initListAtom;

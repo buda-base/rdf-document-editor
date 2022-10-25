@@ -3,7 +3,7 @@ import { RDFResource, Subject, LiteralWithId, RDFResourceWithLabel, ExtRDFResour
 import { NodeShape, PropertyShape } from "./rdf/shapes"
 import { PrefixMap } from "./rdf/ns"
 import { IFetchState } from "./rdf/io"
-import { Entity, EditedEntityState } from "../containers/EntitySelectorContainer"
+import { Entity, EditedEntityState } from "../atoms/common"
 import { Lang } from "./lang"
 import { FC, PropsWithChildren } from "react"
 
@@ -16,7 +16,7 @@ interface valueByLangToStrPrefLang {
 }
 
 export type previewResults = {
-  value: string | null,
+  value: string | null
   error: React.ReactNode | null
 }
 
@@ -29,7 +29,7 @@ interface generateConnectedID {
 }
 
 interface getDocument {
-  (entity: rdf.NamedNode): Promise<{subject: Subject, etag: string}>
+  (entity: rdf.NamedNode): Promise<{ subject: Subject; etag: string }>
 }
 
 interface getConnexGraph {
@@ -62,49 +62,52 @@ interface getUserMenuState {
 
 interface setUserMenuState {
   (
-  subjectQname: string,
-  shapeQname: string | null,
-  labels: string | undefined,
-  del: boolean,
-  etag: string | null
+    subjectQname: string,
+    shapeQname: string | null,
+    labels: string | undefined,
+    del: boolean,
+    etag: string | null
   ): Promise<void>
 }
 
 export interface LocalEntityInfo {
-  shapeQname: string,
-  ttl: string,
-  etag: string | null,
+  shapeQname: string
+  ttl: string
+  etag: string | null
   needsSaving: boolean
 }
 
-type EntityCreatorArgs = {shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, unmounting: {val: boolean}}
+type EntityCreatorArgs = { shapeNode: rdf.NamedNode; entityNode: rdf.NamedNode | null; unmounting: { val: boolean } }
 
 type EntityCreatorProps = PropsWithChildren<EntityCreatorArgs>
 
 interface entityCreator {
-  (shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, 
-      unmounting: {val: boolean}): { entityLoadingState: IFetchState, entity: Subject | null, reset: () => void }
+  (shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, unmounting: { val: boolean }): {
+    entityLoadingState: IFetchState
+    entity: Subject | null
+    reset: () => void
+  }
 }
 
 type localEntityInfo = {
-  subjectQname: string,
-  shapeQname: string,
-  ttl: string,
-  del: boolean,
-  userId: string,
-  etag: string | null,
+  subjectQname: string
+  shapeQname: string
+  ttl: string
+  del: boolean
+  userId: string
+  etag: string | null
   needsSaving: boolean
 }
 
 interface setUserLocalEntity {
   (
-  subjectQname: string,
-  shapeQname: string | null,
-  ttl: string | null,
-  del: boolean,
-  userId: string,
-  etag: string | null,
-  needsSaving: boolean
+    subjectQname: string,
+    shapeQname: string | null,
+    ttl: string | null,
+    del: boolean,
+    userId: string,
+    etag: string | null,
+    needsSaving: boolean
   ): Promise<void>
 }
 
@@ -134,7 +137,7 @@ type ResourceSelector = FC<{
   title: string
   globalError: string
   updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
-  shape: NodeShape,
+  shape: NodeShape
   config: RDEConfig
 }>
 

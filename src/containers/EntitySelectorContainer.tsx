@@ -1,6 +1,6 @@
 /* eslint-disable no-extra-parens */
 import React, { useState, FC, useEffect, ChangeEvent } from "react"
-import { Subject, RDFResourceWithLabel, RDFResource, Value, LiteralWithId } from "../helpers/rdf/types"
+import { history as undoHistory } from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
 import { FiPower as LogoutIcon } from "react-icons/fi"
 import { InputLabel, Select, MenuItem } from "@material-ui/core"
@@ -10,7 +10,6 @@ import { atom, useRecoilState, useRecoilValue, selectorFamily, RecoilState } fro
 import { useAuth0 } from "@auth0/auth0-react"
 import { FormHelperText, FormControl } from "@material-ui/core"
 import { RDEProps, IdTypeParams } from "../helpers/editor_props"
-import { history as undoHistory } from "../helpers/observer"
 import RDEConfig from "../helpers/rde_config"
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from "react-router-dom"
 import {
@@ -21,6 +20,10 @@ import {
   uiGroupState,
   uiDisabledTabsState,
   userIdState,
+  entitiesAtom,
+  defaultEntityLabelAtom,
+  EditedEntityState,
+  Entity,
 } from "../atoms/common"
 import { makeStyles } from "@material-ui/core/styles"
 import Tabs from "@material-ui/core/Tabs"
@@ -45,35 +48,6 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
   },
 }))
-
-export enum EditedEntityState {
-  Error,
-  Saved,
-  NeedsSaving,
-  Loading,
-  NotLoaded,
-}
-
-export type Entity = {
-  subjectQname: string
-  subject: Subject | null
-  shapeQname: string
-  state: EditedEntityState
-  subjectLabelState: RecoilState<Array<Value>>
-  preloadedLabel?: string
-  etag: string | null
-  loadedUnsavedFromLocalStorage: boolean // true when localStorage has unsaved changes
-}
-
-export const entitiesAtom = atom<Array<Entity>>({
-  key: "entities",
-  default: [],
-})
-
-export const defaultEntityLabelAtom = atom<Array<Value>>({
-  key: "defaultEntityLabelAtom",
-  default: [new LiteralWithId("...", "en")], // TODO: use the i18n stuff
-})
 
 export function EntitySelector(props: RDEProps) {
   const config = props.config

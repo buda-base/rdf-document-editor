@@ -11,6 +11,7 @@ import {
   ExtRDFResourceWithLabel,
   errors,
   noneSelected,
+  getHistoryStatus,
 } from "../helpers/rdf/types"
 import { putTtl } from "../helpers/rdf/io"
 import * as shapes from "../helpers/rdf/shapes"
@@ -33,9 +34,7 @@ import {
   HelpIcon,
 } from "../routes/layout/icons"
 import i18n from "i18next"
-import PropertyContainer from "./PropertyContainer"
 import { ValueByLangToStrPrefLang, langsWithDefault } from "../helpers/lang"
-import { history, HistoryStatus, getHistoryStatus } from "../helpers/observer"
 import RDEConfig from "../helpers/rde_config"
 import {
   reloadEntityState,
@@ -53,9 +52,11 @@ import {
   isUniqueTestSelector,
   orderedNewValSelectorType,
   isUniqueTestSelectorType,
-  initStringAtom
+  initStringAtom,
+  entitiesAtom,
+  Entity,
+  EditedEntityState,
 } from "../atoms/common"
-import { entitiesAtom, Entity, EditedEntityState } from "./EntitySelectorContainer"
 
 import MDEditor, { commands } from "@uiw/react-md-editor"
 
@@ -63,16 +64,70 @@ import { useAuth0 } from "@auth0/auth0-react"
 
 const debug = require("debug")("rde:entity:container:ValueList")
 
-function replaceItemAtIndex(arr:Value[], index:number, newValue: Value): Value[] {
+function replaceItemAtIndex(arr: Value[], index: number, newValue: Value): Value[] {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)]
 }
 
-function removeItemAtIndex(arr:Value[], index:number): Value[] {
+function removeItemAtIndex(arr: Value[], index: number): Value[] {
   return [...arr.slice(0, index), ...arr.slice(index + 1)]
 }
 
+export const PropertyContainer: FC<{
+  property: PropertyShape
+  subject: Subject
+  embedded?: boolean
+  force?: boolean
+  editable: boolean
+  owner?: Subject
+  topEntity?: Subject
+  shape: NodeShape
+  siblingsPath?: string
+  config: RDEConfig
+}> = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
+  const objectType = property.objectType
+
+  //debug("propertyCtn:", property.qname, property, subject.qname, subject, siblingsPath)
+
+  const [css, setCss] = useState("")
+
+  const setCssClass = (txt: string, add = true) => {
+    if (add) {
+      if (!css.includes(txt)) setCss(css + txt + " ")
+    } else {
+      if (css.includes(txt)) setCss(css.replace(new RegExp(txt), ""))
+    }
+  }
+
+  return (
+    <React.Fragment>
+      <div role="main" {...(css ? { className: css } : {})}>
+        <section className="album">
+          <div
+            className={"container" + (embedded ? " px-0" : "") + " editable-" + editable}
+            style={{ border: "dashed 1px none" }}
+          >
+            <ValueList
+              subject={subject}
+              property={property}
+              embedded={embedded}
+              force={force}
+              editable={editable}
+              {...(owner ? { owner } : {})}
+              {...(topEntity ? { topEntity } : {})}
+              shape={shape}
+              siblingsPath={siblingsPath}
+              setCssClass={setCssClass}
+              config={config}
+            />
+          </div>
+        </section>
+      </div>
+    </React.Fragment>
+  )
+}
+
 export const MinimalAddButton: FC<{
-  add: (e:React.MouseEvent<HTMLButtonElement>, n:number) => Promise<void>
+  add: (e: React.MouseEvent<HTMLButtonElement>, n: number) => Promise<void>
   className: string
   disable?: boolean
 }> = ({ add, className, disable }) => {
@@ -82,19 +137,22 @@ export const MinimalAddButton: FC<{
         "minimalAdd " + "disable_" + disable + (className !== undefined ? className : " text-right")
       } /*style={{ width: "100%" }}*/
     >
-      <button className="btn btn-link ml-2 px-0" 
-        onClick={(ev:React.MouseEvent<HTMLButtonElement>) => add(ev,1)} {...(disable ? { disabled: true } : {})}>
+      <button
+        className="btn btn-link ml-2 px-0"
+        onClick={(ev: React.MouseEvent<HTMLButtonElement>) => add(ev, 1)}
+        {...(disable ? { disabled: true } : {})}
+      >
         <AddIcon />
       </button>
     </div>
   )
 }
 
-export const BlockAddButton: FC<{ add: (e:React.MouseEvent<HTMLButtonElement>, n:number) => void;  label?: string; count: number }> = ({
-  add,
-  label,
-  count = 1,
-}) => {
+export const BlockAddButton: FC<{
+  add: (e: React.MouseEvent<HTMLButtonElement>, n: number) => void
+  label?: string
+  count: number
+}> = ({ add, label, count = 1 }) => {
   const [n, setN] = useState(1)
   const [disable, setDisable] = useState(false)
 
@@ -119,7 +177,7 @@ export const BlockAddButton: FC<{ add: (e:React.MouseEvent<HTMLButtonElement>, n
           pointerEvents: disable ? "none" : "auto",
           ...disable ? { opacity: 0.5, pointerEvents: "none" } : {},
         }}
-        onClick={(e:React.MouseEvent<HTMLButtonElement>) => add(e, n)}
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) => add(e, n)}
         //disabled={disable}
       >
         <>
@@ -239,7 +297,7 @@ const ValueList: FC<{
   topEntity?: Subject
   shape: NodeShape
   siblingsPath?: string
-  setCssClass?: (s:string, add: boolean) => void
+  setCssClass?: (s: string, add: boolean) => void
   config: RDEConfig
 }> = ({ subject, property, embedded, force, editable, owner, topEntity, shape, siblingsPath, setCssClass, config }) => {
   if (property.path == null) throw "can't find path of " + property.qname
@@ -253,22 +311,23 @@ const ValueList: FC<{
   const [entities, setEntities] = useRecoilState(entitiesAtom)
 
   const sortOnPath = property?.sortOnProperty?.value
-  const orderedList:Value[] = useRecoilValue(
+  const orderedList: Value[] = useRecoilValue(
     orderedByPropSelector({
       atom: subject.getAtomForProperty(property.path.sparqlString),
       propertyPath: sortOnPath || "",
       //order: "desc" // default is "asc"
     } as orderedByPropSelectorArgs)
   )
-  let list:Value[] = unsortedList
+  let list: Value[] = unsortedList
   if (orderedList.length) list = orderedList
 
   const withOrder = shape.properties.filter((p) => p.sortOnProperty?.value === property.path?.sparqlString)
-  let newVal:string|number = useRecoilValue(
+  let newVal: string | number = useRecoilValue(
     orderedNewValSelector({
-      atom: withOrder.length && withOrder[0].path
-        ? (topEntity ? topEntity : subject).getAtomForProperty(withOrder[0].path.sparqlString)
-        : null,
+      atom:
+        withOrder.length && withOrder[0].path
+          ? (topEntity ? topEntity : subject).getAtomForProperty(withOrder[0].path.sparqlString)
+          : null,
       propertyPath: property.path.sparqlString,
       //order: "desc" // default is "asc"
     } as orderedNewValSelectorType)
@@ -362,7 +421,7 @@ const ValueList: FC<{
           else if (owner) owner.noHisto()
           else subject.noHisto()
           //debug("setNoH:1a",subject,owner,topEntity)
-          setList(vals.concat(Array.isArray(res)?res:[res]))
+          setList(vals.concat(Array.isArray(res) ? res : [res]))
         }
         setListAsync()
       } else {
@@ -381,24 +440,24 @@ const ValueList: FC<{
     ) {
       if (!firstValueIsEmptyField) {
         const setListAsync = async () => {
-          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(),config)
+          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config)
           // dont store empty value autocreation
           if (topEntity) topEntity.noHisto()
           else if (owner) owner.noHisto()
           else subject.noHisto()
           //debug("setNoH:2",subject,owner,topEntity)
-          setList((oldList) => (Array.isArray(res)?res:[res]).concat(oldList))
+          setList((oldList) => (Array.isArray(res) ? res : [res]).concat(oldList))
         }
         setListAsync()
       } else {
         const setListAsync = async () => {
-          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(),config)
+          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config)
           // dont store empty value autocreation
           if (topEntity) topEntity.noHisto()
           else if (owner) owner.noHisto()
           else subject.noHisto()
           //debug("setNoH:2",subject,owner,topEntity)
-          setList((oldList) => oldList.concat(Array.isArray(res)?res:[res]))
+          setList((oldList) => oldList.concat(Array.isArray(res) ? res : [res]))
         }
         setListAsync()
       }
@@ -410,7 +469,7 @@ const ValueList: FC<{
         else if (owner) owner.noHisto()
         else subject.noHisto()
         //debug("setNoH:3",subject,owner,topEntity)
-        setList((oldList) => (Array.isArray(res)?res:[res]).concat(oldList))
+        setList((oldList) => (Array.isArray(res) ? res : [res]).concat(oldList))
       }
       setListAsync()
     } else if (
@@ -439,7 +498,7 @@ const ValueList: FC<{
         else if (owner) owner.noHisto()
         else subject.noHisto()
         //debug("setNoH:5",subject,owner,topEntity)
-        setList(Array.isArray(res)?res:[res])
+        setList(Array.isArray(res) ? res : [res])
       }
       setListAsync()
     }
@@ -520,103 +579,113 @@ const ValueList: FC<{
   )
 
   // see https://stackoverflow.com/questions/55026139/whats-the-difference-between-usecallback-with-an-empty-array-as-inputs-and-u
-  const renderListElem = useMemo(() => (val: Value, i: number, nbvalues: number) => {
-    //debug("render:", property.qname, isUniqueValueAmongSiblings, property, val, i)
+  const renderListElem = useMemo(
+    () => (val: Value, i: number, nbvalues: number) => {
+      //debug("render:", property.qname, isUniqueValueAmongSiblings, property, val, i)
 
-    if (
-      val instanceof RDFResourceWithLabel ||
-      property.objectType == ObjectType.ResInList ||
-      property.objectType == ObjectType.LitInList
-    ) {
-      if (property.objectType == ObjectType.ResExt)
+      if (
+        val instanceof RDFResourceWithLabel ||
+        property.objectType == ObjectType.ResInList ||
+        property.objectType == ObjectType.LitInList
+      ) {
+        if (property.objectType == ObjectType.ResExt)
+          return (
+            <ExtEntityComponent
+              key={val.id + ":" + i}
+              subject={subject}
+              property={property}
+              extRes={val as ExtRDFResourceWithLabel}
+              canDel={canDel && (i > 0 || !(val instanceof LiteralWithId) && val.uri !== "tmp:uri")}
+              onChange={onChange}
+              idx={i}
+              exists={exists}
+              editable={editable}
+              {...(owner ? { owner } : {})}
+              title={titleCase(propLabel)}
+              updateEntityState={updateEntityState}
+              shape={shape}
+              config={config}
+            />
+          )
+        else if (val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
+          addBtn = false
+          // eslint-disable-next-line no-extra-parens
+          const canSelectNone = (i == 0 && !property.minCount) || (i > 0 && i == nbvalues - 1)
+          return (
+            <SelectComponent
+              key={"select_" + val.id + "_" + i}
+              canSelectNone={canSelectNone}
+              subject={subject}
+              property={property}
+              res={val}
+              selectIdx={i}
+              canDel={canDel && val != noneSelected}
+              editable={editable}
+              create={
+                canAdd ? (
+                  <Create
+                    subject={subject}
+                    property={property}
+                    embedded={embedded}
+                    newVal={Number(newVal)}
+                    shape={shape}
+                    config={config}
+                  />
+                ) : undefined
+              }
+              updateEntityState={updateEntityState}
+            />
+          )
+        }
+      } else if (val instanceof Subject) {
+        addBtn = true
         return (
-          <ExtEntityComponent
-            key={val.id + ":" + i}
+          <FacetComponent
+            key={val.id}
             subject={subject}
             property={property}
-            extRes={val as ExtRDFResourceWithLabel}
-            canDel={canDel && (i > 0 || !(val instanceof LiteralWithId) && val.uri !== "tmp:uri")}
-            onChange={onChange}
-            idx={i}
-            exists={exists}
+            subNode={val}
+            canDel={canDel && editable}
+            {...(force ? { force } : {})}
             editable={editable}
-            {...(owner ? { owner } : {})}
-            title={titleCase(propLabel)}
+            {...(topEntity ? { topEntity } : { topEntity: subject })}
             updateEntityState={updateEntityState}
             shape={shape}
             config={config}
           />
         )
-      else if(val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
+      } else if (val instanceof LiteralWithId) {
         addBtn = false
-        // eslint-disable-next-line no-extra-parens
-        const canSelectNone = (i == 0 && !property.minCount) || (i > 0 && i == nbvalues - 1)
+        const isUniqueLang = list.filter((l) => l instanceof LiteralWithId && l.language === val.language).length === 1
+
         return (
-          <SelectComponent
-            key={"select_" + val.id + "_" + i}
-            canSelectNone={canSelectNone}
+          <LiteralComponent
+            key={val.id}
             subject={subject}
             property={property}
-            res={val}
-            selectIdx={i}
-            canDel={canDel && val != noneSelected}
-            editable={editable}
+            lit={val}
+            {...{ canDel, isUniqueLang, isUniqueValueAmongSiblings }}
             create={
-              canAdd
-              ?  <Create subject={subject} property={property} embedded={embedded} newVal={Number(newVal)} shape={shape} config={config}/>
-              : undefined
+              <Create
+                disable={!canAdd || !(val && val.value !== "")}
+                subject={subject}
+                property={property}
+                embedded={embedded}
+                newVal={Number(newVal)}
+                shape={shape}
+                config={config}
+              />
             }
+            editable={editable}
+            topEntity={topEntity}
             updateEntityState={updateEntityState}
+            config={config}
           />
         )
       }
-    } else if (val instanceof Subject) {
-      addBtn = true
-      return (
-        <FacetComponent
-          key={val.id}
-          subject={subject}
-          property={property}
-          subNode={val}
-          canDel={canDel && editable}
-          {...(force ? { force } : {})}
-          editable={editable}
-          {...(topEntity ? { topEntity } : { topEntity: subject })}
-          updateEntityState={updateEntityState}
-          shape={shape}
-          config={config}
-        />
-      )
-    } else if (val instanceof LiteralWithId) {
-      addBtn = false
-      const isUniqueLang = list.filter((l) => l instanceof LiteralWithId && l.language === val.language).length === 1
-
-      return (
-        <LiteralComponent
-          key={val.id}
-          subject={subject}
-          property={property}
-          lit={val}
-          {...{ canDel, isUniqueLang, isUniqueValueAmongSiblings }}
-          create={
-            <Create
-              disable={!canAdd || !(val && val.value !== "")}
-              subject={subject}
-              property={property}
-              embedded={embedded}
-              newVal={Number(newVal)}
-              shape={shape}
-              config={config}
-            />
-          }
-          editable={editable}
-          topEntity={topEntity}
-          updateEntityState={updateEntityState}
-          config={config}
-        />
-      )
-    }
-  }, undefined)
+    },
+    undefined
+  )
 
   return (
     <React.Fragment>
@@ -672,7 +741,14 @@ const ValueList: FC<{
         </div>
       </div>
       {canAdd && addBtn && (
-        <Create subject={subject} property={property} embedded={embedded} newVal={Number(newVal)} shape={shape} config={config}/>
+        <Create
+          subject={subject}
+          property={property}
+          embedded={embedded}
+          newVal={Number(newVal)}
+          shape={shape}
+          config={config}
+        />
       )}
     </React.Fragment>
   )
@@ -694,12 +770,11 @@ type CreateComponentType = FC<{
 const Create: CreateComponentType = ({ subject, property, embedded, disable, newVal, shape, config }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
-  let collecNode:rdf.Collection|null = null
-  if(list.length === 1 && list[0] instanceof RDFResource
-     && list[0].node && list[0].node instanceof rdf.Collection) {
+  let collecNode: rdf.Collection | null = null
+  if (list.length === 1 && list[0] instanceof RDFResource && list[0].node && list[0].node instanceof rdf.Collection) {
     collecNode = list[0].node
   }
-  const collec:any[]|undefined = collecNode?.termType === "Collection" ? collecNode?.elements : undefined
+  const collec: any[] | undefined = collecNode?.termType === "Collection" ? collecNode?.elements : undefined
   const listOrCollec = collec ? collec : list
   const [uiLang] = useRecoilState(uiLangState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
@@ -712,7 +787,7 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState)
 
   let nextVal = useRecoilValue(
-      property.sortOnProperty
+    property.sortOnProperty
       ? orderedNewValSelector({
           atom: property.sortOnProperty ? subject.getAtomForProperty(property.path.sparqlString) : null,
           propertyPath: property.sortOnProperty.value,
@@ -720,16 +795,20 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
         } as orderedNewValSelectorType)
       : initStringAtom
   )
-  const sortProps = property.targetShape?.properties.filter((p) => p.path?.sparqlString === property.sortOnProperty?.value)
+  const sortProps = property.targetShape?.properties.filter(
+    (p) => p.path?.sparqlString === property.sortOnProperty?.value
+  )
   if (sortProps?.length) {
     const sortProp = sortProps[0]
-    if (sortProp?.minInclusive != null && Number(nextVal) < sortProp.minInclusive) nextVal = sortProp.minInclusive.toString()
-    if (sortProp?.maxInclusive != null && Number(nextVal) > sortProp.maxInclusive) nextVal = sortProp.maxInclusive.toString()
+    if (sortProp?.minInclusive != null && Number(nextVal) < sortProp.minInclusive)
+      nextVal = sortProp.minInclusive.toString()
+    if (sortProp?.maxInclusive != null && Number(nextVal) > sortProp.maxInclusive)
+      nextVal = sortProp.maxInclusive.toString()
     //debug("create:",shape,nextVal,newVal,property.qname,property) //,subject.getAtomForProperty(property.path.sparqlString))
   }
   let waitForNoHisto = false
 
-  const addItem = async (event:React.MouseEvent<HTMLButtonElement>, n:number) => {
+  const addItem = async (event: React.MouseEvent<HTMLButtonElement>, n: number) => {
     /* // refactoring needed
 
     if (n > 1) {
@@ -921,7 +1000,7 @@ const EditLangString: FC<{
     error: true,
   }
 
-  const [preview, setPreview] = useState<string|null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
   useLayoutEffect(() => {
     if (document.activeElement === inputRef.current) {
       const { value, error } = config.previewLiteral(lit, uiLang)
@@ -974,12 +1053,12 @@ const EditLangString: FC<{
 
   const pushAsPrefLabel = () => {
     //debug("pL:",prefLabels,lit)
-    let newPrefLabels:Value[] = [],
+    let newPrefLabels: Value[] = [],
       found = false
     for (const l in prefLabels) {
-      if (prefLabels[l] instanceof LiteralWithId) { 
+      if (prefLabels[l] instanceof LiteralWithId) {
         const litWi = prefLabels[l] as LiteralWithId
-        if(litWi.language === lit.language) {
+        if (litWi.language === lit.language) {
           found = true
           newPrefLabels = replaceItemAtIndex(prefLabels, Number(l), lit)
           break
@@ -1166,7 +1245,9 @@ export const LangSelect: FC<{
     onChange(event.target.value as string)
   }
 
-  const languages = property?.defaultLanguage ? langsWithDefault(property.defaultLanguage, config.possibleLiteralLangs) : config.possibleLiteralLangs
+  const languages = property?.defaultLanguage
+    ? langsWithDefault(property.defaultLanguage, config.possibleLiteralLangs)
+    : config.possibleLiteralLangs
 
   return (
     <div style={{ position: "relative" }}>
@@ -1213,8 +1294,8 @@ const EditString: FC<{
   const dt = property.datatype
   const pattern = property.pattern ? new RegExp(property.pattern) : undefined
 
-  const [error, setError] = useState<React.ReactNode|null>(null)
-  const [preview, setPreview] = useState<string|null>(null)
+  const [error, setError] = useState<React.ReactNode | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
 
   const getPatternError = (val: string) => {
     let err = ""
@@ -1226,7 +1307,9 @@ const EditString: FC<{
   }
 
   let timerPreview = 0
-  let changeCallback = (val: string):void => { return }
+  let changeCallback = (val: string): void => {
+    return
+  }
   useEffect(() => {
     changeCallback = (val: string) => {
       if (val === "") {
@@ -1241,8 +1324,7 @@ const EditString: FC<{
           const { value } = obj
           let { error } = obj
           setPreview(value)
-          if (!error)
-            error = getPatternError(val)
+          if (!error) error = getPatternError(val)
           setError(error)
           updateEntityState(error ? EditedEntityState.Error : EditedEntityState.Saved, lit.id)
         }, delay)
@@ -1252,11 +1334,13 @@ const EditString: FC<{
   })
 
   const getEmptyStringError = (val: string): React.ReactNode | null => {
-    if (!val && property.minCount)
-      return
-        <>
-          <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} /> <i><>{i18n.t("error.empty")}</></i>
-        </>
+    if (!val && property.minCount) return
+    ;<>
+      <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} />{" "}
+      <i>
+        <>{i18n.t("error.empty")}</>
+      </i>
+    </>
     return null
   }
 
@@ -1283,10 +1367,10 @@ const EditString: FC<{
         onFocus={(e) => changeCallback(e.target.value)}
         onChange={(e) => changeCallback(e.target.value)}
         {...(!editable ? { disabled: true } : {})}
-        { ...error ? { error: true, helperText: error } : {} }
+        {...(error ? { error: true, helperText: error } : {})}
       />
       {preview && (
-        <div className="preview-EDTF" style={{ width: "100%" }}>       
+        <div className="preview-EDTF" style={{ width: "100%" }}>
           <pre>{preview}</pre>
         </div>
       )}
@@ -1473,7 +1557,7 @@ const LiteralComponent: FC<{
   editable,
   topEntity,
   updateEntityState,
-  config
+  config,
 }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
@@ -1604,19 +1688,19 @@ const LiteralComponent: FC<{
 
   return (
     <>
-    <div className={classN} style={{ display: "flex", alignItems: "flex-end" /*, width: "100%"*/ }}>
-      {edit}
-      <div className="hoverPart">
-        <button
-          className="btn btn-link ml-2 px-0 py-0 close-facet-btn"
-          onClick={deleteItem}
-          {...(!canDel ? { disabled: true } : {})}
-        >
-          <RemoveIcon className="my-0 close-facet-btn" />
-        </button>
-        {create}
+      <div className={classN} style={{ display: "flex", alignItems: "flex-end" /*, width: "100%"*/ }}>
+        {edit}
+        <div className="hoverPart">
+          <button
+            className="btn btn-link ml-2 px-0 py-0 close-facet-btn"
+            onClick={deleteItem}
+            {...(!canDel ? { disabled: true } : {})}
+          >
+            <RemoveIcon className="my-0 close-facet-btn" />
+          </button>
+          {create}
+        </div>
       </div>
-    </div>
     </>
   )
 }
@@ -1774,7 +1858,7 @@ const ExtEntityComponent: FC<{
   owner?: Subject
   title: string
   updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
-  shape: NodeShape,
+  shape: NodeShape
   config: RDEConfig
 }> = ({
   extRes,
@@ -1789,7 +1873,7 @@ const ExtEntityComponent: FC<{
   title,
   updateEntityState,
   shape,
-  config
+  config,
 }) => {
   if (property.path == null) throw "can't find path of " + property.qname
   const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
@@ -1964,88 +2048,90 @@ const SelectComponent: FC<{
   }, [])
 
   if (possibleValues.length > 1 || error) {
-  return <>
-      <div className="resSelect" style={{ display: "inline-flex", alignItems: "flex-end" }}>
-        <TextField
-          select
-          className={"selector mr-2"}
-          value={val?.id}
-          key={"textfield_" + selectIdx + "_" + index}
-          style={{ padding: "1px", minWidth: "250px" }}
-          onChange={onChange}
-          label={[
-            propLabel, // ? propLabel : "[unlabelled]",
-            helpMessage ? (
-              <Tooltip key={"tooltip_" + selectIdx + "_" + index} title={helpMessage}>
-                <HelpIcon className="help" />
-              </Tooltip>
-            ) : null,
-          ]}
-          {...(error
-            ? {
-                helperText: (
-                  <React.Fragment>
-                    <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} />
-                    <i> {error}</i>
-                  </React.Fragment>
-                ),
-                error: true,
+    return (
+      <>
+        <div className="resSelect" style={{ display: "inline-flex", alignItems: "flex-end" }}>
+          <TextField
+            select
+            className={"selector mr-2"}
+            value={val?.id}
+            key={"textfield_" + selectIdx + "_" + index}
+            style={{ padding: "1px", minWidth: "250px" }}
+            onChange={onChange}
+            label={[
+              propLabel, // ? propLabel : "[unlabelled]",
+              helpMessage ? (
+                <Tooltip key={"tooltip_" + selectIdx + "_" + index} title={helpMessage}>
+                  <HelpIcon className="help" />
+                </Tooltip>
+              ) : null,
+            ]}
+            {...(error
+              ? {
+                  helperText: (
+                    <React.Fragment>
+                      <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} />
+                      <i> {error}</i>
+                    </React.Fragment>
+                  ),
+                  error: true,
+                }
+              : {})}
+            {...(!editable ? { disabled: true } : {})}
+          >
+            {possibleValues.map((v, k) => {
+              //debug("possible:",v,v.uri)
+              if (v instanceof RDFResourceWithLabel) {
+                const r = v as RDFResourceWithLabel
+                const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang)
+                const span = <span>{label ? label : r.lname}</span>
+                return (
+                  <MenuItem key={"menu-uri_" + selectIdx + r.id} value={r.id} className="withDescription">
+                    {r.description ? (
+                      <Tooltip title={ValueByLangToStrPrefLang(r.description, uiLitLang)}>{span}</Tooltip>
+                    ) : 
+                      span
+                    }
+                  </MenuItem>
+                )
+              } else {
+                const l = v as LiteralWithId
+                return (
+                  <MenuItem
+                    key={"menu-lit_" + selectIdx + l.id + "_" + index + "_" + k}
+                    value={l.id}
+                    className="withDescription"
+                  >
+                    {l.value}
+                  </MenuItem>
+                )
               }
-            : {})}
-          {...(!editable ? { disabled: true } : {})}
-        >
-          {possibleValues.map((v, k) => {
-            //debug("possible:",v,v.uri)
-            if (v instanceof RDFResourceWithLabel) {
-              const r = v as RDFResourceWithLabel
-              const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang)
-              const span = <span>{label ? label : r.lname}</span>
-              return (
-                <MenuItem key={"menu-uri_" + selectIdx + r.id} value={r.id} className="withDescription">
-                  {r.description ? (
-                    <Tooltip title={ValueByLangToStrPrefLang(r.description, uiLitLang)}>{span}</Tooltip>
-                  ) : 
-                    span
-                  }
-                </MenuItem>
-              )
-            } else {
-              const l = v as LiteralWithId
-              return (
-                <MenuItem
-                  key={"menu-lit_" + selectIdx + l.id + "_" + index + "_" + k}
-                  value={l.id}
-                  className="withDescription"
-                >
-                  {l.value}
-                </MenuItem>
-              )
-            }
-          })}
-          {valueNotInList && (
-            <MenuItem
-              key={"extra-val-id"}
-              value={val?.id}
-              className="withDescription"
-              style={{ color: "red" }}
-              disabled
-            >
-              {val?.value}
-            </MenuItem>
-          )}
-        </TextField>
-        <div className="hoverPart">
-          {canDel && (
-            <button className="btn btn-link mx-0 px-0 py-0" onClick={deleteItem}>
-              <RemoveIcon />
-            </button>
-          )}
-          {create}
+            })}
+            {valueNotInList && (
+              <MenuItem
+                key={"extra-val-id"}
+                value={val?.id}
+                className="withDescription"
+                style={{ color: "red" }}
+                disabled
+              >
+                {val?.value}
+              </MenuItem>
+            )}
+          </TextField>
+          <div className="hoverPart">
+            {canDel && (
+              <button className="btn btn-link mx-0 px-0 py-0" onClick={deleteItem}>
+                <RemoveIcon />
+              </button>
+            )}
+            {create}
+          </div>
         </div>
-      </div>
       </>
-    }
-    return <></>
+    )
+  }
+  return <></>
 }
 
 export default ValueList

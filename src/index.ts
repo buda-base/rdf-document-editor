@@ -17,7 +17,7 @@ export { fetchTtl } from "./helpers/rdf/io"
 export type { IFetchState } from "./helpers/rdf/io"
 
 export { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel } from "./helpers/rdf/types"
-export type { Entity } from "./containers/EntitySelectorContainer"
+export type { Entity } from "./atoms/common"
 
 export { default as BUDAResourceSelector } from "./containers/BUDAResourceSelector"
 

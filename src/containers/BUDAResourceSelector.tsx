@@ -8,7 +8,18 @@ import * as rdf from "rdflib"
 import * as shapes from "../helpers/rdf/shapes"
 import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
-import { uiLangState, uiLitLangState, uiTabState, initListAtom, initkvAtom, initMapAtom, toCopySelector } from "../atoms/common"
+import {
+  uiLangState,
+  uiLitLangState,
+  uiTabState,
+  initListAtom,
+  initkvAtom,
+  initMapAtom,
+  toCopySelector,
+  entitiesAtom,
+  EditedEntityState,
+  Entity,
+} from "../atoms/common"
 import {
   RDFResource,
   ExtRDFResourceWithLabel,
@@ -29,7 +40,6 @@ import {
   CloseIcon,
   ContentPasteIcon,
 } from "../routes/layout/icons"
-import { entitiesAtom, EditedEntityState, Entity } from "./EntitySelectorContainer"
 import { LangSelect } from "./ValueList"
 import * as ns from "../helpers/rdf/ns"
 
@@ -82,7 +92,7 @@ const BUDAResourceSelector: FC<{
   title: string
   globalError: string
   updateEntityState: (status: EditedEntityState, id: string, removingFacet?: boolean, forceRemove?: boolean) => void
-  shape: NodeShape,
+  shape: NodeShape
   config: RDEConfig
 }> = ({
   value,
@@ -97,7 +107,7 @@ const BUDAResourceSelector: FC<{
   globalError,
   updateEntityState,
   shape,
-  config
+  config,
 }) => {
   const classes = useStyles()
   const [keyword, setKeyword] = useState("")
@@ -113,7 +123,7 @@ const BUDAResourceSelector: FC<{
   const [popupNew, setPopupNew] = useState(false)
   const [tab, setTab] = useRecoilState(uiTabState)
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [canCopy, setCanCopy] = useState<{k: string, val: Value[]}[]>([])
+  const [canCopy, setCanCopy] = useState<{ k: string; val: Value[] }[]>([])
 
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i)
 
@@ -122,11 +132,11 @@ const BUDAResourceSelector: FC<{
   /// DONE: handle bdsCopyObjectsOfProperty
   const [toCopy, setProp] = useRecoilState(
     toCopySelector({
-          list: property.copyObjectsOfProperty?.map((p) => ({
-            property: ns.defaultPrefixMap.qnameFromUri(p.value),
-            atom: (owner ? owner : subject).getAtomForProperty(p.uri),
-          })),
-        })
+      list: property.copyObjectsOfProperty?.map((p) => ({
+        property: ns.defaultPrefixMap.qnameFromUri(p.value),
+        atom: (owner ? owner : subject).getAtomForProperty(p.uri),
+      })),
+    })
   )
 
   useEffect(() => {
@@ -139,7 +149,7 @@ const BUDAResourceSelector: FC<{
           copy.push({
             k: propQname,
             val: value.otherData[propQname].map(
-              (v:Record<string,string>) => new LiteralWithId(v["@value"], v["@language"], shapes.rdfLangString)
+              (v: Record<string, string>) => new LiteralWithId(v["@value"], v["@language"], shapes.rdfLangString)
             ),
           })
       }
@@ -166,8 +176,7 @@ const BUDAResourceSelector: FC<{
       debug("if:", iframeRef.current)
       iframeRef.current.click()
       const wn = iframeRef.current.contentWindow
-      if (wn)
-        wn.postMessage("click", "*")
+      if (wn) wn.postMessage("click", "*")
     } else {
       if (libraryURL) setLibraryURL("")
     }
@@ -284,7 +293,7 @@ const BUDAResourceSelector: FC<{
       if (isRid) {
         // TODO: return dates in library
         setLibraryURL(
-          config.libraryUrl+"/simple/" + (!keyword.startsWith("bdr:") ? "bdr:" : "") + keyword + "?for=" + msgId
+          config.libraryUrl + "/simple/" + (!keyword.startsWith("bdr:") ? "bdr:" : "") + keyword + "?for=" + msgId
         )
       } else {
         let lang = language
@@ -307,7 +316,8 @@ const BUDAResourceSelector: FC<{
         // DONE move url to config + use dedicated route in library
         // TODO get type from ontology
         setLibraryURL(
-            config.libraryUrl+"/simplesearch?q=" +
+          config.libraryUrl +
+            "/simplesearch?q=" +
             key +
             "&lg=" +
             lang +
@@ -454,7 +464,7 @@ const BUDAResourceSelector: FC<{
   }, [error])
 
   const inputRef = useRef<HTMLInputElement>()
-  const [preview, setPreview] = useState<string|null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
   useLayoutEffect(() => {
     if (document.activeElement === inputRef.current && !isRid && keyword) {
       const previewVal = config.previewLiteral(new rdf.Literal(keyword, language), uiLang)
@@ -485,8 +495,7 @@ const BUDAResourceSelector: FC<{
                   if (e.key === "Enter") onClickKB(e)
                 }}
                 onFocus={() => {
-                  if (!keyword || isRid)
-                    setPreview(null)
+                  if (!keyword || isRid) setPreview(null)
                   const { value, error } = config.previewLiteral(new rdf.Literal(keyword, language), uiLang)
                   setPreview(value)
                 }}
@@ -593,7 +602,7 @@ const BUDAResourceSelector: FC<{
                 &nbsp;
                 <a
                   title={i18n.t("search.help.open")}
-                  href={config.libraryUrl+ "/show/" + value.qname}
+                  href={config.libraryUrl + "/show/" + value.qname}
                   rel="noopener noreferrer"
                   target="_blank"
                 >

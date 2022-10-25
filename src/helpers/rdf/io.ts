@@ -10,9 +10,11 @@ import {
   sessionLoadedState,
   reloadEntityState,
   uiDisabledTabsState,
+  entitiesAtom,
+  EditedEntityState,
+  defaultEntityLabelAtom,
 } from "../../atoms/common"
 import RDEConfig from "../rde_config"
-import { entitiesAtom, EditedEntityState, defaultEntityLabelAtom } from "../../containers/EntitySelectorContainer"
 
 interface StoreWithEtag {
   store: rdf.Store
@@ -71,7 +73,7 @@ export const putTtl = async (
   method = "PUT",
   headers = defaultPutTtlHeaders,
   allowEmptyEtag = true
-): Promise<string|null> => {
+): Promise<string | null> => {
   return new Promise(async (resolve, reject) => {
     const defaultRef = new rdf.NamedNode(rdf.Store.defaultGraphURI)
     rdf.serialize(defaultRef, s, undefined, "text/turtle", async function (err, str) {
@@ -288,7 +290,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
               state: EditedEntityState.NotLoaded,
               preloadedLabel: obj[k].preloadedLabel,
               etag: obj[k].etag,
-              loadedUnsavedFromLocalStorage: true
+              loadedUnsavedFromLocalStorage: true,
             })
           }
         }
@@ -325,7 +327,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
             subject: null,
             subjectLabelState: defaultEntityLabelAtom,
             etag: etag,
-            loadedUnsavedFromLocalStorage: false
+            loadedUnsavedFromLocalStorage: false,
           })
           index = newEntities.length - 1
         }
@@ -350,7 +352,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
         setUiReady(true)
 
         if (reloadEntity) setReloadEntity("")
-      } catch (e:any) {
+      } catch (e: any) {
         debug("e:", e.message, e)
         setDisabled(false)
         setEntityLoadingState({

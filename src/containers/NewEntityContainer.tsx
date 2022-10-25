@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import * as shapes from "../helpers/rdf/shapes"
 import { RDFResourceWithLabel } from "../helpers/rdf/types"
-import { entitiesAtom, EditedEntityState, defaultEntityLabelAtom } from "./EntitySelectorContainer"
 import { uiDisabledTabsState, uiLangState, uiTabState, RIDprefixState, userIdState } from "../atoms/common"
 import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
@@ -17,7 +16,6 @@ import { TextField, MenuItem } from "@material-ui/core"
 const debug = require("debug")("rde:entity:newentity")
 
 function NewEntityContainer(props: RDEProps) {
-
   const config = props.config || {}
 
   const [uiLang] = useRecoilState(uiLangState)
@@ -44,9 +42,7 @@ function NewEntityContainer(props: RDEProps) {
             helperText={"List of all possible shapes"}
             id="shapeSelec"
             className="shapeSelector"
-            value={ 
-              config.possibleShapeRefs[0].qname
-            }
+            value={config.possibleShapeRefs[0].qname}
             style={{ marginTop: "3px", marginLeft: "10px" }}
           >
             {config.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (

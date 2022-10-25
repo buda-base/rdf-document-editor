@@ -1,12 +1,20 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect, useCallback, useRef } from "react"
 import { ShapeFetcher, EntityFetcher, IFetchState } from "../helpers/rdf/io"
 //import { setDefaultPrefixes } from "../helpers/rdf/ns"
-import { RDFResource, Subject, ExtRDFResourceWithLabel, LiteralWithId, Value, sameLanguage } from "../helpers/rdf/types"
+import {
+  RDFResource,
+  Subject,
+  ExtRDFResourceWithLabel,
+  LiteralWithId,
+  Value,
+  sameLanguage,
+  getParentPath,
+  history,
+} from "../helpers/rdf/types"
 import * as shapes from "../helpers/rdf/shapes"
 import { PropertyShape, PropertyGroup } from "../helpers/rdf/shapes"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
 import i18n from "i18next"
-import { entitiesAtom, EditedEntityState, Entity } from "./EntitySelectorContainer"
 import PropertyGroupContainer from "./PropertyGroupContainer"
 import {
   reloadEntityState,
@@ -25,6 +33,9 @@ import {
   toCopySelector,
   canPushPrefLabelGroupType,
   canPushPrefLabelGroupsType,
+  entitiesAtom,
+  EditedEntityState,
+  Entity,
 } from "../atoms/common"
 import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
@@ -36,7 +47,6 @@ import * as ns from "../helpers/rdf/ns"
 import { Navigate } from "react-router-dom"
 import { HashLink as Link } from "react-router-hash-link"
 import queryString from "query-string"
-import { getParentPath, history } from "../helpers/observer"
 import Button from "@material-ui/core/Button"
 import { useLocation, useParams } from "react-router"
 
