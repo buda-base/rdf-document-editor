@@ -113,7 +113,7 @@ const SKOS_uri = "http://www.w3.org/2004/02/skos/core#";
 const SKOS = rdf__namespace.Namespace(SKOS_uri);
 const XSD_uri = "http://www.w3.org/2001/XMLSchema#";
 const XSD = rdf__namespace.Namespace(XSD_uri);
-const FOAF_uri = "http://xmlns.com/foaf/0.1/";
+const FOAF_uri = "http://xmlcom/foaf/0.1/";
 const FOAF = rdf__namespace.Namespace(FOAF_uri);
 const RDE_uri = "https://github.com/buda-base/rdf-document-editor/";
 const RDE = rdf__namespace.Namespace(RDE_uri);
@@ -193,6 +193,62 @@ class PrefixMap {
     return qname.slice(j + 1);
   };
 }
+const rdfType = RDF("type");
+const shProperty = SH("property");
+const shGroup = SH("group");
+const shOrder = SH("order");
+const rdfsLabel = RDFS("label");
+const prefLabel = SKOS("prefLabel");
+const shName = SH("name");
+const shPath = SH("path");
+const dashEditor = DASH("editor");
+const shNode = SH("node");
+const dashListShape = DASH("ListShape");
+const dashEnumSelectEditor = DASH("EnumSelectEditor");
+const shMessage = SH("message");
+const rdeDisplayPriority = RDE("displayPriority");
+const shMinCount = SH("minCount");
+const shMinInclusive = SH("minInclusive");
+const shMinExclusive = SH("minExclusive");
+const shClass = SH("class");
+const shMaxCount = SH("maxCount");
+const shMaxInclusive = SH("maxInclusive");
+const shMaxExclusive = SH("maxExclusive");
+const shDatatype = SH("datatype");
+const dashSingleLine = DASH("singleLine");
+const shTargetClass = SH("targetClass");
+const shTargetObjectsOf = SH("targetObjectsOf");
+const shTargetSubjectsOf = SH("targetSubjectsOf");
+const rdePropertyShapeType = RDE("propertyShapeType");
+const rdeInternalShape = RDE("InternalShape");
+const rdeExternalShape = RDE("ExternalShape");
+const rdeIgnoreShape = RDE("IgnoreShape");
+const rdeClassIn = RDE("classIn");
+const shIn = SH("in");
+const shInversePath = SH("inversePath");
+const shUniqueLang = SH("uniqueLang");
+const rdeReadOnly = RDE("readOnly");
+const rdeIdentifierPrefix = RDE("identifierPrefix");
+const rdeAllowMarkDown = RDE("allowMarkDown");
+const shNamespace = SH("namespace");
+const rdeDefaultLanguage = RDE("defaultLanguage");
+const rdeDefaultValue = RDE("defaultValue");
+const shLanguageIn = SH("languageIn");
+const shPattern = SH("pattern");
+const rdeSortOnProperty = RDE("sortOnProperty");
+const rdeAllowPushToTopLevelLabel = RDE("allowPushToTopLevelLabel");
+const rdeIndependentIdentifiers = RDE("independentIdentifiers");
+const rdeSpecialPattern = RDE("specialPattern");
+const rdeConnectIDs = RDE("connectIDs");
+const rdeAllowBatchManagement = RDE("allowBatchManagement");
+const rdeCopyObjectsOfProperty = RDE("copyObjectsOfProperty");
+const rdeUniqueValueAmongSiblings = RDE("uniqueValueAmongSiblings");
+const rdfLangString = RDF("langString");
+const skosDefinition = SKOS("definition");
+const rdfsComment = RDFS("comment");
+const shDescription = SH("description");
+const defaultLabelProperties = [prefLabel, rdfsLabel, shName];
+const defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription];
 const defaultPrefixMap = new PrefixMap({});
 
 var ns = /*#__PURE__*/Object.freeze({
@@ -216,6 +272,62 @@ var ns = /*#__PURE__*/Object.freeze({
   RDE_uri: RDE_uri,
   RDE: RDE,
   PrefixMap: PrefixMap,
+  rdfType: rdfType,
+  shProperty: shProperty,
+  shGroup: shGroup,
+  shOrder: shOrder,
+  rdfsLabel: rdfsLabel,
+  prefLabel: prefLabel,
+  shName: shName,
+  shPath: shPath,
+  dashEditor: dashEditor,
+  shNode: shNode,
+  dashListShape: dashListShape,
+  dashEnumSelectEditor: dashEnumSelectEditor,
+  shMessage: shMessage,
+  rdeDisplayPriority: rdeDisplayPriority,
+  shMinCount: shMinCount,
+  shMinInclusive: shMinInclusive,
+  shMinExclusive: shMinExclusive,
+  shClass: shClass,
+  shMaxCount: shMaxCount,
+  shMaxInclusive: shMaxInclusive,
+  shMaxExclusive: shMaxExclusive,
+  shDatatype: shDatatype,
+  dashSingleLine: dashSingleLine,
+  shTargetClass: shTargetClass,
+  shTargetObjectsOf: shTargetObjectsOf,
+  shTargetSubjectsOf: shTargetSubjectsOf,
+  rdePropertyShapeType: rdePropertyShapeType,
+  rdeInternalShape: rdeInternalShape,
+  rdeExternalShape: rdeExternalShape,
+  rdeIgnoreShape: rdeIgnoreShape,
+  rdeClassIn: rdeClassIn,
+  shIn: shIn,
+  shInversePath: shInversePath,
+  shUniqueLang: shUniqueLang,
+  rdeReadOnly: rdeReadOnly,
+  rdeIdentifierPrefix: rdeIdentifierPrefix,
+  rdeAllowMarkDown: rdeAllowMarkDown,
+  shNamespace: shNamespace,
+  rdeDefaultLanguage: rdeDefaultLanguage,
+  rdeDefaultValue: rdeDefaultValue,
+  shLanguageIn: shLanguageIn,
+  shPattern: shPattern,
+  rdeSortOnProperty: rdeSortOnProperty,
+  rdeAllowPushToTopLevelLabel: rdeAllowPushToTopLevelLabel,
+  rdeIndependentIdentifiers: rdeIndependentIdentifiers,
+  rdeSpecialPattern: rdeSpecialPattern,
+  rdeConnectIDs: rdeConnectIDs,
+  rdeAllowBatchManagement: rdeAllowBatchManagement,
+  rdeCopyObjectsOfProperty: rdeCopyObjectsOfProperty,
+  rdeUniqueValueAmongSiblings: rdeUniqueValueAmongSiblings,
+  rdfLangString: rdfLangString,
+  skosDefinition: skosDefinition,
+  rdfsComment: rdfsComment,
+  shDescription: shDescription,
+  defaultLabelProperties: defaultLabelProperties,
+  defaultDescriptionProperties: defaultDescriptionProperties,
   defaultPrefixMap: defaultPrefixMap
 });
 
@@ -805,62 +917,6 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 const debug$9 = require("debug")("rde:rdf:shapes");
-const rdfType = RDF("type");
-const shProperty = SH("property");
-const shGroup = SH("group");
-const shOrder = SH("order");
-const rdfsLabel = RDFS("label");
-const prefLabel = SKOS("prefLabel");
-const shName = SH("name");
-const shPath = SH("path");
-const dashEditor = DASH("editor");
-const shNode = SH("node");
-const dashListShape = DASH("ListShape");
-const dashEnumSelectEditor = DASH("EnumSelectEditor");
-const shMessage = SH("message");
-const rdeDisplayPriority = RDE("displayPriority");
-const shMinCount = SH("minCount");
-const shMinInclusive = SH("minInclusive");
-const shMinExclusive = SH("minExclusive");
-const shClass = SH("class");
-const shMaxCount = SH("maxCount");
-const shMaxInclusive = SH("maxInclusive");
-const shMaxExclusive = SH("maxExclusive");
-const shDatatype = SH("datatype");
-const dashSingleLine = DASH("singleLine");
-const shTargetClass = SH("targetClass");
-const shTargetObjectsOf = SH("targetObjectsOf");
-const shTargetSubjectsOf = SH("targetSubjectsOf");
-const rdePropertyShapeType = RDE("propertyShapeType");
-const rdeInternalShape = RDE("InternalShape");
-const rdeExternalShape = RDE("ExternalShape");
-const rdeIgnoreShape = RDE("IgnoreShape");
-const rdeClassIn = RDE("classIn");
-const shIn = SH("in");
-const shInversePath = SH("inversePath");
-const shUniqueLang = SH("uniqueLang");
-const rdeReadOnly = RDE("readOnly");
-const rdeIdentifierPrefix = RDE("identifierPrefix");
-const rdeAllowMarkDown = RDE("allowMarkDown");
-const shNamespace = SH("namespace");
-const rdeDefaultLanguage = RDE("defaultLanguage");
-const rdeDefaultValue = RDE("defaultValue");
-const shLanguageIn = SH("languageIn");
-const shPattern = SH("pattern");
-const rdeSortOnProperty = RDE("sortOnProperty");
-const rdeAllowPushToTopLevelLabel = RDE("allowPushToTopLevelLabel");
-const rdeIndependentIdentifiers = RDE("independentIdentifiers");
-const rdeSpecialPattern = RDE("specialPattern");
-const rdeConnectIDs = RDE("connectIDs");
-const rdeAllowBatchManagement = RDE("allowBatchManagement");
-const rdeCopyObjectsOfProperty = RDE("copyObjectsOfProperty");
-const rdeUniqueValueAmongSiblings = RDE("uniqueValueAmongSiblings");
-const rdfLangString = RDF("langString");
-const skosDefinition = SKOS("definition");
-const rdfsComment = RDFS("comment");
-const shDescription = SH("description");
-const defaultLabelProperties = [prefLabel, rdfsLabel, shName];
-const defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription];
 const sortByPropValue = (nodelist, property, store) => {
   const nodeUriToPropValue = {};
   for (const node of nodelist) {
@@ -1321,62 +1377,6 @@ const generateSubnode = async (subshape, parent) => {
 
 var shapes = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  rdfType: rdfType,
-  shProperty: shProperty,
-  shGroup: shGroup,
-  shOrder: shOrder,
-  rdfsLabel: rdfsLabel,
-  prefLabel: prefLabel,
-  shName: shName,
-  shPath: shPath,
-  dashEditor: dashEditor,
-  shNode: shNode,
-  dashListShape: dashListShape,
-  dashEnumSelectEditor: dashEnumSelectEditor,
-  shMessage: shMessage,
-  rdeDisplayPriority: rdeDisplayPriority,
-  shMinCount: shMinCount,
-  shMinInclusive: shMinInclusive,
-  shMinExclusive: shMinExclusive,
-  shClass: shClass,
-  shMaxCount: shMaxCount,
-  shMaxInclusive: shMaxInclusive,
-  shMaxExclusive: shMaxExclusive,
-  shDatatype: shDatatype,
-  dashSingleLine: dashSingleLine,
-  shTargetClass: shTargetClass,
-  shTargetObjectsOf: shTargetObjectsOf,
-  shTargetSubjectsOf: shTargetSubjectsOf,
-  rdePropertyShapeType: rdePropertyShapeType,
-  rdeInternalShape: rdeInternalShape,
-  rdeExternalShape: rdeExternalShape,
-  rdeIgnoreShape: rdeIgnoreShape,
-  rdeClassIn: rdeClassIn,
-  shIn: shIn,
-  shInversePath: shInversePath,
-  shUniqueLang: shUniqueLang,
-  rdeReadOnly: rdeReadOnly,
-  rdeIdentifierPrefix: rdeIdentifierPrefix,
-  rdeAllowMarkDown: rdeAllowMarkDown,
-  shNamespace: shNamespace,
-  rdeDefaultLanguage: rdeDefaultLanguage,
-  rdeDefaultValue: rdeDefaultValue,
-  shLanguageIn: shLanguageIn,
-  shPattern: shPattern,
-  rdeSortOnProperty: rdeSortOnProperty,
-  rdeAllowPushToTopLevelLabel: rdeAllowPushToTopLevelLabel,
-  rdeIndependentIdentifiers: rdeIndependentIdentifiers,
-  rdeSpecialPattern: rdeSpecialPattern,
-  rdeConnectIDs: rdeConnectIDs,
-  rdeAllowBatchManagement: rdeAllowBatchManagement,
-  rdeCopyObjectsOfProperty: rdeCopyObjectsOfProperty,
-  rdeUniqueValueAmongSiblings: rdeUniqueValueAmongSiblings,
-  rdfLangString: rdfLangString,
-  skosDefinition: skosDefinition,
-  rdfsComment: rdfsComment,
-  shDescription: shDescription,
-  defaultLabelProperties: defaultLabelProperties,
-  defaultDescriptionProperties: defaultDescriptionProperties,
   sortByPropValue: sortByPropValue,
   Path: Path,
   PropertyShape: PropertyShape,
@@ -1523,7 +1523,10 @@ recoil.selectorFamily({
 const initListAtom = recoil.atom({ key: "initListAtom", default: [] });
 const initStringAtom = recoil.atom({ key: "initStringAtom", default: "" });
 const initMapAtom = recoil.atom({ key: "initMapAtom", default: {} });
-recoil.atom({ key: "initkvAtom", default: {} });
+recoil.atom({
+  key: "initkvAtom",
+  default: {}
+});
 const possiblePrefLabelsSelector = recoil.selectorFamily({
   key: "possiblePrefLabelsSelector",
   get: (args) => ({ get }) => {
@@ -2014,11 +2017,7 @@ const MinimalAddButton = ({ add, className, disable }) => {
     })
   });
 };
-const BlockAddButton = ({
-  add,
-  label,
-  count = 1
-}) => {
+const BlockAddButton = ({ add, label, count = 1 }) => {
   const [n, setN] = React.useState(1);
   const [disable, setDisable] = React.useState(false);
   return /* @__PURE__ */ jsxRuntime.jsxs("div", {
@@ -2297,84 +2296,87 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
       propertyPath: property.path.sparqlString
     })
   );
-  const renderListElem = React.useMemo(() => (val, i, nbvalues) => {
-    if (val instanceof RDFResourceWithLabel || property.objectType == ObjectType.ResInList || property.objectType == ObjectType.LitInList) {
-      if (property.objectType == ObjectType.ResExt)
-        return /* @__PURE__ */ jsxRuntime.jsx(ExtEntityComponent, {
+  const renderListElem = React.useMemo(
+    () => (val, i, nbvalues) => {
+      if (val instanceof RDFResourceWithLabel || property.objectType == ObjectType.ResInList || property.objectType == ObjectType.LitInList) {
+        if (property.objectType == ObjectType.ResExt)
+          return /* @__PURE__ */ jsxRuntime.jsx(ExtEntityComponent, {
+            subject,
+            property,
+            extRes: val,
+            canDel: canDel && (i > 0 || !(val instanceof LiteralWithId) && val.uri !== "tmp:uri"),
+            onChange,
+            idx: i,
+            exists,
+            editable,
+            ...owner ? { owner } : {},
+            title: titleCase(propLabel),
+            updateEntityState,
+            shape,
+            config
+          }, val.id + ":" + i);
+        else if (val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
+          addBtn = false;
+          const canSelectNone = i == 0 && !property.minCount || i > 0 && i == nbvalues - 1;
+          return /* @__PURE__ */ jsxRuntime.jsx(SelectComponent, {
+            canSelectNone,
+            subject,
+            property,
+            res: val,
+            selectIdx: i,
+            canDel: canDel && val != noneSelected,
+            editable,
+            create: canAdd ? /* @__PURE__ */ jsxRuntime.jsx(Create, {
+              subject,
+              property,
+              embedded,
+              newVal: Number(newVal),
+              shape,
+              config
+            }) : void 0,
+            updateEntityState
+          }, "select_" + val.id + "_" + i);
+        }
+      } else if (val instanceof Subject) {
+        addBtn = true;
+        return /* @__PURE__ */ jsxRuntime.jsx(FacetComponent, {
           subject,
           property,
-          extRes: val,
-          canDel: canDel && (i > 0 || !(val instanceof LiteralWithId) && val.uri !== "tmp:uri"),
-          onChange,
-          idx: i,
-          exists,
+          subNode: val,
+          canDel: canDel && editable,
+          ...force ? { force } : {},
           editable,
-          ...owner ? { owner } : {},
-          title: titleCase(propLabel),
+          ...topEntity ? { topEntity } : { topEntity: subject },
           updateEntityState,
           shape,
           config
-        }, val.id + ":" + i);
-      else if (val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
+        }, val.id);
+      } else if (val instanceof LiteralWithId) {
         addBtn = false;
-        const canSelectNone = i == 0 && !property.minCount || i > 0 && i == nbvalues - 1;
-        return /* @__PURE__ */ jsxRuntime.jsx(SelectComponent, {
-          canSelectNone,
+        const isUniqueLang = list.filter((l) => l instanceof LiteralWithId && l.language === val.language).length === 1;
+        return /* @__PURE__ */ jsxRuntime.jsx(LiteralComponent, {
           subject,
           property,
-          res: val,
-          selectIdx: i,
-          canDel: canDel && val != noneSelected,
-          editable,
-          create: canAdd ? /* @__PURE__ */ jsxRuntime.jsx(Create, {
+          lit: val,
+          ...{ canDel, isUniqueLang, isUniqueValueAmongSiblings },
+          create: /* @__PURE__ */ jsxRuntime.jsx(Create, {
+            disable: !canAdd || !(val && val.value !== ""),
             subject,
             property,
             embedded,
             newVal: Number(newVal),
             shape,
             config
-          }) : void 0,
-          updateEntityState
-        }, "select_" + val.id + "_" + i);
-      }
-    } else if (val instanceof Subject) {
-      addBtn = true;
-      return /* @__PURE__ */ jsxRuntime.jsx(FacetComponent, {
-        subject,
-        property,
-        subNode: val,
-        canDel: canDel && editable,
-        ...force ? { force } : {},
-        editable,
-        ...topEntity ? { topEntity } : { topEntity: subject },
-        updateEntityState,
-        shape,
-        config
-      }, val.id);
-    } else if (val instanceof LiteralWithId) {
-      addBtn = false;
-      const isUniqueLang = list.filter((l) => l instanceof LiteralWithId && l.language === val.language).length === 1;
-      return /* @__PURE__ */ jsxRuntime.jsx(LiteralComponent, {
-        subject,
-        property,
-        lit: val,
-        ...{ canDel, isUniqueLang, isUniqueValueAmongSiblings },
-        create: /* @__PURE__ */ jsxRuntime.jsx(Create, {
-          disable: !canAdd || !(val && val.value !== ""),
-          subject,
-          property,
-          embedded,
-          newVal: Number(newVal),
-          shape,
+          }),
+          editable,
+          topEntity,
+          updateEntityState,
           config
-        }),
-        editable,
-        topEntity,
-        updateEntityState,
-        config
-      }, val.id);
-    }
-  }, void 0);
+        }, val.id);
+      }
+    },
+    void 0
+  );
   return /* @__PURE__ */ jsxRuntime.jsxs(React__default["default"].Fragment, {
     children: [
       /* @__PURE__ */ jsxRuntime.jsxs("div", {
@@ -2456,7 +2458,9 @@ const Create = ({ subject, property, embedded, disable, newVal, shape, config })
       propertyPath: property.sortOnProperty.value
     }) : initStringAtom
   );
-  const sortProps = property.targetShape?.properties.filter((p) => p.path?.sparqlString === property.sortOnProperty?.value);
+  const sortProps = property.targetShape?.properties.filter(
+    (p) => p.path?.sparqlString === property.sortOnProperty?.value
+  );
   if (sortProps?.length) {
     const sortProp = sortProps[0];
     if (sortProp?.minInclusive != null && Number(nextVal) < sortProp.minInclusive)
@@ -3541,7 +3545,11 @@ const redIcon = new L__default["default"].Icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41]
 });
-function DraggableMarker({ pos, icon, setCoords }) {
+function DraggableMarker({
+  pos,
+  icon,
+  setCoords
+}) {
   const [position, setPosition] = React.useState(pos);
   const markerRef = React.useRef(null);
   const eventHandlers = React.useMemo(
@@ -3569,7 +3577,12 @@ function DraggableMarker({ pos, icon, setCoords }) {
     ref: markerRef
   });
 }
-const MapEventHandler = ({ coords, redraw, setCoords, config }) => {
+const MapEventHandler = ({
+  coords,
+  redraw,
+  setCoords,
+  config
+}) => {
   const map = reactLeaflet.useMapEvents({
     click: (ev) => {
       debug$5("click:", ev);

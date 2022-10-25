@@ -150,7 +150,7 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
       const q = p.split(",")
       const literals = q.slice(1).map((v: string) => {
         const lit = decodeURIComponent(v).split("@")
-        return new LiteralWithId(lit[0].replace(/(^")|("$)/g, ""), lit[1], shapes.rdfLangString)
+        return new LiteralWithId(lit[0].replace(/(^")|("$)/g, ""), lit[1], ns.rdfLangString)
       })
       return { ...acc, [q[0]]: literals }
     }, {})

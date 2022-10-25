@@ -3,7 +3,7 @@ import i18n from "i18next"
 import { useState, useEffect, useContext } from "react"
 import { useRecoilState } from "recoil"
 import { RDFResource, RDFResourceWithLabel, EntityGraph, Subject } from "./types"
-import { NodeShape, prefLabel } from "./shapes"
+import { NodeShape } from "./shapes"
 import {
   profileIdState,
   uiReadyState,
@@ -15,6 +15,7 @@ import {
   defaultEntityLabelAtom,
 } from "../../atoms/common"
 import RDEConfig from "../rde_config"
+import { prefLabel } from "./ns"
 
 interface StoreWithEtag {
   store: rdf.Store

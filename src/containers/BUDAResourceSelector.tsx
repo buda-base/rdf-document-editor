@@ -149,7 +149,7 @@ const BUDAResourceSelector: FC<{
           copy.push({
             k: propQname,
             val: value.otherData[propQname].map(
-              (v: Record<string, string>) => new LiteralWithId(v["@value"], v["@language"], shapes.rdfLangString)
+              (v: Record<string, string>) => new LiteralWithId(v["@value"], v["@language"], ns.rdfLangString)
             ),
           })
       }

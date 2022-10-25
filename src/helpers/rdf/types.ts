@@ -1,6 +1,6 @@
 import * as rdf from "rdflib"
 import * as ns from "./ns"
-import { PropertyShape, Path, defaultLabelProperties, defaultDescriptionProperties } from "./shapes"
+import { PropertyShape, Path } from "./shapes"
 import { Memoize } from "typescript-memoize"
 import { atom, DefaultValue, AtomEffect, RecoilState } from "recoil"
 import { nanoid } from "nanoid"
@@ -255,8 +255,8 @@ export class EntityGraph {
     topSubjectUri: string,
     prefixMap = ns.defaultPrefixMap,
     connexGraph: rdf.Store = rdf.graph(),
-    labelProperties = defaultLabelProperties,
-    descriptionProperties = defaultDescriptionProperties
+    labelProperties = ns.defaultLabelProperties,
+    descriptionProperties = ns.defaultDescriptionProperties
   ) {
     this.store = store
     this.prefixMap = prefixMap

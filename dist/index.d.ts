@@ -17,7 +17,7 @@ declare const SKOS_uri = "http://www.w3.org/2004/02/skos/core#";
 declare const SKOS: (ln: string) => rdflib_lib_tf_types.NamedNode;
 declare const XSD_uri = "http://www.w3.org/2001/XMLSchema#";
 declare const XSD: (ln: string) => rdflib_lib_tf_types.NamedNode;
-declare const FOAF_uri = "http://xmlns.com/foaf/0.1/";
+declare const FOAF_uri = "http://xmlcom/foaf/0.1/";
 declare const FOAF: (ln: string) => rdflib_lib_tf_types.NamedNode;
 declare const RDE_uri = "https://github.com/buda-base/rdf-document-editor/";
 declare const RDE: (ln: string) => rdflib_lib_tf_types.NamedNode;
@@ -38,6 +38,62 @@ declare class PrefixMap {
     uriFromQname: (qname?: string) => string;
     lnameFromQname: (qname?: string) => string;
 }
+declare const rdfType: rdf.NamedNode;
+declare const shProperty: rdflib_lib_tf_types.NamedNode;
+declare const shGroup: rdflib_lib_tf_types.NamedNode;
+declare const shOrder: rdf.NamedNode;
+declare const rdfsLabel: rdf.NamedNode;
+declare const prefLabel: rdf.NamedNode;
+declare const shName: rdf.NamedNode;
+declare const shPath: rdf.NamedNode;
+declare const dashEditor: rdf.NamedNode;
+declare const shNode: rdf.NamedNode;
+declare const dashListShape: rdf.NamedNode;
+declare const dashEnumSelectEditor: rdf.NamedNode;
+declare const shMessage: rdf.NamedNode;
+declare const rdeDisplayPriority: rdf.NamedNode;
+declare const shMinCount: rdf.NamedNode;
+declare const shMinInclusive: rdf.NamedNode;
+declare const shMinExclusive: rdf.NamedNode;
+declare const shClass: rdf.NamedNode;
+declare const shMaxCount: rdf.NamedNode;
+declare const shMaxInclusive: rdf.NamedNode;
+declare const shMaxExclusive: rdf.NamedNode;
+declare const shDatatype: rdf.NamedNode;
+declare const dashSingleLine: rdf.NamedNode;
+declare const shTargetClass: rdf.NamedNode;
+declare const shTargetObjectsOf: rdf.NamedNode;
+declare const shTargetSubjectsOf: rdf.NamedNode;
+declare const rdePropertyShapeType: rdf.NamedNode;
+declare const rdeInternalShape: rdf.NamedNode;
+declare const rdeExternalShape: rdf.NamedNode;
+declare const rdeIgnoreShape: rdf.NamedNode;
+declare const rdeClassIn: rdf.NamedNode;
+declare const shIn: rdf.NamedNode;
+declare const shInversePath: rdf.NamedNode;
+declare const shUniqueLang: rdf.NamedNode;
+declare const rdeReadOnly: rdf.NamedNode;
+declare const rdeIdentifierPrefix: rdf.NamedNode;
+declare const rdeAllowMarkDown: rdf.NamedNode;
+declare const shNamespace: rdf.NamedNode;
+declare const rdeDefaultLanguage: rdf.NamedNode;
+declare const rdeDefaultValue: rdf.NamedNode;
+declare const shLanguageIn: rdf.NamedNode;
+declare const shPattern: rdf.NamedNode;
+declare const rdeSortOnProperty: rdf.NamedNode;
+declare const rdeAllowPushToTopLevelLabel: rdf.NamedNode;
+declare const rdeIndependentIdentifiers: rdf.NamedNode;
+declare const rdeSpecialPattern: rdf.NamedNode;
+declare const rdeConnectIDs: rdf.NamedNode;
+declare const rdeAllowBatchManagement: rdf.NamedNode;
+declare const rdeCopyObjectsOfProperty: rdf.NamedNode;
+declare const rdeUniqueValueAmongSiblings: rdf.NamedNode;
+declare const rdfLangString: rdf.NamedNode;
+declare const skosDefinition: rdf.NamedNode;
+declare const rdfsComment: rdf.NamedNode;
+declare const shDescription: rdf.NamedNode;
+declare const defaultLabelProperties: rdf.NamedNode[];
+declare const defaultDescriptionProperties: rdf.NamedNode[];
 declare const defaultPrefixMap: PrefixMap;
 
 declare const ns_DASH_uri: typeof DASH_uri;
@@ -60,6 +116,62 @@ declare const ns_RDE_uri: typeof RDE_uri;
 declare const ns_RDE: typeof RDE;
 type ns_PrefixMap = PrefixMap;
 declare const ns_PrefixMap: typeof PrefixMap;
+declare const ns_rdfType: typeof rdfType;
+declare const ns_shProperty: typeof shProperty;
+declare const ns_shGroup: typeof shGroup;
+declare const ns_shOrder: typeof shOrder;
+declare const ns_rdfsLabel: typeof rdfsLabel;
+declare const ns_prefLabel: typeof prefLabel;
+declare const ns_shName: typeof shName;
+declare const ns_shPath: typeof shPath;
+declare const ns_dashEditor: typeof dashEditor;
+declare const ns_shNode: typeof shNode;
+declare const ns_dashListShape: typeof dashListShape;
+declare const ns_dashEnumSelectEditor: typeof dashEnumSelectEditor;
+declare const ns_shMessage: typeof shMessage;
+declare const ns_rdeDisplayPriority: typeof rdeDisplayPriority;
+declare const ns_shMinCount: typeof shMinCount;
+declare const ns_shMinInclusive: typeof shMinInclusive;
+declare const ns_shMinExclusive: typeof shMinExclusive;
+declare const ns_shClass: typeof shClass;
+declare const ns_shMaxCount: typeof shMaxCount;
+declare const ns_shMaxInclusive: typeof shMaxInclusive;
+declare const ns_shMaxExclusive: typeof shMaxExclusive;
+declare const ns_shDatatype: typeof shDatatype;
+declare const ns_dashSingleLine: typeof dashSingleLine;
+declare const ns_shTargetClass: typeof shTargetClass;
+declare const ns_shTargetObjectsOf: typeof shTargetObjectsOf;
+declare const ns_shTargetSubjectsOf: typeof shTargetSubjectsOf;
+declare const ns_rdePropertyShapeType: typeof rdePropertyShapeType;
+declare const ns_rdeInternalShape: typeof rdeInternalShape;
+declare const ns_rdeExternalShape: typeof rdeExternalShape;
+declare const ns_rdeIgnoreShape: typeof rdeIgnoreShape;
+declare const ns_rdeClassIn: typeof rdeClassIn;
+declare const ns_shIn: typeof shIn;
+declare const ns_shInversePath: typeof shInversePath;
+declare const ns_shUniqueLang: typeof shUniqueLang;
+declare const ns_rdeReadOnly: typeof rdeReadOnly;
+declare const ns_rdeIdentifierPrefix: typeof rdeIdentifierPrefix;
+declare const ns_rdeAllowMarkDown: typeof rdeAllowMarkDown;
+declare const ns_shNamespace: typeof shNamespace;
+declare const ns_rdeDefaultLanguage: typeof rdeDefaultLanguage;
+declare const ns_rdeDefaultValue: typeof rdeDefaultValue;
+declare const ns_shLanguageIn: typeof shLanguageIn;
+declare const ns_shPattern: typeof shPattern;
+declare const ns_rdeSortOnProperty: typeof rdeSortOnProperty;
+declare const ns_rdeAllowPushToTopLevelLabel: typeof rdeAllowPushToTopLevelLabel;
+declare const ns_rdeIndependentIdentifiers: typeof rdeIndependentIdentifiers;
+declare const ns_rdeSpecialPattern: typeof rdeSpecialPattern;
+declare const ns_rdeConnectIDs: typeof rdeConnectIDs;
+declare const ns_rdeAllowBatchManagement: typeof rdeAllowBatchManagement;
+declare const ns_rdeCopyObjectsOfProperty: typeof rdeCopyObjectsOfProperty;
+declare const ns_rdeUniqueValueAmongSiblings: typeof rdeUniqueValueAmongSiblings;
+declare const ns_rdfLangString: typeof rdfLangString;
+declare const ns_skosDefinition: typeof skosDefinition;
+declare const ns_rdfsComment: typeof rdfsComment;
+declare const ns_shDescription: typeof shDescription;
+declare const ns_defaultLabelProperties: typeof defaultLabelProperties;
+declare const ns_defaultDescriptionProperties: typeof defaultDescriptionProperties;
 declare const ns_defaultPrefixMap: typeof defaultPrefixMap;
 declare namespace ns {
   export {
@@ -82,6 +194,62 @@ declare namespace ns {
     ns_RDE_uri as RDE_uri,
     ns_RDE as RDE,
     ns_PrefixMap as PrefixMap,
+    ns_rdfType as rdfType,
+    ns_shProperty as shProperty,
+    ns_shGroup as shGroup,
+    ns_shOrder as shOrder,
+    ns_rdfsLabel as rdfsLabel,
+    ns_prefLabel as prefLabel,
+    ns_shName as shName,
+    ns_shPath as shPath,
+    ns_dashEditor as dashEditor,
+    ns_shNode as shNode,
+    ns_dashListShape as dashListShape,
+    ns_dashEnumSelectEditor as dashEnumSelectEditor,
+    ns_shMessage as shMessage,
+    ns_rdeDisplayPriority as rdeDisplayPriority,
+    ns_shMinCount as shMinCount,
+    ns_shMinInclusive as shMinInclusive,
+    ns_shMinExclusive as shMinExclusive,
+    ns_shClass as shClass,
+    ns_shMaxCount as shMaxCount,
+    ns_shMaxInclusive as shMaxInclusive,
+    ns_shMaxExclusive as shMaxExclusive,
+    ns_shDatatype as shDatatype,
+    ns_dashSingleLine as dashSingleLine,
+    ns_shTargetClass as shTargetClass,
+    ns_shTargetObjectsOf as shTargetObjectsOf,
+    ns_shTargetSubjectsOf as shTargetSubjectsOf,
+    ns_rdePropertyShapeType as rdePropertyShapeType,
+    ns_rdeInternalShape as rdeInternalShape,
+    ns_rdeExternalShape as rdeExternalShape,
+    ns_rdeIgnoreShape as rdeIgnoreShape,
+    ns_rdeClassIn as rdeClassIn,
+    ns_shIn as shIn,
+    ns_shInversePath as shInversePath,
+    ns_shUniqueLang as shUniqueLang,
+    ns_rdeReadOnly as rdeReadOnly,
+    ns_rdeIdentifierPrefix as rdeIdentifierPrefix,
+    ns_rdeAllowMarkDown as rdeAllowMarkDown,
+    ns_shNamespace as shNamespace,
+    ns_rdeDefaultLanguage as rdeDefaultLanguage,
+    ns_rdeDefaultValue as rdeDefaultValue,
+    ns_shLanguageIn as shLanguageIn,
+    ns_shPattern as shPattern,
+    ns_rdeSortOnProperty as rdeSortOnProperty,
+    ns_rdeAllowPushToTopLevelLabel as rdeAllowPushToTopLevelLabel,
+    ns_rdeIndependentIdentifiers as rdeIndependentIdentifiers,
+    ns_rdeSpecialPattern as rdeSpecialPattern,
+    ns_rdeConnectIDs as rdeConnectIDs,
+    ns_rdeAllowBatchManagement as rdeAllowBatchManagement,
+    ns_rdeCopyObjectsOfProperty as rdeCopyObjectsOfProperty,
+    ns_rdeUniqueValueAmongSiblings as rdeUniqueValueAmongSiblings,
+    ns_rdfLangString as rdfLangString,
+    ns_skosDefinition as skosDefinition,
+    ns_rdfsComment as rdfsComment,
+    ns_shDescription as shDescription,
+    ns_defaultLabelProperties as defaultLabelProperties,
+    ns_defaultDescriptionProperties as defaultDescriptionProperties,
     ns_defaultPrefixMap as defaultPrefixMap,
   };
 }
@@ -190,62 +358,6 @@ declare class Subject extends RDFResource {
     isEmpty(): boolean;
 }
 
-declare const rdfType: rdf.NamedNode;
-declare const shProperty: rdflib_lib_tf_types.NamedNode;
-declare const shGroup: rdflib_lib_tf_types.NamedNode;
-declare const shOrder: rdf.NamedNode;
-declare const rdfsLabel: rdf.NamedNode;
-declare const prefLabel: rdf.NamedNode;
-declare const shName: rdf.NamedNode;
-declare const shPath: rdf.NamedNode;
-declare const dashEditor: rdf.NamedNode;
-declare const shNode: rdf.NamedNode;
-declare const dashListShape: rdf.NamedNode;
-declare const dashEnumSelectEditor: rdf.NamedNode;
-declare const shMessage: rdf.NamedNode;
-declare const rdeDisplayPriority: rdf.NamedNode;
-declare const shMinCount: rdf.NamedNode;
-declare const shMinInclusive: rdf.NamedNode;
-declare const shMinExclusive: rdf.NamedNode;
-declare const shClass: rdf.NamedNode;
-declare const shMaxCount: rdf.NamedNode;
-declare const shMaxInclusive: rdf.NamedNode;
-declare const shMaxExclusive: rdf.NamedNode;
-declare const shDatatype: rdf.NamedNode;
-declare const dashSingleLine: rdf.NamedNode;
-declare const shTargetClass: rdf.NamedNode;
-declare const shTargetObjectsOf: rdf.NamedNode;
-declare const shTargetSubjectsOf: rdf.NamedNode;
-declare const rdePropertyShapeType: rdf.NamedNode;
-declare const rdeInternalShape: rdf.NamedNode;
-declare const rdeExternalShape: rdf.NamedNode;
-declare const rdeIgnoreShape: rdf.NamedNode;
-declare const rdeClassIn: rdf.NamedNode;
-declare const shIn: rdf.NamedNode;
-declare const shInversePath: rdf.NamedNode;
-declare const shUniqueLang: rdf.NamedNode;
-declare const rdeReadOnly: rdf.NamedNode;
-declare const rdeIdentifierPrefix: rdf.NamedNode;
-declare const rdeAllowMarkDown: rdf.NamedNode;
-declare const shNamespace: rdf.NamedNode;
-declare const rdeDefaultLanguage: rdf.NamedNode;
-declare const rdeDefaultValue: rdf.NamedNode;
-declare const shLanguageIn: rdf.NamedNode;
-declare const shPattern: rdf.NamedNode;
-declare const rdeSortOnProperty: rdf.NamedNode;
-declare const rdeAllowPushToTopLevelLabel: rdf.NamedNode;
-declare const rdeIndependentIdentifiers: rdf.NamedNode;
-declare const rdeSpecialPattern: rdf.NamedNode;
-declare const rdeConnectIDs: rdf.NamedNode;
-declare const rdeAllowBatchManagement: rdf.NamedNode;
-declare const rdeCopyObjectsOfProperty: rdf.NamedNode;
-declare const rdeUniqueValueAmongSiblings: rdf.NamedNode;
-declare const rdfLangString: rdf.NamedNode;
-declare const skosDefinition: rdf.NamedNode;
-declare const rdfsComment: rdf.NamedNode;
-declare const shDescription: rdf.NamedNode;
-declare const defaultLabelProperties: rdf.NamedNode[];
-declare const defaultDescriptionProperties: rdf.NamedNode[];
 declare const sortByPropValue: (nodelist: Array<rdf.NamedNode>, property: rdf.NamedNode, store: rdf.Store) => Array<rdf.NamedNode>;
 declare class Path {
     sparqlString: string;
@@ -304,62 +416,6 @@ declare class NodeShape extends RDFResourceWithLabel {
 }
 declare const generateSubnode$1: (subshape: NodeShape, parent: RDFResource) => Promise<Subject>;
 
-declare const shapes_rdfType: typeof rdfType;
-declare const shapes_shProperty: typeof shProperty;
-declare const shapes_shGroup: typeof shGroup;
-declare const shapes_shOrder: typeof shOrder;
-declare const shapes_rdfsLabel: typeof rdfsLabel;
-declare const shapes_prefLabel: typeof prefLabel;
-declare const shapes_shName: typeof shName;
-declare const shapes_shPath: typeof shPath;
-declare const shapes_dashEditor: typeof dashEditor;
-declare const shapes_shNode: typeof shNode;
-declare const shapes_dashListShape: typeof dashListShape;
-declare const shapes_dashEnumSelectEditor: typeof dashEnumSelectEditor;
-declare const shapes_shMessage: typeof shMessage;
-declare const shapes_rdeDisplayPriority: typeof rdeDisplayPriority;
-declare const shapes_shMinCount: typeof shMinCount;
-declare const shapes_shMinInclusive: typeof shMinInclusive;
-declare const shapes_shMinExclusive: typeof shMinExclusive;
-declare const shapes_shClass: typeof shClass;
-declare const shapes_shMaxCount: typeof shMaxCount;
-declare const shapes_shMaxInclusive: typeof shMaxInclusive;
-declare const shapes_shMaxExclusive: typeof shMaxExclusive;
-declare const shapes_shDatatype: typeof shDatatype;
-declare const shapes_dashSingleLine: typeof dashSingleLine;
-declare const shapes_shTargetClass: typeof shTargetClass;
-declare const shapes_shTargetObjectsOf: typeof shTargetObjectsOf;
-declare const shapes_shTargetSubjectsOf: typeof shTargetSubjectsOf;
-declare const shapes_rdePropertyShapeType: typeof rdePropertyShapeType;
-declare const shapes_rdeInternalShape: typeof rdeInternalShape;
-declare const shapes_rdeExternalShape: typeof rdeExternalShape;
-declare const shapes_rdeIgnoreShape: typeof rdeIgnoreShape;
-declare const shapes_rdeClassIn: typeof rdeClassIn;
-declare const shapes_shIn: typeof shIn;
-declare const shapes_shInversePath: typeof shInversePath;
-declare const shapes_shUniqueLang: typeof shUniqueLang;
-declare const shapes_rdeReadOnly: typeof rdeReadOnly;
-declare const shapes_rdeIdentifierPrefix: typeof rdeIdentifierPrefix;
-declare const shapes_rdeAllowMarkDown: typeof rdeAllowMarkDown;
-declare const shapes_shNamespace: typeof shNamespace;
-declare const shapes_rdeDefaultLanguage: typeof rdeDefaultLanguage;
-declare const shapes_rdeDefaultValue: typeof rdeDefaultValue;
-declare const shapes_shLanguageIn: typeof shLanguageIn;
-declare const shapes_shPattern: typeof shPattern;
-declare const shapes_rdeSortOnProperty: typeof rdeSortOnProperty;
-declare const shapes_rdeAllowPushToTopLevelLabel: typeof rdeAllowPushToTopLevelLabel;
-declare const shapes_rdeIndependentIdentifiers: typeof rdeIndependentIdentifiers;
-declare const shapes_rdeSpecialPattern: typeof rdeSpecialPattern;
-declare const shapes_rdeConnectIDs: typeof rdeConnectIDs;
-declare const shapes_rdeAllowBatchManagement: typeof rdeAllowBatchManagement;
-declare const shapes_rdeCopyObjectsOfProperty: typeof rdeCopyObjectsOfProperty;
-declare const shapes_rdeUniqueValueAmongSiblings: typeof rdeUniqueValueAmongSiblings;
-declare const shapes_rdfLangString: typeof rdfLangString;
-declare const shapes_skosDefinition: typeof skosDefinition;
-declare const shapes_rdfsComment: typeof rdfsComment;
-declare const shapes_shDescription: typeof shDescription;
-declare const shapes_defaultLabelProperties: typeof defaultLabelProperties;
-declare const shapes_defaultDescriptionProperties: typeof defaultDescriptionProperties;
 declare const shapes_sortByPropValue: typeof sortByPropValue;
 type shapes_Path = Path;
 declare const shapes_Path: typeof Path;
@@ -371,62 +427,6 @@ type shapes_NodeShape = NodeShape;
 declare const shapes_NodeShape: typeof NodeShape;
 declare namespace shapes {
   export {
-    shapes_rdfType as rdfType,
-    shapes_shProperty as shProperty,
-    shapes_shGroup as shGroup,
-    shapes_shOrder as shOrder,
-    shapes_rdfsLabel as rdfsLabel,
-    shapes_prefLabel as prefLabel,
-    shapes_shName as shName,
-    shapes_shPath as shPath,
-    shapes_dashEditor as dashEditor,
-    shapes_shNode as shNode,
-    shapes_dashListShape as dashListShape,
-    shapes_dashEnumSelectEditor as dashEnumSelectEditor,
-    shapes_shMessage as shMessage,
-    shapes_rdeDisplayPriority as rdeDisplayPriority,
-    shapes_shMinCount as shMinCount,
-    shapes_shMinInclusive as shMinInclusive,
-    shapes_shMinExclusive as shMinExclusive,
-    shapes_shClass as shClass,
-    shapes_shMaxCount as shMaxCount,
-    shapes_shMaxInclusive as shMaxInclusive,
-    shapes_shMaxExclusive as shMaxExclusive,
-    shapes_shDatatype as shDatatype,
-    shapes_dashSingleLine as dashSingleLine,
-    shapes_shTargetClass as shTargetClass,
-    shapes_shTargetObjectsOf as shTargetObjectsOf,
-    shapes_shTargetSubjectsOf as shTargetSubjectsOf,
-    shapes_rdePropertyShapeType as rdePropertyShapeType,
-    shapes_rdeInternalShape as rdeInternalShape,
-    shapes_rdeExternalShape as rdeExternalShape,
-    shapes_rdeIgnoreShape as rdeIgnoreShape,
-    shapes_rdeClassIn as rdeClassIn,
-    shapes_shIn as shIn,
-    shapes_shInversePath as shInversePath,
-    shapes_shUniqueLang as shUniqueLang,
-    shapes_rdeReadOnly as rdeReadOnly,
-    shapes_rdeIdentifierPrefix as rdeIdentifierPrefix,
-    shapes_rdeAllowMarkDown as rdeAllowMarkDown,
-    shapes_shNamespace as shNamespace,
-    shapes_rdeDefaultLanguage as rdeDefaultLanguage,
-    shapes_rdeDefaultValue as rdeDefaultValue,
-    shapes_shLanguageIn as shLanguageIn,
-    shapes_shPattern as shPattern,
-    shapes_rdeSortOnProperty as rdeSortOnProperty,
-    shapes_rdeAllowPushToTopLevelLabel as rdeAllowPushToTopLevelLabel,
-    shapes_rdeIndependentIdentifiers as rdeIndependentIdentifiers,
-    shapes_rdeSpecialPattern as rdeSpecialPattern,
-    shapes_rdeConnectIDs as rdeConnectIDs,
-    shapes_rdeAllowBatchManagement as rdeAllowBatchManagement,
-    shapes_rdeCopyObjectsOfProperty as rdeCopyObjectsOfProperty,
-    shapes_rdeUniqueValueAmongSiblings as rdeUniqueValueAmongSiblings,
-    shapes_rdfLangString as rdfLangString,
-    shapes_skosDefinition as skosDefinition,
-    shapes_rdfsComment as rdfsComment,
-    shapes_shDescription as shDescription,
-    shapes_defaultLabelProperties as defaultLabelProperties,
-    shapes_defaultDescriptionProperties as defaultDescriptionProperties,
     shapes_sortByPropValue as sortByPropValue,
     shapes_Path as Path,
     shapes_PropertyShape as PropertyShape,

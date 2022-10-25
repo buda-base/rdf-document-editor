@@ -206,7 +206,7 @@ export const personNamesLabelsSelector = selectorFamily<any, personNamesLabelsSe
       const { atom } = args
       if (atom) {
         const names = get(atom)
-        const namesLabelsAtoms = names.map((n: Subject) => n.getAtomForProperty(shapes.rdfsLabel.uri))
+        const namesLabelsAtoms = names.map((n: Subject) => n.getAtomForProperty(ns.rdfsLabel.uri))
         const namesLabels = namesLabelsAtoms.reduce(
           (acc: Value[], nl: RecoilState<Value[]>) => [...acc, ...get(nl)],
           []
