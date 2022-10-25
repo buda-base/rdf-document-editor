@@ -9,6 +9,7 @@ import {
   LiteralWithId,
   ObjectType,
   Value,
+  Path,
 } from "./types"
 import * as ns from "./ns"
 import {
@@ -42,33 +43,6 @@ export const sortByPropValue = (
   return [...nodelist].sort((a: rdf.NamedNode, b: rdf.NamedNode) => {
     return nodeUriToPropValue[a.uri] - nodeUriToPropValue[b.uri]
   })
-}
-
-export class Path {
-  sparqlString: string
-
-  directPathNode: rdf.NamedNode | null = null
-  inversePathNode: rdf.NamedNode | null = null
-
-  constructor(node: rdf.NamedNode, graph: EntityGraph, listMode: boolean) {
-    const invpaths = graph.store.each(node, shInversePath, null) as Array<rdf.NamedNode>
-    if (invpaths.length > 1) {
-      throw "too many inverse path in shacl path:" + invpaths
-    }
-    if (invpaths.length == 1) {
-      const invpath = invpaths[0]
-      this.sparqlString = "^" + invpath.value
-      this.inversePathNode = invpath
-    } else {
-      // if this is a list we add "[]" at the end
-      if (listMode) {
-        this.sparqlString = node.value + "[]"
-      } else {
-        this.sparqlString = node.value
-      }
-      this.directPathNode = node as rdf.NamedNode
-    }
-  }
 }
 
 export class PropertyShape extends RDFResourceWithLabel {

@@ -1,9 +1,9 @@
 import * as rdf from "rdflib"
 import * as ns from "./ns"
-import { PropertyShape, Path } from "./shapes"
 import { Memoize } from "typescript-memoize"
 import { atom, DefaultValue, AtomEffect, RecoilState } from "recoil"
 import { nanoid } from "nanoid"
+import { shInversePath } from "./ns"
 
 const debug = require("debug")("rde:rdf:types")
 
@@ -98,6 +98,33 @@ export const rdfLitAsNumber = (lit: rdf.Literal): number | null => {
     return +n
   }
   return null
+}
+
+export class Path {
+  sparqlString: string
+
+  directPathNode: rdf.NamedNode | null = null
+  inversePathNode: rdf.NamedNode | null = null
+
+  constructor(node: rdf.NamedNode, graph: EntityGraph, listMode: boolean) {
+    const invpaths = graph.store.each(node, shInversePath, null) as Array<rdf.NamedNode>
+    if (invpaths.length > 1) {
+      throw "too many inverse path in shacl path:" + invpaths
+    }
+    if (invpaths.length == 1) {
+      const invpath = invpaths[0]
+      this.sparqlString = "^" + invpath.value
+      this.inversePathNode = invpath
+    } else {
+      // if this is a list we add "[]" at the end
+      if (listMode) {
+        this.sparqlString = node.value + "[]"
+      } else {
+        this.sparqlString = node.value
+      }
+      this.directPathNode = node as rdf.NamedNode
+    }
+  }
 }
 
 // an EntityGraphValues represents the global state of an entity we're editing, in a javascript object (and not an RDF store)
@@ -320,7 +347,7 @@ export class EntityGraph {
   }
 
   // only returns the values that were not initalized before
-  getUnitializedValues(s: RDFResource, p: PropertyShape): Array<Value> | null {
+  getUnitializedValues(s: RDFResource, p: any): Array<Value> | null {
     const path = p.path
     if (!path) return null
     if (this.values.isInitialized(s.uri, path.sparqlString)) {
@@ -329,7 +356,7 @@ export class EntityGraph {
     return this.getPropValuesFromStore(s, p)
   }
 
-  getPropValuesFromStore(s: RDFResource, p: PropertyShape): Array<Value> {
+  getPropValuesFromStore(s: RDFResource, p: any): Array<Value> {
     if (!p.path) {
       throw "can't find path of " + p.uri
     }
@@ -632,7 +659,7 @@ export class Subject extends RDFResource {
     this.node = node
   }
 
-  getUnitializedValues(property: PropertyShape): Array<Value> | null {
+  getUnitializedValues(property: any): Array<Value> | null {
     return this.graph.getUnitializedValues(this, property)
   }
 

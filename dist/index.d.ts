@@ -254,6 +254,12 @@ declare namespace ns {
   };
 }
 
+declare class Path {
+    sparqlString: string;
+    directPathNode: rdf.NamedNode | null;
+    inversePathNode: rdf.NamedNode | null;
+    constructor(node: rdf.NamedNode, graph: EntityGraph, listMode: boolean);
+}
 declare class EntityGraphValues {
     oldSubjectProps: Record<string, Record<string, Array<Value>>>;
     newSubjectProps: Record<string, Record<string, Array<Value>>>;
@@ -287,8 +293,8 @@ declare class EntityGraph {
     static addExtDataFromGraph: (resList: Array<rdf.NamedNode>, graph: EntityGraph) => Array<RDFResourceWithLabel>;
     hasSubject(subjectUri: string): boolean;
     static subjectify: (resList: Array<rdf.NamedNode>, graph: EntityGraph) => Array<Subject>;
-    getUnitializedValues(s: RDFResource, p: PropertyShape): Array<Value> | null;
-    getPropValuesFromStore(s: RDFResource, p: PropertyShape): Array<Value>;
+    getUnitializedValues(s: RDFResource, p: any): Array<Value> | null;
+    getPropValuesFromStore(s: RDFResource, p: any): Array<Value>;
 }
 declare class RDFResource {
     node: rdf.NamedNode | rdf.BlankNode | rdf.Collection;
@@ -350,7 +356,7 @@ declare type Value = Subject | LiteralWithId | RDFResourceWithLabel;
 declare class Subject extends RDFResource {
     node: rdf.NamedNode;
     constructor(node: rdf.NamedNode, graph: EntityGraph);
-    getUnitializedValues(property: PropertyShape): Array<Value> | null;
+    getUnitializedValues(property: any): Array<Value> | null;
     getAtomForProperty(pathString: string): RecoilState<Value[]>;
     noHisto(force?: boolean, start?: boolean | number): void;
     resetNoHisto(): void;
@@ -359,12 +365,6 @@ declare class Subject extends RDFResource {
 }
 
 declare const sortByPropValue: (nodelist: Array<rdf.NamedNode>, property: rdf.NamedNode, store: rdf.Store) => Array<rdf.NamedNode>;
-declare class Path {
-    sparqlString: string;
-    directPathNode: rdf.NamedNode | null;
-    inversePathNode: rdf.NamedNode | null;
-    constructor(node: rdf.NamedNode, graph: EntityGraph, listMode: boolean);
-}
 declare class PropertyShape extends RDFResourceWithLabel {
     constructor(node: rdf.NamedNode, graph: EntityGraph);
     get prefLabels(): Record<string, string>;
@@ -417,8 +417,6 @@ declare class NodeShape extends RDFResourceWithLabel {
 declare const generateSubnode$1: (subshape: NodeShape, parent: RDFResource) => Promise<Subject>;
 
 declare const shapes_sortByPropValue: typeof sortByPropValue;
-type shapes_Path = Path;
-declare const shapes_Path: typeof Path;
 type shapes_PropertyShape = PropertyShape;
 declare const shapes_PropertyShape: typeof PropertyShape;
 type shapes_PropertyGroup = PropertyGroup;
@@ -428,7 +426,6 @@ declare const shapes_NodeShape: typeof NodeShape;
 declare namespace shapes {
   export {
     shapes_sortByPropValue as sortByPropValue,
-    shapes_Path as Path,
     shapes_PropertyShape as PropertyShape,
     shapes_PropertyGroup as PropertyGroup,
     shapes_NodeShape as NodeShape,

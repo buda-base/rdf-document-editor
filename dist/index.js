@@ -414,6 +414,29 @@ const rdfLitAsNumber = (lit) => {
   }
   return null;
 };
+class Path {
+  sparqlString;
+  directPathNode = null;
+  inversePathNode = null;
+  constructor(node, graph, listMode) {
+    const invpaths = graph.store.each(node, shInversePath, null);
+    if (invpaths.length > 1) {
+      throw "too many inverse path in shacl path:" + invpaths;
+    }
+    if (invpaths.length == 1) {
+      const invpath = invpaths[0];
+      this.sparqlString = "^" + invpath.value;
+      this.inversePathNode = invpath;
+    } else {
+      if (listMode) {
+        this.sparqlString = node.value + "[]";
+      } else {
+        this.sparqlString = node.value;
+      }
+      this.directPathNode = node;
+    }
+  }
+}
 class EntityGraphValues {
   oldSubjectProps = {};
   newSubjectProps = {};
@@ -930,29 +953,6 @@ const sortByPropValue = (nodelist, property, store) => {
     return nodeUriToPropValue[a.uri] - nodeUriToPropValue[b.uri];
   });
 };
-class Path {
-  sparqlString;
-  directPathNode = null;
-  inversePathNode = null;
-  constructor(node, graph, listMode) {
-    const invpaths = graph.store.each(node, shInversePath, null);
-    if (invpaths.length > 1) {
-      throw "too many inverse path in shacl path:" + invpaths;
-    }
-    if (invpaths.length == 1) {
-      const invpath = invpaths[0];
-      this.sparqlString = "^" + invpath.value;
-      this.inversePathNode = invpath;
-    } else {
-      if (listMode) {
-        this.sparqlString = node.value + "[]";
-      } else {
-        this.sparqlString = node.value;
-      }
-      this.directPathNode = node;
-    }
-  }
-}
 const _PropertyShape = class extends RDFResourceWithLabel {
   constructor(node, graph) {
     super(node, graph, rdfsLabel);
@@ -1378,7 +1378,6 @@ const generateSubnode = async (subshape, parent) => {
 var shapes = /*#__PURE__*/Object.freeze({
   __proto__: null,
   sortByPropValue: sortByPropValue,
-  Path: Path,
   PropertyShape: PropertyShape,
   PropertyGroup: PropertyGroup,
   NodeShape: NodeShape,
