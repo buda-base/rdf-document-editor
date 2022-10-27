@@ -11,14 +11,10 @@ import {
   userIdState,
   savePopupState,
 } from "../atoms/common"
-import { makeStyles } from "@material-ui/core/styles"
-import Tabs from "@material-ui/core/Tabs"
 import Tab from "@material-ui/core/Tab"
 import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
-import * as ns from "../helpers/rdf/ns"
 import { Entity, EditedEntityState, entitiesAtom, defaultEntityLabelAtom } from "../atoms/common"
-import * as rdf from "rdflib"
 import { CloseIcon } from "../routes/layout/icons"
 
 const debug = require("debug")("rde:entity:selector")
@@ -35,7 +31,6 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
   index,
   config,
 }) => {
-  const [uiLang] = useRecoilState(uiLangState)
   const [uiLitLang] = useRecoilState(uiLitLangState)
   const [labelValues] = useRecoilState(!entity.preloadedLabel ? entity.subjectLabelState : defaultEntityLabelAtom)
   const [tab, setTab] = useRecoilState(uiTabState)

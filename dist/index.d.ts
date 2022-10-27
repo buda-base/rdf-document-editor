@@ -254,6 +254,14 @@ declare namespace ns {
   };
 }
 
+declare enum ObjectType {
+    Literal = 0,
+    Internal = 1,
+    ResInList = 2,
+    ResExt = 3,
+    ResIgnore = 4,
+    LitInList = 5
+}
 declare class Path {
     sparqlString: string;
     directPathNode: rdf.NamedNode | null;
@@ -336,14 +344,6 @@ declare class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
     get otherData(): Record<string, any>;
     constructor(uri: string, prefLabels: Record<string, string>, data?: Record<string, any>, description?: Record<string, any> | null);
     addOtherData(key: string, value: any): ExtRDFResourceWithLabel;
-}
-declare enum ObjectType {
-    Literal = 0,
-    Internal = 1,
-    ResInList = 2,
-    ResExt = 3,
-    ResIgnore = 4,
-    LitInList = 5
 }
 declare class LiteralWithId extends rdf.Literal {
     id: string;

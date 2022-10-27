@@ -345,6 +345,15 @@ require("debug")("rde:rdf:types");
 const defaultGraphNode = new rdf__namespace.NamedNode(rdf__namespace.Store.defaultGraphURI);
 const errors = {};
 const history = {};
+var ObjectType = /* @__PURE__ */ ((ObjectType2) => {
+  ObjectType2[ObjectType2["Literal"] = 0] = "Literal";
+  ObjectType2[ObjectType2["Internal"] = 1] = "Internal";
+  ObjectType2[ObjectType2["ResInList"] = 2] = "ResInList";
+  ObjectType2[ObjectType2["ResExt"] = 3] = "ResExt";
+  ObjectType2[ObjectType2["ResIgnore"] = 4] = "ResIgnore";
+  ObjectType2[ObjectType2["LitInList"] = 5] = "LitInList";
+  return ObjectType2;
+})(ObjectType || {});
 const updateHistory = (entity, qname, prop, val, noHisto = true) => {
   if (!history[entity])
     history[entity] = [];
@@ -630,7 +639,7 @@ class EntityGraph {
       throw "can't find path of " + p.uri;
     }
     switch (p.objectType) {
-      case ObjectType.ResExt:
+      case 3 /* ResExt */:
         if (!p.path.directPathNode) {
           throw "can't have non-direct path for property " + p.uri;
         }
@@ -638,12 +647,12 @@ class EntityGraph {
         const fromRDFResExtwData = EntityGraph.addExtDataFromGraph(fromRDFResExt, s.graph);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFResExtwData);
         return fromRDFResExtwData;
-      case ObjectType.Internal:
+      case 1 /* Internal */:
         const fromRDFSubNode = s.getPropResValuesFromPath(p.path);
         const fromRDFSubs = EntityGraph.subjectify(fromRDFSubNode, s.graph);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFSubs);
         return fromRDFSubs;
-      case ObjectType.ResInList:
+      case 2 /* ResInList */:
         if (!p.path.directPathNode) {
           throw "can't have non-direct path for property " + p.uri;
         }
@@ -651,8 +660,8 @@ class EntityGraph {
         const fromRDFReswLabels = EntityGraph.addLabelsFromGraph(fromRDFResList, p.graph);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFReswLabels);
         return fromRDFReswLabels;
-      case ObjectType.Literal:
-      case ObjectType.LitInList:
+      case 0 /* Literal */:
+      case 5 /* LitInList */:
       default:
         if (!p.path.directPathNode) {
           throw "can't have non-direct path for property " + p.uri;
@@ -861,15 +870,6 @@ class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
     return new ExtRDFResourceWithLabel(this.uri, this._prefLabels, { ...this._otherData, [key]: value });
   }
 }
-var ObjectType = /* @__PURE__ */ ((ObjectType2) => {
-  ObjectType2[ObjectType2["Literal"] = 0] = "Literal";
-  ObjectType2[ObjectType2["Internal"] = 1] = "Internal";
-  ObjectType2[ObjectType2["ResInList"] = 2] = "ResInList";
-  ObjectType2[ObjectType2["ResExt"] = 3] = "ResExt";
-  ObjectType2[ObjectType2["ResIgnore"] = 4] = "ResIgnore";
-  ObjectType2[ObjectType2["LitInList"] = 5] = "LitInList";
-  return ObjectType2;
-})(ObjectType || {});
 class LiteralWithId extends rdf__namespace.Literal {
   id;
   constructor(value, language, datatype, id) {

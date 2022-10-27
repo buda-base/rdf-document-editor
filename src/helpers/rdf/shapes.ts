@@ -3,12 +3,10 @@ import {
   RDFResource,
   RDFResourceWithLabel,
   EntityGraph,
-  ExtRDFResourceWithLabel,
   Subject,
   rdfLitAsNumber,
   LiteralWithId,
   ObjectType,
-  Value,
   Path,
 } from "./types"
 import * as ns from "./ns"
@@ -18,12 +16,11 @@ import {
   rdeDefaultValue,
   rdeDisplayPriority,
   rdfsLabel,
-  shInversePath,
   shMessage,
   shMinCount,
 } from "./ns"
 import { Memoize } from "typescript-memoize"
-import { nanoid, customAlphabet } from "nanoid"
+import { customAlphabet } from "nanoid"
 
 const debug = require("debug")("rde:rdf:shapes")
 
@@ -182,7 +179,6 @@ export class PropertyShape extends RDFResourceWithLabel {
 
   @Memoize()
   public get copyObjectsOfProperty(): Array<rdf.NamedNode> | null {
-    const res: Array<PropertyShape> = []
     return this.graph.store.each(this.node, ns.rdeCopyObjectsOfProperty, null) as Array<rdf.NamedNode>
   }
 

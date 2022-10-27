@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.js": "/buda-base/rdf-document-editor/static/js/main.69da061e.chunk.js",
-    "main.js.map": "/buda-base/rdf-document-editor/static/js/main.69da061e.chunk.js.map",
+    "main.js": "/buda-base/rdf-document-editor/static/js/main.dc748f65.chunk.js",
+    "main.js.map": "/buda-base/rdf-document-editor/static/js/main.dc748f65.chunk.js.map",
     "runtime-main.js": "/buda-base/rdf-document-editor/static/js/runtime-main.ef75b603.js",
     "runtime-main.js.map": "/buda-base/rdf-document-editor/static/js/runtime-main.ef75b603.js.map",
     "static/css/2.9d8c3f79.chunk.css": "/buda-base/rdf-document-editor/static/css/2.9d8c3f79.chunk.css",
@@ -15,6 +15,6 @@
     "static/js/runtime-main.ef75b603.js",
     "static/css/2.9d8c3f79.chunk.css",
     "static/js/2.dd516a00.chunk.js",
-    "static/js/main.69da061e.chunk.js"
+    "static/js/main.dc748f65.chunk.js"
   ]
 }

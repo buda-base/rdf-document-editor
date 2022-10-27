@@ -14,6 +14,15 @@ export const errors: Record<string, Record<string, boolean>> = {}
 // global variable, should be in config?
 export const history: Record<string, Array<Record<string, any>>> = {}
 
+export enum ObjectType {
+  Literal,
+  Internal,
+  ResInList,
+  ResExt,
+  ResIgnore,
+  LitInList,
+}
+
 export const updateHistory = (
   entity: string,
   qname: string,
@@ -613,15 +622,6 @@ export class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
   public addOtherData(key: string, value: any): ExtRDFResourceWithLabel {
     return new ExtRDFResourceWithLabel(this.uri, this._prefLabels, { ...this._otherData, [key]: value })
   }
-}
-
-export enum ObjectType {
-  Literal,
-  Internal,
-  ResInList,
-  ResExt,
-  ResIgnore,
-  LitInList,
 }
 
 export class LiteralWithId extends rdf.Literal {
