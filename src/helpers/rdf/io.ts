@@ -1,8 +1,8 @@
 import * as rdf from "rdflib"
 import i18n from "i18next"
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect } from "react"
 import { useRecoilState } from "recoil"
-import { RDFResource, RDFResourceWithLabel, EntityGraph, Subject } from "./types"
+import { Subject } from "./types"
 import { NodeShape } from "./shapes"
 import {
   profileIdState,
@@ -14,7 +14,7 @@ import {
   EditedEntityState,
   defaultEntityLabelAtom,
 } from "../../atoms/common"
-import RDEConfig from "../rde_config"
+import RDEConfig, { IFetchState } from "../rde_config"
 import { prefLabel } from "./ns"
 
 interface StoreWithEtag {
@@ -113,11 +113,6 @@ export const putTtl = async (
   })
 }
 
-export interface IFetchState {
-  status: string
-  error?: string
-}
-
 // maps of the shapes and entities that have been downloaded so far, with no gc
 export const shapesMap: Record<string, NodeShape> = {}
 
@@ -180,7 +175,7 @@ export function ShapeFetcher(shapeQname: string, entityQname: string, config: RD
       }
     }
     if (current === shapeQname) fetchResource(shapeQname)
-  }, [current, entities])
+  }, [config, entityQname, shape, shapeQname, current, entities])
 
   const retVal =
     shapeQname === current && shape && shapeQname == shape.qname
@@ -387,7 +382,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       if (unmounting.val) return
       else setUiReady(true)
     }
-  }, [current, shapeQname, idToken, profileId, reloadEntity])
+  }, [config, entities, entityQname, entity, current, shapeQname, idToken, profileId, reloadEntity])
 
   const retVal =
     entityQname === current

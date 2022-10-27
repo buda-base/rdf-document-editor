@@ -433,16 +433,6 @@ declare namespace shapes {
   };
 }
 
-interface StoreWithEtag {
-    store: rdf.Store;
-    etag: string | null;
-}
-declare const fetchTtl: (url: string, allow404?: boolean, headers?: Headers, allowEmptyEtag?: boolean) => Promise<StoreWithEtag>;
-interface IFetchState {
-    status: string;
-    error?: string;
-}
-
 declare enum EditedEntityState {
     Error = 0,
     Saved = 1,
@@ -467,6 +457,10 @@ declare type Lang = {
 };
 declare const ValueByLangToStrPrefLang: (vbl: Record<string, string> | null, prefLang: string | Array<string>) => string;
 
+interface IFetchState {
+    status: string;
+    error?: string;
+}
 interface generateSubnode {
     (subshape: NodeShape, parent: RDFResource): Promise<Subject>;
 }
@@ -495,11 +489,17 @@ interface getConnexGraph {
 interface getShapesDocument {
     (entity: rdf.NamedNode): Promise<NodeShape>;
 }
+interface putDocument {
+    (entity: rdf.NamedNode, document: rdf.Store): Promise<string>;
+}
 interface getPreviewLink {
     (entity: rdf.NamedNode): string | null;
 }
 interface getUserLocalEntities {
     (): Promise<Record<string, LocalEntityInfo>>;
+}
+interface setUserLocalEntities {
+    (localEntities: Record<string, LocalEntityInfo>): Promise<void>;
 }
 interface getUserMenuState {
     (): Promise<Record<string, Entity>>;
@@ -566,6 +566,7 @@ interface RDEConfig {
     readonly getShapesDocument: getShapesDocument;
     readonly getConnexGraph: getConnexGraph;
     readonly getUserLocalEntities: getUserLocalEntities;
+    readonly setUserLocalEntities: setUserLocalEntities;
     readonly getUserMenuState: getUserMenuState;
     readonly setUserMenuState: setUserMenuState;
     readonly setUserLocalEntity: setUserLocalEntity;
@@ -579,6 +580,7 @@ interface RDEConfig {
     possibleShapeRefsForType: possibleShapeRefsForType;
     libraryUrl?: string;
     resourceSelector: ResourceSelector;
+    putDocument: putDocument;
 }
 
 interface IdTypeParams {
@@ -603,6 +605,12 @@ declare function EntityCreationContainer(props: RDEProps): JSX.Element;
 declare function EntityCreationContainerRoute(props: RDEProps): JSX.Element;
 
 declare function EntityShapeChooserContainer(props: RDEProps): JSX.Element;
+
+interface StoreWithEtag {
+    store: rdf.Store;
+    etag: string | null;
+}
+declare const fetchTtl: (url: string, allow404?: boolean, headers?: Headers, allowEmptyEtag?: boolean) => Promise<StoreWithEtag>;
 
 declare const BUDAResourceSelector: FC<{
     value: ExtRDFResourceWithLabel;

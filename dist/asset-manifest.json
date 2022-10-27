@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.js": "/buda-base/rdf-document-editor/static/js/main.f213f9a0.chunk.js",
-    "main.js.map": "/buda-base/rdf-document-editor/static/js/main.f213f9a0.chunk.js.map",
+    "main.js": "/buda-base/rdf-document-editor/static/js/main.69da061e.chunk.js",
+    "main.js.map": "/buda-base/rdf-document-editor/static/js/main.69da061e.chunk.js.map",
     "runtime-main.js": "/buda-base/rdf-document-editor/static/js/runtime-main.ef75b603.js",
     "runtime-main.js.map": "/buda-base/rdf-document-editor/static/js/runtime-main.ef75b603.js.map",
     "static/css/2.9d8c3f79.chunk.css": "/buda-base/rdf-document-editor/static/css/2.9d8c3f79.chunk.css",
-    "static/js/2.5e26216a.chunk.js": "/buda-base/rdf-document-editor/static/js/2.5e26216a.chunk.js",
-    "static/js/2.5e26216a.chunk.js.map": "/buda-base/rdf-document-editor/static/js/2.5e26216a.chunk.js.map",
+    "static/js/2.dd516a00.chunk.js": "/buda-base/rdf-document-editor/static/js/2.dd516a00.chunk.js",
+    "static/js/2.dd516a00.chunk.js.map": "/buda-base/rdf-document-editor/static/js/2.dd516a00.chunk.js.map",
     "index.html": "/buda-base/rdf-document-editor/index.html",
     "static/css/2.9d8c3f79.chunk.css.map": "/buda-base/rdf-document-editor/static/css/2.9d8c3f79.chunk.css.map",
-    "static/js/2.5e26216a.chunk.js.LICENSE.txt": "/buda-base/rdf-document-editor/static/js/2.5e26216a.chunk.js.LICENSE.txt"
+    "static/js/2.dd516a00.chunk.js.LICENSE.txt": "/buda-base/rdf-document-editor/static/js/2.dd516a00.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.ef75b603.js",
     "static/css/2.9d8c3f79.chunk.css",
-    "static/js/2.5e26216a.chunk.js",
-    "static/js/main.f213f9a0.chunk.js"
+    "static/js/2.dd516a00.chunk.js",
+    "static/js/main.69da061e.chunk.js"
   ]
 }

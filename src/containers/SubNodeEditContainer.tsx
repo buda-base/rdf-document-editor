@@ -1,17 +1,8 @@
-import React, { useState, useEffect, useMemo, FC } from "react"
-import { RDFResource, Subject } from "../helpers/rdf/types"
-import { PropertyShape, NodeShape } from "../helpers/rdf/shapes"
-import NotFoundIcon from "@material-ui/icons/BrokenImage"
-import i18n from "i18next"
+import React, { FC } from "react"
+import { Subject } from "../helpers/rdf/types"
+import { NodeShape } from "../helpers/rdf/shapes"
 import PropertyContainer from "./ValueList"
-import { uiLangState } from "../atoms/common"
-import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
-import { atom, useRecoilState } from "recoil"
-import Button from "@material-ui/core/Button"
-import * as rdf from "rdflib"
-
-const debug = require("debug")("rde:entity:edit:subnode")
 
 const SubNodeEditContainer: FC<{ shape: NodeShape; subject: Subject; config: RDEConfig }> = ({
   shape,

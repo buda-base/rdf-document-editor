@@ -1,17 +1,11 @@
 /* eslint-disable no-extra-parens */
-import React, { useState, FC, useEffect, ChangeEvent } from "react"
+import React, { useEffect, ChangeEvent } from "react"
 import { history as undoHistory } from "../helpers/rdf/types"
-import * as shapes from "../helpers/rdf/shapes"
-import { FiPower as LogoutIcon } from "react-icons/fi"
-import { InputLabel, Select, MenuItem } from "@material-ui/core"
 import { CloseIcon } from "../routes/layout/icons"
 import i18n from "i18next"
-import { atom, useRecoilState, useRecoilValue, selectorFamily, RecoilState } from "recoil"
-import { useAuth0 } from "@auth0/auth0-react"
-import { FormHelperText, FormControl } from "@material-ui/core"
-import { RDEProps, IdTypeParams } from "../helpers/editor_props"
-import RDEConfig from "../helpers/rde_config"
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from "react-router-dom"
+import { useRecoilState } from "recoil"
+import { RDEProps } from "../helpers/editor_props"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import {
   uiLangState,
   uiTabState,
@@ -52,7 +46,6 @@ const useStyles = makeStyles((theme) => ({
 export function EntitySelector(props: RDEProps) {
   const config = props.config
   const classes = useStyles()
-  const { user, isAuthenticated, isLoading, logout } = useAuth0()
   const [entities, setEntities] = useRecoilState(entitiesAtom)
   const [sessionLoaded, setSessionLoaded] = useRecoilState(sessionLoadedState)
   const [uiLang] = useRecoilState(uiLangState)
@@ -106,7 +99,7 @@ export function EntitySelector(props: RDEProps) {
         if (!found) setTab(newEntities.length)
       }
     })
-  }, [])
+  }, [config, location])
 
   const closeEntities = async (ev: React.MouseEvent) => {
     let warn = false

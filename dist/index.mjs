@@ -27,7 +27,6 @@ import KeyboardIcon from '@material-ui/icons/Keyboard.js'
 import HelpIcon from '@material-ui/icons/Help.js'
 import ContentPasteIcon from '@material-ui/icons/AssignmentReturned.js'
 import MDEditor, { commands } from '@uiw/react-md-editor';
-import { useAuth0 } from '@auth0/auth0-react';
 import { MapContainer, LayersControl, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import ReactLeafletGoogleLayer from 'react-leaflet-google-layer';
 import { GoogleProvider, OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
@@ -1700,7 +1699,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
     }
     if (current === shapeQname)
       fetchResource(shapeQname);
-  }, [current, entities]);
+  }, [config, entityQname, shape, shapeQname, current, entities]);
   const retVal = shapeQname === current && shape && shapeQname == shape.qname ? { loadingState, shape, reset } : { loadingState: { status: "loading", error: void 0 }, shape: void 0, reset };
   return retVal;
 }
@@ -1865,7 +1864,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       else
         setUiReady(true);
     }
-  }, [current, shapeQname, idToken, profileId, reloadEntity]);
+  }, [config, entities, entityQname, entity, current, shapeQname, idToken, profileId, reloadEntity]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
   return retVal;
 }
@@ -1914,7 +1913,6 @@ function removeItemAtIndex(arr, index) {
   return [...arr.slice(0, index), ...arr.slice(index + 1)];
 }
 const PropertyContainer = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
-  property.objectType;
   const [css, setCss] = useState("");
   const setCssClass = (txt, add = true) => {
     if (add) {
@@ -2059,7 +2057,6 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
   const [undos, setUndos] = useRecoilState(uiUndosState);
-  useRecoilState(entitiesAtom);
   const sortOnPath = property?.sortOnProperty?.value;
   const orderedList = useRecoilValue(
     orderedByPropSelector({
@@ -2396,8 +2393,6 @@ const Create = ({ subject, property, embedded, disable, newVal, shape, config })
   const [edit, setEdit] = useRecoilState(uiEditState);
   const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"));
   const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState);
-  useAuth0();
-  useRecoilState(reloadEntityState);
   let nextVal = useRecoilValue(
     property.sortOnProperty ? orderedNewValSelector({
       atom: property.sortOnProperty ? subject.getAtomForProperty(property.path.sparqlString) : null,
@@ -2451,7 +2446,7 @@ const Create = ({ subject, property, embedded, disable, newVal, shape, config })
     });
   }
 };
-const useStyles$1 = makeStyles((theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
@@ -2459,7 +2454,7 @@ const useStyles$1 = makeStyles((theme) => ({
   }
 }));
 const EditLangString = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
-  useStyles$1();
+  useStyles();
   const [editMD, setEditMD] = useState(false);
   const [keyboard, setKeyboard] = useState(false);
   const canPushPrefLabel = property.allowPushToTopLevelLabel;
@@ -2765,7 +2760,7 @@ const LangSelect = ({ onChange, value, property, disabled, error, editable, conf
   });
 };
 const EditString = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
-  useStyles$1();
+  useStyles();
   const [uiLang] = useRecoilState(uiLangState);
   property.datatype;
   const pattern = property.pattern ? new RegExp(property.pattern) : void 0;
@@ -2858,7 +2853,7 @@ const EditString = ({ property, lit, onChange, label, editable, updateEntityStat
   });
 };
 const EditBool = ({ property, lit, onChange, label, editable }) => {
-  useStyles$1();
+  useStyles();
   property.datatype;
   let val = !lit.value || lit.value == "false" || lit.value == "0" ? false : true;
   if (property.defaultValue === null && lit.value == "")
@@ -2884,7 +2879,7 @@ const EditBool = ({ property, lit, onChange, label, editable }) => {
   });
 };
 const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
-  useStyles$1();
+  useStyles();
   const dt = property.datatype;
   const minInclusive = property.minInclusive;
   const maxInclusive = property.maxInclusive;
@@ -3371,7 +3366,7 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
     }
     setList(newList);
   };
-  useStyles$1();
+  useStyles();
   if (possibleValues.length == 1 && list.length == 0) {
     setList([possibleValues[0]]);
   }
@@ -3764,12 +3759,12 @@ function EntityEditContainerMayUpdate(props) {
         defaultPrefixMap.uriFromQname(subnodeQname)
       );
       if (pp.length > 1 && i >= 0) {
-        const atom2 = entities[i].subject?.getAtomForProperty(pp[1]);
-        if (!atom2) {
+        const atom = entities[i].subject?.getAtomForProperty(pp[1]);
+        if (!atom) {
           setSubject(null);
           return;
         }
-        subj = snapshot.getLoadable(atom2).contents;
+        subj = snapshot.getLoadable(atom).contents;
         if (Array.isArray(subj)) {
           subj = subj.filter((s) => s.qname === subnodeQname);
           if (subj.length)
@@ -3805,8 +3800,8 @@ function EntityEditContainerDoUpdate(props) {
   const config = props.config;
   const params = useParams();
   const shapeQname = params.shapeQname;
-  const atom2 = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
-  const [list, setList] = useRecoilState(atom2);
+  const atom = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
+  const [list, setList] = useRecoilState(atom);
   const [entities, setEntities] = useRecoilState(entitiesAtom);
   const i = entities.findIndex((e) => e.subjectQname === props.objectQname);
   const subject = entities[i]?.subject;
@@ -3829,7 +3824,7 @@ function EntityEditContainerDoUpdate(props) {
       })) : void 0
     })
   );
-  debug$4("LIST:", list, atom2, props.copy, copy);
+  debug$4("LIST:", list, atom, props.copy, copy);
   useEffect(() => {
     if (copy) {
       setTimeout(() => {
@@ -4147,13 +4142,11 @@ function EntityEditContainer(props) {
   });
 }
 
-require("debug")("rde:entity:newentity");
 function NewEntityContainer(props) {
   const config = props.config || {};
   const [uiLang] = useRecoilState(uiLangState);
   const [RID, setRID] = useState("");
   const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState);
-  useRecoilState(userIdState);
   const navigate = useNavigate();
   const disabled = !RIDprefix;
   return /* @__PURE__ */ jsxs("div", {
@@ -4331,10 +4324,7 @@ function EntityCreationContainer(props) {
   const index = params.index;
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
-  useRecoilState(userIdState);
-  useRecoilState(entitiesAtom);
   const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState);
-  useRecoilState(uiTabState);
   const location = useLocation$1();
   const unmounting = { val: false };
   useEffect(() => {
@@ -4399,10 +4389,6 @@ function EntityCreationContainerAlreadyOpen(props) {
   const index = params.index;
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname;
-  useRecoilState(userIdState);
-  useRecoilState(entitiesAtom);
-  useRecoilState(RIDprefixState);
-  useRecoilState(uiTabState);
   useEffect(() => {
     return () => {
     };
@@ -4580,7 +4566,7 @@ function EntityShapeChooserContainer(props) {
 }
 
 const debug = require("debug")("rde:atom:event:RS");
-const useStyles = makeStyles((theme) => ({
+makeStyles((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
@@ -4603,7 +4589,6 @@ const BUDAResourceSelector = ({
   shape,
   config
 }) => {
-  useStyles();
   const [keyword, setKeyword] = useState("");
   const [language, setLanguage] = useState("bo-x-ewts");
   const [type, setType] = useState(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
@@ -4615,7 +4600,6 @@ const BUDAResourceSelector = ({
   const navigate = useNavigate();
   const msgId = subject.qname + property.qname + idx;
   const [popupNew, setPopupNew] = useState(false);
-  useRecoilState(uiTabState);
   const iframeRef = useRef(null);
   const [canCopy, setCanCopy] = useState([]);
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i);

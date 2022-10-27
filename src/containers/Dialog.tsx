@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { Navigate } from "react-router-dom"
 import Button from "@material-ui/core/Button"
 import Dialog from "@material-ui/core/Dialog"

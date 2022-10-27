@@ -1,9 +1,9 @@
-import { atom, atomFamily, selectorFamily, RecoilValue, RecoilState } from "recoil"
+import { atom, selectorFamily, RecoilValue, RecoilState } from "recoil"
 import { FC } from "react"
 import _ from "lodash"
 import * as ns from "../helpers/rdf/ns"
 import * as shapes from "../helpers/rdf/shapes"
-import { Value, Subject, LiteralWithId, errors, emptyLiteral, HistoryStatus } from "../helpers/rdf/types"
+import { Value, Subject, LiteralWithId, errors, HistoryStatus } from "../helpers/rdf/types"
 
 const debug = require("debug")("rde:common")
 

@@ -11,10 +11,9 @@ export type { IdTypeParams } from "./helpers/editor_props"
 
 export { NodeShape, generateSubnode } from "./helpers/rdf/shapes"
 
-export type { default as RDEConfig, LocalEntityInfo } from "./helpers/rde_config"
+export type { default as RDEConfig, LocalEntityInfo, IFetchState } from "./helpers/rde_config"
 
 export { fetchTtl } from "./helpers/rdf/io"
-export type { IFetchState } from "./helpers/rdf/io"
 
 export { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel } from "./helpers/rdf/types"
 

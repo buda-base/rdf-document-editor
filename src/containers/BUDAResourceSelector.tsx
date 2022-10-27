@@ -1,5 +1,5 @@
-import React, { useEffect, useState, FC, ChangeEvent, useRef, useLayoutEffect, useCallback } from "react"
-import { useRecoilState, useSetRecoilState, atomFamily, useRecoilValue } from "recoil"
+import React, { useEffect, useState, FC, useRef, useLayoutEffect, useCallback } from "react"
+import { useRecoilState } from "recoil"
 import { makeStyles } from "@material-ui/core/styles"
 import { TextField, MenuItem } from "@material-ui/core"
 import i18n from "i18next"
@@ -12,9 +12,6 @@ import {
   uiLangState,
   uiLitLangState,
   uiTabState,
-  initListAtom,
-  initkvAtom,
-  initMapAtom,
   toCopySelector,
   entitiesAtom,
   EditedEntityState,
@@ -30,7 +27,6 @@ import {
 } from "../helpers/rdf/types"
 import { PropertyShape, NodeShape } from "../helpers/rdf/shapes"
 import {
-  SearchIcon,
   LaunchIcon,
   InfoIcon,
   InfoOutlinedIcon,
@@ -109,7 +105,6 @@ const BUDAResourceSelector: FC<{
   shape,
   config,
 }) => {
-  const classes = useStyles()
   const [keyword, setKeyword] = useState("")
   const [language, setLanguage] = useState("bo-x-ewts") // TODO: default value should be from the user profile or based on the latest value used
   const [type, setType] = useState(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "")
@@ -121,7 +116,6 @@ const BUDAResourceSelector: FC<{
   const navigate = useNavigate()
   const msgId = subject.qname + property.qname + idx
   const [popupNew, setPopupNew] = useState(false)
-  const [tab, setTab] = useRecoilState(uiTabState)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [canCopy, setCanCopy] = useState<{ k: string; val: Value[] }[]>([])
 

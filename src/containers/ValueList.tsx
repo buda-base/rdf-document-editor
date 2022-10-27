@@ -1,5 +1,4 @@
 import React, { useEffect, FC, ChangeEvent, useState, useRef, useLayoutEffect, useCallback, useMemo } from "react"
-import PropTypes from "prop-types"
 import * as rdf from "rdflib"
 import {
   LiteralWithId,
@@ -13,21 +12,18 @@ import {
   noneSelected,
   getHistoryStatus,
 } from "../helpers/rdf/types"
-import { putTtl } from "../helpers/rdf/io"
-import * as shapes from "../helpers/rdf/shapes"
 import { generateSubnode, NodeShape, PropertyShape } from "../helpers/rdf/shapes"
 import * as ns from "../helpers/rdf/ns"
 // import { generateSubnode, reserveLname } from "../../../helpers/rdf/construct"
-import { useRecoilState, useSetRecoilState, useRecoilValue, atomFamily, atom, selectorFamily } from "recoil"
+import { useRecoilState, useRecoilValue } from "recoil"
 import { makeStyles } from "@material-ui/core/styles"
-import { TextField, MenuItem, Tooltip, IconButton, InputLabel, Select } from "@material-ui/core"
+import { TextField, MenuItem, Tooltip } from "@material-ui/core"
 import {
   AddIcon,
   RemoveIcon,
   ErrorIcon,
   CloseIcon,
   VisibilityIcon,
-  VisibilityOffIcon,
   MDIcon,
   EditIcon,
   KeyboardIcon,
@@ -54,13 +50,10 @@ import {
   isUniqueTestSelectorType,
   initStringAtom,
   entitiesAtom,
-  Entity,
   EditedEntityState,
 } from "../atoms/common"
 
 import MDEditor, { commands } from "@uiw/react-md-editor"
-
-import { useAuth0 } from "@auth0/auth0-react"
 
 const debug = require("debug")("rde:entity:container:ValueList")
 
@@ -84,8 +77,6 @@ export const PropertyContainer: FC<{
   siblingsPath?: string
   config: RDEConfig
 }> = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
-  const objectType = property.objectType
-
   //debug("propertyCtn:", property.qname, property, subject.qname, subject, siblingsPath)
 
   const [css, setCss] = useState("")
@@ -308,7 +299,6 @@ const ValueList: FC<{
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang)
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang)
   const [undos, setUndos] = useRecoilState(uiUndosState)
-  const [entities, setEntities] = useRecoilState(entitiesAtom)
 
   const sortOnPath = property?.sortOnProperty?.value
   const orderedList: Value[] = useRecoilValue(
@@ -783,8 +773,6 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
   const [edit, setEdit] = useRecoilState(uiEditState)
   const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"))
   const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
-  const { getIdTokenClaims } = useAuth0()
-  const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState)
 
   let nextVal = useRecoilValue(
     property.sortOnProperty

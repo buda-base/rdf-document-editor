@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useMemo, useLayoutEffect, useCallback, useRef } from "react"
-import { ShapeFetcher, EntityFetcher, IFetchState } from "../helpers/rdf/io"
-//import { setDefaultPrefixes } from "../helpers/rdf/ns"
+import React, { useState, useEffect, useCallback, useRef } from "react"
+import { ShapeFetcher, EntityFetcher } from "../helpers/rdf/io"
 import {
-  RDFResource,
   Subject,
   ExtRDFResourceWithLabel,
   LiteralWithId,
@@ -11,13 +9,11 @@ import {
   getParentPath,
   history,
 } from "../helpers/rdf/types"
-import * as shapes from "../helpers/rdf/shapes"
 import { PropertyShape, PropertyGroup } from "../helpers/rdf/shapes"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
 import i18n from "i18next"
 import PropertyGroupContainer from "./PropertyGroupContainer"
 import {
-  reloadEntityState,
   profileIdState,
   userIdState,
   uiLangState,
@@ -25,7 +21,6 @@ import {
   uiUndosState,
   noUndoRedo,
   uiTabState,
-  uiNavState,
   uiGroupState,
   possiblePrefLabelsSelector,
   initListAtom,
@@ -38,16 +33,13 @@ import {
   Entity,
 } from "../atoms/common"
 import * as lang from "../helpers/lang"
-import RDEConfig from "../helpers/rde_config"
-import { atom, useRecoilState, useRecoilSnapshot, useRecoilValue, RecoilState } from "recoil"
+import { useRecoilState, useRecoilSnapshot, useRecoilValue, RecoilState } from "recoil"
 import { RDEProps } from "../helpers/editor_props"
 import * as rdf from "rdflib"
-import qs from "query-string"
 import * as ns from "../helpers/rdf/ns"
 import { Navigate } from "react-router-dom"
 import { HashLink as Link } from "react-router-hash-link"
 import queryString from "query-string"
-import Button from "@material-ui/core/Button"
 import { useLocation, useParams } from "react-router"
 
 const debug = require("debug")("rde:entity:edit")

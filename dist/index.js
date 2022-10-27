@@ -31,7 +31,6 @@ var KeyboardIcon = require('@material-ui/icons/Keyboard');
 var HelpIcon = require('@material-ui/icons/Help');
 var ContentPasteIcon = require('@material-ui/icons/AssignmentReturned');
 var MDEditor = require('@uiw/react-md-editor');
-var auth0React = require('@auth0/auth0-react');
 var reactLeaflet = require('react-leaflet');
 var ReactLeafletGoogleLayer = require('react-leaflet-google-layer');
 var leafletGeosearch = require('leaflet-geosearch');
@@ -1753,7 +1752,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
     }
     if (current === shapeQname)
       fetchResource(shapeQname);
-  }, [current, entities]);
+  }, [config, entityQname, shape, shapeQname, current, entities]);
   const retVal = shapeQname === current && shape && shapeQname == shape.qname ? { loadingState, shape, reset } : { loadingState: { status: "loading", error: void 0 }, shape: void 0, reset };
   return retVal;
 }
@@ -1918,7 +1917,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       else
         setUiReady(true);
     }
-  }, [current, shapeQname, idToken, profileId, reloadEntity]);
+  }, [config, entities, entityQname, entity, current, shapeQname, idToken, profileId, reloadEntity]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
   return retVal;
 }
@@ -1967,7 +1966,6 @@ function removeItemAtIndex(arr, index) {
   return [...arr.slice(0, index), ...arr.slice(index + 1)];
 }
 const PropertyContainer = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
-  property.objectType;
   const [css, setCss] = React.useState("");
   const setCssClass = (txt, add = true) => {
     if (add) {
@@ -2112,7 +2110,6 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
   const [undos, setUndos] = recoil.useRecoilState(uiUndosState);
-  recoil.useRecoilState(entitiesAtom);
   const sortOnPath = property?.sortOnProperty?.value;
   const orderedList = recoil.useRecoilValue(
     orderedByPropSelector({
@@ -2449,8 +2446,6 @@ const Create = ({ subject, property, embedded, disable, newVal, shape, config })
   const [edit, setEdit] = recoil.useRecoilState(uiEditState);
   const [idToken, setIdToken] = React.useState(localStorage.getItem("BLMPidToken"));
   const [RIDprefix, setRIDprefix] = recoil.useRecoilState(RIDprefixState);
-  auth0React.useAuth0();
-  recoil.useRecoilState(reloadEntityState);
   let nextVal = recoil.useRecoilValue(
     property.sortOnProperty ? orderedNewValSelector({
       atom: property.sortOnProperty ? subject.getAtomForProperty(property.path.sparqlString) : null,
@@ -2504,7 +2499,7 @@ const Create = ({ subject, property, embedded, disable, newVal, shape, config })
     });
   }
 };
-const useStyles$1 = styles.makeStyles((theme) => ({
+const useStyles = styles.makeStyles((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
@@ -2512,7 +2507,7 @@ const useStyles$1 = styles.makeStyles((theme) => ({
   }
 }));
 const EditLangString = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
-  useStyles$1();
+  useStyles();
   const [editMD, setEditMD] = React.useState(false);
   const [keyboard, setKeyboard] = React.useState(false);
   const canPushPrefLabel = property.allowPushToTopLevelLabel;
@@ -2818,7 +2813,7 @@ const LangSelect = ({ onChange, value, property, disabled, error, editable, conf
   });
 };
 const EditString = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
-  useStyles$1();
+  useStyles();
   const [uiLang] = recoil.useRecoilState(uiLangState);
   property.datatype;
   const pattern = property.pattern ? new RegExp(property.pattern) : void 0;
@@ -2911,7 +2906,7 @@ const EditString = ({ property, lit, onChange, label, editable, updateEntityStat
   });
 };
 const EditBool = ({ property, lit, onChange, label, editable }) => {
-  useStyles$1();
+  useStyles();
   property.datatype;
   let val = !lit.value || lit.value == "false" || lit.value == "0" ? false : true;
   if (property.defaultValue === null && lit.value == "")
@@ -2937,7 +2932,7 @@ const EditBool = ({ property, lit, onChange, label, editable }) => {
   });
 };
 const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
-  useStyles$1();
+  useStyles();
   const dt = property.datatype;
   const minInclusive = property.minInclusive;
   const maxInclusive = property.maxInclusive;
@@ -3424,7 +3419,7 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
     }
     setList(newList);
   };
-  useStyles$1();
+  useStyles();
   if (possibleValues.length == 1 && list.length == 0) {
     setList([possibleValues[0]]);
   }
@@ -3817,12 +3812,12 @@ function EntityEditContainerMayUpdate(props) {
         defaultPrefixMap.uriFromQname(subnodeQname)
       );
       if (pp.length > 1 && i >= 0) {
-        const atom2 = entities[i].subject?.getAtomForProperty(pp[1]);
-        if (!atom2) {
+        const atom = entities[i].subject?.getAtomForProperty(pp[1]);
+        if (!atom) {
           setSubject(null);
           return;
         }
-        subj = snapshot.getLoadable(atom2).contents;
+        subj = snapshot.getLoadable(atom).contents;
         if (Array.isArray(subj)) {
           subj = subj.filter((s) => s.qname === subnodeQname);
           if (subj.length)
@@ -3858,8 +3853,8 @@ function EntityEditContainerDoUpdate(props) {
   const config = props.config;
   const params = reactRouter.useParams();
   const shapeQname = params.shapeQname;
-  const atom2 = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
-  const [list, setList] = recoil.useRecoilState(atom2);
+  const atom = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
+  const [list, setList] = recoil.useRecoilState(atom);
   const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
   const i = entities.findIndex((e) => e.subjectQname === props.objectQname);
   const subject = entities[i]?.subject;
@@ -3882,7 +3877,7 @@ function EntityEditContainerDoUpdate(props) {
       })) : void 0
     })
   );
-  debug$4("LIST:", list, atom2, props.copy, copy);
+  debug$4("LIST:", list, atom, props.copy, copy);
   React.useEffect(() => {
     if (copy) {
       setTimeout(() => {
@@ -4200,13 +4195,11 @@ function EntityEditContainer(props) {
   });
 }
 
-require("debug")("rde:entity:newentity");
 function NewEntityContainer(props) {
   const config = props.config || {};
   const [uiLang] = recoil.useRecoilState(uiLangState);
   const [RID, setRID] = React.useState("");
   const [RIDprefix, setRIDprefix] = recoil.useRecoilState(RIDprefixState);
-  recoil.useRecoilState(userIdState);
   const navigate = reactRouterDom.useNavigate();
   const disabled = !RIDprefix;
   return /* @__PURE__ */ jsxRuntime.jsxs("div", {
@@ -4384,10 +4377,7 @@ function EntityCreationContainer(props) {
   const index = params.index;
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
-  recoil.useRecoilState(userIdState);
-  recoil.useRecoilState(entitiesAtom);
   const [RIDprefix, setRIDprefix] = recoil.useRecoilState(RIDprefixState);
-  recoil.useRecoilState(uiTabState);
   const location = reactRouterDom.useLocation();
   const unmounting = { val: false };
   React.useEffect(() => {
@@ -4452,10 +4442,6 @@ function EntityCreationContainerAlreadyOpen(props) {
   const index = params.index;
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname;
-  recoil.useRecoilState(userIdState);
-  recoil.useRecoilState(entitiesAtom);
-  recoil.useRecoilState(RIDprefixState);
-  recoil.useRecoilState(uiTabState);
   React.useEffect(() => {
     return () => {
     };
@@ -4633,7 +4619,7 @@ function EntityShapeChooserContainer(props) {
 }
 
 const debug = require("debug")("rde:atom:event:RS");
-const useStyles = styles.makeStyles((theme) => ({
+styles.makeStyles((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
@@ -4656,7 +4642,6 @@ const BUDAResourceSelector = ({
   shape,
   config
 }) => {
-  useStyles();
   const [keyword, setKeyword] = React.useState("");
   const [language, setLanguage] = React.useState("bo-x-ewts");
   const [type, setType] = React.useState(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
@@ -4668,7 +4653,6 @@ const BUDAResourceSelector = ({
   const navigate = reactRouterDom.useNavigate();
   const msgId = subject.qname + property.qname + idx;
   const [popupNew, setPopupNew] = React.useState(false);
-  recoil.useRecoilState(uiTabState);
   const iframeRef = React.useRef(null);
   const [canCopy, setCanCopy] = React.useState([]);
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i);

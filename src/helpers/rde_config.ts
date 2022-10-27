@@ -1,11 +1,15 @@
 import * as rdf from "rdflib"
-import { RDFResource, Subject, LiteralWithId, RDFResourceWithLabel, ExtRDFResourceWithLabel } from "./rdf/types"
+import { RDFResource, Subject, RDFResourceWithLabel, ExtRDFResourceWithLabel } from "./rdf/types"
 import { NodeShape, PropertyShape } from "./rdf/shapes"
 import { PrefixMap } from "./rdf/ns"
-import { IFetchState } from "./rdf/io"
 import { Entity, EditedEntityState } from "../atoms/common"
 import { Lang } from "./lang"
 import { FC, PropsWithChildren } from "react"
+
+export interface IFetchState {
+  status: string
+  error?: string
+}
 
 interface generateSubnode {
   (subshape: NodeShape, parent: RDFResource): Promise<Subject>
@@ -77,26 +81,12 @@ export interface LocalEntityInfo {
   needsSaving: boolean
 }
 
-type EntityCreatorArgs = { shapeNode: rdf.NamedNode; entityNode: rdf.NamedNode | null; unmounting: { val: boolean } }
-
-type EntityCreatorProps = PropsWithChildren<EntityCreatorArgs>
-
 interface entityCreator {
   (shapeNode: rdf.NamedNode, entityNode: rdf.NamedNode | null, unmounting: { val: boolean }): {
     entityLoadingState: IFetchState
     entity: Subject | null
     reset: () => void
   }
-}
-
-type localEntityInfo = {
-  subjectQname: string
-  shapeQname: string
-  ttl: string
-  del: boolean
-  userId: string
-  etag: string | null
-  needsSaving: boolean
 }
 
 interface setUserLocalEntity {
@@ -157,6 +147,7 @@ export default interface RDEConfig {
   readonly getShapesDocument: getShapesDocument
   readonly getConnexGraph: getConnexGraph
   readonly getUserLocalEntities: getUserLocalEntities
+  readonly setUserLocalEntities: setUserLocalEntities
   readonly getUserMenuState: getUserMenuState
   readonly setUserMenuState: setUserMenuState
   readonly setUserLocalEntity: setUserLocalEntity
@@ -170,4 +161,5 @@ export default interface RDEConfig {
   possibleShapeRefsForType: possibleShapeRefsForType
   libraryUrl?: string
   resourceSelector: ResourceSelector
+  putDocument: putDocument
 }

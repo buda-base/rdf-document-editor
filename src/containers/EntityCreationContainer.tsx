@@ -1,28 +1,12 @@
-//import { EntityCreator } from "../helpers/rdf/construct"
-import { ShapeFetcher, EntityFetcher } from "../helpers/rdf/io"
-import * as shapes from "../helpers/rdf/shapes"
-import { RDFResourceWithLabel, Subject, EntityGraph } from "../helpers/rdf/types"
-import { uiLangState, userIdState, RIDprefixState, uiTabState, entitiesAtom, EditedEntityState } from "../atoms/common"
-import * as lang from "../helpers/lang"
-import RDEConfig from "../helpers/rde_config"
+import { EntityFetcher } from "../helpers/rdf/io"
+import { userIdState, RIDprefixState, uiTabState, entitiesAtom } from "../atoms/common"
 import { useRecoilState } from "recoil"
 import { Dialog422 } from "./Dialog"
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link,
-  Navigate,
-  useParams,
-  useNavigate,
-  useLocation,
-} from "react-router-dom"
-import React, { useEffect, useState } from "react"
-import qs from "query-string"
+import { Navigate, useParams, useLocation } from "react-router-dom"
+import React, { useEffect } from "react"
 import NotFoundIcon from "@material-ui/icons/BrokenImage"
 import i18n from "i18next"
 import queryString from "query-string"
-import Button from "@material-ui/core/Button"
 import { RDEProps } from "../helpers/editor_props"
 import * as rdf from "rdflib"
 
@@ -42,10 +26,7 @@ export function EntityCreationContainer(props: RDEProps) {
   // - if an entity with the same qname is already open in the editor, just redirect to it
   // - else call EntityCreator
   const entityQname = params.entityQname || ""
-  const [userId, setUserId] = useRecoilState(userIdState)
-  const [entities, setEntities] = useRecoilState(entitiesAtom)
   const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
-  const [uiTab, setUiTab] = useRecoilState(uiTabState)
 
   const location = useLocation()
 
@@ -148,10 +129,6 @@ export function EntityCreationContainerAlreadyOpen(props: RDEProps) {
   // - if an entity with the same qname is already open in the editor, just redirect to it
   // - else call EntityCreator
   const entityQname = params.entityQname
-  const [userId, setUserId] = useRecoilState(userIdState)
-  const [entities, setEntities] = useRecoilState(entitiesAtom)
-  const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
-  const [uiTab, setUiTab] = useRecoilState(uiTabState)
 
   const unmounting = { val: false }
   useEffect(() => {
