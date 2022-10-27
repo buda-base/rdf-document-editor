@@ -8,19 +8,16 @@ import {
   IFetchState,
   RDFResource,
   Subject,
-  LiteralWithId,
   EntityGraph,
   ExtRDFResourceWithLabel,
   Entity,
   BUDAResourceSelector,
-  Lang,
   ValueByLangToStrPrefLang,
   ns,
-  shapes,
 } from "rdf-document-editor"
 
-import React, { FC, useState, useEffect } from "react"
-import { nanoid, customAlphabet } from "nanoid"
+import React, { useState, useEffect } from "react"
+import { customAlphabet } from "nanoid"
 import edtf, { parse } from "edtf" // see https://github.com/inukshuk/edtf.js/issues/36#issuecomment-1073778277
 
 import i18n from "i18next"

@@ -45,11 +45,11 @@
     "build": "npm run build-css && yarn rollup"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,json,css,tsx,ts}": [
+    "src/**/*.{js,jsx,css,tsx,ts}": [
       "prettier --write --config ./.prettierrc",
       "eslint --color --fix"
     ],
-    "demo/**/*.{js,jsx,json,css,tsx,ts}": [
+    "demo/**/*.{js,jsx,css,tsx,ts}": [
       "prettier --write --config ./.prettierrc",
       "eslint --color --fix"
     ]
