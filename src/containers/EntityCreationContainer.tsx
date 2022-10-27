@@ -4,7 +4,7 @@ import { useRecoilState } from "recoil"
 import { Dialog422 } from "./Dialog"
 import { Navigate, useParams, useLocation } from "react-router-dom"
 import React, { useEffect } from "react"
-import NotFoundIcon from "@material-ui/icons/BrokenImage"
+import BrokenImageIcon from '@mui/icons-material/BrokenImage'
 import i18n from "i18next"
 import queryString from "query-string"
 import { RDEProps } from "../helpers/editor_props"
@@ -100,7 +100,7 @@ export function EntityCreationContainer(props: RDEProps) {
   if (entityLoadingState.status === "error") {
     return (
       <p className="text-center text-muted">
-        <NotFoundIcon className="icon mr-2" />
+        <BrokenImageIcon className="icon mr-2" />
         {entityLoadingState.error}
       </p>
     )

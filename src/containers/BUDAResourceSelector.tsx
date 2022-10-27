@@ -199,7 +199,7 @@ const BUDAResourceSelector: FC<{
             .map((a) => a.replace(/^bdo:/, ""))
             .join(", ") // TODO: translation (ontology?)
         if (!isTypeOk) {
-          setError(i18n.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }))
+          setError(i18n.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }) as string)
           if (libraryURL) setLibraryURL("")
         }
       }
@@ -249,7 +249,7 @@ const BUDAResourceSelector: FC<{
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
             debug("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL)
             setLibraryURL("")
-            setError(i18n.t("error.notF", { RID: data["@id"] }))
+            setError(i18n.t("error.notF", { RID: data["@id"] }) as string)
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
             debug("received msg: %o %o", msgId, data, ev, property.qname, libraryURL)
             updateRes(data)

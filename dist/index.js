@@ -1,7 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
 var rdf = require('rdflib');
 var typescriptMemoize = require('typescript-memoize');
 var recoil = require('recoil');
@@ -10,7 +8,7 @@ var jsxRuntime = require('react/jsx-runtime');
 var React = require('react');
 var i18n = require('i18next');
 var _ = require('lodash');
-var NotFoundIcon = require('@material-ui/icons/BrokenImage');
+var BrokenImageIcon = require('@mui/icons-material/BrokenImage');
 var styles = require('@material-ui/core/styles');
 var core = require('@material-ui/core');
 var reactImage = require('react-image');
@@ -49,10 +47,7 @@ var DialogContent = require('@material-ui/core/DialogContent');
 var DialogContentText = require('@material-ui/core/DialogContentText');
 var DialogTitle = require('@material-ui/core/DialogTitle');
 
-function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-function _interopNamespace(e) {
-  if (e && e.__esModule) return e;
+function _interopNamespaceDefault(e) {
   var n = Object.create(null);
   if (e) {
     Object.keys(e).forEach(function (k) {
@@ -65,38 +60,11 @@ function _interopNamespace(e) {
       }
     });
   }
-  n["default"] = e;
+  n.default = e;
   return Object.freeze(n);
 }
 
-var rdf__namespace = /*#__PURE__*/_interopNamespace(rdf);
-var React__default = /*#__PURE__*/_interopDefaultLegacy(React);
-var i18n__default = /*#__PURE__*/_interopDefaultLegacy(i18n);
-var ___default = /*#__PURE__*/_interopDefaultLegacy(_);
-var NotFoundIcon__default = /*#__PURE__*/_interopDefaultLegacy(NotFoundIcon);
-var RemoveCircleOutlineIcon__default = /*#__PURE__*/_interopDefaultLegacy(RemoveCircleOutlineIcon);
-var AddCircleOutlineIcon__default = /*#__PURE__*/_interopDefaultLegacy(AddCircleOutlineIcon);
-var ErrorIcon__default = /*#__PURE__*/_interopDefaultLegacy(ErrorIcon);
-var CloseIcon__default = /*#__PURE__*/_interopDefaultLegacy(CloseIcon);
-var LookupIcon__default = /*#__PURE__*/_interopDefaultLegacy(LookupIcon);
-var LaunchIcon__default = /*#__PURE__*/_interopDefaultLegacy(LaunchIcon);
-var InfoIcon__default = /*#__PURE__*/_interopDefaultLegacy(InfoIcon);
-var InfoOutlinedIcon__default = /*#__PURE__*/_interopDefaultLegacy(InfoOutlinedIcon);
-var VisibilityIcon__default = /*#__PURE__*/_interopDefaultLegacy(VisibilityIcon);
-var EditIcon__default = /*#__PURE__*/_interopDefaultLegacy(EditIcon);
-var KeyboardIcon__default = /*#__PURE__*/_interopDefaultLegacy(KeyboardIcon);
-var HelpIcon__default = /*#__PURE__*/_interopDefaultLegacy(HelpIcon);
-var ContentPasteIcon__default = /*#__PURE__*/_interopDefaultLegacy(ContentPasteIcon);
-var MDEditor__default = /*#__PURE__*/_interopDefaultLegacy(MDEditor);
-var ReactLeafletGoogleLayer__default = /*#__PURE__*/_interopDefaultLegacy(ReactLeafletGoogleLayer);
-var L__default = /*#__PURE__*/_interopDefaultLegacy(L);
-var queryString__default = /*#__PURE__*/_interopDefaultLegacy(queryString);
-var Button__default = /*#__PURE__*/_interopDefaultLegacy(Button);
-var Dialog__default = /*#__PURE__*/_interopDefaultLegacy(Dialog);
-var DialogActions__default = /*#__PURE__*/_interopDefaultLegacy(DialogActions);
-var DialogContent__default = /*#__PURE__*/_interopDefaultLegacy(DialogContent);
-var DialogContentText__default = /*#__PURE__*/_interopDefaultLegacy(DialogContentText);
-var DialogTitle__default = /*#__PURE__*/_interopDefaultLegacy(DialogTitle);
+var rdf__namespace = /*#__PURE__*/_interopNamespaceDefault(rdf);
 
 const DASH_uri = "http://datashapes.org/dash#";
 const DASH = rdf__namespace.Namespace(DASH_uri);
@@ -1478,7 +1446,7 @@ const orderedByPropSelector = recoil.selectorFamily({
       if (!order)
         order = "asc";
       const unorderedList = get(atom2);
-      const orderedList = ___default["default"].orderBy(
+      const orderedList = _.orderBy(
         unorderedList.map((w) => {
           if (w instanceof Subject) {
             const s = w;
@@ -1926,8 +1894,8 @@ const MDIcon = (props) => /* @__PURE__ */ jsxRuntime.jsx(reactImage.Img, {
   src: "/icons/Markdown-mark.svg",
   ...props
 });
-const AddIcon = AddCircleOutlineIcon__default["default"];
-const RemoveIcon = RemoveCircleOutlineIcon__default["default"];
+const AddIcon = AddCircleOutlineIcon;
+const RemoveIcon = RemoveCircleOutlineIcon;
 
 const debug$7 = require("debug")("rde:rdf:lang");
 const ValueByLangToStrPrefLang = (vbl, prefLang) => {
@@ -1976,7 +1944,7 @@ const PropertyContainer = ({ property, subject, embedded, force, editable, owner
         setCss(css.replace(new RegExp(txt), ""));
     }
   };
-  return /* @__PURE__ */ jsxRuntime.jsx(React__default["default"].Fragment, {
+  return /* @__PURE__ */ jsxRuntime.jsx(React.Fragment, {
     children: /* @__PURE__ */ jsxRuntime.jsx("div", {
       role: "main",
       ...css ? { className: css } : {},
@@ -2031,7 +1999,7 @@ const BlockAddButton = ({ add, label, count = 1 }) => {
         onClick: (e) => add(e, n),
         children: /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, {
           children: [
-            i18n__default["default"].t("general.add_another", { val: label, count }),
+            i18n.t("general.add_another", { val: label, count }),
             "\xA0",
             /* @__PURE__ */ jsxRuntime.jsx(AddIcon, {})
           ]
@@ -2039,7 +2007,7 @@ const BlockAddButton = ({ add, label, count = 1 }) => {
       }),
       count > 1 && /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
         label: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-          children: i18n__default["default"].t("general.add_nb", { val: label })
+          children: i18n.t("general.add_nb", { val: label })
         }),
         style: { width: 200 },
         value: n,
@@ -2373,7 +2341,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     },
     void 0
   );
-  return /* @__PURE__ */ jsxRuntime.jsxs(React__default["default"].Fragment, {
+  return /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
     children: [
       /* @__PURE__ */ jsxRuntime.jsxs("div", {
         className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === ObjectType.ResExt ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
@@ -2394,7 +2362,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
               titleCase(propLabel),
               helpMessage && property.objectType === ObjectType.ResExt && /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
                 title: helpMessage,
-                children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon__default["default"], {
+                children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
                   className: "help label"
                 })
               })
@@ -2514,7 +2482,7 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
   const getLangStringError = (val) => {
     let err = "";
     if (!val && property.minCount)
-      err = i18n__default["default"].t("error.empty");
+      err = i18n.t("error.empty");
     else if (globalError)
       err = globalError;
     return err;
@@ -2535,9 +2503,9 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
     };
   }, []);
   ({
-    helperText: /* @__PURE__ */ jsxRuntime.jsxs(React__default["default"].Fragment, {
+    helperText: /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon__default["default"], {
+        /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {
           style: { fontSize: "20px", verticalAlign: "-7px" }
         }),
         "\xA0",
@@ -2564,9 +2532,9 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
   } else if (property.singleLine && editMD) {
     padBot = "1px";
   }
-  const codeEdit = { ...MDEditor.commands.codeEdit, icon: /* @__PURE__ */ jsxRuntime.jsx(EditIcon__default["default"], {
+  const codeEdit = { ...MDEditor.commands.codeEdit, icon: /* @__PURE__ */ jsxRuntime.jsx(EditIcon, {
     style: { width: "12px", height: "12px" }
-  }) }, codePreview = { ...MDEditor.commands.codePreview, icon: /* @__PURE__ */ jsxRuntime.jsx(VisibilityIcon__default["default"], {
+  }) }, codePreview = { ...MDEditor.commands.codePreview, icon: /* @__PURE__ */ jsxRuntime.jsx(VisibilityIcon, {
     style: { width: "12px", height: "12px" }
   }) };
   const hasKB = config.possibleLiteralLangs.filter((l) => l.value === lit.language);
@@ -2697,7 +2665,7 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
               display: "flex",
               alignItems: "center"
             },
-            children: /* @__PURE__ */ jsxRuntime.jsx(KeyboardIcon__default["default"], {})
+            children: /* @__PURE__ */ jsxRuntime.jsx(KeyboardIcon, {})
           }),
           hasKB.length > 0 && hasKB[0].keyboard && keyboard && /* @__PURE__ */ jsxRuntime.jsx("div", {
             className: "card px-2 py-2 hasKB",
@@ -2722,7 +2690,7 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
       !property.singleLine && editMD && /* @__PURE__ */ jsxRuntime.jsxs("div", {
         style: { width: "100%", position: "relative", paddingBottom: "1px" },
         children: [
-          /* @__PURE__ */ jsxRuntime.jsx(MDEditor__default["default"], {
+          /* @__PURE__ */ jsxRuntime.jsx(MDEditor, {
             textareaProps: { spellCheck: "true", lang: lit.language === "en" ? "en_US" : lit.language },
             value: lit.value,
             preview: "edit",
@@ -2860,13 +2828,13 @@ const EditString = ({ property, lit, onChange, label, editable, updateEntityStat
       return;
     /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, {
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon__default["default"], {
+        /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {
           style: { fontSize: "20px", verticalAlign: "-7px" }
         }),
         " ",
         /* @__PURE__ */ jsxRuntime.jsx("i", {
           children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-            children: i18n__default["default"].t("error.empty")
+            children: i18n.t("error.empty")
           })
         })
       ]
@@ -2927,7 +2895,7 @@ const EditBool = ({ property, lit, onChange, label, editable }) => {
     ...!editable ? { disabled: true } : {},
     children: ["true", "false"].concat(val === "unset" ? [val] : []).map((v) => /* @__PURE__ */ jsxRuntime.jsx(core.MenuItem, {
       value: v,
-      children: i18n__default["default"].t("types." + v)
+      children: i18n.t("types." + v)
     }, v))
   });
 };
@@ -2943,17 +2911,17 @@ const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, 
     if (globalError) {
       err = globalError;
     } else if (hasNoOtherValue && val === "") {
-      err = i18n__default["default"].t("error.empty");
+      err = i18n.t("error.empty");
     } else if (val !== void 0 && val !== "") {
       const valueInt = parseInt(val);
       if (minInclusive && minInclusive > valueInt) {
-        err = i18n__default["default"].t("error.superiorTo", { val: minInclusive });
+        err = i18n.t("error.superiorTo", { val: minInclusive });
       } else if (maxInclusive && maxInclusive < valueInt) {
-        err = i18n__default["default"].t("error.inferiorTo", { val: maxInclusive });
+        err = i18n.t("error.inferiorTo", { val: maxInclusive });
       } else if (minExclusive && minExclusive >= valueInt) {
-        err = i18n__default["default"].t("error.superiorToStrict", { val: minExclusive });
+        err = i18n.t("error.superiorToStrict", { val: minExclusive });
       } else if (maxExclusive && maxExclusive <= valueInt) {
-        err = i18n__default["default"].t("error.inferiorToStrict", { val: maxExclusive });
+        err = i18n.t("error.inferiorToStrict", { val: maxExclusive });
       }
     }
     return err;
@@ -2992,9 +2960,9 @@ const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, 
     style: { width: 240 },
     value,
     ...error ? {
-      helperText: /* @__PURE__ */ jsxRuntime.jsxs(React__default["default"].Fragment, {
+      helperText: /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
         children: [
-          /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon__default["default"], {
+          /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {
             style: { fontSize: "20px", verticalAlign: "-7px" }
           }),
           /* @__PURE__ */ jsxRuntime.jsxs("i", {
@@ -3077,12 +3045,12 @@ const LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon__default["default"], {
+          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
             className: "help literal"
           })
         }, lit.id) : null
       ],
-      ...property.uniqueLang && !isUniqueLang ? { globalError: i18n__default["default"].t("error.unique") } : {},
+      ...property.uniqueLang && !isUniqueLang ? { globalError: i18n.t("error.unique") } : {},
       editable: editable && !property.readOnly,
       updateEntityState,
       entity: topEntity ? topEntity : subject,
@@ -3099,7 +3067,7 @@ const LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon__default["default"], {
+          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3108,7 +3076,7 @@ const LiteralComponent = ({
       updateEntityState,
       hasNoOtherValue: property.minCount === 1 && list.length === 1,
       index,
-      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: i18n__default["default"].t("error.uniqueV") } : {}
+      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: i18n.t("error.uniqueV") } : {}
     });
   } else if (t?.value === xsdboolean) {
     edit = /* @__PURE__ */ jsxRuntime.jsx(EditBool, {
@@ -3119,7 +3087,7 @@ const LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon__default["default"], {
+          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3135,7 +3103,7 @@ const LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon__default["default"], {
+          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3260,7 +3228,7 @@ const FacetComponent = ({ subNode, subject, property, canDel, editable, topEntit
             className: "toggle-btn btn btn-rouge mt-4",
             onClick: toggleExtra,
             children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-              children: i18n__default["default"].t("general.toggle", { show: force ? i18n__default["default"].t("general.hide") : i18n__default["default"].t("general.show") })
+              children: i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })
             })
           }),
           /* @__PURE__ */ jsxRuntime.jsxs("div", {
@@ -3268,7 +3236,7 @@ const FacetComponent = ({ subNode, subject, property, canDel, editable, topEntit
             children: [
               targetShape.description && /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
                 title: ValueByLangToStrPrefLang(targetShape.description, uiLang),
-                children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon__default["default"], {
+                children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
                   className: "help"
                 })
               }),
@@ -3276,7 +3244,7 @@ const FacetComponent = ({ subNode, subject, property, canDel, editable, topEntit
                 className: "btn btn-link ml-2 px-0 close-facet-btn py-0",
                 onClick: deleteItem,
                 ...!canDel ? { disabled: true } : {},
-                children: /* @__PURE__ */ jsxRuntime.jsx(CloseIcon__default["default"], {
+                children: /* @__PURE__ */ jsxRuntime.jsx(CloseIcon, {
                   className: "close-facet-btn my-1"
                 })
               })
@@ -3321,9 +3289,9 @@ const ExtEntityComponent = ({
     let newError;
     const nonEmptyList = list.filter((e) => e instanceof RDFResource && e.uri !== "tmp:uri");
     if (property.minCount && nonEmptyList.length < property.minCount) {
-      newError = i18n__default["default"].t("error.minC", { count: property.minCount });
+      newError = i18n.t("error.minC", { count: property.minCount });
     } else if (property.maxCount && nonEmptyList.length > property.maxCount) {
-      newError = i18n__default["default"].t("error.maxC", { count: property.maxCount });
+      newError = i18n.t("error.maxC", { count: property.maxCount });
     } else
       newError = "";
     setError(newError);
@@ -3367,7 +3335,7 @@ const ExtEntityComponent = ({
           className: "btn btn-link ml-2 px-0",
           onClick: deleteItem,
           ...!canDel ? { disabled: true } : {},
-          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ jsxRuntime.jsx(RemoveIcon, {}) : /* @__PURE__ */ jsxRuntime.jsx(CloseIcon__default["default"], {})
+          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ jsxRuntime.jsx(RemoveIcon, {}) : /* @__PURE__ */ jsxRuntime.jsx(CloseIcon, {})
         })
       ]
     })
@@ -3427,7 +3395,7 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
   const valueNotInList = !possibleValues.some((pv) => pv.id === val?.id);
   React.useEffect(() => {
     if (valueNotInList) {
-      setError(i18n__default["default"].t("error.select", { val: val?.value }));
+      setError(i18n.t("error.select", { val: val?.value }));
       updateEntityState(EditedEntityState.Error, property.path?.sparqlString + "_" + selectIdx);
     } else {
       updateEntityState(EditedEntityState.Saved, property.path?.sparqlString + "_" + selectIdx);
@@ -3456,15 +3424,15 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
               propLabel,
               helpMessage ? /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
                 title: helpMessage,
-                children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon__default["default"], {
+                children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
                   className: "help"
                 })
               }, "tooltip_" + selectIdx + "_" + index) : null
             ],
             ...error ? {
-              helperText: /* @__PURE__ */ jsxRuntime.jsxs(React__default["default"].Fragment, {
+              helperText: /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
                 children: [
-                  /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon__default["default"], {
+                  /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {
                     style: { fontSize: "20px", verticalAlign: "-7px" }
                   }),
                   /* @__PURE__ */ jsxRuntime.jsxs("i", {
@@ -3531,7 +3499,7 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
 };
 
 const debug$5 = require("debug")("rde:entity:propertygroup");
-const redIcon = new L__default["default"].Icon({
+const redIcon = new L.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
   iconSize: [25, 41],
@@ -3631,10 +3599,10 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
   const [redraw, setRedraw] = React.useState(false);
   let coords, zoom = 5, unset = false;
   if (lat.length && lng.length && lat[0].value != "" && lat[0].value != "")
-    coords = new L__default["default"].LatLng(Number(lat[0].value), Number(lng[0].value));
+    coords = new L.LatLng(Number(lat[0].value), Number(lng[0].value));
   else {
     unset = true;
-    coords = new L__default["default"].LatLng(30, 0);
+    coords = new L.LatLng(30, 0);
     zoom = 2;
   }
   React.useEffect(() => {
@@ -3678,7 +3646,7 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
               className: "",
               children: [
                 label,
-                hasError && /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon__default["default"], {})
+                hasError && /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {})
               ]
             }),
             /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
@@ -3716,28 +3684,28 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
                                 /* @__PURE__ */ jsxRuntime.jsx(reactLeaflet.LayersControl.BaseLayer, {
                                   checked: true,
                                   name: "Satellite+Roadmap",
-                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer__default["default"], {
+                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "hybrid"
                                   })
                                 }),
                                 /* @__PURE__ */ jsxRuntime.jsx(reactLeaflet.LayersControl.BaseLayer, {
                                   name: "Satellite",
-                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer__default["default"], {
+                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "satellite"
                                   })
                                 }),
                                 /* @__PURE__ */ jsxRuntime.jsx(reactLeaflet.LayersControl.BaseLayer, {
                                   name: "Roadmap",
-                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer__default["default"], {
+                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "roadmap"
                                   })
                                 }),
                                 /* @__PURE__ */ jsxRuntime.jsx(reactLeaflet.LayersControl.BaseLayer, {
                                   name: "Terrain",
-                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer__default["default"], {
+                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "terrain"
                                   })
@@ -3771,7 +3739,7 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
                     className: "toggle-btn  btn btn-rouge my-4",
                     onClick: toggleExtra,
                     children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                      children: i18n__default["default"].t("general.toggle", { show: force ? i18n__default["default"].t("general.hide") : i18n__default["default"].t("general.show") })
+                      children: i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })
                     })
                   })
                 ]
@@ -3800,7 +3768,7 @@ function EntityEditContainerMayUpdate(props) {
   const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
   const snapshot = recoil.useRecoilSnapshot();
   const [subject, setSubject] = React.useState(null);
-  const { copy } = queryString__default["default"].parse(location.search, { decode: false });
+  const { copy } = queryString.parse(location.search, { decode: false });
   React.useEffect(() => {
     const i = entities.findIndex((e) => e.subjectQname === subjectQname);
     let subj;
@@ -4065,7 +4033,7 @@ function EntityEditContainer(props) {
     return /* @__PURE__ */ jsxRuntime.jsxs("p", {
       className: "text-center text-muted",
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx(NotFoundIcon__default["default"], {
+        /* @__PURE__ */ jsxRuntime.jsx(BrokenImageIcon, {
           className: "icon mr-2"
         }),
         loadingState.error,
@@ -4078,7 +4046,7 @@ function EntityEditContainer(props) {
       children: /* @__PURE__ */ jsxRuntime.jsx("div", {
         children: /* @__PURE__ */ jsxRuntime.jsx("div", {
           children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-            children: i18n__default["default"].t("types.loading")
+            children: i18n.t("types.loading")
           })
         })
       })
@@ -4089,7 +4057,7 @@ function EntityEditContainer(props) {
       children: /* @__PURE__ */ jsxRuntime.jsx("div", {
         children: /* @__PURE__ */ jsxRuntime.jsx("div", {
           children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-            children: i18n__default["default"].t("types.loading")
+            children: i18n.t("types.loading")
           })
         })
       })
@@ -4110,7 +4078,7 @@ function EntityEditContainer(props) {
     e.stopPropagation();
   };
   const previewLink = config.getPreviewLink(entity.node);
-  return /* @__PURE__ */ jsxRuntime.jsxs(React__default["default"].Fragment, {
+  return /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
     children: [
       /* @__PURE__ */ jsxRuntime.jsx("div", {
         role: "main",
@@ -4137,9 +4105,9 @@ function EntityEditContainer(props) {
                     className: "btn-rouge" + (!entityObj[0]?.etag ? " disabled" : ""),
                     target: "_blank",
                     rel: "noreferrer",
-                    ...!entityObj[0]?.etag ? { title: i18n__default["default"].t("error.preview") } : { href: previewLink },
+                    ...!entityObj[0]?.etag ? { title: i18n.t("error.preview") } : { href: previewLink },
                     children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                      children: i18n__default["default"].t("general.preview")
+                      children: i18n.t("general.preview")
                     })
                   })
                 })
@@ -4155,7 +4123,7 @@ function EntityEditContainer(props) {
           /* @__PURE__ */ jsxRuntime.jsx("p", {
             className: "text-uppercase small my-2",
             children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-              children: i18n__default["default"].t("home.nav")
+              children: i18n.t("home.nav")
             })
           }),
           shape.groups.map((group, index) => {
@@ -4276,7 +4244,7 @@ function NewEntityContainer(props) {
               className: "btn btn-sm btn-outline-primary py-3 ml-2 lookup btn-rouge " + (!RID ? "disabled" : ""),
               style: { boxShadow: "none", alignSelf: "center", marginBottom: "15px" },
               children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                children: i18n__default["default"].t("search.open")
+                children: i18n.t("search.open")
               })
             })
           })
@@ -4288,7 +4256,7 @@ function NewEntityContainer(props) {
 
 const debug$3 = require("debug")("rde:entity:entitycreation");
 function Dialog422(props) {
-  const [open, setOpen] = React__default["default"].useState(props.open);
+  const [open, setOpen] = React.useState(props.open);
   const shape = props.shaped.split(":")[1]?.replace(/Shape$/, "");
   const [createNew, setCreateNew] = React.useState(false);
   const [loadNamed, setLoadNamed] = React.useState(false);
@@ -4311,10 +4279,10 @@ function Dialog422(props) {
     });
   else
     return /* @__PURE__ */ jsxRuntime.jsx("div", {
-      children: /* @__PURE__ */ jsxRuntime.jsxs(Dialog__default["default"], {
+      children: /* @__PURE__ */ jsxRuntime.jsxs(Dialog, {
         open,
         children: [
-          /* @__PURE__ */ jsxRuntime.jsxs(DialogTitle__default["default"], {
+          /* @__PURE__ */ jsxRuntime.jsxs(DialogTitle, {
             children: [
               shape,
               " ",
@@ -4322,8 +4290,8 @@ function Dialog422(props) {
               " has already been created"
             ]
           }),
-          /* @__PURE__ */ jsxRuntime.jsx(DialogContent__default["default"], {
-            children: /* @__PURE__ */ jsxRuntime.jsxs(DialogContentText__default["default"], {
+          /* @__PURE__ */ jsxRuntime.jsx(DialogContent, {
+            children: /* @__PURE__ */ jsxRuntime.jsxs(DialogContentText, {
               children: [
                 "Do you want to use it, or to create a new ",
                 shape,
@@ -4331,10 +4299,10 @@ function Dialog422(props) {
               ]
             })
           }),
-          /* @__PURE__ */ jsxRuntime.jsxs(DialogActions__default["default"], {
+          /* @__PURE__ */ jsxRuntime.jsxs(DialogActions, {
             style: { justifyContent: "space-around" },
             children: [
-              /* @__PURE__ */ jsxRuntime.jsxs(Button__default["default"], {
+              /* @__PURE__ */ jsxRuntime.jsxs(Button, {
                 className: "btn-rouge",
                 onClick: handleLoad,
                 color: "primary",
@@ -4346,7 +4314,7 @@ function Dialog422(props) {
                   })
                 ]
               }),
-              /* @__PURE__ */ jsxRuntime.jsxs(Button__default["default"], {
+              /* @__PURE__ */ jsxRuntime.jsxs(Button, {
                 className: "btn-rouge",
                 onClick: handleNew,
                 color: "primary",
@@ -4417,7 +4385,7 @@ function EntityCreationContainer(props) {
     return /* @__PURE__ */ jsxRuntime.jsxs("p", {
       className: "text-center text-muted",
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx(NotFoundIcon__default["default"], {
+        /* @__PURE__ */ jsxRuntime.jsx(BrokenImageIcon, {
           className: "icon mr-2"
         }),
         entityLoadingState.error
@@ -4428,7 +4396,7 @@ function EntityCreationContainer(props) {
     children: /* @__PURE__ */ jsxRuntime.jsx("div", {
       children: /* @__PURE__ */ jsxRuntime.jsx("div", {
         children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-          children: i18n__default["default"].t("types.creating")
+          children: i18n.t("types.creating")
         })
       })
     })
@@ -4461,7 +4429,7 @@ function EntityCreationContainerRoute(props) {
   const i = entities.findIndex((e) => e.subjectQname === params.entityQname);
   const theEntity = entities[i];
   const location = reactRouterDom.useLocation();
-  const { copy } = queryString__default["default"].parse(location.search, { decode: false });
+  const { copy } = queryString.parse(location.search, { decode: false });
   if (theEntity)
     return /* @__PURE__ */ jsxRuntime.jsx(EntityCreationContainerAlreadyOpen, {
       ...props,
@@ -4501,7 +4469,7 @@ function EntityShapeChooserContainer(props) {
     return /* @__PURE__ */ jsxRuntime.jsx("div", {
       children: /* @__PURE__ */ jsxRuntime.jsx("div", {
         children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-          children: i18n__default["default"].t("types.redirect")
+          children: i18n.t("types.redirect")
         })
       })
     });
@@ -4513,7 +4481,7 @@ function EntityShapeChooserContainer(props) {
       return /* @__PURE__ */ jsxRuntime.jsx("div", {
         children: /* @__PURE__ */ jsxRuntime.jsx("div", {
           children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-            children: i18n__default["default"].t("types.loading")
+            children: i18n.t("types.loading")
           })
         })
       });
@@ -4524,7 +4492,7 @@ function EntityShapeChooserContainer(props) {
           children: [
             /* @__PURE__ */ jsxRuntime.jsx("span", {
               children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                children: i18n__default["default"].t("error.exist", { id: entityQname })
+                children: i18n.t("error.exist", { id: entityQname })
               })
             }),
             /* @__PURE__ */ jsxRuntime.jsx("br", {}),
@@ -4532,7 +4500,7 @@ function EntityShapeChooserContainer(props) {
               style: { fontWeight: 700 },
               to: "/new",
               children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                children: i18n__default["default"].t("error.redirect")
+                children: i18n.t("error.redirect")
               })
             })
           ]
@@ -4546,7 +4514,7 @@ function EntityShapeChooserContainer(props) {
           children: [
             /* @__PURE__ */ jsxRuntime.jsx("span", {
               children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                children: i18n__default["default"].t("error.shape", { id: entityQname })
+                children: i18n.t("error.shape", { id: entityQname })
               })
             }),
             /* @__PURE__ */ jsxRuntime.jsx("br", {}),
@@ -4554,7 +4522,7 @@ function EntityShapeChooserContainer(props) {
               style: { fontWeight: 700 },
               to: "/new",
               children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                children: i18n__default["default"].t("error.redirect")
+                children: i18n.t("error.redirect")
               })
             })
           ]
@@ -4611,7 +4579,7 @@ function EntityShapeChooserContainer(props) {
     children: /* @__PURE__ */ jsxRuntime.jsx("div", {
       children: /* @__PURE__ */ jsxRuntime.jsx("div", {
         children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-          children: i18n__default["default"].t("types.loading")
+          children: i18n.t("types.loading")
         })
       })
     })
@@ -4716,7 +4684,7 @@ const BUDAResourceSelector = ({
           isTypeOk = true;
         const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
         if (!isTypeOk) {
-          setError(i18n__default["default"].t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+          setError(i18n.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
           if (libraryURL)
             setLibraryURL("");
         }
@@ -4761,7 +4729,7 @@ const BUDAResourceSelector = ({
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
             debug("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
-            setError(i18n__default["default"].t("error.notF", { RID: data["@id"] }));
+            setError(i18n.t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
             debug("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
@@ -4935,7 +4903,7 @@ const BUDAResourceSelector = ({
       setPreview(previewVal.value);
     }
   });
-  return /* @__PURE__ */ jsxRuntime.jsxs(React__default["default"].Fragment, {
+  return /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
     children: [
       /* @__PURE__ */ jsxRuntime.jsxs("div", {
         className: "resSelect " + (error ? "error" : ""),
@@ -4944,7 +4912,7 @@ const BUDAResourceSelector = ({
           value.uri === "tmp:uri" && /* @__PURE__ */ jsxRuntime.jsx("div", {
             className: preview ? "withPreview" : "",
             style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
-            children: /* @__PURE__ */ jsxRuntime.jsxs(React__default["default"].Fragment, {
+            children: /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
               children: [
                 preview && /* @__PURE__ */ jsxRuntime.jsx("div", {
                   className: "preview-ewts",
@@ -4972,9 +4940,9 @@ const BUDAResourceSelector = ({
                   onChange: textOnChange,
                   placeholder: "Search name or RID for " + title,
                   ...error ? {
-                    helperText: /* @__PURE__ */ jsxRuntime.jsxs(React__default["default"].Fragment, {
+                    helperText: /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
                       children: [
-                        /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon__default["default"], {
+                        /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {
                           style: { fontSize: "20px", verticalAlign: "-7px" }
                         }),
                         /* @__PURE__ */ jsxRuntime.jsx("i", {
@@ -5026,7 +4994,7 @@ const BUDAResourceSelector = ({
                   style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
                   onClick,
                   ...!editable ? { disabled: true } : {},
-                  children: libraryURL ? /* @__PURE__ */ jsxRuntime.jsx(CloseIcon__default["default"], {}) : /* @__PURE__ */ jsxRuntime.jsx(LookupIcon__default["default"], {})
+                  children: libraryURL ? /* @__PURE__ */ jsxRuntime.jsx(CloseIcon, {}) : /* @__PURE__ */ jsxRuntime.jsx(LookupIcon, {})
                 }),
                 /* @__PURE__ */ jsxRuntime.jsx("button", {
                   className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
@@ -5034,13 +5002,13 @@ const BUDAResourceSelector = ({
                   onClick: togglePopup,
                   ...!editable ? { disabled: true } : {},
                   children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                    children: i18n__default["default"].t("search.create")
+                    children: i18n.t("search.create")
                   })
                 })
               ]
             })
           }),
-          value.uri !== "tmp:uri" && /* @__PURE__ */ jsxRuntime.jsx(React__default["default"].Fragment, {
+          value.uri !== "tmp:uri" && /* @__PURE__ */ jsxRuntime.jsx(React.Fragment, {
             children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
               className: "selected",
               children: [
@@ -5051,7 +5019,7 @@ const BUDAResourceSelector = ({
                     value.qname,
                     "\xA0",
                     /* @__PURE__ */ jsxRuntime.jsxs("a", {
-                      title: i18n__default["default"].t("search.help.preview"),
+                      title: i18n.t("search.help.preview"),
                       onClick: () => {
                         if (libraryURL)
                           setLibraryURL("");
@@ -5061,36 +5029,36 @@ const BUDAResourceSelector = ({
                           setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
                       },
                       children: [
-                        !libraryURL && /* @__PURE__ */ jsxRuntime.jsx(InfoOutlinedIcon__default["default"], {
+                        !libraryURL && /* @__PURE__ */ jsxRuntime.jsx(InfoOutlinedIcon, {
                           style: { width: "18px", cursor: "pointer" }
                         }),
-                        libraryURL && /* @__PURE__ */ jsxRuntime.jsx(InfoIcon__default["default"], {
+                        libraryURL && /* @__PURE__ */ jsxRuntime.jsx(InfoIcon, {
                           style: { width: "18px", cursor: "pointer" }
                         })
                       ]
                     }),
                     "\xA0",
                     /* @__PURE__ */ jsxRuntime.jsx("a", {
-                      title: i18n__default["default"].t("search.help.open"),
+                      title: i18n.t("search.help.open"),
                       href: config.libraryUrl + "/show/" + value.qname,
                       rel: "noopener noreferrer",
                       target: "_blank",
-                      children: /* @__PURE__ */ jsxRuntime.jsx(LaunchIcon__default["default"], {
+                      children: /* @__PURE__ */ jsxRuntime.jsx(LaunchIcon, {
                         style: { width: "16px" }
                       })
                     }),
                     "\xA0",
                     /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Link, {
-                      title: i18n__default["default"].t("search.help.edit"),
+                      title: i18n.t("search.help.edit"),
                       to: "/edit/" + value.qname,
-                      children: /* @__PURE__ */ jsxRuntime.jsx(EditIcon__default["default"], {
+                      children: /* @__PURE__ */ jsxRuntime.jsx(EditIcon, {
                         style: { width: "16px" }
                       })
                     }),
                     "\xA0",
                     canCopy.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("span", {
-                      title: i18n__default["default"].t("general.import"),
-                      children: /* @__PURE__ */ jsxRuntime.jsx(ContentPasteIcon__default["default"], {
+                      title: i18n.t("general.import"),
+                      children: /* @__PURE__ */ jsxRuntime.jsx(ContentPasteIcon, {
                         style: { width: "17px", cursor: "pointer" },
                         onClick: () => {
                           setProp(canCopy);
@@ -5164,7 +5132,7 @@ const BUDAResourceSelector = ({
                     const url = await createAndUpdate(r);
                     navigate(url);
                   }
-                }, i18n__default["default"].t("search.new", { type: label2 }));
+                }, i18n.t("search.new", { type: label2 }));
               })
             ]
           }),

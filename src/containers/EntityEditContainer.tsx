@@ -10,7 +10,7 @@ import {
   history,
 } from "../helpers/rdf/types"
 import { PropertyShape, PropertyGroup } from "../helpers/rdf/shapes"
-import NotFoundIcon from "@material-ui/icons/BrokenImage"
+import BrokenImageIcon from '@mui/icons-material/BrokenImage'
 import i18n from "i18next"
 import PropertyGroupContainer from "./PropertyGroupContainer"
 import {
@@ -413,7 +413,7 @@ function EntityEditContainer(props: RDEProps) {
   if (loadingState.status === "error" || entityLoadingState.status === "error") {
     return (
       <p className="text-center text-muted">
-        <NotFoundIcon className="icon mr-2" />
+        <BrokenImageIcon className="icon mr-2" />
         {loadingState.error}
 
         {entityLoadingState.error}
