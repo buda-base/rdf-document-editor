@@ -54,8 +54,9 @@ import {
 } from "../atoms/common"
 
 import MDEditor, { commands } from "@uiw/react-md-editor"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:entity:container:ValueList")
+const debug = debugfactory("rde:entity:container:ValueList")
 
 function replaceItemAtIndex(arr: Value[], index: number, newValue: Value): Value[] {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)]

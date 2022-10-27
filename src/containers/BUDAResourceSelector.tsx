@@ -39,12 +39,13 @@ import {
 import { LangSelect } from "./ValueList"
 import * as ns from "../helpers/rdf/ns"
 import { Theme } from '@mui/material/styles';
+import { debug as debugfactory } from "debug"
 
 declare module '@mui/styles/defaultTheme' {
   interface DefaultTheme extends Theme {}
 }
 
-const debug = require("debug")("rde:atom:event:RS")
+const debug = debugfactory("rde:atom:event:RS")
 
 const useStyles = makeStyles((theme) => ({
   root: {

@@ -142,6 +142,7 @@ __export(ns_exports, {
   skosDefinition: () => skosDefinition
 });
 var rdf = __toESM(require("rdflib"));
+var import_debug = require("debug");
 var DASH_uri = "http://datashapes.org/dash#";
 var DASH = rdf.Namespace(DASH_uri);
 var OWL_uri = "http://www.w3.org/2002/07/owl#";
@@ -160,7 +161,7 @@ var FOAF_uri = "http://xmlcom/foaf/0.1/";
 var FOAF = rdf.Namespace(FOAF_uri);
 var RDE_uri = "https://github.com/buda-base/rdf-document-editor/";
 var RDE = rdf.Namespace(RDE_uri);
-var debug = require("debug")("rde:rdf:ns");
+var debug = (0, import_debug.debug)("rde:rdf:ns");
 var defaultPrefixToURI = {
   dash: DASH_uri,
   owl: OWL_uri,
@@ -310,7 +311,8 @@ var rdf2 = __toESM(require("rdflib"));
 var import_typescript_memoize = require("typescript-memoize");
 var import_recoil = require("recoil");
 var import_nanoid = require("nanoid");
-var debug2 = require("debug")("rde:rdf:types");
+var import_debug2 = require("debug");
+var debug2 = (0, import_debug2.debug)("rde:rdf:types");
 var defaultGraphNode = new rdf2.NamedNode(rdf2.Store.defaultGraphURI);
 var errors = {};
 var history = {};
@@ -896,7 +898,8 @@ var sameLanguage = (lang1, lang2) => {
 // src/helpers/rdf/shapes.ts
 var import_typescript_memoize2 = require("typescript-memoize");
 var import_nanoid2 = require("nanoid");
-var debug3 = require("debug")("rde:rdf:shapes");
+var import_debug3 = require("debug");
+var debug3 = (0, import_debug3.debug)("rde:rdf:shapes");
 var sortByPropValue = (nodelist, property, store) => {
   const nodeUriToPropValue = {};
   for (const node of nodelist) {
@@ -1344,7 +1347,8 @@ var import_recoil3 = require("recoil");
 // src/atoms/common.ts
 var import_recoil2 = require("recoil");
 var import_lodash = __toESM(require("lodash"));
-var debug4 = require("debug")("rde:common");
+var import_debug4 = require("debug");
+var debug4 = (0, import_debug4.debug)("rde:common");
 var entitiesAtom = (0, import_recoil2.atom)({
   key: "entities",
   default: []
@@ -1624,7 +1628,8 @@ var isUniqueTestSelector = (0, import_recoil2.selectorFamily)({
 });
 
 // src/helpers/rdf/io.ts
-var debug5 = require("debug")("rde:rdf:io");
+var import_debug5 = require("debug");
+var debug5 = (0, import_debug5.debug)("rde:rdf:io");
 var defaultFetchTtlHeaders = new Headers();
 defaultFetchTtlHeaders.set("Accept", "text/turtle");
 var fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, allowEmptyEtag = true) => {
@@ -1926,7 +1931,8 @@ var RemoveIcon = import_RemoveCircleOutline.default;
 var import_i18next2 = __toESM(require("i18next"));
 
 // src/helpers/lang.ts
-var debug6 = require("debug")("rde:rdf:lang");
+var import_debug6 = require("debug");
+var debug6 = (0, import_debug6.debug)("rde:rdf:lang");
 var ValueByLangToStrPrefLang = (vbl, prefLang) => {
   if (vbl == null)
     return "";
@@ -1957,8 +1963,9 @@ var langsWithDefault = (defaultLanguage, langs) => {
 
 // src/containers/ValueList.tsx
 var import_react_md_editor = __toESM(require("@uiw/react-md-editor"));
+var import_debug7 = require("debug");
 var import_jsx_runtime2 = require("react/jsx-runtime");
-var debug7 = require("debug")("rde:entity:container:ValueList");
+var debug7 = (0, import_debug7.debug)("rde:entity:container:ValueList");
 function replaceItemAtIndex(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
@@ -3564,8 +3571,9 @@ var import_leaflet_geosearch = require("leaflet-geosearch");
 var import_leaflet = __toESM(require("leaflet"));
 var import_leaflet2 = require("leaflet/dist/leaflet.css");
 var import_geosearch = require("leaflet-geosearch/dist/geosearch.css");
+var import_debug8 = require("debug");
 var import_jsx_runtime3 = require("react/jsx-runtime");
-var debug8 = require("debug")("rde:entity:propertygroup");
+var debug8 = (0, import_debug8.debug)("rde:entity:propertygroup");
 var redIcon = new import_leaflet.default.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
@@ -3828,8 +3836,9 @@ var import_react_router_dom = require("react-router-dom");
 var import_react_router_hash_link = require("react-router-hash-link");
 var import_query_string = __toESM(require("query-string"));
 var import_react_router = require("react-router");
+var import_debug9 = require("debug");
 var import_jsx_runtime4 = require("react/jsx-runtime");
-var debug9 = require("debug")("rde:entity:edit");
+var debug9 = (0, import_debug9.debug)("rde:entity:edit");
 function replaceItemAtIndex2(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
@@ -4364,8 +4373,9 @@ var import_DialogActions = __toESM(require("@mui/material/DialogActions"));
 var import_DialogContent = __toESM(require("@mui/material/DialogContent"));
 var import_DialogContentText = __toESM(require("@mui/material/DialogContentText"));
 var import_DialogTitle = __toESM(require("@mui/material/DialogTitle"));
+var import_debug10 = require("debug");
 var import_jsx_runtime6 = require("react/jsx-runtime");
-var debug10 = require("debug")("rde:entity:entitycreation");
+var debug10 = (0, import_debug10.debug)("rde:entity:dialog");
 function Dialog422(props) {
   var _a;
   const [open, setOpen] = import_react7.default.useState(props.open);
@@ -4454,8 +4464,9 @@ var import_BrokenImage2 = __toESM(require("@mui/icons-material/BrokenImage"));
 var import_i18next6 = __toESM(require("i18next"));
 var import_query_string2 = __toESM(require("query-string"));
 var rdf7 = __toESM(require("rdflib"));
+var import_debug11 = require("debug");
 var import_jsx_runtime7 = require("react/jsx-runtime");
-var debug11 = require("debug")("rde:entity:entitycreation");
+var debug11 = (0, import_debug11.debug)("rde:entity:entitycreation");
 function EntityCreationContainer(props) {
   const config = props.config;
   const params = (0, import_react_router_dom4.useParams)();
@@ -4580,8 +4591,9 @@ var import_i18next7 = __toESM(require("i18next"));
 var import_recoil9 = require("recoil");
 var import_react_router_dom5 = require("react-router-dom");
 var import_material3 = require("@mui/material");
+var import_debug12 = require("debug");
 var import_jsx_runtime8 = require("react/jsx-runtime");
-var debug12 = require("debug")("rde:entity:shape");
+var debug12 = (0, import_debug12.debug)("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
   const config = props.config;
   const params = (0, import_react_router_dom5.useParams)();
@@ -4734,9 +4746,10 @@ var import_material4 = require("@mui/material");
 var import_i18next8 = __toESM(require("i18next"));
 var import_react_router_dom6 = require("react-router-dom");
 var rdf8 = __toESM(require("rdflib"));
+var import_debug13 = require("debug");
 var import_jsx_runtime9 = require("react/jsx-runtime");
 var import_react11 = require("react");
-var debug13 = require("debug")("rde:atom:event:RS");
+var debug13 = (0, import_debug13.debug)("rde:atom:event:RS");
 var useStyles2 = (0, import_styles2.makeStyles)((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {

@@ -16,13 +16,14 @@ import {
 } from "../../atoms/common"
 import RDEConfig, { IFetchState } from "../rde_config"
 import { prefLabel } from "./ns"
+import { debug as debugfactory } from "debug"
 
 interface StoreWithEtag {
   store: rdf.Store
   etag: string | null
 }
 
-const debug = require("debug")("rde:rdf:io")
+const debug = debugfactory("rde:rdf:io")
 
 const defaultFetchTtlHeaders = new Headers()
 defaultFetchTtlHeaders.set("Accept", "text/turtle")

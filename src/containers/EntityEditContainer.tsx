@@ -41,8 +41,9 @@ import { Navigate } from "react-router-dom"
 import { HashLink as Link } from "react-router-hash-link"
 import queryString from "query-string"
 import { useLocation, useParams } from "react-router"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:entity:edit")
+const debug = debugfactory("rde:entity:edit")
 
 interface RDEPropsDoUpdate extends RDEProps {
   subject: Subject

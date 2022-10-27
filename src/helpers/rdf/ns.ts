@@ -1,4 +1,5 @@
 import * as rdf from "rdflib"
+import { debug as debugfactory } from "debug"
 
 export const DASH_uri = "http://datashapes.org/dash#"
 export const DASH = rdf.Namespace(DASH_uri)
@@ -19,7 +20,7 @@ export const FOAF = rdf.Namespace(FOAF_uri)
 export const RDE_uri = "https://github.com/buda-base/rdf-document-editor/"
 export const RDE = rdf.Namespace(RDE_uri)
 
-const debug = require("debug")("rde:rdf:ns")
+const debug = debugfactory("rde:rdf:ns")
 
 const defaultPrefixToURI: { [key: string]: string } = {
   dash: DASH_uri,

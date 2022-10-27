@@ -1,13 +1,6 @@
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
-  get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
-}) : x)(function(x) {
-  if (typeof require !== "undefined")
-    return require.apply(this, arguments);
-  throw new Error('Dynamic require of "' + x + '" is not supported');
-});
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -107,6 +100,7 @@ __export(ns_exports, {
   skosDefinition: () => skosDefinition
 });
 import * as rdf from "rdflib";
+import { debug as debugfactory } from "debug";
 var DASH_uri = "http://datashapes.org/dash#";
 var DASH = rdf.Namespace(DASH_uri);
 var OWL_uri = "http://www.w3.org/2002/07/owl#";
@@ -125,7 +119,7 @@ var FOAF_uri = "http://xmlcom/foaf/0.1/";
 var FOAF = rdf.Namespace(FOAF_uri);
 var RDE_uri = "https://github.com/buda-base/rdf-document-editor/";
 var RDE = rdf.Namespace(RDE_uri);
-var debug = __require("debug")("rde:rdf:ns");
+var debug = debugfactory("rde:rdf:ns");
 var defaultPrefixToURI = {
   dash: DASH_uri,
   owl: OWL_uri,
@@ -275,7 +269,8 @@ import * as rdf2 from "rdflib";
 import { Memoize } from "typescript-memoize";
 import { atom, DefaultValue } from "recoil";
 import { nanoid } from "nanoid";
-var debug2 = __require("debug")("rde:rdf:types");
+import { debug as debugfactory2 } from "debug";
+var debug2 = debugfactory2("rde:rdf:types");
 var defaultGraphNode = new rdf2.NamedNode(rdf2.Store.defaultGraphURI);
 var errors = {};
 var history = {};
@@ -861,7 +856,8 @@ var sameLanguage = (lang1, lang2) => {
 // src/helpers/rdf/shapes.ts
 import { Memoize as Memoize2 } from "typescript-memoize";
 import { customAlphabet } from "nanoid";
-var debug3 = __require("debug")("rde:rdf:shapes");
+import { debug as debugfactory3 } from "debug";
+var debug3 = debugfactory3("rde:rdf:shapes");
 var sortByPropValue = (nodelist, property, store) => {
   const nodeUriToPropValue = {};
   for (const node of nodelist) {
@@ -1309,7 +1305,8 @@ import { useRecoilState } from "recoil";
 // src/atoms/common.ts
 import { atom as atom2, selectorFamily } from "recoil";
 import _ from "lodash";
-var debug4 = __require("debug")("rde:common");
+import { debug as debugfactory4 } from "debug";
+var debug4 = debugfactory4("rde:common");
 var entitiesAtom = atom2({
   key: "entities",
   default: []
@@ -1589,7 +1586,8 @@ var isUniqueTestSelector = selectorFamily({
 });
 
 // src/helpers/rdf/io.ts
-var debug5 = __require("debug")("rde:rdf:io");
+import { debug as debugfactory5 } from "debug";
+var debug5 = debugfactory5("rde:rdf:io");
 var defaultFetchTtlHeaders = new Headers();
 defaultFetchTtlHeaders.set("Accept", "text/turtle");
 var fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, allowEmptyEtag = true) => {
@@ -1891,7 +1889,8 @@ var RemoveIcon = RemoveCircleOutlineIcon;
 import i18n2 from "i18next";
 
 // src/helpers/lang.ts
-var debug6 = __require("debug")("rde:rdf:lang");
+import { debug as debugfactory6 } from "debug";
+var debug6 = debugfactory6("rde:rdf:lang");
 var ValueByLangToStrPrefLang = (vbl, prefLang) => {
   if (vbl == null)
     return "";
@@ -1922,8 +1921,9 @@ var langsWithDefault = (defaultLanguage, langs) => {
 
 // src/containers/ValueList.tsx
 import MDEditor, { commands } from "@uiw/react-md-editor";
+import { debug as debugfactory7 } from "debug";
 import { Fragment, jsx as jsx2, jsxs } from "react/jsx-runtime";
-var debug7 = __require("debug")("rde:entity:container:ValueList");
+var debug7 = debugfactory7("rde:entity:container:ValueList");
 function replaceItemAtIndex(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
@@ -3529,8 +3529,9 @@ import { GeoSearchControl, OpenStreetMapProvider, GoogleProvider } from "leaflet
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-geosearch/dist/geosearch.css";
+import { debug as debugfactory8 } from "debug";
 import { Fragment as Fragment2, jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
-var debug8 = __require("debug")("rde:entity:propertygroup");
+var debug8 = debugfactory8("rde:entity:propertygroup");
 var redIcon = new L.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
@@ -3793,8 +3794,9 @@ import { Navigate } from "react-router-dom";
 import { HashLink as Link } from "react-router-hash-link";
 import queryString from "query-string";
 import { useLocation, useParams } from "react-router";
+import { debug as debugfactory9 } from "debug";
 import { Fragment as Fragment3, jsx as jsx4, jsxs as jsxs3 } from "react/jsx-runtime";
-var debug9 = __require("debug")("rde:entity:edit");
+var debug9 = debugfactory9("rde:entity:edit");
 function replaceItemAtIndex2(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
@@ -4329,8 +4331,9 @@ import DialogActions from "@mui/material/DialogActions/index.js"
 import DialogContent from "@mui/material/DialogContent/index.js"
 import DialogContentText from "@mui/material/DialogContentText/index.js"
 import DialogTitle from "@mui/material/DialogTitle/index.js"
+import { debug as debugfactory10 } from "debug";
 import { jsx as jsx6, jsxs as jsxs5 } from "react/jsx-runtime";
-var debug10 = __require("debug")("rde:entity:entitycreation");
+var debug10 = debugfactory10("rde:entity:dialog");
 function Dialog422(props) {
   var _a;
   const [open, setOpen] = React6.useState(props.open);
@@ -4419,8 +4422,9 @@ import NotFoundIcon2 from "@mui/icons-material/BrokenImage.js"
 import i18n6 from "i18next";
 import queryString2 from "query-string";
 import * as rdf7 from "rdflib";
+import { debug as debugfactory11 } from "debug";
 import { Fragment as Fragment5, jsx as jsx7, jsxs as jsxs6 } from "react/jsx-runtime";
-var debug11 = __require("debug")("rde:entity:entitycreation");
+var debug11 = debugfactory11("rde:entity:entitycreation");
 function EntityCreationContainer(props) {
   const config = props.config;
   const params = useParams2();
@@ -4545,8 +4549,9 @@ import i18n7 from "i18next";
 import { useRecoilState as useRecoilState7 } from "recoil";
 import { Link as Link3, Navigate as Navigate4, useParams as useParams3, useNavigate as useNavigate2 } from "react-router-dom";
 import { TextField as TextField3, MenuItem as MenuItem3 } from "@mui/material/index.js"
+import { debug as debugfactory12 } from "debug";
 import { Fragment as Fragment6, jsx as jsx8, jsxs as jsxs7 } from "react/jsx-runtime";
-var debug12 = __require("debug")("rde:entity:shape");
+var debug12 = debugfactory12("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
   const config = props.config;
   const params = useParams3();
@@ -4699,9 +4704,10 @@ import { TextField as TextField4, MenuItem as MenuItem4 } from "@mui/material/in
 import i18n8 from "i18next";
 import { useNavigate as useNavigate3, Link as Link4 } from "react-router-dom";
 import * as rdf8 from "rdflib";
+import { debug as debugfactory13 } from "debug";
 import { Fragment as Fragment7, jsx as jsx9, jsxs as jsxs8 } from "react/jsx-runtime";
 import { createElement } from "react";
-var debug13 = __require("debug")("rde:atom:event:RS");
+var debug13 = debugfactory13("rde:atom:event:RS");
 var useStyles2 = makeStyles2((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {

@@ -8,8 +8,9 @@ import { useRecoilState } from "recoil"
 import { RDEProps } from "../helpers/editor_props"
 import { Link, Navigate, useParams, useNavigate } from "react-router-dom"
 import { TextField, MenuItem } from "@mui/material"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:entity:shape")
+const debug = debugfactory("rde:entity:shape")
 
 function EntityShapeChooserContainer(props: RDEProps) {
   const config = props.config

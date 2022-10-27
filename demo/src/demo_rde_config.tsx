@@ -21,8 +21,9 @@ import { customAlphabet } from "nanoid"
 import edtf, { parse } from "edtf" // see https://github.com/inukshuk/edtf.js/issues/36#issuecomment-1073778277
 
 import i18n from "i18next"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:entity:container:demo")
+const debug = debugfactory("rde:entity:container:demo")
 
 const langs = [
   {

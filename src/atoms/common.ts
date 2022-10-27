@@ -4,8 +4,9 @@ import _ from "lodash"
 import * as ns from "../helpers/rdf/ns"
 import * as shapes from "../helpers/rdf/shapes"
 import { Value, Subject, LiteralWithId, errors, HistoryStatus } from "../helpers/rdf/types"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:common")
+const debug = debugfactory("rde:common")
 
 export enum EditedEntityState {
   Error,

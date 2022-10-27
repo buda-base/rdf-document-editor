@@ -6,8 +6,9 @@ import DialogActions from "@mui/material/DialogActions"
 import DialogContent from "@mui/material/DialogContent"
 import DialogContentText from "@mui/material/DialogContentText"
 import DialogTitle from "@mui/material/DialogTitle"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:entity:entitycreation")
+const debug = debugfactory("rde:entity:dialog")
 
 export interface DialogProps {
   // TODO: document a bit

@@ -16,8 +16,9 @@ import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
 import { Entity, EditedEntityState, entitiesAtom, defaultEntityLabelAtom } from "../atoms/common"
 import { CloseIcon } from "../routes/layout/icons"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:entity:selector")
+const debug = debugfactory("rde:entity:selector")
 
 function a11yProps(index: number) {
   return {

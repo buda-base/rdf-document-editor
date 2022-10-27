@@ -15,8 +15,9 @@ import { GeoSearchControl, OpenStreetMapProvider, GoogleProvider } from "leaflet
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import "leaflet-geosearch/dist/geosearch.css"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:entity:propertygroup")
+const debug = debugfactory("rde:entity:propertygroup")
 
 const redIcon = new L.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",

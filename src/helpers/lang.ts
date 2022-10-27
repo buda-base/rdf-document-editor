@@ -1,4 +1,6 @@
-const debug = require("debug")("rde:rdf:lang")
+import { debug as debugfactory } from "debug"
+
+const debug = debugfactory("rde:rdf:lang")
 
 export type Lang = {
   value: string

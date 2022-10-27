@@ -21,8 +21,9 @@ import {
 } from "./ns"
 import { Memoize } from "typescript-memoize"
 import { customAlphabet } from "nanoid"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:rdf:shapes")
+const debug = debugfactory("rde:rdf:shapes")
 
 export const sortByPropValue = (
   nodelist: Array<rdf.NamedNode>,

@@ -4,8 +4,9 @@ import { Memoize } from "typescript-memoize"
 import { atom, DefaultValue, AtomEffect, RecoilState } from "recoil"
 import { nanoid } from "nanoid"
 import { shInversePath } from "./ns"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:rdf:types")
+const debug = debugfactory("rde:rdf:types")
 
 const defaultGraphNode = new rdf.NamedNode(rdf.Store.defaultGraphURI)
 

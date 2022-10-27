@@ -9,8 +9,9 @@ import i18n from "i18next"
 import queryString from "query-string"
 import { RDEProps } from "../helpers/editor_props"
 import * as rdf from "rdflib"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:entity:entitycreation")
+const debug = debugfactory("rde:entity:entitycreation")
 
 export function EntityCreationContainer(props: RDEProps) {
   const config = props.config

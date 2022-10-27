@@ -26,8 +26,9 @@ import * as lang from "../helpers/lang"
 import * as ns from "../helpers/rdf/ns"
 import { EntityInEntitySelectorContainer } from "./EntityInEntitySelectorContainer"
 import { sessionLoadedState } from "../atoms/common"
+import { debug as debugfactory } from "debug"
 
-const debug = require("debug")("rde:entity:selector")
+const debug = debugfactory("rde:entity:selector")
 
 function a11yProps(index: number) {
   return {
