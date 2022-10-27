@@ -42,14 +42,11 @@
   "scripts": {
     "build-css": "node-sass-chokidar src/stylesheets -o public/ --output-style compressed",
     "watch-css": "npm run build-css && node-sass-chokidar src/stylesheets -o public/ --watch --recursive",
-    "start-js": "react-scripts start",
-    "start": "export NODE_ENV=development && REACT_APP_VERSION=$npm_package_version npm-run-all -p watch-css start-js",
-    "eject": "react-scripts eject",
     "analyze": "source-map-explorer 'dist/static/js/*.js'",
     "predeploy": "npm run build",
     "lint": "eslint --ignore-path .gitignore src/ && dpdm --exit-code circular:1 src/index.ts",
     "rollup": "./node_modules/rollup/dist/bin/rollup -c rollup.config.js && yarn fix-materialui",
-    "build": "npm run build-css && react-scripts build && rm -rf dist && mv build dist && yarn rollup",
+    "build": "npm run build-css && yarn rollup",
     "fix-materialui": "sed -i -e \"s/\\(material-ui\\/core.*\\)\\(['\\\"]\\).*$/\\1\\/index.js\\2/g\" -e \"s/\\(material-ui\\/icons.*\\)\\(['\\\"]\\).*$/\\1.js\\2/g\" dist/index.mjs"
   },
   "lint-staged": {
@@ -81,7 +78,6 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
     "preval.macro": "^5.0.0",
-    "react-scripts": "^5.0.0",
     "rollup": "^2.79.1",
     "rollup-plugin-dts": "^4.2.3",
     "rollup-plugin-esbuild": "^4.10.1",
