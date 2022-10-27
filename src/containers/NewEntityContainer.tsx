@@ -7,7 +7,7 @@ import { RDEProps } from "../helpers/editor_props"
 import { Link, useNavigate } from "react-router-dom"
 import i18n from "i18next"
 import { Trans } from "react-i18next"
-import { TextField, MenuItem } from "@material-ui/core"
+import { TextField, MenuItem } from "@mui/material"
 
 function NewEntityContainer(props: RDEProps) {
   const config = props.config || {}

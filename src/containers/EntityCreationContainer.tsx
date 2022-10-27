@@ -4,7 +4,7 @@ import { useRecoilState } from "recoil"
 import { Dialog422 } from "./Dialog"
 import { Navigate, useParams, useLocation } from "react-router-dom"
 import React, { useEffect } from "react"
-import BrokenImageIcon from '@mui/icons-material/BrokenImage'
+import NotFoundIcon from "@mui/icons-material/BrokenImage"
 import i18n from "i18next"
 import queryString from "query-string"
 import { RDEProps } from "../helpers/editor_props"

@@ -16,8 +16,8 @@ import { generateSubnode, NodeShape, PropertyShape } from "../helpers/rdf/shapes
 import * as ns from "../helpers/rdf/ns"
 // import { generateSubnode, reserveLname } from "../../../helpers/rdf/construct"
 import { useRecoilState, useRecoilValue } from "recoil"
-import { makeStyles } from "@material-ui/core/styles"
-import { TextField, MenuItem, Tooltip } from "@material-ui/core"
+import { makeStyles } from "@mui/styles"
+import { TextField, MenuItem, Tooltip } from "@mui/material"
 import {
   AddIcon,
   RemoveIcon,
@@ -2020,7 +2020,7 @@ const SelectComponent: FC<{
   useEffect(() => {
     if (valueNotInList) {
       //debug("not in list:",property.path.sparqlString+"_"+selectIdx,res,val,possibleValues)
-      setError(i18n.t("error.select", { val: val?.value }))
+      setError(""+i18n.t("error.select", { val: val?.value }))
       updateEntityState(EditedEntityState.Error, property.path?.sparqlString + "_" + selectIdx)
     } else {
       updateEntityState(EditedEntityState.Saved, property.path?.sparqlString + "_" + selectIdx)

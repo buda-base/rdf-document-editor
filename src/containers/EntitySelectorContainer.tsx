@@ -19,9 +19,9 @@ import {
   EditedEntityState,
   Entity,
 } from "../atoms/common"
-import { makeStyles } from "@material-ui/core/styles"
-import Tabs from "@material-ui/core/Tabs"
-import Tab from "@material-ui/core/Tab"
+import { makeStyles } from "@mui/styles"
+import Tabs from "@mui/material/Tabs"
+import Tab from "@mui/material/Tab"
 import * as lang from "../helpers/lang"
 import * as ns from "../helpers/rdf/ns"
 import { EntityInEntitySelectorContainer } from "./EntityInEntitySelectorContainer"

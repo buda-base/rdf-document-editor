@@ -7,7 +7,7 @@ import * as lang from "../helpers/lang"
 import { useRecoilState } from "recoil"
 import { RDEProps } from "../helpers/editor_props"
 import { Link, Navigate, useParams, useNavigate } from "react-router-dom"
-import { TextField, MenuItem } from "@material-ui/core"
+import { TextField, MenuItem } from "@mui/material"
 
 const debug = require("debug")("rde:entity:shape")
 

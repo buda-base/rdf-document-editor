@@ -1,91 +1,167 @@
-'use strict';
-
-var rdf = require('rdflib');
-var typescriptMemoize = require('typescript-memoize');
-var recoil = require('recoil');
-var nanoid = require('nanoid');
-var jsxRuntime = require('react/jsx-runtime');
-var React = require('react');
-var i18n = require('i18next');
-var _ = require('lodash');
-var BrokenImageIcon = require('@mui/icons-material/BrokenImage');
-var styles = require('@material-ui/core/styles');
-var core = require('@material-ui/core');
-var reactImage = require('react-image');
-var RemoveCircleOutlineIcon = require('@material-ui/icons/RemoveCircleOutline');
-var AddCircleOutlineIcon = require('@material-ui/icons/AddCircleOutline');
-var ErrorIcon = require('@material-ui/icons/Error');
-var CloseIcon = require('@material-ui/icons/Close');
-require('@material-ui/icons/FindReplace');
-var LookupIcon = require('@material-ui/icons/Search');
-var LaunchIcon = require('@material-ui/icons/Launch');
-var InfoIcon = require('@material-ui/icons/Info');
-var InfoOutlinedIcon = require('@material-ui/icons/InfoOutlined');
-require('@material-ui/icons/Settings');
-var VisibilityIcon = require('@material-ui/icons/Visibility');
-require('@material-ui/icons/VisibilityOff');
-var EditIcon = require('@material-ui/icons/Edit');
-var KeyboardIcon = require('@material-ui/icons/Keyboard');
-var HelpIcon = require('@material-ui/icons/Help');
-var ContentPasteIcon = require('@material-ui/icons/AssignmentReturned');
-var MDEditor = require('@uiw/react-md-editor');
-var reactLeaflet = require('react-leaflet');
-var ReactLeafletGoogleLayer = require('react-leaflet-google-layer');
-var leafletGeosearch = require('leaflet-geosearch');
-var L = require('leaflet');
-require('leaflet/dist/leaflet.css');
-require('leaflet-geosearch/dist/geosearch.css');
-var reactRouterDom = require('react-router-dom');
-var reactRouterHashLink = require('react-router-hash-link');
-var queryString = require('query-string');
-var reactRouter = require('react-router');
-var reactI18next = require('react-i18next');
-var Button = require('@material-ui/core/Button');
-var Dialog = require('@material-ui/core/Dialog');
-var DialogActions = require('@material-ui/core/DialogActions');
-var DialogContent = require('@material-ui/core/DialogContent');
-var DialogContentText = require('@material-ui/core/DialogContentText');
-var DialogTitle = require('@material-ui/core/DialogTitle');
-
-function _interopNamespaceDefault(e) {
-  var n = Object.create(null);
-  if (e) {
-    Object.keys(e).forEach(function (k) {
-      if (k !== 'default') {
-        var d = Object.getOwnPropertyDescriptor(e, k);
-        Object.defineProperty(n, k, d.get ? d : {
-          enumerable: true,
-          get: function () { return e[k]; }
-        });
-      }
-    });
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
   }
-  n.default = e;
-  return Object.freeze(n);
-}
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result)
+    __defProp(target, key, result);
+  return result;
+};
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 
-var rdf__namespace = /*#__PURE__*/_interopNamespaceDefault(rdf);
+// src/index.ts
+var src_exports = {};
+__export(src_exports, {
+  BUDAResourceSelector: () => BUDAResourceSelector_default,
+  EntityCreationContainer: () => EntityCreationContainer_default,
+  EntityCreationContainerRoute: () => EntityCreationContainerRoute,
+  EntityEditContainer: () => EntityEditContainer_default,
+  EntityEditContainerMayUpdate: () => EntityEditContainerMayUpdate,
+  EntityGraph: () => EntityGraph,
+  EntityShapeChooserContainer: () => EntityShapeChooserContainer_default,
+  ExtRDFResourceWithLabel: () => ExtRDFResourceWithLabel,
+  LiteralWithId: () => LiteralWithId,
+  NewEntityContainer: () => NewEntityContainer_default,
+  NodeShape: () => NodeShape,
+  RDFResource: () => RDFResource,
+  Subject: () => Subject,
+  ValueByLangToStrPrefLang: () => ValueByLangToStrPrefLang,
+  fetchTtl: () => fetchTtl,
+  generateSubnode: () => generateSubnode,
+  ns: () => ns_exports,
+  shapes: () => shapes_exports
+});
+module.exports = __toCommonJS(src_exports);
 
-const DASH_uri = "http://datashapes.org/dash#";
-const DASH = rdf__namespace.Namespace(DASH_uri);
-const OWL_uri = "http://www.w3.org/2002/07/owl#";
-const OWL = rdf__namespace.Namespace(OWL_uri);
-const RDFS_uri = "http://www.w3.org/2000/01/rdf-schema#";
-const RDFS = rdf__namespace.Namespace(RDFS_uri);
-const SH_uri = "http://www.w3.org/ns/shacl#";
-const SH = rdf__namespace.Namespace(SH_uri);
-const RDF_uri = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-const RDF = rdf__namespace.Namespace(RDF_uri);
-const SKOS_uri = "http://www.w3.org/2004/02/skos/core#";
-const SKOS = rdf__namespace.Namespace(SKOS_uri);
-const XSD_uri = "http://www.w3.org/2001/XMLSchema#";
-const XSD = rdf__namespace.Namespace(XSD_uri);
-const FOAF_uri = "http://xmlcom/foaf/0.1/";
-const FOAF = rdf__namespace.Namespace(FOAF_uri);
-const RDE_uri = "https://github.com/buda-base/rdf-document-editor/";
-const RDE = rdf__namespace.Namespace(RDE_uri);
-require("debug")("rde:rdf:ns");
-const defaultPrefixToURI = {
+// src/helpers/rdf/ns.ts
+var ns_exports = {};
+__export(ns_exports, {
+  DASH: () => DASH,
+  DASH_uri: () => DASH_uri,
+  FOAF: () => FOAF,
+  FOAF_uri: () => FOAF_uri,
+  OWL: () => OWL,
+  OWL_uri: () => OWL_uri,
+  PrefixMap: () => PrefixMap,
+  RDE: () => RDE,
+  RDE_uri: () => RDE_uri,
+  RDF: () => RDF,
+  RDFS: () => RDFS,
+  RDFS_uri: () => RDFS_uri,
+  RDF_uri: () => RDF_uri,
+  SH: () => SH,
+  SH_uri: () => SH_uri,
+  SKOS: () => SKOS,
+  SKOS_uri: () => SKOS_uri,
+  XSD: () => XSD,
+  XSD_uri: () => XSD_uri,
+  dashEditor: () => dashEditor,
+  dashEnumSelectEditor: () => dashEnumSelectEditor,
+  dashListShape: () => dashListShape,
+  dashSingleLine: () => dashSingleLine,
+  defaultDescriptionProperties: () => defaultDescriptionProperties,
+  defaultLabelProperties: () => defaultLabelProperties,
+  defaultPrefixMap: () => defaultPrefixMap,
+  prefLabel: () => prefLabel,
+  rdeAllowBatchManagement: () => rdeAllowBatchManagement,
+  rdeAllowMarkDown: () => rdeAllowMarkDown,
+  rdeAllowPushToTopLevelLabel: () => rdeAllowPushToTopLevelLabel,
+  rdeClassIn: () => rdeClassIn,
+  rdeConnectIDs: () => rdeConnectIDs,
+  rdeCopyObjectsOfProperty: () => rdeCopyObjectsOfProperty,
+  rdeDefaultLanguage: () => rdeDefaultLanguage,
+  rdeDefaultValue: () => rdeDefaultValue,
+  rdeDisplayPriority: () => rdeDisplayPriority,
+  rdeExternalShape: () => rdeExternalShape,
+  rdeIdentifierPrefix: () => rdeIdentifierPrefix,
+  rdeIgnoreShape: () => rdeIgnoreShape,
+  rdeIndependentIdentifiers: () => rdeIndependentIdentifiers,
+  rdeInternalShape: () => rdeInternalShape,
+  rdePropertyShapeType: () => rdePropertyShapeType,
+  rdeReadOnly: () => rdeReadOnly,
+  rdeSortOnProperty: () => rdeSortOnProperty,
+  rdeSpecialPattern: () => rdeSpecialPattern,
+  rdeUniqueValueAmongSiblings: () => rdeUniqueValueAmongSiblings,
+  rdfLangString: () => rdfLangString,
+  rdfType: () => rdfType,
+  rdfsComment: () => rdfsComment,
+  rdfsLabel: () => rdfsLabel,
+  shClass: () => shClass,
+  shDatatype: () => shDatatype,
+  shDescription: () => shDescription,
+  shGroup: () => shGroup,
+  shIn: () => shIn,
+  shInversePath: () => shInversePath,
+  shLanguageIn: () => shLanguageIn,
+  shMaxCount: () => shMaxCount,
+  shMaxExclusive: () => shMaxExclusive,
+  shMaxInclusive: () => shMaxInclusive,
+  shMessage: () => shMessage,
+  shMinCount: () => shMinCount,
+  shMinExclusive: () => shMinExclusive,
+  shMinInclusive: () => shMinInclusive,
+  shName: () => shName,
+  shNamespace: () => shNamespace,
+  shNode: () => shNode,
+  shOrder: () => shOrder,
+  shPath: () => shPath,
+  shPattern: () => shPattern,
+  shProperty: () => shProperty,
+  shTargetClass: () => shTargetClass,
+  shTargetObjectsOf: () => shTargetObjectsOf,
+  shTargetSubjectsOf: () => shTargetSubjectsOf,
+  shUniqueLang: () => shUniqueLang,
+  skosDefinition: () => skosDefinition
+});
+var rdf = __toESM(require("rdflib"));
+var DASH_uri = "http://datashapes.org/dash#";
+var DASH = rdf.Namespace(DASH_uri);
+var OWL_uri = "http://www.w3.org/2002/07/owl#";
+var OWL = rdf.Namespace(OWL_uri);
+var RDFS_uri = "http://www.w3.org/2000/01/rdf-schema#";
+var RDFS = rdf.Namespace(RDFS_uri);
+var SH_uri = "http://www.w3.org/ns/shacl#";
+var SH = rdf.Namespace(SH_uri);
+var RDF_uri = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+var RDF = rdf.Namespace(RDF_uri);
+var SKOS_uri = "http://www.w3.org/2004/02/skos/core#";
+var SKOS = rdf.Namespace(SKOS_uri);
+var XSD_uri = "http://www.w3.org/2001/XMLSchema#";
+var XSD = rdf.Namespace(XSD_uri);
+var FOAF_uri = "http://xmlcom/foaf/0.1/";
+var FOAF = rdf.Namespace(FOAF_uri);
+var RDE_uri = "https://github.com/buda-base/rdf-document-editor/";
+var RDE = rdf.Namespace(RDE_uri);
+var debug = require("debug")("rde:rdf:ns");
+var defaultPrefixToURI = {
   dash: DASH_uri,
   owl: OWL_uri,
   rde: RDE_uri,
@@ -96,7 +172,7 @@ const defaultPrefixToURI = {
   xsd: XSD_uri,
   foaf: FOAF_uri
 };
-class PrefixMap {
+var PrefixMap = class {
   prefixToURI;
   URItoPrefix;
   constructor(prefixToURI) {
@@ -159,170 +235,86 @@ class PrefixMap {
       throw new Error("Cannot make lname out of <" + qname + ">");
     return qname.slice(j + 1);
   };
-}
-const rdfType = RDF("type");
-const shProperty = SH("property");
-const shGroup = SH("group");
-const shOrder = SH("order");
-const rdfsLabel = RDFS("label");
-const prefLabel = SKOS("prefLabel");
-const shName = SH("name");
-const shPath = SH("path");
-const dashEditor = DASH("editor");
-const shNode = SH("node");
-const dashListShape = DASH("ListShape");
-const dashEnumSelectEditor = DASH("EnumSelectEditor");
-const shMessage = SH("message");
-const rdeDisplayPriority = RDE("displayPriority");
-const shMinCount = SH("minCount");
-const shMinInclusive = SH("minInclusive");
-const shMinExclusive = SH("minExclusive");
-const shClass = SH("class");
-const shMaxCount = SH("maxCount");
-const shMaxInclusive = SH("maxInclusive");
-const shMaxExclusive = SH("maxExclusive");
-const shDatatype = SH("datatype");
-const dashSingleLine = DASH("singleLine");
-const shTargetClass = SH("targetClass");
-const shTargetObjectsOf = SH("targetObjectsOf");
-const shTargetSubjectsOf = SH("targetSubjectsOf");
-const rdePropertyShapeType = RDE("propertyShapeType");
-const rdeInternalShape = RDE("InternalShape");
-const rdeExternalShape = RDE("ExternalShape");
-const rdeIgnoreShape = RDE("IgnoreShape");
-const rdeClassIn = RDE("classIn");
-const shIn = SH("in");
-const shInversePath = SH("inversePath");
-const shUniqueLang = SH("uniqueLang");
-const rdeReadOnly = RDE("readOnly");
-const rdeIdentifierPrefix = RDE("identifierPrefix");
-const rdeAllowMarkDown = RDE("allowMarkDown");
-const shNamespace = SH("namespace");
-const rdeDefaultLanguage = RDE("defaultLanguage");
-const rdeDefaultValue = RDE("defaultValue");
-const shLanguageIn = SH("languageIn");
-const shPattern = SH("pattern");
-const rdeSortOnProperty = RDE("sortOnProperty");
-const rdeAllowPushToTopLevelLabel = RDE("allowPushToTopLevelLabel");
-const rdeIndependentIdentifiers = RDE("independentIdentifiers");
-const rdeSpecialPattern = RDE("specialPattern");
-const rdeConnectIDs = RDE("connectIDs");
-const rdeAllowBatchManagement = RDE("allowBatchManagement");
-const rdeCopyObjectsOfProperty = RDE("copyObjectsOfProperty");
-const rdeUniqueValueAmongSiblings = RDE("uniqueValueAmongSiblings");
-const rdfLangString = RDF("langString");
-const skosDefinition = SKOS("definition");
-const rdfsComment = RDFS("comment");
-const shDescription = SH("description");
-const defaultLabelProperties = [prefLabel, rdfsLabel, shName];
-const defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription];
-const defaultPrefixMap = new PrefixMap({});
-
-var ns = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  DASH_uri: DASH_uri,
-  DASH: DASH,
-  OWL_uri: OWL_uri,
-  OWL: OWL,
-  RDFS_uri: RDFS_uri,
-  RDFS: RDFS,
-  SH_uri: SH_uri,
-  SH: SH,
-  RDF_uri: RDF_uri,
-  RDF: RDF,
-  SKOS_uri: SKOS_uri,
-  SKOS: SKOS,
-  XSD_uri: XSD_uri,
-  XSD: XSD,
-  FOAF_uri: FOAF_uri,
-  FOAF: FOAF,
-  RDE_uri: RDE_uri,
-  RDE: RDE,
-  PrefixMap: PrefixMap,
-  rdfType: rdfType,
-  shProperty: shProperty,
-  shGroup: shGroup,
-  shOrder: shOrder,
-  rdfsLabel: rdfsLabel,
-  prefLabel: prefLabel,
-  shName: shName,
-  shPath: shPath,
-  dashEditor: dashEditor,
-  shNode: shNode,
-  dashListShape: dashListShape,
-  dashEnumSelectEditor: dashEnumSelectEditor,
-  shMessage: shMessage,
-  rdeDisplayPriority: rdeDisplayPriority,
-  shMinCount: shMinCount,
-  shMinInclusive: shMinInclusive,
-  shMinExclusive: shMinExclusive,
-  shClass: shClass,
-  shMaxCount: shMaxCount,
-  shMaxInclusive: shMaxInclusive,
-  shMaxExclusive: shMaxExclusive,
-  shDatatype: shDatatype,
-  dashSingleLine: dashSingleLine,
-  shTargetClass: shTargetClass,
-  shTargetObjectsOf: shTargetObjectsOf,
-  shTargetSubjectsOf: shTargetSubjectsOf,
-  rdePropertyShapeType: rdePropertyShapeType,
-  rdeInternalShape: rdeInternalShape,
-  rdeExternalShape: rdeExternalShape,
-  rdeIgnoreShape: rdeIgnoreShape,
-  rdeClassIn: rdeClassIn,
-  shIn: shIn,
-  shInversePath: shInversePath,
-  shUniqueLang: shUniqueLang,
-  rdeReadOnly: rdeReadOnly,
-  rdeIdentifierPrefix: rdeIdentifierPrefix,
-  rdeAllowMarkDown: rdeAllowMarkDown,
-  shNamespace: shNamespace,
-  rdeDefaultLanguage: rdeDefaultLanguage,
-  rdeDefaultValue: rdeDefaultValue,
-  shLanguageIn: shLanguageIn,
-  shPattern: shPattern,
-  rdeSortOnProperty: rdeSortOnProperty,
-  rdeAllowPushToTopLevelLabel: rdeAllowPushToTopLevelLabel,
-  rdeIndependentIdentifiers: rdeIndependentIdentifiers,
-  rdeSpecialPattern: rdeSpecialPattern,
-  rdeConnectIDs: rdeConnectIDs,
-  rdeAllowBatchManagement: rdeAllowBatchManagement,
-  rdeCopyObjectsOfProperty: rdeCopyObjectsOfProperty,
-  rdeUniqueValueAmongSiblings: rdeUniqueValueAmongSiblings,
-  rdfLangString: rdfLangString,
-  skosDefinition: skosDefinition,
-  rdfsComment: rdfsComment,
-  shDescription: shDescription,
-  defaultLabelProperties: defaultLabelProperties,
-  defaultDescriptionProperties: defaultDescriptionProperties,
-  defaultPrefixMap: defaultPrefixMap
-});
-
-var __defProp$1 = Object.defineProperty;
-var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
-var __decorateClass$1 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$1(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp$1(target, key, result);
-  return result;
 };
-require("debug")("rde:rdf:types");
-const defaultGraphNode = new rdf__namespace.NamedNode(rdf__namespace.Store.defaultGraphURI);
-const errors = {};
-const history = {};
-var ObjectType = /* @__PURE__ */ ((ObjectType2) => {
-  ObjectType2[ObjectType2["Literal"] = 0] = "Literal";
-  ObjectType2[ObjectType2["Internal"] = 1] = "Internal";
-  ObjectType2[ObjectType2["ResInList"] = 2] = "ResInList";
-  ObjectType2[ObjectType2["ResExt"] = 3] = "ResExt";
-  ObjectType2[ObjectType2["ResIgnore"] = 4] = "ResIgnore";
-  ObjectType2[ObjectType2["LitInList"] = 5] = "LitInList";
-  return ObjectType2;
-})(ObjectType || {});
-const updateHistory = (entity, qname, prop, val, noHisto = true) => {
+var rdfType = RDF("type");
+var shProperty = SH("property");
+var shGroup = SH("group");
+var shOrder = SH("order");
+var rdfsLabel = RDFS("label");
+var prefLabel = SKOS("prefLabel");
+var shName = SH("name");
+var shPath = SH("path");
+var dashEditor = DASH("editor");
+var shNode = SH("node");
+var dashListShape = DASH("ListShape");
+var dashEnumSelectEditor = DASH("EnumSelectEditor");
+var shMessage = SH("message");
+var rdeDisplayPriority = RDE("displayPriority");
+var shMinCount = SH("minCount");
+var shMinInclusive = SH("minInclusive");
+var shMinExclusive = SH("minExclusive");
+var shClass = SH("class");
+var shMaxCount = SH("maxCount");
+var shMaxInclusive = SH("maxInclusive");
+var shMaxExclusive = SH("maxExclusive");
+var shDatatype = SH("datatype");
+var dashSingleLine = DASH("singleLine");
+var shTargetClass = SH("targetClass");
+var shTargetObjectsOf = SH("targetObjectsOf");
+var shTargetSubjectsOf = SH("targetSubjectsOf");
+var rdePropertyShapeType = RDE("propertyShapeType");
+var rdeInternalShape = RDE("InternalShape");
+var rdeExternalShape = RDE("ExternalShape");
+var rdeIgnoreShape = RDE("IgnoreShape");
+var rdeClassIn = RDE("classIn");
+var shIn = SH("in");
+var shInversePath = SH("inversePath");
+var shUniqueLang = SH("uniqueLang");
+var rdeReadOnly = RDE("readOnly");
+var rdeIdentifierPrefix = RDE("identifierPrefix");
+var rdeAllowMarkDown = RDE("allowMarkDown");
+var shNamespace = SH("namespace");
+var rdeDefaultLanguage = RDE("defaultLanguage");
+var rdeDefaultValue = RDE("defaultValue");
+var shLanguageIn = SH("languageIn");
+var shPattern = SH("pattern");
+var rdeSortOnProperty = RDE("sortOnProperty");
+var rdeAllowPushToTopLevelLabel = RDE("allowPushToTopLevelLabel");
+var rdeIndependentIdentifiers = RDE("independentIdentifiers");
+var rdeSpecialPattern = RDE("specialPattern");
+var rdeConnectIDs = RDE("connectIDs");
+var rdeAllowBatchManagement = RDE("allowBatchManagement");
+var rdeCopyObjectsOfProperty = RDE("copyObjectsOfProperty");
+var rdeUniqueValueAmongSiblings = RDE("uniqueValueAmongSiblings");
+var rdfLangString = RDF("langString");
+var skosDefinition = SKOS("definition");
+var rdfsComment = RDFS("comment");
+var shDescription = SH("description");
+var defaultLabelProperties = [prefLabel, rdfsLabel, shName];
+var defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription];
+var defaultPrefixMap = new PrefixMap({});
+
+// src/helpers/rdf/shapes.ts
+var shapes_exports = {};
+__export(shapes_exports, {
+  NodeShape: () => NodeShape,
+  PropertyGroup: () => PropertyGroup,
+  PropertyShape: () => PropertyShape,
+  generateSubnode: () => generateSubnode,
+  sortByPropValue: () => sortByPropValue
+});
+var rdf3 = __toESM(require("rdflib"));
+
+// src/helpers/rdf/types.ts
+var rdf2 = __toESM(require("rdflib"));
+var import_typescript_memoize = require("typescript-memoize");
+var import_recoil = require("recoil");
+var import_nanoid = require("nanoid");
+var debug2 = require("debug")("rde:rdf:types");
+var defaultGraphNode = new rdf2.NamedNode(rdf2.Store.defaultGraphURI);
+var errors = {};
+var history = {};
+var updateHistory = (entity, qname, prop, val, noHisto = true) => {
   if (!history[entity])
     history[entity] = [];
   else {
@@ -345,7 +337,7 @@ const updateHistory = (entity, qname, prop, val, noHisto = true) => {
   } else
     history[entity].push(newVal);
 };
-const getHistoryStatus = (entityUri) => {
+var getHistoryStatus = (entityUri) => {
   if (!history[entityUri])
     return {};
   const top = history[entityUri].length - 1;
@@ -383,19 +375,19 @@ function getParentPath(entityUri, sub) {
   }
   return parentPath;
 }
-const rdfLitAsNumber = (lit) => {
+var rdfLitAsNumber = (lit) => {
   const n = Number(lit.value);
   if (!isNaN(n)) {
     return +n;
   }
   return null;
 };
-class Path {
+var Path = class {
   sparqlString;
   directPathNode = null;
   inversePathNode = null;
-  constructor(node, graph, listMode) {
-    const invpaths = graph.store.each(node, shInversePath, null);
+  constructor(node, graph3, listMode) {
+    const invpaths = graph3.store.each(node, shInversePath, null);
     if (invpaths.length > 1) {
       throw "too many inverse path in shacl path:" + invpaths;
     }
@@ -412,8 +404,8 @@ class Path {
       this.directPathNode = node;
     }
   }
-}
-class EntityGraphValues {
+};
+var EntityGraphValues = class {
   oldSubjectProps = {};
   newSubjectProps = {};
   subjectUri = "";
@@ -446,18 +438,19 @@ class EntityGraphValues {
     return subjectUri in this.oldSubjectProps && pathString in this.oldSubjectProps[subjectUri];
   };
   addNewValuestoStore(store, subjectUri) {
+    var _a, _b, _c, _d;
     if (!(subjectUri in this.newSubjectProps))
       return;
-    const subject = new rdf__namespace.NamedNode(subjectUri);
+    const subject = new rdf2.NamedNode(subjectUri);
     for (const pathString in this.newSubjectProps[subjectUri]) {
       if (pathString.startsWith("^")) {
-        const property = new rdf__namespace.NamedNode(pathString.substring(1));
+        const property = new rdf2.NamedNode(pathString.substring(1));
         const values = this.newSubjectProps[subjectUri][pathString];
         for (const val of values) {
           if (val instanceof LiteralWithId) {
             throw "can't add literals in inverse path, something's wrong with the data!";
           } else {
-            if (val.node?.value == "tmp:uri" || val.node?.value == "tmp:none")
+            if (((_a = val.node) == null ? void 0 : _a.value) == "tmp:uri" || ((_b = val.node) == null ? void 0 : _b.value) == "tmp:none")
               continue;
             store.add(val.node, property, subject, defaultGraphNode);
             if (val instanceof Subject) {
@@ -467,9 +460,9 @@ class EntityGraphValues {
         }
       } else {
         const listMode = pathString.endsWith("[]");
-        const property = new rdf__namespace.NamedNode(listMode ? pathString.substring(0, pathString.length - 2) : pathString);
+        const property = new rdf2.NamedNode(listMode ? pathString.substring(0, pathString.length - 2) : pathString);
         const values = this.newSubjectProps[subjectUri][pathString];
-        const collection = new rdf__namespace.Collection();
+        const collection = new rdf2.Collection();
         for (const val of values) {
           if (val instanceof LiteralWithId) {
             if (val.value == "")
@@ -479,12 +472,12 @@ class EntityGraphValues {
             else
               store.add(subject, property, val, defaultGraphNode);
           } else {
-            if (val.node?.value == "tmp:uri" || val.node?.value == "tmp:none")
+            if (((_c = val.node) == null ? void 0 : _c.value) == "tmp:uri" || ((_d = val.node) == null ? void 0 : _d.value) == "tmp:none")
               continue;
             if (listMode) {
               if (val.node) {
                 collection.append(val.node);
-              } else if (val instanceof rdf__namespace.Literal) {
+              } else if (val instanceof rdf2.Literal) {
                 collection.append(val);
               } else
                 throw "could not add " + val + " to collection " + collection;
@@ -504,13 +497,13 @@ class EntityGraphValues {
   }
   propsUpdateEffect = (subjectUri, pathString) => ({ setSelf, onSet }) => {
     onSet((newValues) => {
-      if (!(newValues instanceof recoil.DefaultValue)) {
+      if (!(newValues instanceof import_recoil.DefaultValue)) {
         this.onUpdateValues(subjectUri, pathString, newValues);
       }
     });
   };
   getAtomForSubjectProperty(pathString, subjectUri) {
-    return recoil.atom({
+    return (0, import_recoil.atom)({
       key: this.idHash + subjectUri + pathString,
       default: [],
       effects_UNSTABLE: [this.propsUpdateEffect(subjectUri, pathString)],
@@ -520,13 +513,13 @@ class EntityGraphValues {
   hasSubject(subjectUri) {
     return subjectUri in this.newSubjectProps;
   }
-}
-__decorateClass$1([
-  typescriptMemoize.Memoize((pathString, subjectUri) => {
+};
+__decorateClass([
+  (0, import_typescript_memoize.Memoize)((pathString, subjectUri) => {
     return subjectUri + pathString;
   })
 ], EntityGraphValues.prototype, "getAtomForSubjectProperty", 1);
-class EntityGraph {
+var _EntityGraph = class {
   onGetInitialValues;
   getAtomForSubjectProperty;
   getValues;
@@ -539,7 +532,7 @@ class EntityGraph {
   prefixMap;
   labelProperties;
   descriptionProperties;
-  constructor(store, topSubjectUri, prefixMap = defaultPrefixMap, connexGraph = rdf__namespace.graph(), labelProperties = defaultLabelProperties, descriptionProperties = defaultDescriptionProperties) {
+  constructor(store, topSubjectUri, prefixMap = defaultPrefixMap, connexGraph = rdf2.graph(), labelProperties = defaultLabelProperties, descriptionProperties = defaultDescriptionProperties) {
     this.store = store;
     this.prefixMap = prefixMap;
     this.descriptionProperties = descriptionProperties;
@@ -556,43 +549,11 @@ class EntityGraph {
   addNewValuestoStore(store) {
     this.values.addNewValuestoStore(store, this.topSubjectUri);
   }
-  static addIdToLitList = (litList) => {
-    return litList.map((lit) => {
-      return new LiteralWithId(lit.value, lit.language, lit.datatype);
-    });
-  };
-  static addLabelsFromGraph = (resList, graph) => {
-    return resList.map((res) => {
-      return new RDFResourceWithLabel(res, graph);
-    });
-  };
-  static addExtDataFromGraph = (resList, graph) => {
-    return resList.map((res) => {
-      if (!graph.connexGraph) {
-        throw "trying to access inexistant associatedStore";
-      }
-      const perLang = {};
-      for (const p of graph.labelProperties) {
-        const lits = graph.connexGraph.each(res, p, null);
-        for (const lit of lits) {
-          if (lit.language in perLang)
-            continue;
-          perLang[lit.language] = lit.value;
-        }
-      }
-      return new ExtRDFResourceWithLabel(res.uri, perLang);
-    });
-  };
   hasSubject(subjectUri) {
     if (this.values.hasSubject(subjectUri))
       return true;
-    return this.store.any(new rdf__namespace.NamedNode(subjectUri), null, null) != null;
+    return this.store.any(new rdf2.NamedNode(subjectUri), null, null) != null;
   }
-  static subjectify = (resList, graph) => {
-    return resList.map((res) => {
-      return new Subject(res, graph);
-    });
-  };
   getUnitializedValues(s, p) {
     const path = p.path;
     if (!path)
@@ -612,22 +573,25 @@ class EntityGraph {
           throw "can't have non-direct path for property " + p.uri;
         }
         const fromRDFResExt = s.getPropResValuesFromPath(p.path);
-        const fromRDFResExtwData = EntityGraph.addExtDataFromGraph(fromRDFResExt, s.graph);
+        const fromRDFResExtwData = _EntityGraph.addExtDataFromGraph(fromRDFResExt, s.graph);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFResExtwData);
         return fromRDFResExtwData;
+        break;
       case 1 /* Internal */:
         const fromRDFSubNode = s.getPropResValuesFromPath(p.path);
-        const fromRDFSubs = EntityGraph.subjectify(fromRDFSubNode, s.graph);
+        const fromRDFSubs = _EntityGraph.subjectify(fromRDFSubNode, s.graph);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFSubs);
         return fromRDFSubs;
+        break;
       case 2 /* ResInList */:
         if (!p.path.directPathNode) {
           throw "can't have non-direct path for property " + p.uri;
         }
         const fromRDFResList = s.getPropResValues(p.path.directPathNode);
-        const fromRDFReswLabels = EntityGraph.addLabelsFromGraph(fromRDFResList, p.graph);
+        const fromRDFReswLabels = _EntityGraph.addLabelsFromGraph(fromRDFResList, p.graph);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFReswLabels);
         return fromRDFReswLabels;
+        break;
       case 0 /* Literal */:
       case 5 /* LitInList */:
       default:
@@ -641,20 +605,54 @@ class EntityGraph {
         } else {
           fromRDFLits = s.getPropLitValues(p.path.directPathNode);
         }
-        const fromRDFLitIDs = EntityGraph.addIdToLitList(fromRDFLits);
+        const fromRDFLitIDs = _EntityGraph.addIdToLitList(fromRDFLits);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFLitIDs);
         return fromRDFLitIDs;
+        break;
     }
   }
-}
-class RDFResource {
+};
+var EntityGraph = _EntityGraph;
+__publicField(EntityGraph, "addIdToLitList", (litList) => {
+  return litList.map((lit) => {
+    return new LiteralWithId(lit.value, lit.language, lit.datatype);
+  });
+});
+__publicField(EntityGraph, "addLabelsFromGraph", (resList, graph3) => {
+  return resList.map((res) => {
+    return new RDFResourceWithLabel(res, graph3);
+  });
+});
+__publicField(EntityGraph, "addExtDataFromGraph", (resList, graph3) => {
+  return resList.map((res) => {
+    if (!graph3.connexGraph) {
+      throw "trying to access inexistant associatedStore";
+    }
+    const perLang = {};
+    for (const p of graph3.labelProperties) {
+      const lits = graph3.connexGraph.each(res, p, null);
+      for (const lit of lits) {
+        if (lit.language in perLang)
+          continue;
+        perLang[lit.language] = lit.value;
+      }
+    }
+    return new ExtRDFResourceWithLabel(res.uri, perLang);
+  });
+});
+__publicField(EntityGraph, "subjectify", (resList, graph3) => {
+  return resList.map((res) => {
+    return new Subject(res, graph3);
+  });
+});
+var RDFResource = class {
   node;
   graph;
   isCollection;
-  constructor(node, graph) {
+  constructor(node, graph3) {
     this.node = node;
-    this.graph = graph;
-    this.isCollection = node instanceof rdf__namespace.Collection;
+    this.graph = graph3;
+    this.isCollection = node instanceof rdf2.Collection;
   }
   get id() {
     return this.node.value;
@@ -684,7 +682,7 @@ class RDFResource {
     return res;
   }
   getPropValueByLang(p) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return {};
     const lits = this.graph.store.each(this.node, p, null);
     const res = {};
@@ -694,7 +692,7 @@ class RDFResource {
     return res;
   }
   getPropValueOrNullByLang(p) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return {};
     const lits = this.graph.store.each(this.node, p, null);
     const res = {};
@@ -708,17 +706,17 @@ class RDFResource {
     return res;
   }
   getPropLitValues(p) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return [];
     return this.graph.store.each(this.node, p, null);
   }
   getPropResValues(p) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return [];
     return this.graph.store.each(this.node, p, null);
   }
   getPropResValuesFromList(p) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     const colls = this.graph.store.each(this.node, p, null);
     for (const coll of colls) {
@@ -727,7 +725,7 @@ class RDFResource {
     return null;
   }
   getPropLitValuesFromList(p) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     const colls = this.graph.store.each(this.node, p, null);
     for (const coll of colls) {
@@ -736,7 +734,7 @@ class RDFResource {
     return null;
   }
   getPropIntValue(p) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     const lit = this.graph.store.any(this.node, p, null);
     if (lit === null)
@@ -744,7 +742,7 @@ class RDFResource {
     return rdfLitAsNumber(lit);
   }
   getPropStringValue(p) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     const lit = this.graph.store.any(this.node, p, null);
     if (lit === null)
@@ -752,13 +750,13 @@ class RDFResource {
     return lit.value;
   }
   getPropResValue(p) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     const res = this.graph.store.any(this.node, p, null);
     return res;
   }
   getPropResValuesFromPath(p) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return [];
     if (p.directPathNode) {
       return this.graph.store.each(this.node, p.directPathNode, null);
@@ -766,7 +764,7 @@ class RDFResource {
     return this.graph.store.each(null, p.inversePathNode, this.node);
   }
   getPropResValueFromPath(p) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     if (p.directPathNode) {
       return this.graph.store.any(this.node, p.directPathNode, null);
@@ -774,7 +772,7 @@ class RDFResource {
     return this.graph.store.any(this.node, p.inversePathNode, null);
   }
   getPropBooleanValue(p, dflt = false) {
-    if (this.node instanceof rdf__namespace.Collection)
+    if (this.node instanceof rdf2.Collection)
       return dflt;
     const lit = this.graph.store.any(this.node, p, null);
     if (!lit)
@@ -785,11 +783,11 @@ class RDFResource {
     }
     return dflt;
   }
-}
-class RDFResourceWithLabel extends RDFResource {
+};
+var RDFResourceWithLabel = class extends RDFResource {
   node;
-  constructor(node, graph, labelProp) {
-    super(node, graph);
+  constructor(node, graph3, labelProp) {
+    super(node, graph3);
     this.node = node;
   }
   get prefLabels() {
@@ -808,14 +806,14 @@ class RDFResourceWithLabel extends RDFResource {
     }
     return null;
   }
-}
-__decorateClass$1([
-  typescriptMemoize.Memoize()
+};
+__decorateClass([
+  (0, import_typescript_memoize.Memoize)()
 ], RDFResourceWithLabel.prototype, "prefLabels", 1);
-__decorateClass$1([
-  typescriptMemoize.Memoize()
+__decorateClass([
+  (0, import_typescript_memoize.Memoize)()
 ], RDFResourceWithLabel.prototype, "description", 1);
-class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
+var ExtRDFResourceWithLabel = class extends RDFResourceWithLabel {
   _prefLabels;
   _description;
   _otherData;
@@ -829,7 +827,7 @@ class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
     return this._otherData;
   }
   constructor(uri, prefLabels, data = {}, description = null) {
-    super(new rdf__namespace.NamedNode(uri), new EntityGraph(new rdf__namespace.Store(), uri));
+    super(new rdf2.NamedNode(uri), new EntityGraph(new rdf2.Store(), uri));
     this._prefLabels = prefLabels;
     this._description = description;
     this._otherData = data;
@@ -837,15 +835,15 @@ class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
   addOtherData(key, value) {
     return new ExtRDFResourceWithLabel(this.uri, this._prefLabels, { ...this._otherData, [key]: value });
   }
-}
-class LiteralWithId extends rdf__namespace.Literal {
+};
+var LiteralWithId = class extends rdf2.Literal {
   id;
   constructor(value, language, datatype, id) {
     super(value, language, datatype);
     if (id) {
       this.id = id;
     } else {
-      this.id = nanoid.nanoid();
+      this.id = (0, import_nanoid.nanoid)();
     }
   }
   copy() {
@@ -857,11 +855,11 @@ class LiteralWithId extends rdf__namespace.Literal {
   copyWithUpdatedLanguage(language) {
     return new LiteralWithId(this.value, language, this.datatype, this.id);
   }
-}
-class Subject extends RDFResource {
+};
+var Subject = class extends RDFResource {
   node;
-  constructor(node, graph) {
-    super(node, graph);
+  constructor(node, graph3) {
+    super(node, graph3);
     this.node = node;
   }
   getUnitializedValues(property) {
@@ -883,31 +881,23 @@ class Subject extends RDFResource {
     this.graph.getValues().noHisto = false;
   }
   static createEmpty() {
-    return new Subject(new rdf__namespace.NamedNode("tmp:uri"), new EntityGraph(new rdf__namespace.Store(), "tmp:uri"));
+    return new Subject(new rdf2.NamedNode("tmp:uri"), new EntityGraph(new rdf2.Store(), "tmp:uri"));
   }
   isEmpty() {
     return this.node.uri == "tmp:uri";
   }
-}
-const noneSelected = new ExtRDFResourceWithLabel("tmp:none", { en: "\u2013" }, {}, { en: "none provided" });
-new LiteralWithId("");
-const sameLanguage = (lang1, lang2) => {
+};
+var noneSelected = new ExtRDFResourceWithLabel("tmp:none", { en: "\u2013" }, {}, { en: "none provided" });
+var emptyLiteral = new LiteralWithId("");
+var sameLanguage = (lang1, lang2) => {
   return lang1 == lang2;
 };
 
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp(target, key, result);
-  return result;
-};
-const debug$9 = require("debug")("rde:rdf:shapes");
-const sortByPropValue = (nodelist, property, store) => {
+// src/helpers/rdf/shapes.ts
+var import_typescript_memoize2 = require("typescript-memoize");
+var import_nanoid2 = require("nanoid");
+var debug3 = require("debug")("rde:rdf:shapes");
+var sortByPropValue = (nodelist, property, store) => {
   const nodeUriToPropValue = {};
   for (const node of nodelist) {
     const ordern = store.any(node, property, null);
@@ -920,9 +910,9 @@ const sortByPropValue = (nodelist, property, store) => {
     return nodeUriToPropValue[a.uri] - nodeUriToPropValue[b.uri];
   });
 };
-const _PropertyShape = class extends RDFResourceWithLabel {
-  constructor(node, graph) {
-    super(node, graph, rdfsLabel);
+var _PropertyShape = class extends RDFResourceWithLabel {
+  constructor(node, graph3) {
+    super(node, graph3, rdfsLabel);
   }
   get prefLabels() {
     let res = {};
@@ -1041,13 +1031,13 @@ const _PropertyShape = class extends RDFResourceWithLabel {
   get specialPattern() {
     return this.getPropResValue(rdeSpecialPattern);
   }
-  static resourcizeWithInit(nodes, graph) {
+  static resourcizeWithInit(nodes, graph3) {
     const res = [];
     for (const node of nodes)
-      if (node instanceof rdf__namespace.NamedNode) {
-        const r = new RDFResourceWithLabel(node, graph);
-        r.description;
-        r.prefLabels;
+      if (node instanceof rdf3.NamedNode) {
+        const r = new RDFResourceWithLabel(node, graph3);
+        let justforinit = r.description;
+        justforinit = r.prefLabels;
         res.push(r);
       }
     return res;
@@ -1113,26 +1103,26 @@ const _PropertyShape = class extends RDFResourceWithLabel {
     if (!propertyShapeType) {
       const editor = this.getPropResValue(dashEditor);
       if (!editor)
-        return ObjectType.Literal;
+        return 0 /* Literal */;
       if (editor.value == dashEnumSelectEditor.value) {
         if (this.datatype)
-          return ObjectType.LitInList;
-        return ObjectType.ResInList;
+          return 5 /* LitInList */;
+        return 2 /* ResInList */;
       }
-      return ObjectType.Literal;
+      return 0 /* Literal */;
     }
     if (propertyShapeType.value == rdeInternalShape.value)
-      return ObjectType.Internal;
+      return 1 /* Internal */;
     else if (propertyShapeType.value == rdeExternalShape.value)
-      return ObjectType.ResExt;
+      return 3 /* ResExt */;
     else if (propertyShapeType.value == rdeIgnoreShape.value)
-      return ObjectType.ResIgnore;
+      return 4 /* ResIgnore */;
     throw "can't handle property shape type " + propertyShapeType.value + " for property shape " + this.qname;
   }
   get targetShape() {
     const path = this.path;
     if (!path) {
-      debug$9("can't find path for " + this.uri);
+      debug3("can't find path for " + this.uri);
       return null;
     }
     let val;
@@ -1151,109 +1141,109 @@ const _PropertyShape = class extends RDFResourceWithLabel {
     return null;
   }
 };
-let PropertyShape = _PropertyShape;
+var PropertyShape = _PropertyShape;
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "prefLabels", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "helpMessage", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "errorMessage", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "defaultValue", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "singleLine", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "connectIDs", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "displayPriority", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "minCount", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "maxCount", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "minInclusive", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "maxInclusive", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "minExclusive", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "maxExclusive", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "allowMarkDown", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "allowBatchManagement", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "uniqueValueAmongSiblings", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "uniqueLang", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "readOnly", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "defaultLanguage", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "editorLname", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "group", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "copyObjectsOfProperty", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "datatype", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "pattern", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "sortOnProperty", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "allowPushToTopLevelLabel", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "specialPattern", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "hasListAsObject", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "in", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "expectedObjectTypes", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "path", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "objectType", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyShape.prototype, "targetShape", 1);
-class PropertyGroup extends RDFResourceWithLabel {
-  constructor(node, graph) {
-    super(node, graph, rdfsLabel);
+var PropertyGroup = class extends RDFResourceWithLabel {
+  constructor(node, graph3) {
+    super(node, graph3, rdfsLabel);
   }
   get properties() {
     const res = [];
@@ -1267,16 +1257,16 @@ class PropertyGroup extends RDFResourceWithLabel {
   get prefLabels() {
     return this.getPropValueByLang(rdfsLabel);
   }
-}
+};
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyGroup.prototype, "properties", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], PropertyGroup.prototype, "prefLabels", 1);
-class NodeShape extends RDFResourceWithLabel {
-  constructor(node, graph) {
-    super(node, graph, rdfsLabel);
+var NodeShape = class extends RDFResourceWithLabel {
+  constructor(node, graph3) {
+    super(node, graph3, rdfsLabel);
   }
   get targetClassPrefLabels() {
     const targetClass = this.graph.store.any(this.node, shTargetClass, null);
@@ -1313,21 +1303,21 @@ class NodeShape extends RDFResourceWithLabel {
     }
     return res;
   }
-}
+};
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], NodeShape.prototype, "targetClassPrefLabels", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], NodeShape.prototype, "properties", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], NodeShape.prototype, "independentIdentifiers", 1);
 __decorateClass([
-  typescriptMemoize.Memoize()
+  (0, import_typescript_memoize2.Memoize)()
 ], NodeShape.prototype, "groups", 1);
-const nanoidCustom = nanoid.customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
-const generateSubnode = async (subshape, parent) => {
+var nanoidCustom = (0, import_nanoid2.customAlphabet)("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
+var generateSubnode = async (subshape, parent) => {
   const prefix = subshape.getPropStringValue(rdeIdentifierPrefix);
   if (prefix == null)
     throw "cannot find entity prefix for " + subshape.qname;
@@ -1338,115 +1328,110 @@ const generateSubnode = async (subshape, parent) => {
   while (parent.graph.hasSubject(uri)) {
     uri = namespace + prefix + nanoidCustom();
   }
-  const res = new Subject(new rdf__namespace.NamedNode(uri), parent.graph);
+  const res = new Subject(new rdf3.NamedNode(uri), parent.graph);
   return Promise.resolve(res);
 };
 
-var shapes = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  sortByPropValue: sortByPropValue,
-  PropertyShape: PropertyShape,
-  PropertyGroup: PropertyGroup,
-  NodeShape: NodeShape,
-  generateSubnode: generateSubnode
-});
+// src/containers/EntityEditContainer.tsx
+var import_react5 = __toESM(require("react"));
 
-require("debug")("rde:common");
-var EditedEntityState = /* @__PURE__ */ ((EditedEntityState2) => {
-  EditedEntityState2[EditedEntityState2["Error"] = 0] = "Error";
-  EditedEntityState2[EditedEntityState2["Saved"] = 1] = "Saved";
-  EditedEntityState2[EditedEntityState2["NeedsSaving"] = 2] = "NeedsSaving";
-  EditedEntityState2[EditedEntityState2["Loading"] = 3] = "Loading";
-  EditedEntityState2[EditedEntityState2["NotLoaded"] = 4] = "NotLoaded";
-  return EditedEntityState2;
-})(EditedEntityState || {});
-const entitiesAtom = recoil.atom({
+// src/helpers/rdf/io.ts
+var rdf4 = __toESM(require("rdflib"));
+var import_i18next = __toESM(require("i18next"));
+var import_react = require("react");
+var import_recoil3 = require("recoil");
+
+// src/atoms/common.ts
+var import_recoil2 = require("recoil");
+var import_lodash = __toESM(require("lodash"));
+var debug4 = require("debug")("rde:common");
+var entitiesAtom = (0, import_recoil2.atom)({
   key: "entities",
   default: []
 });
-const defaultEntityLabelAtom = recoil.atom({
+var defaultEntityLabelAtom = (0, import_recoil2.atom)({
   key: "defaultEntityLabelAtom",
   default: [new LiteralWithId("...", "en")]
 });
-const uiLangState = recoil.atom({
+var uiLangState = (0, import_recoil2.atom)({
   key: "uiLangState",
   default: ["en"]
 });
-const uiLitLangState = recoil.atom({
+var uiLitLangState = (0, import_recoil2.atom)({
   key: "uiLitLangState",
   default: ["en"]
 });
-const uiReadyState = recoil.atom({
+var uiReadyState = (0, import_recoil2.atom)({
   key: "uiReadyState",
   default: false
 });
-const uiTabState = recoil.atom({
+var uiTabState = (0, import_recoil2.atom)({
   key: "uiTabState",
   default: -1
 });
-recoil.atom({
+var uiRIDState = (0, import_recoil2.atom)({
   key: "uiRIDState",
   default: []
 });
-const uiEditState = recoil.atom({
+var uiEditState = (0, import_recoil2.atom)({
   key: "uiEditState",
   default: ""
 });
-const uiGroupState = recoil.atom({
+var uiGroupState = (0, import_recoil2.atom)({
   key: "uiGroupState",
   default: ""
 });
-recoil.atom({
+var uiHistoryState = (0, import_recoil2.atom)({
   key: "uiHistoryState",
   default: {}
 });
-const noUndo = { enabled: false, subjectUri: "", propertyPath: "", parentPath: [] };
-const noUndoRedo = { prev: noUndo, next: noUndo };
-const uiUndosState = recoil.atom({
+var noUndo = { enabled: false, subjectUri: "", propertyPath: "", parentPath: [] };
+var noUndoRedo = { prev: noUndo, next: noUndo };
+var uiUndosState = (0, import_recoil2.atom)({
   key: "uiUndosState",
   default: {}
 });
-recoil.atom({
+var uiNavState = (0, import_recoil2.atom)({
   key: "uiNavState",
   default: ""
 });
-const sessionLoadedState = recoil.atom({
+var sessionLoadedState = (0, import_recoil2.atom)({
   key: "sessionLoadedState",
   default: false
 });
-const profileIdState = recoil.atom({
+var profileIdState = (0, import_recoil2.atom)({
   key: "profileIdState",
   default: ""
 });
-const uiDisabledTabsState = recoil.atom({
+var uiDisabledTabsState = (0, import_recoil2.atom)({
   key: "uiDisabledTabsState",
   default: false
 });
-const userIdState = recoil.atom({
+var userIdState = (0, import_recoil2.atom)({
   key: "userIdState",
   default: ""
 });
-recoil.atom({
+var reloadProfileState = (0, import_recoil2.atom)({
   key: "reloadProfileState",
   default: true
 });
-const reloadEntityState = recoil.atom({
+var reloadEntityState = (0, import_recoil2.atom)({
   key: "reloadEntityState",
   default: ""
 });
-const RIDprefixState = recoil.atom({
+var RIDprefixState = (0, import_recoil2.atom)({
   key: "RIDprefixState",
   default: null
 });
-const orderedByPropSelector = recoil.selectorFamily({
+var orderedByPropSelector = (0, import_recoil2.selectorFamily)({
   key: "orderedByPropSelector",
   get: (args) => ({ get }) => {
-    let { atom: atom2, propertyPath, order } = args;
+    let { atom: atom3, propertyPath, order } = args;
     if (propertyPath) {
       if (!order)
         order = "asc";
-      const unorderedList = get(atom2);
-      const orderedList = _.orderBy(
+      const unorderedList = get(atom3);
+      const orderedList = import_lodash.default.orderBy(
         unorderedList.map((w) => {
           if (w instanceof Subject) {
             const s = w;
@@ -1470,12 +1455,12 @@ const orderedByPropSelector = recoil.selectorFamily({
     return [];
   }
 });
-recoil.selectorFamily({
+var personNamesLabelsSelector = (0, import_recoil2.selectorFamily)({
   key: "personNamesLabelsSelector",
   get: (args) => ({ get }) => {
-    const { atom: atom2 } = args;
-    if (atom2) {
-      const names = get(atom2);
+    const { atom: atom3 } = args;
+    if (atom3) {
+      const names = get(atom3);
       const namesLabelsAtoms = names.map((n) => n.getAtomForProperty(rdfsLabel.uri));
       const namesLabels = namesLabelsAtoms.reduce(
         (acc, nl) => [...acc, ...get(nl)],
@@ -1486,19 +1471,19 @@ recoil.selectorFamily({
     return [];
   }
 });
-const initListAtom = recoil.atom({ key: "initListAtom", default: [] });
-const initStringAtom = recoil.atom({ key: "initStringAtom", default: "" });
-const initMapAtom = recoil.atom({ key: "initMapAtom", default: {} });
-recoil.atom({
+var initListAtom = (0, import_recoil2.atom)({ key: "initListAtom", default: [] });
+var initStringAtom = (0, import_recoil2.atom)({ key: "initStringAtom", default: "" });
+var initMapAtom = (0, import_recoil2.atom)({ key: "initMapAtom", default: {} });
+var initkvAtom = (0, import_recoil2.atom)({
   key: "initkvAtom",
   default: {}
 });
-const possiblePrefLabelsSelector = recoil.selectorFamily({
+var possiblePrefLabelsSelector = (0, import_recoil2.selectorFamily)({
   key: "possiblePrefLabelsSelector",
   get: (args) => ({ get }) => {
     const res = {};
     for (const g of Object.keys(args.canPushPrefLabelGroups)) {
-      const labels = [];
+      const labels = [], atoms = [];
       const canPushPrefLabelGroup = args.canPushPrefLabelGroups[g];
       if (canPushPrefLabelGroup.subprops) {
         Object.keys(canPushPrefLabelGroup.subprops).map((k) => {
@@ -1526,7 +1511,7 @@ const possiblePrefLabelsSelector = recoil.selectorFamily({
     return res;
   }
 });
-const orderedNewValSelector = recoil.selectorFamily({
+var orderedNewValSelector = (0, import_recoil2.selectorFamily)({
   key: "orderedNewValSelector",
   get: (args) => ({ get }) => {
     let newVal = -1;
@@ -1551,28 +1536,30 @@ const orderedNewValSelector = recoil.selectorFamily({
     return newVal.toString();
   }
 });
-const toCopySelector = recoil.selectorFamily({
+var toCopySelector = (0, import_recoil2.selectorFamily)({
   key: "toCopySelector",
   get: (args) => ({ get }) => {
+    var _a;
     const res = [];
-    args.list?.map(({ property, atom: atom2 }) => {
-      const val = get(atom2);
+    (_a = args.list) == null ? void 0 : _a.map(({ property, atom: atom3 }) => {
+      const val = get(atom3);
       res.push({ k: property, val });
     });
     return res;
   },
   set: (args) => ({ get, set }, [{ k, val }]) => {
-    args.list?.map(({ property, atom: atom2 }) => {
+    var _a;
+    (_a = args.list) == null ? void 0 : _a.map(({ property, atom: atom3 }) => {
       if (k == property)
-        set(atom2, [...get(atom2).filter((lit) => lit.value), ...val]);
+        set(atom3, [...get(atom3).filter((lit) => lit.value), ...val]);
     });
   }
 });
-recoil.atom({
+var savePopupState = (0, import_recoil2.atom)({
   key: "savePopupState",
   default: false
 });
-const ESfromRecoilSelector = recoil.selectorFamily({
+var ESfromRecoilSelector = (0, import_recoil2.selectorFamily)({
   key: "ESfromRecoilSelector",
   get: ({}) => ({ get }) => {
     return true;
@@ -1617,7 +1604,7 @@ const ESfromRecoilSelector = recoil.selectorFamily({
     }
   }
 });
-const isUniqueTestSelector = recoil.selectorFamily({
+var isUniqueTestSelector = (0, import_recoil2.selectorFamily)({
   key: "isUniqueTestSelector",
   get: (args) => ({ get }) => {
     if (!args.checkUnique)
@@ -1636,14 +1623,15 @@ const isUniqueTestSelector = recoil.selectorFamily({
   }
 });
 
-const debug$8 = require("debug")("rde:rdf:io");
-const defaultFetchTtlHeaders = new Headers();
+// src/helpers/rdf/io.ts
+var debug5 = require("debug")("rde:rdf:io");
+var defaultFetchTtlHeaders = new Headers();
 defaultFetchTtlHeaders.set("Accept", "text/turtle");
-const fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, allowEmptyEtag = true) => {
+var fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, allowEmptyEtag = true) => {
   return new Promise(async (resolve, reject) => {
     const response = await fetch(url, { headers });
     if (allow404 && response.status == 404) {
-      resolve({ store: rdf__namespace.graph(), etag: null });
+      resolve({ store: rdf4.graph(), etag: null });
       return;
     }
     if (response.status != 200) {
@@ -1656,9 +1644,9 @@ const fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders,
       return;
     }
     const body = await response.text();
-    const store = rdf__namespace.graph();
+    const store = rdf4.graph();
     try {
-      rdf__namespace.parse(body, store, rdf__namespace.Store.defaultGraphURI, "text/turtle");
+      rdf4.parse(body, store, rdf4.Store.defaultGraphURI, "text/turtle");
     } catch {
       reject(new Error("cannot parse result of " + url + " in ttl"));
       return;
@@ -1666,15 +1654,15 @@ const fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders,
     resolve({ store, etag });
   });
 };
-const defaultPutTtlHeaders = new Headers();
+var defaultPutTtlHeaders = new Headers();
 defaultPutTtlHeaders.set("Content-Type", "text/turtle");
-const shapesMap = {};
+var shapesMap = {};
 function ShapeFetcher(shapeQname, entityQname, config) {
-  const [loadingState, setLoadingState] = React.useState({ status: "idle", error: void 0 });
-  const [shape, setShape] = React.useState();
-  const [current, setCurrent] = React.useState(shapeQname);
-  const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
-  React.useEffect(() => {
+  const [loadingState, setLoadingState] = (0, import_react.useState)({ status: "idle", error: void 0 });
+  const [shape, setShape] = (0, import_react.useState)();
+  const [current, setCurrent] = (0, import_react.useState)(shapeQname);
+  const [entities, setEntities] = (0, import_recoil3.useRecoilState)(entitiesAtom);
+  (0, import_react.useEffect)(() => {
     if (current != shapeQname) {
       reset();
     }
@@ -1684,7 +1672,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
     setShape(void 0);
     setLoadingState({ status: "idle", error: void 0 });
   };
-  React.useEffect(() => {
+  (0, import_react.useEffect)(() => {
     if (shape && shapeQname === current && loadingState.status === "fetched") {
       return;
     }
@@ -1695,7 +1683,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
     }
     async function fetchResource(shapeQname2) {
       setLoadingState({ status: "fetching", error: void 0 });
-      const shapeNode = rdf__namespace.sym(config.prefixMap.uriFromQname(shapeQname2));
+      const shapeNode = rdf4.sym(config.prefixMap.uriFromQname(shapeQname2));
       const loadShape = config.getShapesDocument(shapeNode);
       try {
         const shape2 = await loadShape;
@@ -1714,7 +1702,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
         }
         setLoadingState({ status: "fetched", error: void 0 });
       } catch (e) {
-        debug$8("shape error:", e);
+        debug5("shape error:", e);
         setLoadingState({ status: "error", error: "error fetching shape or ontology" });
       }
     }
@@ -1725,22 +1713,22 @@ function ShapeFetcher(shapeQname, entityQname, config) {
   return retVal;
 }
 function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: false }) {
-  const [entityLoadingState, setEntityLoadingState] = React.useState({ status: "idle", error: void 0 });
-  const [entity, setEntity] = React.useState(Subject.createEmpty());
-  const [uiReady, setUiReady] = recoil.useRecoilState(uiReadyState);
-  const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
-  const [sessionLoaded, setSessionLoaded] = recoil.useRecoilState(sessionLoadedState);
-  const [idToken, setIdToken] = React.useState(localStorage.getItem("BLMPidToken"));
-  const [profileId, setProfileId] = recoil.useRecoilState(profileIdState);
-  const [current, setCurrent] = React.useState(entityQname);
-  const [reloadEntity, setReloadEntity] = recoil.useRecoilState(reloadEntityState);
-  const [disabled, setDisabled] = recoil.useRecoilState(uiDisabledTabsState);
-  React.useEffect(() => {
+  const [entityLoadingState, setEntityLoadingState] = (0, import_react.useState)({ status: "idle", error: void 0 });
+  const [entity, setEntity] = (0, import_react.useState)(Subject.createEmpty());
+  const [uiReady, setUiReady] = (0, import_recoil3.useRecoilState)(uiReadyState);
+  const [entities, setEntities] = (0, import_recoil3.useRecoilState)(entitiesAtom);
+  const [sessionLoaded, setSessionLoaded] = (0, import_recoil3.useRecoilState)(sessionLoadedState);
+  const [idToken, setIdToken] = (0, import_react.useState)(localStorage.getItem("BLMPidToken"));
+  const [profileId, setProfileId] = (0, import_recoil3.useRecoilState)(profileIdState);
+  const [current, setCurrent] = (0, import_react.useState)(entityQname);
+  const [reloadEntity, setReloadEntity] = (0, import_recoil3.useRecoilState)(reloadEntityState);
+  const [disabled, setDisabled] = (0, import_recoil3.useRecoilState)(uiDisabledTabsState);
+  (0, import_react.useEffect)(() => {
     return () => {
       unmounting.val = true;
     };
   }, []);
-  React.useEffect(() => {
+  (0, import_react.useEffect)(() => {
     if (unmounting.val)
       return;
     if (current != entityQname) {
@@ -1752,44 +1740,47 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     setEntity(Subject.createEmpty());
     setEntityLoadingState({ status: "idle", error: void 0 });
   };
-  React.useEffect(() => {
+  (0, import_react.useEffect)(() => {
     if (unmounting.val)
       return;
     async function fetchResource(entityQname2) {
       setEntityLoadingState({ status: "fetching", error: void 0 });
-      debug$8("fetching", entity, shapeQname, entityQname2, entities);
-      let loadRes, useLocal, notFound, etag, res, needsSaving;
+      debug5("fetching", entity, shapeQname, entityQname2, entities);
+      let loadRes, loadLabels, localRes, useLocal, notFound, etag, res, needsSaving;
       const localEntities = await config.getUserLocalEntities();
       if (reloadEntity !== entityQname2 && shapeQname && localEntities[entityQname2] !== void 0) {
         useLocal = window.confirm("found previous local edits for this resource, load them?");
-        const store = rdf__namespace.graph();
+        const store = rdf4.graph();
         if (useLocal) {
           try {
-            rdf__namespace.parse(localEntities[entityQname2].ttl, store, rdf__namespace.Store.defaultGraphURI, "text/turtle");
+            rdf4.parse(localEntities[entityQname2].ttl, store, rdf4.Store.defaultGraphURI, "text/turtle");
             etag = localEntities[entityQname2].etag;
             needsSaving = localEntities[entityQname2].needsSaving;
-            debug$8("nS:", needsSaving);
+            debug5("nS:", needsSaving);
           } catch (e) {
-            debug$8(e);
-            debug$8(localEntities[entityQname2]);
+            debug5(e);
+            debug5(localEntities[entityQname2]);
             window.alert("could not load local data, fetching remote version");
             useLocal = false;
             delete localEntities[entityQname2];
           }
         } else {
-          rdf__namespace.parse("", store, rdf__namespace.Store.defaultGraphURI, "text/turtle");
+          rdf4.parse("", store, rdf4.Store.defaultGraphURI, "text/turtle");
         }
         res = { store, etag };
       }
       const entityUri = config.prefixMap.uriFromQname(entityQname2);
-      const entityNode = rdf__namespace.sym(entityUri);
+      const entityNode = rdf4.sym(entityUri);
       try {
         if (!useLocal) {
           res = await config.getDocument(entityNode);
           needsSaving = false;
         }
       } catch (e) {
-        notFound = true;
+        if (localRes)
+          res = { store: localRes, etag };
+        else
+          notFound = true;
       }
       let _entities = entities;
       if (!sessionLoaded) {
@@ -1802,7 +1793,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
               subject: null,
               shapeQname: obj[k].shapeQname,
               subjectLabelState: defaultEntityLabelAtom,
-              state: EditedEntityState.NotLoaded,
+              state: 4 /* NotLoaded */,
               preloadedLabel: obj[k].preloadedLabel,
               etag: obj[k].etag,
               loadedUnsavedFromLocalStorage: true
@@ -1824,7 +1815,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
         if (index2 === -1) {
           newEntities.push({
             subjectQname: actualQname,
-            state: EditedEntityState.Loading,
+            state: 3 /* Loading */,
             shapeQname,
             subject: null,
             subjectLabelState: defaultEntityLabelAtom,
@@ -1837,7 +1828,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
           newEntities[index2] = {
             ...newEntities[index2],
             subject,
-            state: EditedEntityState.Saved,
+            state: 1 /* Saved */,
             subjectLabelState: subject.getAtomForProperty(prefLabel.uri),
             preloadedLabel: "",
             etag,
@@ -1851,7 +1842,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
         if (reloadEntity)
           setReloadEntity("");
       } catch (e) {
-        debug$8("e:", e.message, e);
+        debug5("e:", e.message, e);
         setDisabled(false);
         setEntityLoadingState({
           status: "error",
@@ -1890,15 +1881,53 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   return retVal;
 }
 
-const MDIcon = (props) => /* @__PURE__ */ jsxRuntime.jsx(reactImage.Img, {
+// src/containers/EntityEditContainer.tsx
+var import_BrokenImage = __toESM(require("@mui/icons-material/BrokenImage"));
+var import_i18next4 = __toESM(require("i18next"));
+
+// src/containers/PropertyGroupContainer.tsx
+var import_react4 = require("react");
+
+// src/containers/ValueList.tsx
+var import_react3 = __toESM(require("react"));
+var rdf5 = __toESM(require("rdflib"));
+var import_recoil4 = require("recoil");
+var import_styles = require("@mui/styles");
+var import_material = require("@mui/material");
+
+// src/routes/layout/icons.jsx
+var import_react2 = __toESM(require("react"));
+var import_react_image = require("react-image");
+var import_RemoveCircleOutline = __toESM(require("@mui/icons-material/RemoveCircleOutline"));
+var import_AddCircleOutline = __toESM(require("@mui/icons-material/AddCircleOutline"));
+var import_Error = __toESM(require("@mui/icons-material/Error"));
+var import_Close = __toESM(require("@mui/icons-material/Close"));
+var import_FindReplace = __toESM(require("@mui/icons-material/FindReplace"));
+var import_Search = __toESM(require("@mui/icons-material/Search"));
+var import_Launch = __toESM(require("@mui/icons-material/Launch"));
+var import_Info = __toESM(require("@mui/icons-material/Info"));
+var import_InfoOutlined = __toESM(require("@mui/icons-material/InfoOutlined"));
+var import_Settings = __toESM(require("@mui/icons-material/Settings"));
+var import_Visibility = __toESM(require("@mui/icons-material/Visibility"));
+var import_VisibilityOff = __toESM(require("@mui/icons-material/VisibilityOff"));
+var import_Edit = __toESM(require("@mui/icons-material/Edit"));
+var import_Keyboard = __toESM(require("@mui/icons-material/Keyboard"));
+var import_Help = __toESM(require("@mui/icons-material/Help"));
+var import_AssignmentReturned = __toESM(require("@mui/icons-material/AssignmentReturned"));
+var import_jsx_runtime = require("react/jsx-runtime");
+var MDIcon = (props) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_image.Img, {
   src: "/icons/Markdown-mark.svg",
   ...props
 });
-const AddIcon = AddCircleOutlineIcon;
-const RemoveIcon = RemoveCircleOutlineIcon;
+var AddIcon = import_AddCircleOutline.default;
+var RemoveIcon = import_RemoveCircleOutline.default;
 
-const debug$7 = require("debug")("rde:rdf:lang");
-const ValueByLangToStrPrefLang = (vbl, prefLang) => {
+// src/containers/ValueList.tsx
+var import_i18next2 = __toESM(require("i18next"));
+
+// src/helpers/lang.ts
+var debug6 = require("debug")("rde:rdf:lang");
+var ValueByLangToStrPrefLang = (vbl, prefLang) => {
   if (vbl == null)
     return "";
   if (!Array.isArray(prefLang))
@@ -1912,13 +1941,13 @@ const ValueByLangToStrPrefLang = (vbl, prefLang) => {
     return vals[0];
   return "";
 };
-const cache = {};
-const langsWithDefault = (defaultLanguage, langs) => {
+var cache = {};
+var langsWithDefault = (defaultLanguage, langs) => {
   if (defaultLanguage in cache)
     return cache[defaultLanguage];
   let res = langs.filter((l) => l.value === defaultLanguage);
-  if (!res?.length) {
-    debug$7("can't find defaultLanguage ", defaultLanguage, " in languages");
+  if (!(res == null ? void 0 : res.length)) {
+    debug6("can't find defaultLanguage ", defaultLanguage, " in languages");
     return langs;
   }
   res = res.concat(langs.filter((l) => l.value !== defaultLanguage));
@@ -1926,15 +1955,18 @@ const langsWithDefault = (defaultLanguage, langs) => {
   return res;
 };
 
-const debug$6 = require("debug")("rde:entity:container:ValueList");
-function replaceItemAtIndex$1(arr, index, newValue) {
+// src/containers/ValueList.tsx
+var import_react_md_editor = __toESM(require("@uiw/react-md-editor"));
+var import_jsx_runtime2 = require("react/jsx-runtime");
+var debug7 = require("debug")("rde:entity:container:ValueList");
+function replaceItemAtIndex(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
 function removeItemAtIndex(arr, index) {
   return [...arr.slice(0, index), ...arr.slice(index + 1)];
 }
-const PropertyContainer = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
-  const [css, setCss] = React.useState("");
+var PropertyContainer = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
+  const [css, setCss] = (0, import_react3.useState)("");
   const setCssClass = (txt, add = true) => {
     if (add) {
       if (!css.includes(txt))
@@ -1944,16 +1976,16 @@ const PropertyContainer = ({ property, subject, embedded, force, editable, owner
         setCss(css.replace(new RegExp(txt), ""));
     }
   };
-  return /* @__PURE__ */ jsxRuntime.jsx(React.Fragment, {
-    children: /* @__PURE__ */ jsxRuntime.jsx("div", {
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react3.default.Fragment, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
       role: "main",
       ...css ? { className: css } : {},
-      children: /* @__PURE__ */ jsxRuntime.jsx("section", {
+      children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("section", {
         className: "album",
-        children: /* @__PURE__ */ jsxRuntime.jsx("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
           className: "container" + (embedded ? " px-0" : "") + " editable-" + editable,
           style: { border: "dashed 1px none" },
-          children: /* @__PURE__ */ jsxRuntime.jsx(ValueList, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ValueList, {
             subject,
             property,
             embedded,
@@ -1971,25 +2003,25 @@ const PropertyContainer = ({ property, subject, embedded, force, editable, owner
     })
   });
 };
-const MinimalAddButton = ({ add, className, disable }) => {
-  return /* @__PURE__ */ jsxRuntime.jsx("div", {
+var MinimalAddButton = ({ add, className, disable }) => {
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
     className: "minimalAdd disable_" + disable + (className !== void 0 ? className : " text-right"),
-    children: /* @__PURE__ */ jsxRuntime.jsx("button", {
+    children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", {
       className: "btn btn-link ml-2 px-0",
       onClick: (ev) => add(ev, 1),
       ...disable ? { disabled: true } : {},
-      children: /* @__PURE__ */ jsxRuntime.jsx(AddIcon, {})
+      children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(AddIcon, {})
     })
   });
 };
-const BlockAddButton = ({ add, label, count = 1 }) => {
-  const [n, setN] = React.useState(1);
-  const [disable, setDisable] = React.useState(false);
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", {
+var BlockAddButton = ({ add, label, count = 1 }) => {
+  const [n, setN] = (0, import_react3.useState)(1);
+  const [disable, setDisable] = (0, import_react3.useState)(false);
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
     className: "blockAdd text-center pb-1 mt-3",
     style: { width: "100%", ...count > 1 ? { display: "flex" } : {} },
     children: [
-      /* @__PURE__ */ jsxRuntime.jsx("button", {
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", {
         className: "btn btn-sm btn-block btn-outline-primary px-0",
         style: {
           boxShadow: "none",
@@ -1997,17 +2029,17 @@ const BlockAddButton = ({ add, label, count = 1 }) => {
           ...disable ? { opacity: 0.5, pointerEvents: "none" } : {}
         },
         onClick: (e) => add(e, n),
-        children: /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, {
+        children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, {
           children: [
-            i18n.t("general.add_another", { val: label, count }),
+            import_i18next2.default.t("general.add_another", { val: label, count }),
             "\xA0",
-            /* @__PURE__ */ jsxRuntime.jsx(AddIcon, {})
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(AddIcon, {})
           ]
         })
       }),
-      count > 1 && /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
-        label: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-          children: i18n.t("general.add_nb", { val: label })
+      count > 1 && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.TextField, {
+        label: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {
+          children: import_i18next2.default.t("general.add_nb", { val: label })
         }),
         style: { width: 200 },
         value: n,
@@ -2020,15 +2052,18 @@ const BlockAddButton = ({ add, label, count = 1 }) => {
     ]
   });
 };
-const generateDefault = async (property, parent, RIDprefix, idToken, val = "", config) => {
+var generateDefault = async (property, parent, RIDprefix, idToken, val = "", config) => {
+  var _a, _b;
   switch (property.objectType) {
-    case ObjectType.ResExt:
+    case 3 /* ResExt */:
       return new ExtRDFResourceWithLabel("tmp:uri", {}, {}, config);
-    case ObjectType.Internal:
+      break;
+    case 1 /* Internal */:
       if (property.targetShape == null)
         throw "no target shape for " + property.uri;
       return generateSubnode(property.targetShape, parent);
-    case ObjectType.ResInList:
+      break;
+    case 2 /* ResInList */:
       if (property.defaultValue)
         return new ExtRDFResourceWithLabel(property.defaultValue.value, {}, {}, config);
       if (!property.minCount)
@@ -2037,14 +2072,15 @@ const generateDefault = async (property, parent, RIDprefix, idToken, val = "", c
       if (!propIn)
         throw "can't find a list for " + property.uri;
       return propIn[0];
-    case ObjectType.LitInList:
+      break;
+    case 5 /* LitInList */:
       const defaultValueLiL = property.defaultValue;
       if (defaultValueLiL !== null)
         return new LiteralWithId(defaultValueLiL.value, defaultValueLiL.language, defaultValueLiL.datatype);
       if (!property.minCount) {
-        const datatype2 = property.datatype?.value;
+        const datatype2 = (_a = property.datatype) == null ? void 0 : _a.value;
         if (datatype2 === RDF("langString").value) {
-          return new LiteralWithId("", property?.defaultLanguage ? property.defaultLanguage : "bo-x-ewts");
+          return new LiteralWithId("", (property == null ? void 0 : property.defaultLanguage) ? property.defaultLanguage : "bo-x-ewts");
         } else {
           return new LiteralWithId("", null, property.datatype ? property.datatype : void 0);
         }
@@ -2053,33 +2089,36 @@ const generateDefault = async (property, parent, RIDprefix, idToken, val = "", c
       if (!propInLit)
         throw "can't find a list for " + property.uri;
       return propInLit[0];
-    case ObjectType.Literal:
+      break;
+    case 0 /* Literal */:
     default:
       const defaultValue = property.defaultValue;
       if (defaultValue !== null)
         return new LiteralWithId(defaultValue.value, defaultValue.language, defaultValue.datatype);
-      const datatype = property.datatype?.value;
+      const datatype = (_b = property.datatype) == null ? void 0 : _b.value;
       if (datatype === RDF("langString").value) {
-        return new LiteralWithId("", property?.defaultLanguage ? property.defaultLanguage : "bo-x-ewts");
+        return new LiteralWithId("", (property == null ? void 0 : property.defaultLanguage) ? property.defaultLanguage : "bo-x-ewts");
       } else if (datatype === XSD("integer").value) {
         return new LiteralWithId(val, null, property.datatype ? property.datatype : void 0);
       } else {
         return new LiteralWithId("", null, property.datatype ? property.datatype : void 0);
       }
+      break;
   }
 };
-const ValueList = ({ subject, property, embedded, force, editable, owner, topEntity, shape, siblingsPath, setCssClass, config }) => {
+var ValueList = ({ subject, property, embedded, force, editable, owner, topEntity, shape, siblingsPath, setCssClass, config }) => {
+  var _a, _b;
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [unsortedList, setList] = recoil.useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
-  const [uiLang] = recoil.useRecoilState(uiLangState);
-  const [idToken, setIdToken] = React.useState(localStorage.getItem("BLMPidToken"));
-  const [RIDprefix, setRIDprefix] = recoil.useRecoilState(RIDprefixState);
+  const [unsortedList, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
+  const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
+  const [idToken, setIdToken] = (0, import_react3.useState)(localStorage.getItem("BLMPidToken"));
+  const [RIDprefix, setRIDprefix] = (0, import_recoil4.useRecoilState)(RIDprefixState);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
-  const [undos, setUndos] = recoil.useRecoilState(uiUndosState);
-  const sortOnPath = property?.sortOnProperty?.value;
-  const orderedList = recoil.useRecoilValue(
+  const [undos, setUndos] = (0, import_recoil4.useRecoilState)(uiUndosState);
+  const sortOnPath = (_a = property == null ? void 0 : property.sortOnProperty) == null ? void 0 : _a.value;
+  const orderedList = (0, import_recoil4.useRecoilValue)(
     orderedByPropSelector({
       atom: subject.getAtomForProperty(property.path.sparqlString),
       propertyPath: sortOnPath || ""
@@ -2088,8 +2127,11 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
   let list = unsortedList;
   if (orderedList.length)
     list = orderedList;
-  const withOrder = shape.properties.filter((p) => p.sortOnProperty?.value === property.path?.sparqlString);
-  let newVal = recoil.useRecoilValue(
+  const withOrder = shape.properties.filter((p) => {
+    var _a2, _b2;
+    return ((_a2 = p.sortOnProperty) == null ? void 0 : _a2.value) === ((_b2 = property.path) == null ? void 0 : _b2.sparqlString);
+  });
+  let newVal = (0, import_recoil4.useRecoilValue)(
     orderedNewValSelector({
       atom: withOrder.length && withOrder[0].path ? (topEntity ? topEntity : subject).getAtomForProperty(withOrder[0].path.sparqlString) : null,
       propertyPath: property.path.sparqlString
@@ -2102,7 +2144,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     if (property.maxInclusive && newValNum > property.maxInclusive)
       newVal = property.maxInclusive.toString();
   }
-  const [getESfromRecoil, setESfromRecoil] = recoil.useRecoilState(ESfromRecoilSelector({}));
+  const [getESfromRecoil, setESfromRecoil] = (0, import_recoil4.useRecoilState)(ESfromRecoilSelector({}));
   const updateEntityState = (status, id, removingFacet = false, forceRemove = false) => {
     if (id === void 0)
       throw new Error("id undefined");
@@ -2120,13 +2162,13 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     }
     return false;
   };
-  const canAdd = !editable || alreadyHasEmptyValue() || property.readOnly && property.readOnly === true || property.displayPriority && property.displayPriority > 1 ? false : property.objectType != ObjectType.ResExt && property.maxCount ? list.length < property.maxCount : true;
+  const canAdd = !editable || alreadyHasEmptyValue() || property.readOnly && property.readOnly === true || property.displayPriority && property.displayPriority > 1 ? false : property.objectType != 3 /* ResExt */ && property.maxCount ? list.length < property.maxCount : true;
   const canDel = (!property.minCount || property.minCount < list.length) && !property.readOnly && editable;
   const onChange = (value, idx, removeFirst) => {
-    const newList = replaceItemAtIndex$1(list, idx, value);
+    const newList = replaceItemAtIndex(list, idx, value);
     setList(newList);
   };
-  const exists = React.useCallback(
+  const exists = (0, import_react3.useCallback)(
     (uri) => {
       for (const val of list) {
         if (val instanceof RDFResourceWithLabel && (val.qname === uri || val.uri === uri)) {
@@ -2138,7 +2180,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     [list]
   );
   let firstValueIsEmptyField = true;
-  React.useEffect(() => {
+  (0, import_react3.useEffect)(() => {
     if (list.length) {
       const first = list[0];
       if (first instanceof ExtRDFResourceWithLabel && first.uri !== "tmp:uri" && first.uri !== "tmp:none")
@@ -2161,7 +2203,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
       } else {
         setList(vals);
       }
-    } else if (property.objectType != ObjectType.ResInList && property.objectType != ObjectType.LitInList && property.objectType != ObjectType.Internal && (!property.displayPriority || property.displayPriority === 0 || property.displayPriority === 1 && (list.length || force)) && (property.minCount && list.length < property.minCount || !list.length || !firstValueIsEmptyField) && (!property.maxCount || property.maxCount >= list.length)) {
+    } else if (property.objectType != 2 /* ResInList */ && property.objectType != 5 /* LitInList */ && property.objectType != 1 /* Internal */ && (!property.displayPriority || property.displayPriority === 0 || property.displayPriority === 1 && (list.length || force)) && (property.minCount && list.length < property.minCount || !list.length || !firstValueIsEmptyField) && (!property.maxCount || property.maxCount >= list.length)) {
       if (!firstValueIsEmptyField) {
         const setListAsync = async () => {
           const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
@@ -2187,7 +2229,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
         };
         setListAsync();
       }
-    } else if (property.objectType == ObjectType.Internal && property.minCount && list.length < property.minCount) {
+    } else if (property.objectType == 1 /* Internal */ && property.minCount && list.length < property.minCount) {
       const setListAsync = async () => {
         const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
         if (topEntity)
@@ -2199,7 +2241,8 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
         setList((oldList) => (Array.isArray(res) ? res : [res]).concat(oldList));
       };
       setListAsync();
-    } else if (property.objectType != ObjectType.ResInList && property.objectType != ObjectType.LitInList && property.displayPriority && property.displayPriority === 1 && list.length === 1 && !force) ; else if (!list.length && (property.objectType == ObjectType.ResInList || property.objectType == ObjectType.LitInList)) {
+    } else if (property.objectType != 2 /* ResInList */ && property.objectType != 5 /* LitInList */ && property.displayPriority && property.displayPriority === 1 && list.length === 1 && !force) {
+    } else if (!list.length && (property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */)) {
       const setListAsync = async () => {
         const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
         if (topEntity)
@@ -2213,7 +2256,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
       setListAsync();
     }
   }, [subject, list, force]);
-  let addBtn = property.objectType === ObjectType.Internal;
+  let addBtn = property.objectType === 1 /* Internal */;
   const isEmptyValue = (val) => {
     if (val instanceof RDFResourceWithLabel) {
       return val.uri === "tmp:uri" || val.uri === "tmp:none";
@@ -2230,7 +2273,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     return false;
   };
   const hasNonEmptyValue = list.some((v) => !isEmptyValue(v) || isErrorValue(v));
-  React.useEffect(() => {
+  (0, import_react3.useEffect)(() => {
     if (setCssClass) {
       if (!hasNonEmptyValue)
         setCssClass("unset", true);
@@ -2239,32 +2282,33 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     }
   }, [hasNonEmptyValue]);
   const showLabel = !property.displayPriority || property.displayPriority === 0 || property.displayPriority === 1 && (force || list.length > 1 || hasNonEmptyValue) || property.displayPriority === 2 && (list.length >= 1 || hasNonEmptyValue);
-  const scrollElem = React.useRef(null);
-  const [edit, setEdit] = recoil.useRecoilState(uiEditState);
-  React.useEffect(() => {
-    if (property?.group?.value !== edit && scrollElem?.current) {
+  const scrollElem = (0, import_react3.useRef)(null);
+  const [edit, setEdit] = (0, import_recoil4.useRecoilState)(uiEditState);
+  (0, import_react3.useEffect)(() => {
+    var _a2;
+    if (((_a2 = property == null ? void 0 : property.group) == null ? void 0 : _a2.value) !== edit && (scrollElem == null ? void 0 : scrollElem.current)) {
       scrollElem.current.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     }
   }, [edit]);
-  const hasEmptyExtEntityAsFirst = list.length > 0 && list[0] instanceof RDFResourceWithLabel && property.objectType == ObjectType.ResExt && list[0].uri === "tmp:uri";
+  const hasEmptyExtEntityAsFirst = list.length > 0 && list[0] instanceof RDFResourceWithLabel && property.objectType == 3 /* ResExt */ && list[0].uri === "tmp:uri";
   const titleCase = (s) => {
     if (!s)
       return s;
     return s[0].toUpperCase() + s.substring(1);
   };
   const canPush = property.allowPushToTopLevelLabel;
-  const isUniqueValueAmongSiblings = recoil.useRecoilValue(
+  const isUniqueValueAmongSiblings = (0, import_recoil4.useRecoilValue)(
     isUniqueTestSelector({
       checkUnique: property.uniqueValueAmongSiblings,
       siblingsAtom: siblingsPath ? (owner ? owner : subject).getAtomForProperty(siblingsPath) : initListAtom,
       propertyPath: property.path.sparqlString
     })
   );
-  const renderListElem = React.useMemo(
+  const renderListElem = (0, import_react3.useMemo)(
     () => (val, i, nbvalues) => {
-      if (val instanceof RDFResourceWithLabel || property.objectType == ObjectType.ResInList || property.objectType == ObjectType.LitInList) {
-        if (property.objectType == ObjectType.ResExt)
-          return /* @__PURE__ */ jsxRuntime.jsx(ExtEntityComponent, {
+      if (val instanceof RDFResourceWithLabel || property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */) {
+        if (property.objectType == 3 /* ResExt */)
+          return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ExtEntityComponent, {
             subject,
             property,
             extRes: val,
@@ -2282,7 +2326,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
         else if (val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
           addBtn = false;
           const canSelectNone = i == 0 && !property.minCount || i > 0 && i == nbvalues - 1;
-          return /* @__PURE__ */ jsxRuntime.jsx(SelectComponent, {
+          return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(SelectComponent, {
             canSelectNone,
             subject,
             property,
@@ -2290,7 +2334,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
             selectIdx: i,
             canDel: canDel && val != noneSelected,
             editable,
-            create: canAdd ? /* @__PURE__ */ jsxRuntime.jsx(Create, {
+            create: canAdd ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Create, {
               subject,
               property,
               embedded,
@@ -2303,7 +2347,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
         }
       } else if (val instanceof Subject) {
         addBtn = true;
-        return /* @__PURE__ */ jsxRuntime.jsx(FacetComponent, {
+        return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(FacetComponent, {
           subject,
           property,
           subNode: val,
@@ -2318,12 +2362,12 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
       } else if (val instanceof LiteralWithId) {
         addBtn = false;
         const isUniqueLang = list.filter((l) => l instanceof LiteralWithId && l.language === val.language).length === 1;
-        return /* @__PURE__ */ jsxRuntime.jsx(LiteralComponent, {
+        return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(LiteralComponent, {
           subject,
           property,
           lit: val,
           ...{ canDel, isUniqueLang, isUniqueValueAmongSiblings },
-          create: /* @__PURE__ */ jsxRuntime.jsx(Create, {
+          create: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Create, {
             disable: !canAdd || !(val && val.value !== ""),
             subject,
             property,
@@ -2341,10 +2385,10 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     },
     void 0
   );
-  return /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_react3.default.Fragment, {
     children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("div", {
-        className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === ObjectType.ResExt ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
+        className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === 3 /* ResExt */ ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
         "data-priority": property.displayPriority ? property.displayPriority : 0,
         role: "main",
         style: {
@@ -2353,31 +2397,31 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
           ...list.length > 1 && firstValueIsEmptyField && property.path.sparqlString !== SKOS("prefLabel").value ? {} : {}
         },
         children: [
-          showLabel && (!property.in || property.in.length > 1) && /* @__PURE__ */ jsxRuntime.jsxs("label", {
+          showLabel && (!property.in || property.in.length > 1) && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", {
             className: "propLabel",
             "data-prop": property.qname,
             "data-type": property.objectType,
             "data-priority": property.displayPriority,
             children: [
               titleCase(propLabel),
-              helpMessage && property.objectType === ObjectType.ResExt && /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
+              helpMessage && property.objectType === 3 /* ResExt */ && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.Tooltip, {
                 title: helpMessage,
-                children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
+                children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Help.default, {
                   className: "help label"
                 })
               })
             ]
           }),
-          hasEmptyExtEntityAsFirst && /* @__PURE__ */ jsxRuntime.jsx("div", {
+          hasEmptyExtEntityAsFirst && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
             style: { width: "100%" },
             children: renderListElem(list[0], 0, list.length)
           }),
-          /* @__PURE__ */ jsxRuntime.jsx("div", {
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
             ref: scrollElem,
-            className: !embedded && property.objectType !== ObjectType.Internal ? "overFauto" : "",
+            className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
             style: {
               width: "100%",
-              ...property?.group?.value !== edit ? { paddingRight: "0.5rem" } : {}
+              ...((_b = property == null ? void 0 : property.group) == null ? void 0 : _b.value) !== edit ? { paddingRight: "0.5rem" } : {}
             },
             children: list.map((val, i) => {
               if (!hasEmptyExtEntityAsFirst || i > 0)
@@ -2386,7 +2430,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
           })
         ]
       }),
-      canAdd && addBtn && /* @__PURE__ */ jsxRuntime.jsx(Create, {
+      canAdd && addBtn && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Create, {
         subject,
         property,
         embedded,
@@ -2397,50 +2441,54 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     ]
   });
 };
-const Create = ({ subject, property, embedded, disable, newVal, shape, config }) => {
+var Create = ({ subject, property, embedded, disable, newVal, shape, config }) => {
+  var _a, _b;
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [list, setList] = recoil.useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
+  const [list, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
   let collecNode = null;
-  if (list.length === 1 && list[0] instanceof RDFResource && list[0].node && list[0].node instanceof rdf__namespace.Collection) {
+  if (list.length === 1 && list[0] instanceof RDFResource && list[0].node && list[0].node instanceof rdf5.Collection) {
     collecNode = list[0].node;
   }
-  const collec = collecNode?.termType === "Collection" ? collecNode?.elements : void 0;
+  const collec = (collecNode == null ? void 0 : collecNode.termType) === "Collection" ? collecNode == null ? void 0 : collecNode.elements : void 0;
   const listOrCollec = collec ? collec : list;
-  const [uiLang] = recoil.useRecoilState(uiLangState);
-  const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
-  const [uiTab] = recoil.useRecoilState(uiTabState);
-  entities.findIndex((e, i) => i === uiTab);
-  const [edit, setEdit] = recoil.useRecoilState(uiEditState);
-  const [idToken, setIdToken] = React.useState(localStorage.getItem("BLMPidToken"));
-  const [RIDprefix, setRIDprefix] = recoil.useRecoilState(RIDprefixState);
-  let nextVal = recoil.useRecoilValue(
+  const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
+  const [entities, setEntities] = (0, import_recoil4.useRecoilState)(entitiesAtom);
+  const [uiTab] = (0, import_recoil4.useRecoilState)(uiTabState);
+  const entity = entities.findIndex((e, i) => i === uiTab);
+  const [edit, setEdit] = (0, import_recoil4.useRecoilState)(uiEditState);
+  const [idToken, setIdToken] = (0, import_react3.useState)(localStorage.getItem("BLMPidToken"));
+  const [RIDprefix, setRIDprefix] = (0, import_recoil4.useRecoilState)(RIDprefixState);
+  let nextVal = (0, import_recoil4.useRecoilValue)(
     property.sortOnProperty ? orderedNewValSelector({
       atom: property.sortOnProperty ? subject.getAtomForProperty(property.path.sparqlString) : null,
       propertyPath: property.sortOnProperty.value
     }) : initStringAtom
   );
-  const sortProps = property.targetShape?.properties.filter(
-    (p) => p.path?.sparqlString === property.sortOnProperty?.value
+  const sortProps = (_a = property.targetShape) == null ? void 0 : _a.properties.filter(
+    (p) => {
+      var _a2, _b2;
+      return ((_a2 = p.path) == null ? void 0 : _a2.sparqlString) === ((_b2 = property.sortOnProperty) == null ? void 0 : _b2.value);
+    }
   );
-  if (sortProps?.length) {
+  if (sortProps == null ? void 0 : sortProps.length) {
     const sortProp = sortProps[0];
-    if (sortProp?.minInclusive != null && Number(nextVal) < sortProp.minInclusive)
+    if ((sortProp == null ? void 0 : sortProp.minInclusive) != null && Number(nextVal) < sortProp.minInclusive)
       nextVal = sortProp.minInclusive.toString();
-    if (sortProp?.maxInclusive != null && Number(nextVal) > sortProp.maxInclusive)
+    if ((sortProp == null ? void 0 : sortProp.maxInclusive) != null && Number(nextVal) > sortProp.maxInclusive)
       nextVal = sortProp.maxInclusive.toString();
   }
   let waitForNoHisto = false;
   const addItem = async (event, n) => {
     if (waitForNoHisto)
       return;
-    if (property.objectType === ObjectType.Internal) {
+    if (property.objectType === 1 /* Internal */) {
       waitForNoHisto = true;
       subject.noHisto(false, 1);
     }
-    const item = await generateDefault(property, subject, RIDprefix, idToken, newVal?.toString(), config);
+    const item = await generateDefault(property, subject, RIDprefix, idToken, newVal == null ? void 0 : newVal.toString(), config);
     setList([...listOrCollec, item]);
-    if (property.objectType === ObjectType.Internal && item instanceof Subject) {
+    if (property.objectType === 1 /* Internal */ && item instanceof Subject) {
       setImmediate(() => {
         setEdit(subject.qname + " " + property.qname + " " + item.qname);
       });
@@ -2450,74 +2498,74 @@ const Create = ({ subject, property, embedded, disable, newVal, shape, config })
       }, 350);
     }
   };
-  if (property.objectType !== ObjectType.Internal && (embedded || property.objectType == ObjectType.Literal || property.objectType == ObjectType.ResInList || property.objectType == ObjectType.LitInList))
-    return /* @__PURE__ */ jsxRuntime.jsx(MinimalAddButton, {
+  if (property.objectType !== 1 /* Internal */ && (embedded || property.objectType == 0 /* Literal */ || property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */))
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(MinimalAddButton, {
       disable,
       add: addItem,
       className: " "
     });
   else {
-    const targetShapeLabels = property.targetShape?.targetClassPrefLabels;
+    const targetShapeLabels = (_b = property.targetShape) == null ? void 0 : _b.targetClassPrefLabels;
     const labels = targetShapeLabels ? targetShapeLabels : property.prefLabels;
     const count = property.allowBatchManagement ? 2 : 1;
-    return /* @__PURE__ */ jsxRuntime.jsx(BlockAddButton, {
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(BlockAddButton, {
       add: addItem,
       label: ValueByLangToStrPrefLang(labels, uiLang),
       count
     });
   }
 };
-const useStyles = styles.makeStyles((theme) => ({
+var useStyles = (0, import_styles.makeStyles)((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
     }
   }
 }));
-const EditLangString = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
-  useStyles();
-  const [editMD, setEditMD] = React.useState(false);
-  const [keyboard, setKeyboard] = React.useState(false);
+var EditLangString = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
+  const classes = useStyles();
+  const [editMD, setEditMD] = (0, import_react3.useState)(false);
+  const [keyboard, setKeyboard] = (0, import_react3.useState)(false);
   const canPushPrefLabel = property.allowPushToTopLevelLabel;
   const getLangStringError = (val) => {
     let err = "";
     if (!val && property.minCount)
-      err = i18n.t("error.empty");
+      err = import_i18next2.default.t("error.empty");
     else if (globalError)
       err = globalError;
     return err;
   };
-  const [error, setError] = React.useState(null);
-  React.useEffect(() => {
+  const [error, setError] = (0, import_react3.useState)(null);
+  (0, import_react3.useEffect)(() => {
     const newError = getLangStringError(lit.value);
     if (newError != error) {
-      updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+      updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
       setError(newError);
     }
   });
-  React.useEffect(() => {
+  (0, import_react3.useEffect)(() => {
     return () => {
       const inOtherEntity = !window.location.href.includes("/" + entity.qname + "/");
       if (!inOtherEntity)
-        updateEntityState(EditedEntityState.Saved, lit.id, false, !inOtherEntity);
+        updateEntityState(1 /* Saved */, lit.id, false, !inOtherEntity);
     };
   }, []);
-  ({
-    helperText: /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
+  const errorData = {
+    helperText: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_react3.default.Fragment, {
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Error.default, {
           style: { fontSize: "20px", verticalAlign: "-7px" }
         }),
         "\xA0",
-        /* @__PURE__ */ jsxRuntime.jsx("i", {
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("i", {
           children: error
         })
       ]
     }),
     error: true
-  });
-  const [preview, setPreview] = React.useState(null);
-  React.useLayoutEffect(() => {
+  };
+  const [preview, setPreview] = (0, import_react3.useState)(null);
+  (0, import_react3.useLayoutEffect)(() => {
     if (document.activeElement === inputRef.current) {
       const { value, error: error2 } = config.previewLiteral(lit, uiLang);
       setPreview(value);
@@ -2532,13 +2580,13 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
   } else if (property.singleLine && editMD) {
     padBot = "1px";
   }
-  const codeEdit = { ...MDEditor.commands.codeEdit, icon: /* @__PURE__ */ jsxRuntime.jsx(EditIcon, {
+  const codeEdit = { ...import_react_md_editor.commands.codeEdit, icon: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Edit.default, {
     style: { width: "12px", height: "12px" }
-  }) }, codePreview = { ...MDEditor.commands.codePreview, icon: /* @__PURE__ */ jsxRuntime.jsx(VisibilityIcon, {
+  }) }, codePreview = { ...import_react_md_editor.commands.codePreview, icon: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Visibility.default, {
     style: { width: "12px", height: "12px" }
   }) };
   const hasKB = config.possibleLiteralLangs.filter((l) => l.value === lit.language);
-  const inputRef = React.useRef();
+  const inputRef = (0, import_react3.useRef)();
   const keepFocus = () => {
     if (inputRef.current && document.activeElement != inputRef.current)
       inputRef.current.focus();
@@ -2556,11 +2604,11 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
       }, 10);
     }
   };
-  let prefLabelAtom = entity?.getAtomForProperty(SKOS("prefLabel").value);
+  let prefLabelAtom = entity == null ? void 0 : entity.getAtomForProperty(SKOS("prefLabel").value);
   if (!prefLabelAtom)
     prefLabelAtom = initListAtom;
-  const [prefLabels, setPrefLabels] = recoil.useRecoilState(prefLabelAtom);
-  const [uiLang] = recoil.useRecoilState(uiLangState);
+  const [prefLabels, setPrefLabels] = (0, import_recoil4.useRecoilState)(prefLabelAtom);
+  const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
   const pushAsPrefLabel = () => {
     let newPrefLabels = [], found = false;
     for (const l in prefLabels) {
@@ -2568,7 +2616,7 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
         const litWi = prefLabels[l];
         if (litWi.language === lit.language) {
           found = true;
-          newPrefLabels = replaceItemAtIndex$1(prefLabels, Number(l), lit);
+          newPrefLabels = replaceItemAtIndex(prefLabels, Number(l), lit);
           break;
         }
       }
@@ -2578,7 +2626,7 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
     if (newPrefLabels.length)
       setPrefLabels(newPrefLabels);
   };
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", {
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
     className: "mb-0" + (preview ? " withPreview" : ""),
     style: {
       display: "flex",
@@ -2588,24 +2636,24 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
       position: "relative"
     },
     children: [
-      canPushPrefLabel && !error && !globalError && /* @__PURE__ */ jsxRuntime.jsx("span", {
+      canPushPrefLabel && !error && !globalError && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", {
         className: "canPushPrefLabel",
-        children: /* @__PURE__ */ jsxRuntime.jsx("span", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", {
           onClick: pushAsPrefLabel,
-          children: /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
-            title: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.Tooltip, {
+            title: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {
               children: "Use as the main name or title for this language"
             }),
-            children: /* @__PURE__ */ jsxRuntime.jsx("span", {
+            children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", {
               className: "img"
             })
           }, lit.id)
         })
       }),
-      (property.singleLine || !editMD) && /* @__PURE__ */ jsxRuntime.jsxs("div", {
+      (property.singleLine || !editMD) && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
         style: { width: "100%", position: "relative" },
         children: [
-          /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.TextField, {
             variant: "standard",
             inputRef,
             className: lit.language === "bo" ? " lang-bo" : "",
@@ -2620,7 +2668,7 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
               if (newError && error != newError)
                 setError(newError);
               else
-                updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+                updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
               onChange(lit.copyWithUpdatedValue(e.target.value));
             },
             ...error ? { error: true, helperText: error } : {},
@@ -2638,20 +2686,20 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
               }, 350);
             }
           }),
-          property.allowMarkDown && /* @__PURE__ */ jsxRuntime.jsxs("span", {
+          property.allowMarkDown && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", {
             className: "opaHover",
             style: { position: "absolute", right: 0, top: 0, fontSize: "0px" },
             onClick: () => setEditMD(!editMD),
             children: [
-              !editMD && /* @__PURE__ */ jsxRuntime.jsx(MDIcon, {
+              !editMD && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(MDIcon, {
                 style: { height: "16px" }
               }),
-              editMD && /* @__PURE__ */ jsxRuntime.jsx(MDIcon, {
+              editMD && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(MDIcon, {
                 style: { height: "16px" }
               })
             ]
           }),
-          hasKB.length > 0 && hasKB[0].keyboard && /* @__PURE__ */ jsxRuntime.jsx("span", {
+          hasKB.length > 0 && hasKB[0].keyboard && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", {
             onClick: () => {
               setKeyboard(!keyboard);
               keepFocus();
@@ -2665,13 +2713,13 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
               display: "flex",
               alignItems: "center"
             },
-            children: /* @__PURE__ */ jsxRuntime.jsx(KeyboardIcon, {})
+            children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Keyboard.default, {})
           }),
-          hasKB.length > 0 && hasKB[0].keyboard && keyboard && /* @__PURE__ */ jsxRuntime.jsx("div", {
+          hasKB.length > 0 && hasKB[0].keyboard && keyboard && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
             className: "card px-2 py-2 hasKB",
             style: { display: "block", width: "405px" },
             onClick: keepFocus,
-            children: hasKB[0].keyboard.map((k, i) => /* @__PURE__ */ jsxRuntime.jsx("span", {
+            children: hasKB[0].keyboard.map((k, i) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", {
               className: "card mx-1 my-1",
               style: {
                 display: "inline-flex",
@@ -2687,10 +2735,10 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
           })
         ]
       }),
-      !property.singleLine && editMD && /* @__PURE__ */ jsxRuntime.jsxs("div", {
+      !property.singleLine && editMD && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
         style: { width: "100%", position: "relative", paddingBottom: "1px" },
         children: [
-          /* @__PURE__ */ jsxRuntime.jsx(MDEditor, {
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_md_editor.default, {
             textareaProps: { spellCheck: "true", lang: lit.language === "en" ? "en_US" : lit.language },
             value: lit.value,
             preview: "edit",
@@ -2699,38 +2747,38 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
                 onChange(lit.copyWithUpdatedValue(e));
             },
             commands: [
-              MDEditor.commands.bold,
-              MDEditor.commands.italic,
-              MDEditor.commands.strikethrough,
-              MDEditor.commands.hr,
-              MDEditor.commands.title,
-              MDEditor.commands.divider,
-              MDEditor.commands.link,
-              MDEditor.commands.quote,
-              MDEditor.commands.code,
-              MDEditor.commands.image,
-              MDEditor.commands.divider,
-              MDEditor.commands.unorderedListCommand,
-              MDEditor.commands.orderedListCommand,
-              MDEditor.commands.checkedListCommand,
-              MDEditor.commands.divider,
+              import_react_md_editor.commands.bold,
+              import_react_md_editor.commands.italic,
+              import_react_md_editor.commands.strikethrough,
+              import_react_md_editor.commands.hr,
+              import_react_md_editor.commands.title,
+              import_react_md_editor.commands.divider,
+              import_react_md_editor.commands.link,
+              import_react_md_editor.commands.quote,
+              import_react_md_editor.commands.code,
+              import_react_md_editor.commands.image,
+              import_react_md_editor.commands.divider,
+              import_react_md_editor.commands.unorderedListCommand,
+              import_react_md_editor.commands.orderedListCommand,
+              import_react_md_editor.commands.checkedListCommand,
+              import_react_md_editor.commands.divider,
               codeEdit,
               codePreview
             ],
             extraCommands: []
           }),
-          /* @__PURE__ */ jsxRuntime.jsx("span", {
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", {
             className: "opaHover on",
             style: { position: "absolute", right: "5px", top: "7px", fontSize: "0px", cursor: "pointer" },
             onClick: () => setEditMD(!editMD),
-            children: /* @__PURE__ */ jsxRuntime.jsx(MDIcon, {
+            children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(MDIcon, {
               style: { height: "15px" },
               title: "Use rich text editor"
             })
           })
         ]
       }),
-      /* @__PURE__ */ jsxRuntime.jsx(LangSelect, {
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(LangSelect, {
         onChange: (value) => {
           onChange(lit.copyWithUpdatedLanguage(value));
         },
@@ -2740,9 +2788,9 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
         editable,
         config
       }),
-      preview && /* @__PURE__ */ jsxRuntime.jsx("div", {
+      preview && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
         className: "preview-ewts",
-        children: /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
+        children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.TextField, {
           disabled: true,
           value: preview
         })
@@ -2750,14 +2798,14 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
     ]
   });
 };
-const LangSelect = ({ onChange, value, property, disabled, error, editable, config }) => {
+var LangSelect = ({ onChange, value, property, disabled, error, editable, config }) => {
   const onChangeHandler = (event) => {
     onChange(event.target.value);
   };
-  const languages = property?.defaultLanguage ? langsWithDefault(property.defaultLanguage, config.possibleLiteralLangs) : config.possibleLiteralLangs;
-  return /* @__PURE__ */ jsxRuntime.jsx("div", {
+  const languages = (property == null ? void 0 : property.defaultLanguage) ? langsWithDefault(property.defaultLanguage, config.possibleLiteralLangs) : config.possibleLiteralLangs;
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
     style: { position: "relative" },
-    children: /* @__PURE__ */ jsxRuntime.jsxs(core.TextField, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_material.TextField, {
       select: true,
       InputLabelProps: { shrink: true },
       className: "ml-2",
@@ -2765,14 +2813,14 @@ const LangSelect = ({ onChange, value, property, disabled, error, editable, conf
       style: { minWidth: 100, flexShrink: 0, marginTop: "5px" },
       onChange: onChangeHandler,
       ...disabled ? { disabled: true } : {},
-      ...error ? { error: true, helperText: /* @__PURE__ */ jsxRuntime.jsx("br", {}) } : {},
+      ...error ? { error: true, helperText: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("br", {}) } : {},
       ...!editable ? { disabled: true } : {},
       children: [
-        languages.map((option) => /* @__PURE__ */ jsxRuntime.jsx(core.MenuItem, {
+        languages.map((option) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.MenuItem, {
           value: option.value,
           children: option.value
         }, option.value)),
-        !languages.some((l) => l.value === value) && /* @__PURE__ */ jsxRuntime.jsx(core.MenuItem, {
+        !languages.some((l) => l.value === value) && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.MenuItem, {
           value,
           children: value
         }, value)
@@ -2780,18 +2828,18 @@ const LangSelect = ({ onChange, value, property, disabled, error, editable, conf
     })
   });
 };
-const EditString = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
-  useStyles();
-  const [uiLang] = recoil.useRecoilState(uiLangState);
-  property.datatype;
+var EditString = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
+  const classes = useStyles();
+  const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
+  const dt = property.datatype;
   const pattern = property.pattern ? new RegExp(property.pattern) : void 0;
-  const [error, setError] = React.useState(null);
-  const [preview, setPreview] = React.useState(null);
+  const [error, setError] = (0, import_react3.useState)(null);
+  const [preview, setPreview] = (0, import_react3.useState)(null);
   const getPatternError = (val) => {
     let err = "";
     if (pattern !== void 0 && val !== "" && !val.match(pattern)) {
       err = ValueByLangToStrPrefLang(property.errorMessage, uiLang);
-      debug$6("err:", property.errorMessage);
+      debug7("err:", property.errorMessage);
     }
     return err;
   };
@@ -2799,25 +2847,25 @@ const EditString = ({ property, lit, onChange, label, editable, updateEntityStat
   let changeCallback = (val) => {
     return;
   };
-  React.useEffect(() => {
+  (0, import_react3.useEffect)(() => {
     changeCallback = (val) => {
       if (val === "") {
         setError(null);
         setPreview(null);
-        updateEntityState(EditedEntityState.Saved, lit.id);
+        updateEntityState(1 /* Saved */, lit.id);
       } else {
         if (timerPreview)
           window.clearTimeout(timerPreview);
         const delay = 350;
         timerPreview = window.setTimeout(() => {
-          const obj = config.previewLiteral(new rdf__namespace.Literal(val, lit.language, lit.datatype), uiLang);
+          const obj = config.previewLiteral(new rdf5.Literal(val, lit.language, lit.datatype), uiLang);
           const { value } = obj;
           let { error: error2 } = obj;
           setPreview(value);
           if (!error2)
             error2 = getPatternError(val);
           setError(error2);
-          updateEntityState(error2 ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+          updateEntityState(error2 ? 0 /* Error */ : 1 /* Saved */, lit.id);
         }, delay);
       }
       onChange(lit.copyWithUpdatedValue(val));
@@ -2826,32 +2874,32 @@ const EditString = ({ property, lit, onChange, label, editable, updateEntityStat
   const getEmptyStringError = (val) => {
     if (!val && property.minCount)
       return;
-    /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, {
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, {
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Error.default, {
           style: { fontSize: "20px", verticalAlign: "-7px" }
         }),
         " ",
-        /* @__PURE__ */ jsxRuntime.jsx("i", {
-          children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-            children: i18n.t("error.empty")
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("i", {
+          children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {
+            children: import_i18next2.default.t("error.empty")
           })
         })
       ]
     });
     return null;
   };
-  React.useEffect(() => {
+  (0, import_react3.useEffect)(() => {
     const newError = error || getEmptyStringError(lit.value);
     if (newError != error) {
       setError(newError);
-      updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+      updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
     }
   });
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", {
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
     style: { display: "flex", flexDirection: "column", width: "100%" },
     children: [
-      /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.TextField, {
         variant: "standard",
         label,
         style: { width: "100%" },
@@ -2863,26 +2911,26 @@ const EditString = ({ property, lit, onChange, label, editable, updateEntityStat
         ...!editable ? { disabled: true } : {},
         ...error ? { error: true, helperText: error } : {}
       }),
-      preview && /* @__PURE__ */ jsxRuntime.jsx("div", {
+      preview && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
         className: "preview-EDTF",
         style: { width: "100%" },
-        children: /* @__PURE__ */ jsxRuntime.jsx("pre", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("pre", {
           children: preview
         })
       })
     ]
   });
 };
-const EditBool = ({ property, lit, onChange, label, editable }) => {
-  useStyles();
-  property.datatype;
+var EditBool = ({ property, lit, onChange, label, editable }) => {
+  const classes = useStyles();
+  const dt = property.datatype;
   let val = !lit.value || lit.value == "false" || lit.value == "0" ? false : true;
   if (property.defaultValue === null && lit.value == "")
     val = "unset";
   const changeCallback = (val2) => {
     onChange(lit.copyWithUpdatedValue(val2 == "false" ? "0" : "1"));
   };
-  return /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.TextField, {
     select: true,
     style: { padding: "1px", minWidth: "250px" },
     label,
@@ -2893,14 +2941,14 @@ const EditBool = ({ property, lit, onChange, label, editable }) => {
         changeCallback(e.target.value);
     },
     ...!editable ? { disabled: true } : {},
-    children: ["true", "false"].concat(val === "unset" ? [val] : []).map((v) => /* @__PURE__ */ jsxRuntime.jsx(core.MenuItem, {
+    children: ["true", "false"].concat(val === "unset" ? [val] : []).map((v) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.MenuItem, {
       value: v,
-      children: i18n.t("types." + v)
+      children: import_i18next2.default.t("types." + v)
     }, v))
   });
 };
-const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
-  useStyles();
+var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
+  const classes = useStyles();
   const dt = property.datatype;
   const minInclusive = property.minInclusive;
   const maxInclusive = property.maxInclusive;
@@ -2911,29 +2959,29 @@ const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, 
     if (globalError) {
       err = globalError;
     } else if (hasNoOtherValue && val === "") {
-      err = i18n.t("error.empty");
+      err = import_i18next2.default.t("error.empty");
     } else if (val !== void 0 && val !== "") {
       const valueInt = parseInt(val);
       if (minInclusive && minInclusive > valueInt) {
-        err = i18n.t("error.superiorTo", { val: minInclusive });
+        err = import_i18next2.default.t("error.superiorTo", { val: minInclusive });
       } else if (maxInclusive && maxInclusive < valueInt) {
-        err = i18n.t("error.inferiorTo", { val: maxInclusive });
+        err = import_i18next2.default.t("error.inferiorTo", { val: maxInclusive });
       } else if (minExclusive && minExclusive >= valueInt) {
-        err = i18n.t("error.superiorToStrict", { val: minExclusive });
+        err = import_i18next2.default.t("error.superiorToStrict", { val: minExclusive });
       } else if (maxExclusive && maxExclusive <= valueInt) {
-        err = i18n.t("error.inferiorToStrict", { val: maxExclusive });
+        err = import_i18next2.default.t("error.inferiorToStrict", { val: maxExclusive });
       }
     }
     return err;
   };
-  const [error, setError] = React.useState("");
-  React.useEffect(() => {
+  const [error, setError] = (0, import_react3.useState)("");
+  (0, import_react3.useEffect)(() => {
     if (!hasNoOtherValue && (lit.value === void 0 || lit.value === null || lit.value === ""))
       return;
     const newError = getIntError(lit.value);
     if (newError != error) {
       setError(newError);
-      updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+      updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
     }
   });
   const changeCallback = (val) => {
@@ -2941,7 +2989,7 @@ const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, 
     if (newError != error)
       setError(newError);
     else
-      updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+      updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
     if (dt && dt.value == xsdgYear) {
       if (val.startsWith("-")) {
         val = "-" + val.substring(1).padStart(4, "0");
@@ -2955,17 +3003,17 @@ const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, 
   if (dt && dt.value == xsdgYear) {
     value = value.replace(/^(-?)0+/, "$1");
   }
-  return /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.TextField, {
     label,
     style: { width: 240 },
     value,
     ...error ? {
-      helperText: /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
+      helperText: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_react3.default.Fragment, {
         children: [
-          /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Error.default, {
             style: { fontSize: "20px", verticalAlign: "-7px" }
           }),
-          /* @__PURE__ */ jsxRuntime.jsxs("i", {
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("i", {
             children: [
               " ",
               error
@@ -2982,14 +3030,14 @@ const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, 
     ...!editable ? { disabled: true } : {}
   });
 };
-const xsdgYear = XSD("gYear").value;
-const rdflangString = RDF("langString").value;
-const xsdinteger = XSD("integer").value;
-const xsddecimal = XSD("decimal").value;
-const xsdint = XSD("int").value;
-const xsdboolean = XSD("boolean").value;
-const intishTypeList = [xsdinteger, xsddecimal, xsdint];
-const LiteralComponent = ({
+var xsdgYear = XSD("gYear").value;
+var rdflangString = RDF("langString").value;
+var xsdinteger = XSD("integer").value;
+var xsddecimal = XSD("decimal").value;
+var xsdint = XSD("int").value;
+var xsdboolean = XSD("boolean").value;
+var intishTypeList = [xsdinteger, xsddecimal, xsdint];
+var LiteralComponent = ({
   lit,
   subject,
   property,
@@ -3004,70 +3052,70 @@ const LiteralComponent = ({
 }) => {
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [list, setList] = recoil.useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
+  const [list, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
   const index = list.findIndex((listItem) => listItem === lit);
-  const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
-  const [undos, setUndos] = recoil.useRecoilState(uiUndosState);
-  const [uiLang] = recoil.useRecoilState(uiLangState);
+  const [entities, setEntities] = (0, import_recoil4.useRecoilState)(entitiesAtom);
+  const [undos, setUndos] = (0, import_recoil4.useRecoilState)(uiUndosState);
+  const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
   const onChange = (value) => {
-    const newList = replaceItemAtIndex$1(list, index, value);
+    const newList = replaceItemAtIndex(list, index, value);
     setList(newList);
   };
   const deleteItem = () => {
     const newList = removeItemAtIndex(list, index);
     setList(newList);
-    updateEntityState(EditedEntityState.Saved, lit.id);
+    updateEntityState(1 /* Saved */, lit.id);
   };
-  React.useEffect(() => {
+  (0, import_react3.useEffect)(() => {
     let error = false;
     const entityQname = topEntity ? topEntity.qname : subject.qname;
     const n = entities.findIndex((e) => e.subjectQname === entityQname);
     if (n > -1) {
       const ent = entities[n];
-      if (ent.state === EditedEntityState.Error)
+      if (ent.state === 0 /* Error */)
         error = true;
     }
     if (!error && (!errors[entityQname] || !Object.keys(errors[entityQname]).length)) {
-      updateEntityState(EditedEntityState.Saved, lit.id);
+      updateEntityState(1 /* Saved */, lit.id);
     }
   }, [undos]);
   const t = property.datatype;
   let edit, classN;
-  if (t?.value === rdflangString) {
+  if ((t == null ? void 0 : t.value) === rdflangString) {
     classN = "langString " + (lit.value ? "lang-" + lit.language : "");
-    edit = /* @__PURE__ */ jsxRuntime.jsx(EditLangString, {
+    edit = /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(EditLangString, {
       property,
       lit,
       onChange,
       label: [
         propLabel,
-        helpMessage ? /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
+        helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Help.default, {
             className: "help literal"
           })
         }, lit.id) : null
       ],
-      ...property.uniqueLang && !isUniqueLang ? { globalError: i18n.t("error.unique") } : {},
+      ...property.uniqueLang && !isUniqueLang ? { globalError: import_i18next2.default.t("error.unique") } : {},
       editable: editable && !property.readOnly,
       updateEntityState,
       entity: topEntity ? topEntity : subject,
       index,
       config
     });
-  } else if (t?.value === xsdgYear || t && t?.value && intishTypeList.includes(t.value)) {
+  } else if ((t == null ? void 0 : t.value) === xsdgYear || t && (t == null ? void 0 : t.value) && intishTypeList.includes(t.value)) {
     classN = "gYear intish";
-    edit = /* @__PURE__ */ jsxRuntime.jsx(EditInt, {
+    edit = /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(EditInt, {
       property,
       lit,
       onChange,
       label: [
         propLabel,
-        helpMessage ? /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
+        helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Help.default, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3076,18 +3124,18 @@ const LiteralComponent = ({
       updateEntityState,
       hasNoOtherValue: property.minCount === 1 && list.length === 1,
       index,
-      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: i18n.t("error.uniqueV") } : {}
+      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: import_i18next2.default.t("error.uniqueV") } : {}
     });
-  } else if (t?.value === xsdboolean) {
-    edit = /* @__PURE__ */ jsxRuntime.jsx(EditBool, {
+  } else if ((t == null ? void 0 : t.value) === xsdboolean) {
+    edit = /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(EditBool, {
       property,
       lit,
       onChange,
       label: [
         propLabel,
-        helpMessage ? /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
+        helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Help.default, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3095,15 +3143,15 @@ const LiteralComponent = ({
       editable: editable && !property.readOnly
     });
   } else {
-    edit = /* @__PURE__ */ jsxRuntime.jsx(EditString, {
+    edit = /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(EditString, {
       property,
       lit,
       onChange,
       label: [
         propLabel,
-        helpMessage ? /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
+        helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Help.default, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3115,20 +3163,20 @@ const LiteralComponent = ({
       config
     });
   }
-  return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-    children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
       className: classN,
       style: { display: "flex", alignItems: "flex-end" },
       children: [
         edit,
-        /* @__PURE__ */ jsxRuntime.jsxs("div", {
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
           className: "hoverPart",
           children: [
-            /* @__PURE__ */ jsxRuntime.jsx("button", {
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", {
               className: "btn btn-link ml-2 px-0 py-0 close-facet-btn",
               onClick: deleteItem,
               ...!canDel ? { disabled: true } : {},
-              children: /* @__PURE__ */ jsxRuntime.jsx(RemoveIcon, {
+              children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(RemoveIcon, {
                 className: "my-0 close-facet-btn"
               })
             }),
@@ -3139,15 +3187,15 @@ const LiteralComponent = ({
     })
   });
 };
-const FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity, updateEntityState, shape, config }) => {
+var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity, updateEntityState, shape, config }) => {
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [list, setList] = recoil.useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
-  const [uiLang] = recoil.useRecoilState(uiLangState);
+  const [list, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
+  const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
   const index = list.findIndex((listItem) => listItem === subNode);
-  recoil.useRecoilState(entitiesAtom);
+  const [entities, setEntities] = (0, import_recoil4.useRecoilState)(entitiesAtom);
   const deleteItem = () => {
-    updateEntityState(EditedEntityState.Saved, subNode.qname, true);
+    updateEntityState(1 /* Saved */, subNode.qname, true);
     const newList = removeItemAtIndex(list, index);
     setList(newList);
   };
@@ -3162,7 +3210,7 @@ const FacetComponent = ({ subNode, subject, property, canDel, editable, topEntit
       withoutDisplayPriority.push(subprop);
     }
   });
-  const [force, setForce] = React.useState(false);
+  const [force, setForce] = (0, import_react3.useState)(false);
   const hasExtra = withDisplayPriority.length > 0;
   let waitForNoHisto = false;
   const toggleExtra = () => {
@@ -3178,73 +3226,80 @@ const FacetComponent = ({ subNode, subject, property, canDel, editable, topEntit
       waitForNoHisto = false;
     }, delay);
   };
-  const [edit, setEdit] = recoil.useRecoilState(uiEditState);
+  const [edit, setEdit] = (0, import_recoil4.useRecoilState)(uiEditState);
   let editClass = "";
   if (edit === subject.qname + " " + property.qname + " " + subNode.qname || edit.startsWith(subNode.qname + " ") || edit.endsWith(" " + subject.qname)) {
     editClass = "edit";
   }
-  return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-    children: /* @__PURE__ */ jsxRuntime.jsx("div", {
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
       className: "facet " + editClass + " editable-" + editable + " force-" + force,
       onClick: (ev) => {
+        var _a;
         setEdit(subject.qname + " " + property.qname + " " + subNode.qname);
         const target = ev.target;
-        if (editClass || target?.classList && !target?.classList?.contains("close-facet-btn")) {
+        if (editClass || (target == null ? void 0 : target.classList) && !((_a = target == null ? void 0 : target.classList) == null ? void 0 : _a.contains("close-facet-btn"))) {
           ev.stopPropagation();
         }
       },
-      children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
+      children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
         className: "card pt-2 pb-3 pr-3 mt-4 pl-2 " + (hasExtra ? "hasDisplayPriority" : ""),
         children: [
-          targetShape.independentIdentifiers && /* @__PURE__ */ jsxRuntime.jsx("div", {
+          targetShape.independentIdentifiers && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
             className: "internalId",
             children: subNode.lname
           }),
-          withoutDisplayPriority.map((p, index2) => /* @__PURE__ */ jsxRuntime.jsx(PropertyContainer, {
-            property: p,
-            subject: subNode,
-            embedded: true,
-            force,
-            editable: !p.readOnly,
-            owner: subject,
-            topEntity,
-            shape,
-            siblingsPath: property.path?.sparqlString,
-            config
-          }, index2 + p.uri)),
-          withDisplayPriority.map((p, index2) => /* @__PURE__ */ jsxRuntime.jsx(PropertyContainer, {
-            property: p,
-            subject: subNode,
-            embedded: true,
-            force,
-            editable: !p.readOnly,
-            owner: subject,
-            topEntity,
-            shape,
-            siblingsPath: property.path?.sparqlString,
-            config
-          }, index2 + p.uri)),
-          hasExtra && /* @__PURE__ */ jsxRuntime.jsx("span", {
+          withoutDisplayPriority.map((p, index2) => {
+            var _a;
+            return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(PropertyContainer, {
+              property: p,
+              subject: subNode,
+              embedded: true,
+              force,
+              editable: !p.readOnly,
+              owner: subject,
+              topEntity,
+              shape,
+              siblingsPath: (_a = property.path) == null ? void 0 : _a.sparqlString,
+              config
+            }, index2 + p.uri);
+          }),
+          withDisplayPriority.map((p, index2) => {
+            var _a;
+            return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(PropertyContainer, {
+              property: p,
+              subject: subNode,
+              embedded: true,
+              force,
+              editable: !p.readOnly,
+              owner: subject,
+              topEntity,
+              shape,
+              siblingsPath: (_a = property.path) == null ? void 0 : _a.sparqlString,
+              config
+            }, index2 + p.uri);
+          }),
+          hasExtra && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", {
             className: "toggle-btn btn btn-rouge mt-4",
             onClick: toggleExtra,
-            children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-              children: i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })
+            children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {
+              children: import_i18next2.default.t("general.toggle", { show: force ? import_i18next2.default.t("general.hide") : import_i18next2.default.t("general.show") })
             })
           }),
-          /* @__PURE__ */ jsxRuntime.jsxs("div", {
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
             className: "close-btn",
             children: [
-              targetShape.description && /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
+              targetShape.description && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.Tooltip, {
                 title: ValueByLangToStrPrefLang(targetShape.description, uiLang),
-                children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
+                children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Help.default, {
                   className: "help"
                 })
               }),
-              /* @__PURE__ */ jsxRuntime.jsx("button", {
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", {
                 className: "btn btn-link ml-2 px-0 close-facet-btn py-0",
                 onClick: deleteItem,
                 ...!canDel ? { disabled: true } : {},
-                children: /* @__PURE__ */ jsxRuntime.jsx(CloseIcon, {
+                children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Close.default, {
                   className: "close-facet-btn my-1"
                 })
               })
@@ -3255,7 +3310,7 @@ const FacetComponent = ({ subNode, subject, property, canDel, editable, topEntit
     })
   });
 };
-const ExtEntityComponent = ({
+var ExtEntityComponent = ({
   extRes,
   subject,
   property,
@@ -3272,9 +3327,9 @@ const ExtEntityComponent = ({
 }) => {
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [list, setList] = recoil.useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
+  const [list, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
   const index = list.findIndex((listItem) => listItem === extRes);
-  recoil.useRecoilState(entitiesAtom);
+  const [entities, setEntities] = (0, import_recoil4.useRecoilState)(entitiesAtom);
   const deleteItem = () => {
     let newList = removeItemAtIndex(list, index);
     if (idx === 1 && newList.length === 1) {
@@ -3284,23 +3339,23 @@ const ExtEntityComponent = ({
     }
     setList(newList);
   };
-  const [error, setError] = React.useState("");
-  React.useEffect(() => {
+  const [error, setError] = (0, import_react3.useState)("");
+  (0, import_react3.useEffect)(() => {
     let newError;
     const nonEmptyList = list.filter((e) => e instanceof RDFResource && e.uri !== "tmp:uri");
     if (property.minCount && nonEmptyList.length < property.minCount) {
-      newError = i18n.t("error.minC", { count: property.minCount });
+      newError = import_i18next2.default.t("error.minC", { count: property.minCount });
     } else if (property.maxCount && nonEmptyList.length > property.maxCount) {
-      newError = i18n.t("error.maxC", { count: property.maxCount });
+      newError = import_i18next2.default.t("error.maxC", { count: property.maxCount });
     } else
       newError = "";
     setError(newError);
-    updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, property.qname);
+    updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, property.qname);
   }, [list]);
-  return /* @__PURE__ */ jsxRuntime.jsx("div", {
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
     className: "extEntity" + (extRes.uri === "tmp:uri" ? " new" : ""),
     style: { position: "relative" },
-    children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
+    children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
       style: {
         ...extRes.uri !== "tmp:uri" ? {
           display: "inline-flex",
@@ -3316,7 +3371,7 @@ const ExtEntityComponent = ({
       },
       ...extRes.uri !== "tmp:uri" ? { className: "px-2 py-1 mr-2 mt-2 card" } : {},
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx(config.resourceSelector, {
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(config.resourceSelector, {
           value: extRes,
           onChange,
           property,
@@ -3331,24 +3386,24 @@ const ExtEntityComponent = ({
           shape,
           config
         }),
-        extRes.uri !== "tmp:uri" && /* @__PURE__ */ jsxRuntime.jsx("button", {
+        extRes.uri !== "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", {
           className: "btn btn-link ml-2 px-0",
           onClick: deleteItem,
           ...!canDel ? { disabled: true } : {},
-          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ jsxRuntime.jsx(RemoveIcon, {}) : /* @__PURE__ */ jsxRuntime.jsx(CloseIcon, {})
+          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(RemoveIcon, {}) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Close.default, {})
         })
       ]
     })
   });
 };
-const SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectIdx, editable, create, updateEntityState }) => {
+var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectIdx, editable, create, updateEntityState }) => {
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [list, setList] = recoil.useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
-  const [uiLang, setUiLang] = recoil.useRecoilState(uiLangState);
-  const [uiLitLang, setUiLitLang] = recoil.useRecoilState(uiLitLangState);
-  const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
-  const [uiTab] = recoil.useRecoilState(uiTabState);
+  const [list, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
+  const [uiLang, setUiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
+  const [uiLitLang, setUiLitLang] = (0, import_recoil4.useRecoilState)(uiLitLangState);
+  const [entities, setEntities] = (0, import_recoil4.useRecoilState)(entitiesAtom);
+  const [uiTab] = (0, import_recoil4.useRecoilState)(uiTabState);
   const entity = entities.findIndex((e, i) => i === uiTab);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLitLang);
@@ -3370,7 +3425,7 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
         return v;
       }
     }
-    debug$6("error cannot get element from value " + value);
+    debug7("error cannot get element from value " + value);
     return null;
   };
   const val = res instanceof RDFResourceWithLabel ? res : getElementFromValue(list[index].value, true);
@@ -3383,59 +3438,61 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
     if (resForNewValue == noneSelected && canDel) {
       newList = removeItemAtIndex(list, index);
     } else {
-      newList = replaceItemAtIndex$1(list, index, resForNewValue);
+      newList = replaceItemAtIndex(list, index, resForNewValue);
     }
     setList(newList);
   };
-  useStyles();
+  const classes = useStyles();
   if (possibleValues.length == 1 && list.length == 0) {
     setList([possibleValues[0]]);
   }
-  const [error, setError] = React.useState("");
-  const valueNotInList = !possibleValues.some((pv) => pv.id === val?.id);
-  React.useEffect(() => {
+  const [error, setError] = (0, import_react3.useState)("");
+  const valueNotInList = !possibleValues.some((pv) => pv.id === (val == null ? void 0 : val.id));
+  (0, import_react3.useEffect)(() => {
+    var _a, _b;
     if (valueNotInList) {
-      setError(i18n.t("error.select", { val: val?.value }));
-      updateEntityState(EditedEntityState.Error, property.path?.sparqlString + "_" + selectIdx);
+      setError("" + import_i18next2.default.t("error.select", { val: val == null ? void 0 : val.value }));
+      updateEntityState(0 /* Error */, ((_a = property.path) == null ? void 0 : _a.sparqlString) + "_" + selectIdx);
     } else {
-      updateEntityState(EditedEntityState.Saved, property.path?.sparqlString + "_" + selectIdx);
+      updateEntityState(1 /* Saved */, ((_b = property.path) == null ? void 0 : _b.sparqlString) + "_" + selectIdx);
     }
   }, [valueNotInList]);
-  React.useEffect(() => {
+  (0, import_react3.useEffect)(() => {
     return () => {
-      const inOtherEntity = !window.location.href.includes("/" + entities[entity]?.subjectQname + "/");
+      var _a, _b;
+      const inOtherEntity = !window.location.href.includes("/" + ((_a = entities[entity]) == null ? void 0 : _a.subjectQname) + "/");
       if (!inOtherEntity)
-        updateEntityState(EditedEntityState.Saved, property.path?.sparqlString + "_" + selectIdx, false, !inOtherEntity);
+        updateEntityState(1 /* Saved */, ((_b = property.path) == null ? void 0 : _b.sparqlString) + "_" + selectIdx, false, !inOtherEntity);
     };
   }, []);
   if (possibleValues.length > 1 || error) {
-    return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-      children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
         className: "resSelect",
         style: { display: "inline-flex", alignItems: "flex-end" },
         children: [
-          /* @__PURE__ */ jsxRuntime.jsxs(core.TextField, {
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_material.TextField, {
             select: true,
             className: "selector mr-2",
-            value: val?.id,
+            value: val == null ? void 0 : val.id,
             style: { padding: "1px", minWidth: "250px" },
             onChange,
             label: [
               propLabel,
-              helpMessage ? /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
+              helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.Tooltip, {
                 title: helpMessage,
-                children: /* @__PURE__ */ jsxRuntime.jsx(HelpIcon, {
+                children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Help.default, {
                   className: "help"
                 })
               }, "tooltip_" + selectIdx + "_" + index) : null
             ],
             ...error ? {
-              helperText: /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
+              helperText: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_react3.default.Fragment, {
                 children: [
-                  /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Error.default, {
                     style: { fontSize: "20px", verticalAlign: "-7px" }
                   }),
-                  /* @__PURE__ */ jsxRuntime.jsxs("i", {
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("i", {
                     children: [
                       " ",
                       error
@@ -3451,42 +3508,42 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
                 if (v instanceof RDFResourceWithLabel) {
                   const r = v;
                   const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang);
-                  const span = /* @__PURE__ */ jsxRuntime.jsx("span", {
+                  const span = /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", {
                     children: label ? label : r.lname
                   });
-                  return /* @__PURE__ */ jsxRuntime.jsx(core.MenuItem, {
+                  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.MenuItem, {
                     value: r.id,
                     className: "withDescription",
-                    children: r.description ? /* @__PURE__ */ jsxRuntime.jsx(core.Tooltip, {
+                    children: r.description ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.Tooltip, {
                       title: ValueByLangToStrPrefLang(r.description, uiLitLang),
                       children: span
                     }) : span
                   }, "menu-uri_" + selectIdx + r.id);
                 } else {
                   const l = v;
-                  return /* @__PURE__ */ jsxRuntime.jsx(core.MenuItem, {
+                  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.MenuItem, {
                     value: l.id,
                     className: "withDescription",
                     children: l.value
                   }, "menu-lit_" + selectIdx + l.id + "_" + index + "_" + k);
                 }
               }),
-              valueNotInList && /* @__PURE__ */ jsxRuntime.jsx(core.MenuItem, {
-                value: val?.id,
+              valueNotInList && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_material.MenuItem, {
+                value: val == null ? void 0 : val.id,
                 className: "withDescription",
                 style: { color: "red" },
                 disabled: true,
-                children: val?.value
+                children: val == null ? void 0 : val.value
               }, "extra-val-id")
             ]
           }, "textfield_" + selectIdx + "_" + index),
-          /* @__PURE__ */ jsxRuntime.jsxs("div", {
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
             className: "hoverPart",
             children: [
-              canDel && /* @__PURE__ */ jsxRuntime.jsx("button", {
+              canDel && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", {
                 className: "btn btn-link mx-0 px-0 py-0",
                 onClick: deleteItem,
-                children: /* @__PURE__ */ jsxRuntime.jsx(RemoveIcon, {})
+                children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(RemoveIcon, {})
               }),
               create
             ]
@@ -3495,11 +3552,21 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
       })
     });
   }
-  return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {});
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {});
 };
 
-const debug$5 = require("debug")("rde:entity:propertygroup");
-const redIcon = new L.Icon({
+// src/containers/PropertyGroupContainer.tsx
+var import_recoil5 = require("recoil");
+var import_i18next3 = __toESM(require("i18next"));
+var import_react_leaflet = require("react-leaflet");
+var import_react_leaflet_google_layer = __toESM(require("react-leaflet-google-layer"));
+var import_leaflet_geosearch = require("leaflet-geosearch");
+var import_leaflet = __toESM(require("leaflet"));
+var import_leaflet2 = require("leaflet/dist/leaflet.css");
+var import_geosearch = require("leaflet-geosearch/dist/geosearch.css");
+var import_jsx_runtime3 = require("react/jsx-runtime");
+var debug8 = require("debug")("rde:entity:propertygroup");
+var redIcon = new import_leaflet.default.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
   iconSize: [25, 41],
@@ -3512,9 +3579,9 @@ function DraggableMarker({
   icon,
   setCoords
 }) {
-  const [position, setPosition] = React.useState(pos);
-  const markerRef = React.useRef(null);
-  const eventHandlers = React.useMemo(
+  const [position, setPosition] = (0, import_react4.useState)(pos);
+  const markerRef = (0, import_react4.useRef)(null);
+  const eventHandlers = (0, import_react4.useMemo)(
     () => ({
       dragend() {
         const marker = markerRef.current;
@@ -3526,12 +3593,12 @@ function DraggableMarker({
     }),
     []
   );
-  React.useEffect(() => {
+  (0, import_react4.useEffect)(() => {
     if (markerRef.current && (markerRef.current.lat != pos.lat || markerRef.current.lng != pos.lng)) {
       markerRef.current.setLatLng(pos);
     }
   });
-  return /* @__PURE__ */ jsxRuntime.jsx(reactLeaflet.Marker, {
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_leaflet.Marker, {
     draggable: true,
     eventHandlers,
     position,
@@ -3539,24 +3606,24 @@ function DraggableMarker({
     ref: markerRef
   });
 }
-const MapEventHandler = ({
+var MapEventHandler = ({
   coords,
   redraw,
   setCoords,
   config
 }) => {
-  const map = reactLeaflet.useMapEvents({
+  const map = (0, import_react_leaflet.useMapEvents)({
     click: (ev) => {
-      debug$5("click:", ev);
+      debug8("click:", ev);
       setCoords(ev.latlng);
     }
   });
-  React.useEffect(() => {
+  (0, import_react4.useEffect)(() => {
     map.setView(coords, map.getZoom());
   });
-  React.useEffect(() => {
-    const provider = config.googleMapsAPIKey ? new leafletGeosearch.GoogleProvider({ apiKey: config.googleMapsAPIKey }) : new leafletGeosearch.OpenStreetMapProvider();
-    const searchControl = leafletGeosearch.GeoSearchControl({
+  (0, import_react4.useEffect)(() => {
+    const provider = config.googleMapsAPIKey ? new import_leaflet_geosearch.GoogleProvider({ apiKey: config.googleMapsAPIKey }) : new import_leaflet_geosearch.OpenStreetMapProvider();
+    const searchControl = (0, import_leaflet_geosearch.GeoSearchControl)({
       provider,
       showPopUp: false,
       showMarker: false
@@ -3571,15 +3638,16 @@ const MapEventHandler = ({
   }, []);
   return null;
 };
-const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, config }) => {
-  const [uiLang] = recoil.useRecoilState(uiLangState);
+var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, config }) => {
+  const [uiLang] = (0, import_recoil5.useRecoilState)(uiLangState);
   const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
-  const [force, setForce] = React.useState(false);
+  const [force, setForce] = (0, import_react4.useState)(false);
   const withDisplayPriority = [], withoutDisplayPriority = [];
   const errorKeys = Object.keys(errors[subject.qname] ? errors[subject.qname] : {});
   let hasError = false;
   group.properties.map((property) => {
-    if (!hasError && errorKeys.some((k) => k.includes(property.qname)) || property.targetShape?.properties.some((p) => errorKeys.some((k) => k.includes(p.qname)))) {
+    var _a;
+    if (!hasError && errorKeys.some((k) => k.includes(property.qname)) || ((_a = property.targetShape) == null ? void 0 : _a.properties.some((p) => errorKeys.some((k) => k.includes(p.qname))))) {
       hasError = true;
     }
     if (property.displayPriority && property.displayPriority >= 1) {
@@ -3592,20 +3660,20 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
   const toggleExtra = () => {
     setForce(!force);
   };
-  const [edit, setEdit] = recoil.useRecoilState(uiEditState);
-  const [groupEd, setGroupEd] = recoil.useRecoilState(uiGroupState);
-  const [lat, setLat] = recoil.useRecoilState(config.latProp ? subject.getAtomForProperty(config.latProp.uri) : initListAtom);
-  const [lng, setLng] = recoil.useRecoilState(config.lngProp ? subject.getAtomForProperty(config.lngProp.uri) : initListAtom);
-  const [redraw, setRedraw] = React.useState(false);
+  const [edit, setEdit] = (0, import_recoil5.useRecoilState)(uiEditState);
+  const [groupEd, setGroupEd] = (0, import_recoil5.useRecoilState)(uiGroupState);
+  const [lat, setLat] = (0, import_recoil5.useRecoilState)(config.latProp ? subject.getAtomForProperty(config.latProp.uri) : initListAtom);
+  const [lng, setLng] = (0, import_recoil5.useRecoilState)(config.lngProp ? subject.getAtomForProperty(config.lngProp.uri) : initListAtom);
+  const [redraw, setRedraw] = (0, import_react4.useState)(false);
   let coords, zoom = 5, unset = false;
   if (lat.length && lng.length && lat[0].value != "" && lat[0].value != "")
-    coords = new L.LatLng(Number(lat[0].value), Number(lng[0].value));
+    coords = new import_leaflet.default.LatLng(Number(lat[0].value), Number(lng[0].value));
   else {
     unset = true;
-    coords = new L.LatLng(30, 0);
+    coords = new import_leaflet.default.LatLng(30, 0);
     zoom = 2;
   }
-  React.useEffect(() => {
+  (0, import_react4.useEffect)(() => {
     setRedraw(true);
   }, [lng, lat]);
   const setCoords = (val) => {
@@ -3623,17 +3691,17 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
         setLng([new LiteralWithId("" + val.lat)]);
     }
   };
-  return /* @__PURE__ */ jsxRuntime.jsx("div", {
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
     role: "main",
     className: "group " + (hasError ? "hasError" : ""),
     id: group.qname,
     style: { scrollMargin: "90px" },
-    children: /* @__PURE__ */ jsxRuntime.jsx("section", {
+    children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("section", {
       className: "album",
-      children: /* @__PURE__ */ jsxRuntime.jsx("div", {
+      children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
         className: "container col-lg-6 col-md-6 col-sm-12",
         style: { border: "dashed 1px none" },
-        children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", {
           className: "row card my-2 pb-3" + (edit === group.qname ? " group-edit" : "") + " show-displayPriority-" + force,
           onClick: (e) => {
             if (onGroupOpen && groupEd !== group.qname)
@@ -3642,26 +3710,26 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
             setGroupEd(group.qname);
           },
           children: [
-            /* @__PURE__ */ jsxRuntime.jsxs("p", {
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("p", {
               className: "",
               children: [
                 label,
-                hasError && /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {})
+                hasError && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_Error.default, {})
               ]
             }),
-            /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-              children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
+              children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", {
                 className: group.properties.length <= 1 ? "hidePropLabel" : "",
                 style: { fontSize: 0 },
                 children: [
-                  withoutDisplayPriority.map((property, index) => /* @__PURE__ */ jsxRuntime.jsx(PropertyContainer, {
+                  withoutDisplayPriority.map((property, index) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(PropertyContainer, {
                     property,
                     subject,
                     editable: property.readOnly !== true,
                     shape,
                     config
                   }, index)),
-                  withDisplayPriority.map((property, index) => /* @__PURE__ */ jsxRuntime.jsx(PropertyContainer, {
+                  withDisplayPriority.map((property, index) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(PropertyContainer, {
                     property,
                     subject,
                     force,
@@ -3669,64 +3737,64 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
                     shape,
                     config
                   }, index)),
-                  config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri && groupEd === group.qname && coords && /* @__PURE__ */ jsxRuntime.jsx("div", {
+                  config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri && groupEd === group.qname && coords && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
                     style: { position: "relative", overflow: "hidden", marginTop: "16px" },
-                    children: /* @__PURE__ */ jsxRuntime.jsxs(reactLeaflet.MapContainer, {
+                    children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_react_leaflet.MapContainer, {
                       style: { width: "100%", height: "400px" },
                       zoom,
                       center: coords,
                       children: [
-                        /* @__PURE__ */ jsxRuntime.jsxs(reactLeaflet.LayersControl, {
+                        /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_react_leaflet.LayersControl, {
                           position: "topright",
                           children: [
-                            config.googleMapsAPIKey && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, {
+                            config.googleMapsAPIKey && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, {
                               children: [
-                                /* @__PURE__ */ jsxRuntime.jsx(reactLeaflet.LayersControl.BaseLayer, {
+                                /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_leaflet.LayersControl.BaseLayer, {
                                   checked: true,
                                   name: "Satellite+Roadmap",
-                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer, {
+                                  children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_leaflet_google_layer.default, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "hybrid"
                                   })
                                 }),
-                                /* @__PURE__ */ jsxRuntime.jsx(reactLeaflet.LayersControl.BaseLayer, {
+                                /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_leaflet.LayersControl.BaseLayer, {
                                   name: "Satellite",
-                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer, {
+                                  children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_leaflet_google_layer.default, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "satellite"
                                   })
                                 }),
-                                /* @__PURE__ */ jsxRuntime.jsx(reactLeaflet.LayersControl.BaseLayer, {
+                                /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_leaflet.LayersControl.BaseLayer, {
                                   name: "Roadmap",
-                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer, {
+                                  children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_leaflet_google_layer.default, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "roadmap"
                                   })
                                 }),
-                                /* @__PURE__ */ jsxRuntime.jsx(reactLeaflet.LayersControl.BaseLayer, {
+                                /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_leaflet.LayersControl.BaseLayer, {
                                   name: "Terrain",
-                                  children: /* @__PURE__ */ jsxRuntime.jsx(ReactLeafletGoogleLayer, {
+                                  children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_leaflet_google_layer.default, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "terrain"
                                   })
                                 })
                               ]
                             }),
-                            !config.googleMapsAPIKey && /* @__PURE__ */ jsxRuntime.jsx(reactLeaflet.LayersControl.BaseLayer, {
+                            !config.googleMapsAPIKey && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_leaflet.LayersControl.BaseLayer, {
                               checked: true,
                               name: "OpenStreetMap",
-                              children: /* @__PURE__ */ jsxRuntime.jsx(reactLeaflet.TileLayer, {
+                              children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_leaflet.TileLayer, {
                                 url: "https://{s}.tile.iosb.fraunhofer.de/tiles/osmde/{z}/{x}/{y}.png"
                               })
                             })
                           ]
                         }),
-                        !unset && /* @__PURE__ */ jsxRuntime.jsx(DraggableMarker, {
+                        !unset && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(DraggableMarker, {
                           pos: coords,
                           icon: redIcon,
                           setCoords
                         }),
-                        /* @__PURE__ */ jsxRuntime.jsx(MapEventHandler, {
+                        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(MapEventHandler, {
                           coords,
                           redraw,
                           setCoords,
@@ -3735,11 +3803,11 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
                       ]
                     })
                   }),
-                  hasExtra && /* @__PURE__ */ jsxRuntime.jsx("span", {
+                  hasExtra && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", {
                     className: "toggle-btn  btn btn-rouge my-4",
                     onClick: toggleExtra,
-                    children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                      children: i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })
+                    children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
+                      children: import_i18next3.default.t("general.toggle", { show: force ? import_i18next3.default.t("general.hide") : import_i18next3.default.t("general.show") })
                     })
                   })
                 ]
@@ -3751,25 +3819,35 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
     })
   });
 };
+var PropertyGroupContainer_default = PropertyGroupContainer;
 
-const debug$4 = require("debug")("rde:entity:edit");
-function replaceItemAtIndex(arr, index, newValue) {
+// src/containers/EntityEditContainer.tsx
+var import_recoil6 = require("recoil");
+var rdf6 = __toESM(require("rdflib"));
+var import_react_router_dom = require("react-router-dom");
+var import_react_router_hash_link = require("react-router-hash-link");
+var import_query_string = __toESM(require("query-string"));
+var import_react_router = require("react-router");
+var import_jsx_runtime4 = require("react/jsx-runtime");
+var debug9 = require("debug")("rde:entity:edit");
+function replaceItemAtIndex2(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
 function EntityEditContainerMayUpdate(props) {
-  const params = reactRouter.useParams();
-  const location = reactRouter.useLocation();
+  const params = (0, import_react_router.useParams)();
+  const location = (0, import_react_router.useLocation)();
   const shapeQname = params.shapeQname;
   const entityQname = params.entityQname;
   const subjectQname = params.subjectQname;
   const propertyQname = params.propertyQname;
   const index = params.index;
   const subnodeQname = params.subnodeQname;
-  const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
-  const snapshot = recoil.useRecoilSnapshot();
-  const [subject, setSubject] = React.useState(null);
-  const { copy } = queryString.parse(location.search, { decode: false });
-  React.useEffect(() => {
+  const [entities, setEntities] = (0, import_recoil6.useRecoilState)(entitiesAtom);
+  const snapshot = (0, import_recoil6.useRecoilSnapshot)();
+  const [subject, setSubject] = (0, import_react5.useState)(null);
+  const { copy } = import_query_string.default.parse(location.search, { decode: false });
+  (0, import_react5.useEffect)(() => {
+    var _a;
     const i = entities.findIndex((e) => e.subjectQname === subjectQname);
     let subj;
     if (i === -1)
@@ -3780,12 +3858,12 @@ function EntityEditContainerMayUpdate(props) {
         defaultPrefixMap.uriFromQname(subnodeQname)
       );
       if (pp.length > 1 && i >= 0) {
-        const atom = entities[i].subject?.getAtomForProperty(pp[1]);
-        if (!atom) {
+        const atom3 = (_a = entities[i].subject) == null ? void 0 : _a.getAtomForProperty(pp[1]);
+        if (!atom3) {
           setSubject(null);
           return;
         }
-        subj = snapshot.getLoadable(atom).contents;
+        subj = snapshot.getLoadable(atom3).contents;
         if (Array.isArray(subj)) {
           subj = subj.filter((s) => s.qname === subnodeQname);
           if (subj.length)
@@ -3801,8 +3879,8 @@ function EntityEditContainerMayUpdate(props) {
     }
   }, []);
   if (subject && propertyQname && entityQname && index) {
-    ({ ...props, copy });
-    return /* @__PURE__ */ jsxRuntime.jsx(EntityEditContainerDoUpdate, {
+    const propsForCall = { ...props, copy };
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(EntityEditContainerDoUpdate, {
       subject,
       propertyQname,
       objectQname: entityQname,
@@ -3811,21 +3889,22 @@ function EntityEditContainerMayUpdate(props) {
       ...props
     });
   } else if (subject != null)
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_react_router_dom.Navigate, {
       to: "/edit/" + entityQname + "/" + shapeQname
     });
   else
-    return /* @__PURE__ */ jsxRuntime.jsx("div", {});
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {});
 }
 function EntityEditContainerDoUpdate(props) {
+  var _a;
   const config = props.config;
-  const params = reactRouter.useParams();
+  const params = (0, import_react_router.useParams)();
   const shapeQname = params.shapeQname;
-  const atom = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
-  const [list, setList] = recoil.useRecoilState(atom);
-  const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
+  const atom3 = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
+  const [list, setList] = (0, import_recoil6.useRecoilState)(atom3);
+  const [entities, setEntities] = (0, import_recoil6.useRecoilState)(entitiesAtom);
   const i = entities.findIndex((e) => e.subjectQname === props.objectQname);
-  const subject = entities[i]?.subject;
+  const subject = (_a = entities[i]) == null ? void 0 : _a.subject;
   let copy = null;
   if (props.copy && typeof props.copy === "string") {
     copy = props.copy.split(";").reduce((acc, p) => {
@@ -3837,7 +3916,7 @@ function EntityEditContainerDoUpdate(props) {
       return { ...acc, [q[0]]: literals };
     }, {});
   }
-  const [getProp, setProp] = recoil.useRecoilState(
+  const [getProp, setProp] = (0, import_recoil6.useRecoilState)(
     toCopySelector({
       list: subject && copy ? Object.keys(copy).map((p) => ({
         property: p,
@@ -3845,8 +3924,8 @@ function EntityEditContainerDoUpdate(props) {
       })) : void 0
     })
   );
-  debug$4("LIST:", list, atom, props.copy, copy);
-  React.useEffect(() => {
+  debug9("LIST:", list, atom3, props.copy, copy);
+  (0, import_react5.useEffect)(() => {
     if (copy) {
       setTimeout(() => {
         if (copy) {
@@ -3859,31 +3938,32 @@ function EntityEditContainerDoUpdate(props) {
       }, 1150);
     }
     const newObject = new ExtRDFResourceWithLabel(defaultPrefixMap.uriFromQname(props.objectQname), {}, {});
-    const newList = replaceItemAtIndex(list, props.index, newObject);
+    const newList = replaceItemAtIndex2(list, props.index, newObject);
     setList(newList);
   }, []);
-  return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_react_router_dom.Navigate, {
     to: "/edit/" + props.objectQname + "/" + shapeQname
   });
 }
 function EntityEditContainer(props) {
+  var _a, _b, _c, _d, _e, _f;
   const config = props.config;
-  const params = reactRouter.useParams();
+  const params = (0, import_react_router.useParams)();
   const shapeQname = params.shapeQname || "";
   const entityQname = params.entityQname || "";
-  const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
-  const [uiLang] = recoil.useRecoilState(uiLangState);
-  const [edit, setEdit] = recoil.useRecoilState(uiEditState);
-  const [groupEd, setGroupEd] = recoil.useRecoilState(uiGroupState);
-  const [undos, setUndos] = recoil.useRecoilState(uiUndosState);
-  const [profileId, setProfileId] = recoil.useRecoilState(profileIdState);
-  const [tab, setTab] = recoil.useRecoilState(uiTabState);
+  const [entities, setEntities] = (0, import_recoil6.useRecoilState)(entitiesAtom);
+  const [uiLang] = (0, import_recoil6.useRecoilState)(uiLangState);
+  const [edit, setEdit] = (0, import_recoil6.useRecoilState)(uiEditState);
+  const [groupEd, setGroupEd] = (0, import_recoil6.useRecoilState)(uiGroupState);
+  const [undos, setUndos] = (0, import_recoil6.useRecoilState)(uiUndosState);
+  const [profileId, setProfileId] = (0, import_recoil6.useRecoilState)(profileIdState);
+  const [tab, setTab] = (0, import_recoil6.useRecoilState)(uiTabState);
   const entityObj = entities.filter(
     (e) => e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user"
   );
   const icon = config.iconFromEntity(entityObj.length ? entityObj[0] : null);
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config);
-  const canPushPrefLabelGroups = shape?.groups.reduce(
+  const canPushPrefLabelGroups = shape == null ? void 0 : shape.groups.reduce(
     (acc, group) => {
       const props2 = group.properties.filter((p) => p.allowPushToTopLevelLabel).map((p) => {
         if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
@@ -3891,8 +3971,12 @@ function EntityEditContainer(props) {
       }).filter((a) => a != void 0);
       const subprops = group.properties.reduce(
         (accG, p) => {
-          const allowPush = p.targetShape?.properties.filter((s) => s.allowPushToTopLevelLabel).map((s) => s.path?.sparqlString);
-          if (allowPush?.length && entityObj && entityObj[0] && entityObj[0].subject && p.path)
+          var _a2;
+          const allowPush = (_a2 = p.targetShape) == null ? void 0 : _a2.properties.filter((s) => s.allowPushToTopLevelLabel).map((s) => {
+            var _a3;
+            return (_a3 = s.path) == null ? void 0 : _a3.sparqlString;
+          });
+          if ((allowPush == null ? void 0 : allowPush.length) && entityObj && entityObj[0] && entityObj[0].subject && p.path)
             return {
               ...accG,
               [p.qname]: { atom: entityObj[0].subject.getAtomForProperty(p.path.sparqlString), allowPush }
@@ -3901,24 +3985,24 @@ function EntityEditContainer(props) {
         },
         {}
       );
-      if (props2?.length || Object.keys(subprops).length)
+      if ((props2 == null ? void 0 : props2.length) || Object.keys(subprops).length)
         return { ...acc, [group.qname]: { props: props2, subprops } };
       return { ...acc };
     },
     {}
   );
-  const possiblePrefLabels = recoil.useRecoilValue(
+  const possiblePrefLabels = (0, import_recoil6.useRecoilValue)(
     canPushPrefLabelGroups ? possiblePrefLabelsSelector({ canPushPrefLabelGroups }) : initMapAtom
   );
-  let prefLabelAtom = entityObj[0]?.subject?.getAtomForProperty(SKOS("prefLabel").value);
+  let prefLabelAtom = (_b = (_a = entityObj[0]) == null ? void 0 : _a.subject) == null ? void 0 : _b.getAtomForProperty(SKOS("prefLabel").value);
   if (!prefLabelAtom)
     prefLabelAtom = initListAtom;
-  const [prefLabels, setPrefLabels] = recoil.useRecoilState(prefLabelAtom);
-  let altLabelAtom = entityObj[0]?.subject?.getAtomForProperty(SKOS("altLabel").value);
+  const [prefLabels, setPrefLabels] = (0, import_recoil6.useRecoilState)(prefLabelAtom);
+  let altLabelAtom = (_d = (_c = entityObj[0]) == null ? void 0 : _c.subject) == null ? void 0 : _d.getAtomForProperty(SKOS("altLabel").value);
   if (!altLabelAtom)
     altLabelAtom = initListAtom;
-  const altLabels = recoil.useRecoilValue(altLabelAtom);
-  React.useEffect(() => {
+  const altLabels = (0, import_recoil6.useRecoilValue)(altLabelAtom);
+  (0, import_react5.useEffect)(() => {
     entities.map((e, i) => {
       if (e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user") {
         if (tab != i) {
@@ -3929,7 +4013,7 @@ function EntityEditContainer(props) {
     });
   }, [entities, profileId]);
   let init = 0;
-  React.useEffect(() => {
+  (0, import_react5.useEffect)(() => {
     if (entityQname === "tmp:user" && !profileId)
       return;
     const delay = 350;
@@ -3951,21 +4035,23 @@ function EntityEditContainer(props) {
       }
     }, delay);
   }, [entities, tab, profileId, entityQname]);
-  const [userId, setUserId] = recoil.useRecoilState(userIdState);
-  const save = React.useCallback(
+  const [userId, setUserId] = (0, import_recoil6.useRecoilState)(userIdState);
+  const save = (0, import_react5.useCallback)(
     (obj) => {
       return new Promise(async (resolve) => {
-        if ([EditedEntityState.NeedsSaving, EditedEntityState.Error].includes(obj[0].state)) {
-          const defaultRef = new rdf__namespace.NamedNode(rdf__namespace.Store.defaultGraphURI);
-          const store = new rdf__namespace.Store();
+        var _a2, _b2;
+        if ([2 /* NeedsSaving */, 0 /* Error */].includes(obj[0].state)) {
+          const defaultRef = new rdf6.NamedNode(rdf6.Store.defaultGraphURI);
+          const store = new rdf6.Store();
           defaultPrefixMap.setDefaultPrefixes(store);
-          obj[0]?.subject?.graph.addNewValuestoStore(store);
-          rdf__namespace.serialize(defaultRef, store, void 0, "text/turtle", async function(err, str) {
+          (_b2 = (_a2 = obj[0]) == null ? void 0 : _a2.subject) == null ? void 0 : _b2.graph.addNewValuestoStore(store);
+          rdf6.serialize(defaultRef, store, void 0, "text/turtle", async function(err, str) {
+            var _a3;
             if (err || !str) {
-              debug$4(err, store);
+              debug9(err, store);
               throw "error when serializing";
             }
-            const shape2 = obj[0]?.shapeQname;
+            const shape2 = (_a3 = obj[0]) == null ? void 0 : _a3.shapeQname;
             config.setUserLocalEntity(
               obj[0].subjectQname,
               shape2,
@@ -3973,7 +4059,7 @@ function EntityEditContainer(props) {
               false,
               userId,
               obj[0].etag,
-              obj[0].state === EditedEntityState.NeedsSaving
+              obj[0].state === 2 /* NeedsSaving */
             );
             resolve(true);
           });
@@ -3982,31 +4068,32 @@ function EntityEditContainer(props) {
     },
     [entityQname, shapeQname, entityObj]
   );
-  const entityObjRef = React.useRef(entityObj);
-  React.useEffect(() => {
-    if (entityObjRef.current?.length && entityObj?.length) {
-      if (entityObjRef.current[0]?.subjectQname != entityObj[0]?.subjectQname) {
+  const entityObjRef = (0, import_react5.useRef)(entityObj);
+  (0, import_react5.useEffect)(() => {
+    var _a2, _b2, _c2;
+    if (((_a2 = entityObjRef.current) == null ? void 0 : _a2.length) && (entityObj == null ? void 0 : entityObj.length)) {
+      if (((_b2 = entityObjRef.current[0]) == null ? void 0 : _b2.subjectQname) != ((_c2 = entityObj[0]) == null ? void 0 : _c2.subjectQname)) {
         save(entityObjRef.current);
       }
     }
   });
-  React.useEffect(() => {
+  (0, import_react5.useEffect)(() => {
     return () => {
       const fun = async () => {
         if (entityObjRef.current) {
-          debug$4("unmounting /edit", entityObjRef.current);
+          debug9("unmounting /edit", entityObjRef.current);
           await save(entityObjRef.current);
         }
       };
       fun();
     };
   }, []);
-  const [warning, setWarning] = React.useState(() => (event) => {
+  const [warning, setWarning] = (0, import_react5.useState)(() => (event) => {
   });
-  React.useEffect(() => {
+  (0, import_react5.useEffect)(() => {
     const willSave = [];
     for (const e of entities) {
-      if (e.state !== EditedEntityState.Saved && e.state !== EditedEntityState.NotLoaded) {
+      if (e.state !== 1 /* Saved */ && e.state !== 4 /* NotLoaded */) {
         willSave.push(e);
       }
     }
@@ -4025,15 +4112,15 @@ function EntityEditContainer(props) {
       });
     }
   }, [entities]);
-  React.useEffect(() => {
+  (0, import_react5.useEffect)(() => {
     window.addEventListener("beforeunload", warning, true);
   }, [warning]);
   const { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config);
   if (loadingState.status === "error" || entityLoadingState.status === "error") {
-    return /* @__PURE__ */ jsxRuntime.jsxs("p", {
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("p", {
       className: "text-center text-muted",
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx(BrokenImageIcon, {
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_BrokenImage.default, {
           className: "icon mr-2"
         }),
         loadingState.error,
@@ -4042,29 +4129,30 @@ function EntityEditContainer(props) {
     });
   }
   if (loadingState.status === "fetching" || entityLoadingState.status === "fetching" || !entity || entity.isEmpty()) {
-    return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-      children: /* @__PURE__ */ jsxRuntime.jsx("div", {
-        children: /* @__PURE__ */ jsxRuntime.jsx("div", {
-          children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-            children: i18n.t("types.loading")
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_jsx_runtime4.Fragment, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
+          children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_jsx_runtime4.Fragment, {
+            children: import_i18next4.default.t("types.loading")
           })
         })
       })
     });
   }
   if (!shape || !entity)
-    return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-      children: /* @__PURE__ */ jsxRuntime.jsx("div", {
-        children: /* @__PURE__ */ jsxRuntime.jsx("div", {
-          children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-            children: i18n.t("types.loading")
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_jsx_runtime4.Fragment, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
+          children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_jsx_runtime4.Fragment, {
+            children: import_i18next4.default.t("types.loading")
           })
         })
       })
     });
   const shapeLabel = ValueByLangToStrPrefLang(shape.targetClassPrefLabels, uiLang);
   const checkPushNameAsPrefLabel = (e, currentGroupName) => {
-    if (possiblePrefLabels && possiblePrefLabels[currentGroupName]?.length) {
+    var _a2;
+    if (possiblePrefLabels && ((_a2 = possiblePrefLabels[currentGroupName]) == null ? void 0 : _a2.length)) {
       const newLabels = [...prefLabels];
       for (const n of possiblePrefLabels[currentGroupName]) {
         if (n instanceof LiteralWithId && !newLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language)) && !altLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language)))
@@ -4078,36 +4166,36 @@ function EntityEditContainer(props) {
     e.stopPropagation();
   };
   const previewLink = config.getPreviewLink(entity.node);
-  return /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_react5.default.Fragment, {
     children: [
-      /* @__PURE__ */ jsxRuntime.jsx("div", {
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
         role: "main",
         className: "pt-4",
         style: { textAlign: "center" },
-        children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
-          className: "header " + icon?.toLowerCase(),
+        children: /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", {
+          className: "header " + (icon == null ? void 0 : icon.toLowerCase()),
           ...!icon ? { "data-shape": shape.qname } : {},
           children: [
-            /* @__PURE__ */ jsxRuntime.jsx("div", {
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
               className: "shape-icon"
             }),
-            /* @__PURE__ */ jsxRuntime.jsxs("div", {
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", {
               children: [
-                /* @__PURE__ */ jsxRuntime.jsx("h1", {
+                /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", {
                   children: shapeLabel
                 }),
-                /* @__PURE__ */ jsxRuntime.jsx("span", {
+                /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", {
                   children: entity.qname
                 }),
-                previewLink && /* @__PURE__ */ jsxRuntime.jsx("div", {
+                previewLink && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
                   className: "buda-link",
-                  children: /* @__PURE__ */ jsxRuntime.jsx("a", {
-                    className: "btn-rouge" + (!entityObj[0]?.etag ? " disabled" : ""),
+                  children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("a", {
+                    className: "btn-rouge" + (!((_e = entityObj[0]) == null ? void 0 : _e.etag) ? " disabled" : ""),
                     target: "_blank",
                     rel: "noreferrer",
-                    ...!entityObj[0]?.etag ? { title: i18n.t("error.preview") } : { href: previewLink },
-                    children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                      children: i18n.t("general.preview")
+                    ...!((_f = entityObj[0]) == null ? void 0 : _f.etag) ? { title: import_i18next4.default.t("error.preview") } : { href: previewLink },
+                    children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_jsx_runtime4.Fragment, {
+                      children: import_i18next4.default.t("general.preview")
                     })
                   })
                 })
@@ -4116,40 +4204,40 @@ function EntityEditContainer(props) {
           ]
         })
       }),
-      /* @__PURE__ */ jsxRuntime.jsxs("div", {
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", {
         role: "navigation",
         className: "innerNav",
         children: [
-          /* @__PURE__ */ jsxRuntime.jsx("p", {
+          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", {
             className: "text-uppercase small my-2",
-            children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-              children: i18n.t("home.nav")
+            children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_jsx_runtime4.Fragment, {
+              children: import_i18next4.default.t("home.nav")
             })
           }),
           shape.groups.map((group, index) => {
             const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
-            return /* @__PURE__ */ jsxRuntime.jsx(reactRouterHashLink.HashLink, {
+            return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_react_router_hash_link.HashLink, {
               to: "#" + group.qname,
               onClick: () => {
                 setGroupEd(group.qname);
                 setEdit(group.qname);
               },
               className: groupEd === group.qname ? "on" : "",
-              children: /* @__PURE__ */ jsxRuntime.jsx("span", {
+              children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", {
                 children: label
               })
             }, group.qname);
           })
         ]
       }),
-      /* @__PURE__ */ jsxRuntime.jsx("div", {
-        children: shape.groups.map((group, index) => /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, {
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
+        children: shape.groups.map((group, index) => /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, {
           children: [
-            groupEd === group.qname && /* @__PURE__ */ jsxRuntime.jsx("div", {
+            groupEd === group.qname && /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
               className: "group-edit-BG",
               onClick: (e) => checkPushNameAsPrefLabel(e, group.qname)
             }),
-            /* @__PURE__ */ jsxRuntime.jsx(PropertyGroupContainer, {
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(PropertyGroupContainer_default, {
               group,
               subject: entity,
               onGroupOpen: checkPushNameAsPrefLabel,
@@ -4162,25 +4250,34 @@ function EntityEditContainer(props) {
     ]
   });
 }
+var EntityEditContainer_default = EntityEditContainer;
 
+// src/containers/NewEntityContainer.tsx
+var import_react6 = require("react");
+var import_recoil7 = require("recoil");
+var import_react_router_dom2 = require("react-router-dom");
+var import_i18next5 = __toESM(require("i18next"));
+var import_react_i18next = require("react-i18next");
+var import_material2 = require("@mui/material");
+var import_jsx_runtime5 = require("react/jsx-runtime");
 function NewEntityContainer(props) {
   const config = props.config || {};
-  const [uiLang] = recoil.useRecoilState(uiLangState);
-  const [RID, setRID] = React.useState("");
-  const [RIDprefix, setRIDprefix] = recoil.useRecoilState(RIDprefixState);
-  const navigate = reactRouterDom.useNavigate();
+  const [uiLang] = (0, import_recoil7.useRecoilState)(uiLangState);
+  const [RID, setRID] = (0, import_react6.useState)("");
+  const [RIDprefix, setRIDprefix] = (0, import_recoil7.useRecoilState)(RIDprefixState);
+  const navigate = (0, import_react_router_dom2.useNavigate)();
   const disabled = !RIDprefix;
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", {
+  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", {
     className: "new-fix",
     children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("div", {
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", {
         children: [
-          /* @__PURE__ */ jsxRuntime.jsx("b", {
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("b", {
             children: "New entity:"
           }),
-          /* @__PURE__ */ jsxRuntime.jsxs("span", {
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("span", {
             children: [
-              /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
+              /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_material2.TextField, {
                 ...disabled ? { disabled: true } : {},
                 select: true,
                 helperText: "List of all possible shapes",
@@ -4188,22 +4285,22 @@ function NewEntityContainer(props) {
                 className: "shapeSelector",
                 value: config.possibleShapeRefs[0].qname,
                 style: { marginTop: "3px", marginLeft: "10px" },
-                children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ jsxRuntime.jsx(core.MenuItem, {
+                children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_material2.MenuItem, {
                   value: shape.qname,
                   style: { padding: 0 },
-                  children: /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Link, {
+                  children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_router_dom2.Link, {
                     to: "/new/" + shape.qname,
                     className: "popLink",
                     children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang)
                   })
                 }, shape.qname))
               }),
-              disabled && RIDprefix === "" && /* @__PURE__ */ jsxRuntime.jsx("span", {
+              disabled && RIDprefix === "" && /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", {
                 className: "pl-2",
                 style: { fontStyle: "italic", fontWeight: 500, color: "#d73449", fontSize: 14 },
-                children: /* @__PURE__ */ jsxRuntime.jsx(reactI18next.Trans, {
+                children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_i18next.Trans, {
                   i18nKey: "error.prefix",
-                  components: { res: /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Link, {
+                  components: { res: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_router_dom2.Link, {
                     className: "profile-link",
                     to: "/profile"
                   }) }
@@ -4213,20 +4310,20 @@ function NewEntityContainer(props) {
           })
         ]
       }),
-      /* @__PURE__ */ jsxRuntime.jsxs("div", {
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", {
         style: { display: "flex", alignItems: "baseline" },
         children: [
-          /* @__PURE__ */ jsxRuntime.jsxs("div", {
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", {
             style: { marginRight: "10px" },
             children: [
-              /* @__PURE__ */ jsxRuntime.jsx("b", {
+              /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("b", {
                 children: "Load entity:"
               }),
               " "
             ]
           }),
-          /* @__PURE__ */ jsxRuntime.jsx("div", {
-            children: /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", {
+            children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_material2.TextField, {
               style: { width: "100%" },
               value: RID,
               InputLabelProps: { shrink: true },
@@ -4238,13 +4335,13 @@ function NewEntityContainer(props) {
               }
             })
           }),
-          /* @__PURE__ */ jsxRuntime.jsx("div", {
-            children: /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Link, {
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", {
+            children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_router_dom2.Link, {
               to: "/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase(),
               className: "btn btn-sm btn-outline-primary py-3 ml-2 lookup btn-rouge " + (!RID ? "disabled" : ""),
               style: { boxShadow: "none", alignSelf: "center", marginBottom: "15px" },
-              children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                children: i18n.t("search.open")
+              children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_jsx_runtime5.Fragment, {
+                children: import_i18next5.default.t("search.open")
               })
             })
           })
@@ -4253,14 +4350,29 @@ function NewEntityContainer(props) {
     ]
   });
 }
+var NewEntityContainer_default = NewEntityContainer;
 
-const debug$3 = require("debug")("rde:entity:entitycreation");
+// src/containers/EntityCreationContainer.tsx
+var import_recoil8 = require("recoil");
+
+// src/containers/Dialog.tsx
+var import_react7 = __toESM(require("react"));
+var import_react_router_dom3 = require("react-router-dom");
+var import_Button = __toESM(require("@mui/material/Button"));
+var import_Dialog = __toESM(require("@mui/material/Dialog"));
+var import_DialogActions = __toESM(require("@mui/material/DialogActions"));
+var import_DialogContent = __toESM(require("@mui/material/DialogContent"));
+var import_DialogContentText = __toESM(require("@mui/material/DialogContentText"));
+var import_DialogTitle = __toESM(require("@mui/material/DialogTitle"));
+var import_jsx_runtime6 = require("react/jsx-runtime");
+var debug10 = require("debug")("rde:entity:entitycreation");
 function Dialog422(props) {
-  const [open, setOpen] = React.useState(props.open);
-  const shape = props.shaped.split(":")[1]?.replace(/Shape$/, "");
-  const [createNew, setCreateNew] = React.useState(false);
-  const [loadNamed, setLoadNamed] = React.useState(false);
-  debug$3("422:", props);
+  var _a;
+  const [open, setOpen] = import_react7.default.useState(props.open);
+  const shape = (_a = props.shaped.split(":")[1]) == null ? void 0 : _a.replace(/Shape$/, "");
+  const [createNew, setCreateNew] = (0, import_react7.useState)(false);
+  const [loadNamed, setLoadNamed] = (0, import_react7.useState)(false);
+  debug10("422:", props);
   const handleLoad = () => {
     setLoadNamed(true);
     setOpen(false);
@@ -4270,19 +4382,19 @@ function Dialog422(props) {
     setOpen(false);
   };
   if (createNew)
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom3.Navigate, {
       to: props.newUrl
     });
   else if (loadNamed)
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom3.Navigate, {
       to: props.editUrl
     });
   else
-    return /* @__PURE__ */ jsxRuntime.jsx("div", {
-      children: /* @__PURE__ */ jsxRuntime.jsxs(Dialog, {
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", {
+      children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_Dialog.default, {
         open,
         children: [
-          /* @__PURE__ */ jsxRuntime.jsxs(DialogTitle, {
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_DialogTitle.default, {
             children: [
               shape,
               " ",
@@ -4290,8 +4402,8 @@ function Dialog422(props) {
               " has already been created"
             ]
           }),
-          /* @__PURE__ */ jsxRuntime.jsx(DialogContent, {
-            children: /* @__PURE__ */ jsxRuntime.jsxs(DialogContentText, {
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_DialogContent.default, {
+            children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_DialogContentText.default, {
               children: [
                 "Do you want to use it, or to create a new ",
                 shape,
@@ -4299,28 +4411,28 @@ function Dialog422(props) {
               ]
             })
           }),
-          /* @__PURE__ */ jsxRuntime.jsxs(DialogActions, {
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_DialogActions.default, {
             style: { justifyContent: "space-around" },
             children: [
-              /* @__PURE__ */ jsxRuntime.jsxs(Button, {
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_Button.default, {
                 className: "btn-rouge",
                 onClick: handleLoad,
                 color: "primary",
                 children: [
                   "Use\xA0",
-                  /* @__PURE__ */ jsxRuntime.jsx("span", {
+                  /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", {
                     style: { textTransform: "none" },
                     children: props.named
                   })
                 ]
               }),
-              /* @__PURE__ */ jsxRuntime.jsxs(Button, {
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_Button.default, {
                 className: "btn-rouge",
                 onClick: handleNew,
                 color: "primary",
                 children: [
                   "Create\xA0",
-                  /* @__PURE__ */ jsxRuntime.jsx("span", {
+                  /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", {
                     style: { textTransform: "none" },
                     children: shape
                   }),
@@ -4329,42 +4441,50 @@ function Dialog422(props) {
               })
             ]
           }),
-          /* @__PURE__ */ jsxRuntime.jsx("br", {})
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("br", {})
         ]
       })
     });
 }
 
-const debug$2 = require("debug")("rde:entity:entitycreation");
+// src/containers/EntityCreationContainer.tsx
+var import_react_router_dom4 = require("react-router-dom");
+var import_react8 = require("react");
+var import_BrokenImage2 = __toESM(require("@mui/icons-material/BrokenImage"));
+var import_i18next6 = __toESM(require("i18next"));
+var import_query_string2 = __toESM(require("query-string"));
+var rdf7 = __toESM(require("rdflib"));
+var import_jsx_runtime7 = require("react/jsx-runtime");
+var debug11 = require("debug")("rde:entity:entitycreation");
 function EntityCreationContainer(props) {
   const config = props.config;
-  const params = reactRouterDom.useParams();
+  const params = (0, import_react_router_dom4.useParams)();
   const subjectQname = params.subjectQname;
   const shapeQname = params.shapeQname || "";
   const propertyQname = params.propertyQname;
   const index = params.index;
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
-  const [RIDprefix, setRIDprefix] = recoil.useRecoilState(RIDprefixState);
-  const location = reactRouterDom.useLocation();
+  const [RIDprefix, setRIDprefix] = (0, import_recoil8.useRecoilState)(RIDprefixState);
+  const location = (0, import_react_router_dom4.useLocation)();
   const unmounting = { val: false };
-  React.useEffect(() => {
+  (0, import_react8.useEffect)(() => {
     return () => {
       unmounting.val = true;
     };
   }, []);
   if (RIDprefix == "")
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom4.Navigate, {
       to: "/new"
     });
-  const shapeNode = rdf__namespace.sym(config.prefixMap.uriFromQname(shapeQname));
-  const entityNode = rdf__namespace.sym(config.prefixMap.uriFromQname(entityQname));
+  const shapeNode = rdf7.sym(config.prefixMap.uriFromQname(shapeQname));
+  const entityNode = rdf7.sym(config.prefixMap.uriFromQname(entityQname));
   const { entityLoadingState, entity } = unmounting.val ? { entityLoadingState: { status: "idle", error: void 0 }, entity: null } : config.entityCreator(shapeNode, entityNode, unmounting);
-  debug$2("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname);
+  debug11("new:", entityLoadingState, entity, entityQname, entity == null ? void 0 : entity.qname, shapeQname);
   if (entityLoadingState.error === "422" && entity) {
     const editUrl = subjectQname && propertyQname && index != void 0 ? "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "") : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname;
     const newUrl = location.pathname.replace(/\/named\/.*/, "") + location.search;
-    return /* @__PURE__ */ jsxRuntime.jsx(Dialog422, {
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Dialog422, {
       open: true,
       shaped: shapeQname,
       named: entityQname,
@@ -4373,90 +4493,109 @@ function EntityCreationContainer(props) {
     });
   } else if (entity) {
     if (subjectQname && propertyQname && index != void 0)
-      return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
+      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom4.Navigate, {
         to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
       });
     else
-      return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
+      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom4.Navigate, {
         to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname
       });
   }
   if (entityLoadingState.status === "error") {
-    return /* @__PURE__ */ jsxRuntime.jsxs("p", {
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", {
       className: "text-center text-muted",
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx(BrokenImageIcon, {
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_BrokenImage2.default, {
           className: "icon mr-2"
         }),
         entityLoadingState.error
       ]
     });
   }
-  return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-    children: /* @__PURE__ */ jsxRuntime.jsx("div", {
-      children: /* @__PURE__ */ jsxRuntime.jsx("div", {
-        children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-          children: i18n.t("types.creating")
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
+      children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
+          children: import_i18next6.default.t("types.creating")
         })
       })
     })
   });
 }
 function EntityCreationContainerAlreadyOpen(props) {
-  const params = reactRouterDom.useParams();
+  const params = (0, import_react_router_dom4.useParams)();
   const subjectQname = params.subjectQname;
   const shapeQname = params.shapeQname;
   const propertyQname = params.propertyQname;
   const index = params.index;
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname;
-  React.useEffect(() => {
-    return () => {
-    };
-  }, []);
-  if (subjectQname && propertyQname && index != void 0)
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
-      to: "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
-    });
-  else
-    return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
-      to: "/edit/" + entityQname + "/" + shapeQname
-    });
-}
-function EntityCreationContainerRoute(props) {
-  const params = reactRouterDom.useParams();
-  const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
-  const i = entities.findIndex((e) => e.subjectQname === params.entityQname);
-  const theEntity = entities[i];
-  const location = reactRouterDom.useLocation();
-  const { copy } = queryString.parse(location.search, { decode: false });
-  if (theEntity)
-    return /* @__PURE__ */ jsxRuntime.jsx(EntityCreationContainerAlreadyOpen, {
-      ...props,
-      copy
-    });
-  else
-    return /* @__PURE__ */ jsxRuntime.jsx(EntityCreationContainer, {
-      ...props,
-      copy
-    });
-}
-
-const debug$1 = require("debug")("rde:entity:shape");
-function EntityShapeChooserContainer(props) {
-  const config = props.config;
-  const params = reactRouterDom.useParams();
-  const navigate = reactRouterDom.useNavigate();
-  const [entityQname, setEntityQname] = React.useState(params.entityQname || "");
-  const [uiLang] = recoil.useRecoilState(uiLangState);
-  const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
   const unmounting = { val: false };
-  React.useEffect(() => {
+  (0, import_react8.useEffect)(() => {
     return () => {
       unmounting.val = true;
     };
   }, []);
-  React.useEffect(() => {
+  if (subjectQname && propertyQname && index != void 0)
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom4.Navigate, {
+      to: "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
+    });
+  else
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom4.Navigate, {
+      to: "/edit/" + entityQname + "/" + shapeQname
+    });
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
+      children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
+          children: import_i18next6.default.t("types.loading")
+        })
+      })
+    })
+  });
+}
+function EntityCreationContainerRoute(props) {
+  const params = (0, import_react_router_dom4.useParams)();
+  const [entities, setEntities] = (0, import_recoil8.useRecoilState)(entitiesAtom);
+  const i = entities.findIndex((e) => e.subjectQname === params.entityQname);
+  const theEntity = entities[i];
+  const location = (0, import_react_router_dom4.useLocation)();
+  const { copy } = import_query_string2.default.parse(location.search, { decode: false });
+  if (theEntity)
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(EntityCreationContainerAlreadyOpen, {
+      ...props,
+      copy
+    });
+  else
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(EntityCreationContainer, {
+      ...props,
+      copy
+    });
+}
+var EntityCreationContainer_default = EntityCreationContainer;
+
+// src/containers/EntityShapeChooserContainer.tsx
+var import_react9 = require("react");
+var import_i18next7 = __toESM(require("i18next"));
+var import_recoil9 = require("recoil");
+var import_react_router_dom5 = require("react-router-dom");
+var import_material3 = require("@mui/material");
+var import_jsx_runtime8 = require("react/jsx-runtime");
+var debug12 = require("debug")("rde:entity:shape");
+function EntityShapeChooserContainer(props) {
+  const config = props.config;
+  const params = (0, import_react_router_dom5.useParams)();
+  const navigate = (0, import_react_router_dom5.useNavigate)();
+  const [entityQname, setEntityQname] = (0, import_react9.useState)(params.entityQname || "");
+  const [uiLang] = (0, import_recoil9.useRecoilState)(uiLangState);
+  const [entities, setEntities] = (0, import_recoil9.useRecoilState)(entitiesAtom);
+  const unmounting = { val: false };
+  (0, import_react9.useEffect)(() => {
+    return () => {
+      unmounting.val = true;
+    };
+  }, []);
+  (0, import_react9.useEffect)(() => {
     if (unmounting.val)
       return;
     else if (params.entityQname)
@@ -4466,10 +4605,10 @@ function EntityShapeChooserContainer(props) {
   if (entityFromList && entityFromList.shapeQname) {
     const shapeQname = entityFromList.shapeQname;
     navigate("/edit/" + entityQname + "/" + shapeQname, { replace: true });
-    return /* @__PURE__ */ jsxRuntime.jsx("div", {
-      children: /* @__PURE__ */ jsxRuntime.jsx("div", {
-        children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-          children: i18n.t("types.redirect")
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", {
+      children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, {
+          children: import_i18next7.default.t("types.redirect")
         })
       })
     });
@@ -4478,51 +4617,51 @@ function EntityShapeChooserContainer(props) {
   if (entity) {
     const possibleShapes = config.possibleShapeRefsForEntity(entity.node);
     if (entityLoadingState.status === "fetching") {
-      return /* @__PURE__ */ jsxRuntime.jsx("div", {
-        children: /* @__PURE__ */ jsxRuntime.jsx("div", {
-          children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-            children: i18n.t("types.loading")
+      return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", {
+          children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, {
+            children: import_i18next7.default.t("types.loading")
           })
         })
       });
     } else if (entityLoadingState.error === "not found") {
-      return /* @__PURE__ */ jsxRuntime.jsx("div", {
+      return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", {
         className: "error",
-        children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", {
           children: [
-            /* @__PURE__ */ jsxRuntime.jsx("span", {
-              children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                children: i18n.t("error.exist", { id: entityQname })
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", {
+              children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, {
+                children: import_i18next7.default.t("error.exist", { id: entityQname })
               })
             }),
-            /* @__PURE__ */ jsxRuntime.jsx("br", {}),
-            /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Link, {
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("br", {}),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_react_router_dom5.Link, {
               style: { fontWeight: 700 },
               to: "/new",
-              children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                children: i18n.t("error.redirect")
+              children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, {
+                children: import_i18next7.default.t("error.redirect")
               })
             })
           ]
         })
       });
     } else if (!possibleShapes) {
-      debug$1("cannot find", entity, entityLoadingState);
-      return /* @__PURE__ */ jsxRuntime.jsx("div", {
+      debug12("cannot find", entity, entityLoadingState);
+      return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", {
         className: "error",
-        children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", {
           children: [
-            /* @__PURE__ */ jsxRuntime.jsx("span", {
-              children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                children: i18n.t("error.shape", { id: entityQname })
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", {
+              children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, {
+                children: import_i18next7.default.t("error.shape", { id: entityQname })
               })
             }),
-            /* @__PURE__ */ jsxRuntime.jsx("br", {}),
-            /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Link, {
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("br", {}),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_react_router_dom5.Link, {
               style: { fontWeight: 700 },
               to: "/new",
-              children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                children: i18n.t("error.redirect")
+              children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, {
+                children: import_i18next7.default.t("error.redirect")
               })
             })
           ]
@@ -4541,24 +4680,24 @@ function EntityShapeChooserContainer(props) {
           }
         }
       };
-      return /* @__PURE__ */ jsxRuntime.jsx("div", {
+      return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", {
         className: "centered-ctn",
-        children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", {
           children: [
-            /* @__PURE__ */ jsxRuntime.jsx("b", {
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("b", {
               children: "Choose a shape:"
             }),
-            /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material3.TextField, {
               select: true,
               helperText: "List of all possible shapes",
               id: "shapeSelec",
               className: "shapeSelector",
               value: config.possibleShapeRefs[0].qname,
               style: { marginTop: "3px", marginLeft: "10px" },
-              children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ jsxRuntime.jsx(core.MenuItem, {
+              children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material3.MenuItem, {
                 value: shape.qname,
                 style: { padding: 0 },
-                children: /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Link, {
+                children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_react_router_dom5.Link, {
                   to: "/edit/" + entityQname + "/" + shape.qname,
                   className: "popLink",
                   onClick: (ev) => handleClick(ev, shape),
@@ -4570,32 +4709,43 @@ function EntityShapeChooserContainer(props) {
         })
       });
     } else {
-      return /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Navigate, {
+      return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_react_router_dom5.Navigate, {
         to: "/edit/" + entityQname + "/" + possibleShapes[0].qname
       });
     }
   }
-  return /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-    children: /* @__PURE__ */ jsxRuntime.jsx("div", {
-      children: /* @__PURE__ */ jsxRuntime.jsx("div", {
-        children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-          children: i18n.t("types.loading")
+  return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", {
+      children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, {
+          children: import_i18next7.default.t("types.loading")
         })
       })
     })
   });
 }
+var EntityShapeChooserContainer_default = EntityShapeChooserContainer;
 
-const debug = require("debug")("rde:atom:event:RS");
-styles.makeStyles((theme) => ({
+// src/containers/BUDAResourceSelector.tsx
+var import_react10 = __toESM(require("react"));
+var import_recoil10 = require("recoil");
+var import_styles2 = require("@mui/styles");
+var import_material4 = require("@mui/material");
+var import_i18next8 = __toESM(require("i18next"));
+var import_react_router_dom6 = require("react-router-dom");
+var rdf8 = __toESM(require("rdflib"));
+var import_jsx_runtime9 = require("react/jsx-runtime");
+var import_react11 = require("react");
+var debug13 = require("debug")("rde:atom:event:RS");
+var useStyles2 = (0, import_styles2.makeStyles)((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
     }
   }
 }));
-const BDR_uri = "http://purl.bdrc.io/resource/";
-const BUDAResourceSelector = ({
+var BDR_uri = "http://purl.bdrc.io/resource/";
+var BUDAResourceSelector = ({
   value,
   onChange,
   property,
@@ -4610,34 +4760,36 @@ const BUDAResourceSelector = ({
   shape,
   config
 }) => {
-  const [keyword, setKeyword] = React.useState("");
-  const [language, setLanguage] = React.useState("bo-x-ewts");
-  const [type, setType] = React.useState(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
-  const [libraryURL, setLibraryURL] = React.useState("");
-  const [uiLang, setUiLang] = recoil.useRecoilState(uiLangState);
-  const [uiLitLang, setUiLitLang] = recoil.useRecoilState(uiLitLangState);
-  const [error, setError] = React.useState();
-  const [entities, setEntities] = recoil.useRecoilState(entitiesAtom);
-  const navigate = reactRouterDom.useNavigate();
+  var _a, _b, _c, _d;
+  const [keyword, setKeyword] = (0, import_react10.useState)("");
+  const [language, setLanguage] = (0, import_react10.useState)("bo-x-ewts");
+  const [type, setType] = (0, import_react10.useState)(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
+  const [libraryURL, setLibraryURL] = (0, import_react10.useState)("");
+  const [uiLang, setUiLang] = (0, import_recoil10.useRecoilState)(uiLangState);
+  const [uiLitLang, setUiLitLang] = (0, import_recoil10.useRecoilState)(uiLitLangState);
+  const [error, setError] = (0, import_react10.useState)();
+  const [entities, setEntities] = (0, import_recoil10.useRecoilState)(entitiesAtom);
+  const navigate = (0, import_react_router_dom6.useNavigate)();
   const msgId = subject.qname + property.qname + idx;
-  const [popupNew, setPopupNew] = React.useState(false);
-  const iframeRef = React.useRef(null);
-  const [canCopy, setCanCopy] = React.useState([]);
+  const [popupNew, setPopupNew] = (0, import_react10.useState)(false);
+  const iframeRef = (0, import_react10.useRef)(null);
+  const [canCopy, setCanCopy] = (0, import_react10.useState)([]);
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i);
-  const [toCopy, setProp] = recoil.useRecoilState(
+  const [toCopy, setProp] = (0, import_recoil10.useRecoilState)(
     toCopySelector({
-      list: property.copyObjectsOfProperty?.map((p) => ({
+      list: (_a = property.copyObjectsOfProperty) == null ? void 0 : _a.map((p) => ({
         property: defaultPrefixMap.qnameFromUri(p.value),
         atom: (owner ? owner : subject).getAtomForProperty(p.uri)
       }))
     })
   );
-  React.useEffect(() => {
-    if (property.copyObjectsOfProperty?.length) {
+  (0, import_react10.useEffect)(() => {
+    var _a2, _b2;
+    if ((_a2 = property.copyObjectsOfProperty) == null ? void 0 : _a2.length) {
       const copy = [];
       for (const prop of property.copyObjectsOfProperty) {
         const propQname = defaultPrefixMap.qnameFromUri(prop.value);
-        if (value.otherData[propQname]?.length)
+        if ((_b2 = value.otherData[propQname]) == null ? void 0 : _b2.length)
           copy.push({
             k: propQname,
             val: value.otherData[propQname].map(
@@ -4648,18 +4800,18 @@ const BUDAResourceSelector = ({
       setCanCopy(copy);
     }
   }, []);
-  React.useEffect(() => {
+  (0, import_react10.useEffect)(() => {
     if (globalError && !error)
       setError(globalError);
   }, [globalError]);
   if (!property.expectedObjectTypes) {
-    debug(property);
+    debug13(property);
     throw "can't get the types for property " + property.qname;
   }
   const closeFrame = () => {
-    debug("close?", value, isRid, libraryURL);
+    debug13("close?", value, isRid, libraryURL);
     if (iframeRef.current && isRid) {
-      debug("if:", iframeRef.current);
+      debug13("if:", iframeRef.current);
       iframeRef.current.click();
       const wn = iframeRef.current.contentWindow;
       if (wn)
@@ -4670,7 +4822,7 @@ const BUDAResourceSelector = ({
     }
   };
   let msgHandler = null;
-  React.useEffect(() => {
+  (0, import_react10.useEffect)(() => {
     const updateRes = (data) => {
       let isTypeOk = false;
       let actual;
@@ -4684,7 +4836,7 @@ const BUDAResourceSelector = ({
           isTypeOk = true;
         const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
         if (!isTypeOk) {
-          setError(i18n.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+          setError("" + import_i18next8.default.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
           if (libraryURL)
             setLibraryURL("");
         }
@@ -4727,18 +4879,18 @@ const BUDAResourceSelector = ({
         if (!window.location.href.includes(ev.origin)) {
           const data = JSON.parse(ev.data);
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
-            debug("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug13("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
-            setError(i18n.t("error.notF", { RID: data["@id"] }));
+            setError("" + import_i18next8.default.t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
-            debug("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug13("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
           } else {
             setLibraryURL("");
           }
         }
       } catch (err) {
-        debug("error: %o", err);
+        debug13("error: %o", err);
       }
     };
     window.addEventListener("message", msgHandler, true);
@@ -4747,14 +4899,14 @@ const BUDAResourceSelector = ({
         window.removeEventListener("message", msgHandler, true);
     };
   }, [libraryURL]);
-  React.useEffect(() => {
+  (0, import_react10.useEffect)(() => {
     if (value.otherData["tmp:keyword"]) {
       setKeyword(value.otherData["tmp:keyword"]["@value"]);
       setLanguage(value.otherData["tmp:keyword"]["@language"]);
     }
   }, []);
   const updateLibrary = (ev, newlang, newtype) => {
-    debug("updLib: %o", msgId);
+    debug13("updLib: %o", msgId);
     if (ev && libraryURL) {
       setLibraryURL("");
     } else if (msgId) {
@@ -4763,16 +4915,16 @@ const BUDAResourceSelector = ({
           config.libraryUrl + "/simple/" + (!keyword.startsWith("bdr:") ? "bdr:" : "") + keyword + "?for=" + msgId
         );
       } else {
-        let lang2 = language;
+        let lang = language;
         if (newlang)
-          lang2 = newlang;
-        else if (!lang2)
-          lang2 = "bo-x-ewts";
+          lang = newlang;
+        else if (!lang)
+          lang = "bo-x-ewts";
         let key = encodeURIComponent(keyword);
         key = '"' + key + '"';
-        if (lang2.startsWith("bo"))
+        if (lang.startsWith("bo"))
           key = key + "~1";
-        lang2 = encodeURIComponent(lang2);
+        lang = encodeURIComponent(lang);
         let t = type;
         if (newtype)
           t = newtype;
@@ -4786,7 +4938,7 @@ const BUDAResourceSelector = ({
         else if (t.includes("Collection"))
           t = "Product";
         setLibraryURL(
-          config.libraryUrl + "/simplesearch?q=" + key + "&lg=" + lang2 + "&t=" + t + "&for=" + msgId + "&f=provider,inc,bda:CP021"
+          config.libraryUrl + "/simplesearch?q=" + key + "&lg=" + lang + "&t=" + t + "&for=" + msgId + "&f=provider,inc,bda:CP021"
         );
       }
     }
@@ -4820,10 +4972,11 @@ const BUDAResourceSelector = ({
     if (dates)
       dates = "(" + dates + ")";
   }
-  const createAndUpdate = React.useCallback(
+  const createAndUpdate = (0, import_react10.useCallback)(
     async (type2, named = "") => {
+      var _a2, _b2;
       let url = "";
-      url = "/new/" + config.possibleShapeRefsForType(type2.node)[0].qname + "/" + (owner?.qname && owner.qname !== subject.qname ? owner.qname : subject.qname) + "/" + config.prefixMap.qnameFromUri(property?.path?.sparqlString) + "/" + idx + (owner?.qname && owner.qname !== subject.qname ? "/" + subject.qname : "");
+      url = "/new/" + config.possibleShapeRefsForType(type2.node)[0].qname + "/" + ((owner == null ? void 0 : owner.qname) && owner.qname !== subject.qname ? owner.qname : subject.qname) + "/" + config.prefixMap.qnameFromUri((_a2 = property == null ? void 0 : property.path) == null ? void 0 : _a2.sparqlString) + "/" + idx + ((owner == null ? void 0 : owner.qname) && owner.qname !== subject.qname ? "/" + subject.qname : "");
       if (property.connectIDs) {
         const newNode = await config.generateConnectedID(subject, shape, property.targetShape);
         const newQname = config.prefixMap.qnameFromUri(newNode.uri);
@@ -4831,7 +4984,7 @@ const BUDAResourceSelector = ({
           url += "/named/" + (named ? named : newQname);
       }
       let urlParams = "";
-      if (property.copyObjectsOfProperty?.length) {
+      if ((_b2 = property.copyObjectsOfProperty) == null ? void 0 : _b2.length) {
         for (const kv of toCopy) {
           if (urlParams)
             urlParams += ";";
@@ -4860,7 +5013,7 @@ const BUDAResourceSelector = ({
   const togglePopup = () => {
     setPopupNew(!popupNew);
   };
-  ValueByLangToStrPrefLang(property.prefLabels, uiLitLang);
+  const label = ValueByLangToStrPrefLang(property.prefLabels, uiLitLang);
   const textOnChange = (e) => {
     const newValue = e.currentTarget.value;
     setKeyword(newValue);
@@ -4879,49 +5032,49 @@ const BUDAResourceSelector = ({
   const onClickKB = (e) => {
     updateLibrary(e);
   };
-  let name = /* @__PURE__ */ jsxRuntime.jsx("div", {
+  let name = /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", {
     style: { fontSize: "16px" },
     children: ValueByLangToStrPrefLang(value.prefLabels, uiLitLang) + " " + dates
   });
   const entity = entities.filter((e) => e.subjectQname === value.qname);
   if (entity.length) {
-    name = /* @__PURE__ */ jsxRuntime.jsx(LabelWithRID, {
+    name = /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(LabelWithRID, {
       entity: entity[0]
     });
   }
-  React.useEffect(() => {
+  (0, import_react10.useEffect)(() => {
     if (error) {
-      debug("error:", error);
+      debug13("error:", error);
     }
   }, [error]);
-  const inputRef = React.useRef();
-  const [preview, setPreview] = React.useState(null);
-  React.useLayoutEffect(() => {
+  const inputRef = (0, import_react10.useRef)();
+  const [preview, setPreview] = (0, import_react10.useState)(null);
+  (0, import_react10.useLayoutEffect)(() => {
     if (document.activeElement === inputRef.current && !isRid && keyword) {
-      const previewVal = config.previewLiteral(new rdf__namespace.Literal(keyword, language), uiLang);
+      const previewVal = config.previewLiteral(new rdf8.Literal(keyword, language), uiLang);
       setPreview(previewVal.value);
       setPreview(previewVal.value);
     }
   });
-  return /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
+  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_react10.default.Fragment, {
     children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("div", {
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", {
         className: "resSelect " + (error ? "error" : ""),
         style: { position: "relative", ...value.uri === "tmp:uri" ? { width: "100%" } : {} },
         children: [
-          value.uri === "tmp:uri" && /* @__PURE__ */ jsxRuntime.jsx("div", {
+          value.uri === "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", {
             className: preview ? "withPreview" : "",
             style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
-            children: /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
+            children: /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_react10.default.Fragment, {
               children: [
-                preview && /* @__PURE__ */ jsxRuntime.jsx("div", {
+                preview && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", {
                   className: "preview-ewts",
-                  children: /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
+                  children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_material4.TextField, {
                     disabled: true,
                     value: preview
                   })
                 }),
-                /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
+                /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_material4.TextField, {
                   onKeyPress: (e) => {
                     if (e.key === "Enter")
                       onClickKB(e);
@@ -4929,7 +5082,7 @@ const BUDAResourceSelector = ({
                   onFocus: () => {
                     if (!keyword || isRid)
                       setPreview(null);
-                    const { value: value2, error: error2 } = config.previewLiteral(new rdf__namespace.Literal(keyword, language), uiLang);
+                    const { value: value2, error: error2 } = config.previewLiteral(new rdf8.Literal(keyword, language), uiLang);
                     setPreview(value2);
                   },
                   onBlur: () => setPreview(null),
@@ -4940,12 +5093,12 @@ const BUDAResourceSelector = ({
                   onChange: textOnChange,
                   placeholder: "Search name or RID for " + title,
                   ...error ? {
-                    helperText: /* @__PURE__ */ jsxRuntime.jsxs(React.Fragment, {
+                    helperText: /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_react10.default.Fragment, {
                       children: [
-                        /* @__PURE__ */ jsxRuntime.jsx(ErrorIcon, {
+                        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_Error.default, {
                           style: { fontSize: "20px", verticalAlign: "-7px" }
                         }),
-                        /* @__PURE__ */ jsxRuntime.jsx("i", {
+                        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("i", {
                           children: error
                         })
                       ]
@@ -4954,20 +5107,20 @@ const BUDAResourceSelector = ({
                   } : {},
                   ...!editable ? { disabled: true } : {}
                 }),
-                /* @__PURE__ */ jsxRuntime.jsx(LangSelect, {
+                /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(LangSelect, {
                   value: language,
-                  onChange: (lang2) => {
-                    setLanguage(lang2);
-                    debug(lang2);
+                  onChange: (lang) => {
+                    setLanguage(lang);
+                    debug13(lang);
                     if (libraryURL)
-                      updateLibrary(void 0, lang2);
+                      updateLibrary(void 0, lang);
                   },
                   ...isRid ? { disabled: true } : { disabled: false },
                   editable,
                   error: !!error,
                   config
                 }),
-                property.expectedObjectTypes?.length > 1 && /* @__PURE__ */ jsxRuntime.jsx(core.TextField, {
+                ((_b = property.expectedObjectTypes) == null ? void 0 : _b.length) > 1 && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_material4.TextField, {
                   select: true,
                   style: { width: 100, flexShrink: 0 },
                   value: type,
@@ -4977,49 +5130,49 @@ const BUDAResourceSelector = ({
                   ...isRid ? { disabled: true } : {},
                   ...!editable ? { disabled: true } : {},
                   ...error ? {
-                    helperText: /* @__PURE__ */ jsxRuntime.jsx("br", {}),
+                    helperText: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("br", {}),
                     error: true
                   } : {},
-                  children: property.expectedObjectTypes?.map((r) => {
+                  children: (_c = property.expectedObjectTypes) == null ? void 0 : _c.map((r) => {
                     const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                    return /* @__PURE__ */ jsxRuntime.jsx(core.MenuItem, {
+                    return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_material4.MenuItem, {
                       value: r.qname,
                       children: label2
                     }, r.qname);
                   })
                 }),
-                /* @__PURE__ */ jsxRuntime.jsx("button", {
+                /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", {
                   ...!keyword || !isRid && (!language || !type) ? { disabled: true } : {},
                   className: "btn btn-sm btn-outline-primary ml-2 lookup btn-rouge",
                   style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
                   onClick,
                   ...!editable ? { disabled: true } : {},
-                  children: libraryURL ? /* @__PURE__ */ jsxRuntime.jsx(CloseIcon, {}) : /* @__PURE__ */ jsxRuntime.jsx(LookupIcon, {})
+                  children: libraryURL ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_Close.default, {}) : /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_Search.default, {})
                 }),
-                /* @__PURE__ */ jsxRuntime.jsx("button", {
+                /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("button", {
                   className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
                   style: { boxShadow: "none", alignSelf: "center" },
                   onClick: togglePopup,
                   ...!editable ? { disabled: true } : {},
-                  children: /* @__PURE__ */ jsxRuntime.jsx(jsxRuntime.Fragment, {
-                    children: i18n.t("search.create")
+                  children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_jsx_runtime9.Fragment, {
+                    children: import_i18next8.default.t("search.create")
                   })
                 })
               ]
             })
           }),
-          value.uri !== "tmp:uri" && /* @__PURE__ */ jsxRuntime.jsx(React.Fragment, {
-            children: /* @__PURE__ */ jsxRuntime.jsxs("div", {
+          value.uri !== "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_react10.default.Fragment, {
+            children: /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", {
               className: "selected",
               children: [
                 name,
-                /* @__PURE__ */ jsxRuntime.jsxs("div", {
+                /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", {
                   style: { fontSize: "12px", opacity: "0.5", display: "flex", alignItems: "center" },
                   children: [
                     value.qname,
                     "\xA0",
-                    /* @__PURE__ */ jsxRuntime.jsxs("a", {
-                      title: i18n.t("search.help.preview"),
+                    /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("a", {
+                      title: import_i18next8.default.t("search.help.preview"),
                       onClick: () => {
                         if (libraryURL)
                           setLibraryURL("");
@@ -5029,36 +5182,36 @@ const BUDAResourceSelector = ({
                           setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
                       },
                       children: [
-                        !libraryURL && /* @__PURE__ */ jsxRuntime.jsx(InfoOutlinedIcon, {
+                        !libraryURL && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_InfoOutlined.default, {
                           style: { width: "18px", cursor: "pointer" }
                         }),
-                        libraryURL && /* @__PURE__ */ jsxRuntime.jsx(InfoIcon, {
+                        libraryURL && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_Info.default, {
                           style: { width: "18px", cursor: "pointer" }
                         })
                       ]
                     }),
                     "\xA0",
-                    /* @__PURE__ */ jsxRuntime.jsx("a", {
-                      title: i18n.t("search.help.open"),
+                    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("a", {
+                      title: import_i18next8.default.t("search.help.open"),
                       href: config.libraryUrl + "/show/" + value.qname,
                       rel: "noopener noreferrer",
                       target: "_blank",
-                      children: /* @__PURE__ */ jsxRuntime.jsx(LaunchIcon, {
+                      children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_Launch.default, {
                         style: { width: "16px" }
                       })
                     }),
                     "\xA0",
-                    /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Link, {
-                      title: i18n.t("search.help.edit"),
+                    /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_react_router_dom6.Link, {
+                      title: import_i18next8.default.t("search.help.edit"),
                       to: "/edit/" + value.qname,
-                      children: /* @__PURE__ */ jsxRuntime.jsx(EditIcon, {
+                      children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_Edit.default, {
                         style: { width: "16px" }
                       })
                     }),
                     "\xA0",
-                    canCopy.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("span", {
-                      title: i18n.t("general.import"),
-                      children: /* @__PURE__ */ jsxRuntime.jsx(ContentPasteIcon, {
+                    canCopy.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", {
+                      title: import_i18next8.default.t("general.import"),
+                      children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_AssignmentReturned.default, {
                         style: { width: "17px", cursor: "pointer" },
                         onClick: () => {
                           setProp(canCopy);
@@ -5073,7 +5226,7 @@ const BUDAResourceSelector = ({
           })
         ]
       }),
-      libraryURL && /* @__PURE__ */ jsxRuntime.jsxs("div", {
+      libraryURL && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", {
         className: "row card px-3 py-3 iframe",
         style: {
           position: "absolute",
@@ -5088,43 +5241,47 @@ const BUDAResourceSelector = ({
           ...value.uri !== "tmp:uri" ? { left: "calc(1rem)", width: "calc(100%)", bottom: "calc(100% - 0.5rem)" } : {}
         },
         children: [
-          /* @__PURE__ */ jsxRuntime.jsx("iframe", {
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("iframe", {
             style: { border: "none" },
             height: "400",
             src: libraryURL,
             ref: iframeRef
           }),
-          /* @__PURE__ */ jsxRuntime.jsx("div", {
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", {
             className: "iframe-BG",
             onClick: closeFrame
           })
         ]
       }),
-      popupNew && /* @__PURE__ */ jsxRuntime.jsxs("div", {
+      popupNew && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", {
         className: "card popup-new",
         children: [
-          /* @__PURE__ */ jsxRuntime.jsxs("div", {
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", {
             className: "front",
             children: [
               entities.map((e, i) => {
-                if (!exists(e?.subjectQname) && e?.subjectQname != subject.qname && e?.subjectQname != owner?.qname && property.expectedObjectTypes?.some(
-                  (t) => e.shapeQname?.startsWith(t.qname.replace(/^bdo:/, "bds:"))
-                )) {
-                  return /* @__PURE__ */ jsxRuntime.jsx(core.MenuItem, {
+                var _a2;
+                if (!exists(e == null ? void 0 : e.subjectQname) && (e == null ? void 0 : e.subjectQname) != subject.qname && (e == null ? void 0 : e.subjectQname) != (owner == null ? void 0 : owner.qname) && ((_a2 = property.expectedObjectTypes) == null ? void 0 : _a2.some(
+                  (t) => {
+                    var _a3;
+                    return (_a3 = e.shapeQname) == null ? void 0 : _a3.startsWith(t.qname.replace(/^bdo:/, "bds:"));
+                  }
+                ))) {
+                  return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_material4.MenuItem, {
                     className: "px-0 py-0",
-                    children: /* @__PURE__ */ jsxRuntime.jsx(LabelWithRID, {
+                    children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(LabelWithRID, {
                       choose: chooseEntity,
                       entity: e
                     })
                   }, i + 1);
                 }
               }),
-              /* @__PURE__ */ jsxRuntime.jsx("hr", {
+              /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("hr", {
                 className: "my-1"
               }),
-              property.expectedObjectTypes?.map((r) => {
+              (_d = property.expectedObjectTypes) == null ? void 0 : _d.map((r) => {
                 const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                return /* @__PURE__ */ React.createElement(core.MenuItem, {
+                return /* @__PURE__ */ (0, import_react11.createElement)(import_material4.MenuItem, {
                   ...r.qname === "bdo:EtextInstance" ? { disabled: true } : {},
                   key: r.qname,
                   value: r.qname,
@@ -5132,11 +5289,11 @@ const BUDAResourceSelector = ({
                     const url = await createAndUpdate(r);
                     navigate(url);
                   }
-                }, i18n.t("search.new", { type: label2 }));
+                }, import_i18next8.default.t("search.new", { type: label2 }));
               })
             ]
           }),
-          /* @__PURE__ */ jsxRuntime.jsx("div", {
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", {
             className: "popup-new-BG",
             onClick: togglePopup
           })
@@ -5145,57 +5302,60 @@ const BUDAResourceSelector = ({
     ]
   });
 };
-const LabelWithRID = ({
+var LabelWithRID = ({
   entity,
   choose
 }) => {
-  recoil.useRecoilState(uiLangState);
-  const [uiLitLang] = recoil.useRecoilState(uiLitLangState);
-  const [labelValues] = recoil.useRecoilState(entity.subjectLabelState);
+  var _a;
+  const [uiLang] = (0, import_recoil10.useRecoilState)(uiLangState);
+  const [uiLitLang] = (0, import_recoil10.useRecoilState)(uiLitLangState);
+  const [labelValues] = (0, import_recoil10.useRecoilState)(entity.subjectLabelState);
   const prefLabels = RDFResource.valuesByLang(labelValues);
   const label = ValueByLangToStrPrefLang(prefLabels, uiLitLang);
-  let name = label && label != "..." ? label : entity.subject?.lname ? entity.subject.lname : entity.subjectQname.split(":")[1];
+  let name = label && label != "..." ? label : ((_a = entity.subject) == null ? void 0 : _a.lname) ? entity.subject.lname : entity.subjectQname.split(":")[1];
   if (!name)
     name = label;
   if (!choose)
-    return /* @__PURE__ */ jsxRuntime.jsx("span", {
+    return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", {
       style: { fontSize: "16px" },
       children: name
     });
   else
-    return /* @__PURE__ */ jsxRuntime.jsxs("div", {
+    return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", {
       className: "px-3 py-1",
       style: { width: "100%" },
       onClick: choose(entity, prefLabels),
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx("div", {
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", {
           className: "label",
           children: name
         }),
-        /* @__PURE__ */ jsxRuntime.jsx("div", {
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", {
           className: "RID",
           children: entity.subjectQname
         })
       ]
     });
 };
-
-exports.BUDAResourceSelector = BUDAResourceSelector;
-exports.EntityCreationContainer = EntityCreationContainer;
-exports.EntityCreationContainerRoute = EntityCreationContainerRoute;
-exports.EntityEditContainer = EntityEditContainer;
-exports.EntityEditContainerMayUpdate = EntityEditContainerMayUpdate;
-exports.EntityGraph = EntityGraph;
-exports.EntityShapeChooserContainer = EntityShapeChooserContainer;
-exports.ExtRDFResourceWithLabel = ExtRDFResourceWithLabel;
-exports.LiteralWithId = LiteralWithId;
-exports.NewEntityContainer = NewEntityContainer;
-exports.NodeShape = NodeShape;
-exports.RDFResource = RDFResource;
-exports.Subject = Subject;
-exports.ValueByLangToStrPrefLang = ValueByLangToStrPrefLang;
-exports.fetchTtl = fetchTtl;
-exports.generateSubnode = generateSubnode;
-exports.ns = ns;
-exports.shapes = shapes;
-//# sourceMappingURL=index.js.map
+var BUDAResourceSelector_default = BUDAResourceSelector;
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  BUDAResourceSelector,
+  EntityCreationContainer,
+  EntityCreationContainerRoute,
+  EntityEditContainer,
+  EntityEditContainerMayUpdate,
+  EntityGraph,
+  EntityShapeChooserContainer,
+  ExtRDFResourceWithLabel,
+  LiteralWithId,
+  NewEntityContainer,
+  NodeShape,
+  RDFResource,
+  Subject,
+  ValueByLangToStrPrefLang,
+  fetchTtl,
+  generateSubnode,
+  ns,
+  shapes
+});
