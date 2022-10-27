@@ -1847,7 +1847,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
 }
 
 // src/containers/EntityEditContainer.tsx
-import NotFoundIcon from "@mui/icons-material/BrokenImage";
+import NotFoundIcon from "@mui/icons-material/BrokenImage.js"
 import i18n4 from "i18next";
 
 // src/containers/PropertyGroupContainer.tsx
@@ -1858,27 +1858,27 @@ import React2, { useEffect as useEffect2, useState as useState2, useRef, useLayo
 import * as rdf5 from "rdflib";
 import { useRecoilState as useRecoilState2, useRecoilValue } from "recoil";
 import { makeStyles } from "@mui/styles";
-import { TextField, MenuItem, Tooltip } from "@mui/material";
+import { TextField, MenuItem, Tooltip } from "@mui/material/index.js"
 
 // src/routes/layout/icons.jsx
 import React from "react";
 import { Img } from "react-image";
-import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { default as default2 } from "@mui/icons-material/Error";
-import { default as default3 } from "@mui/icons-material/Close";
-import { default as default4 } from "@mui/icons-material/FindReplace";
-import { default as default5 } from "@mui/icons-material/Search";
-import { default as default6 } from "@mui/icons-material/Launch";
-import { default as default7 } from "@mui/icons-material/Info";
-import { default as default8 } from "@mui/icons-material/InfoOutlined";
-import { default as default9 } from "@mui/icons-material/Settings";
-import { default as default10 } from "@mui/icons-material/Visibility";
-import { default as default11 } from "@mui/icons-material/VisibilityOff";
-import { default as default12 } from "@mui/icons-material/Edit";
-import { default as default13 } from "@mui/icons-material/Keyboard";
-import { default as default14 } from "@mui/icons-material/Help";
-import { default as default15 } from "@mui/icons-material/AssignmentReturned";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline.js"
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline.js"
+import { default as default2 } from "@mui/icons-material/Error.js"
+import { default as default3 } from "@mui/icons-material/Close.js"
+import { default as default4 } from "@mui/icons-material/FindReplace.js"
+import { default as default5 } from "@mui/icons-material/Search.js"
+import { default as default6 } from "@mui/icons-material/Launch.js"
+import { default as default7 } from "@mui/icons-material/Info.js"
+import { default as default8 } from "@mui/icons-material/InfoOutlined.js"
+import { default as default9 } from "@mui/icons-material/Settings.js"
+import { default as default10 } from "@mui/icons-material/Visibility.js"
+import { default as default11 } from "@mui/icons-material/VisibilityOff.js"
+import { default as default12 } from "@mui/icons-material/Edit.js"
+import { default as default13 } from "@mui/icons-material/Keyboard.js"
+import { default as default14 } from "@mui/icons-material/Help.js"
+import { default as default15 } from "@mui/icons-material/AssignmentReturned.js"
 import { jsx } from "react/jsx-runtime";
 var MDIcon = (props) => /* @__PURE__ */ jsx(Img, {
   src: "/icons/Markdown-mark.svg",
@@ -4223,7 +4223,7 @@ import { useRecoilState as useRecoilState5 } from "recoil";
 import { Link as Link2, useNavigate } from "react-router-dom";
 import i18n5 from "i18next";
 import { Trans } from "react-i18next";
-import { TextField as TextField2, MenuItem as MenuItem2 } from "@mui/material";
+import { TextField as TextField2, MenuItem as MenuItem2 } from "@mui/material/index.js"
 import { Fragment as Fragment4, jsx as jsx5, jsxs as jsxs4 } from "react/jsx-runtime";
 function NewEntityContainer(props) {
   const config = props.config || {};
@@ -4323,12 +4323,12 @@ import { useRecoilState as useRecoilState6 } from "recoil";
 // src/containers/Dialog.tsx
 import React6, { useState as useState6 } from "react";
 import { Navigate as Navigate2 } from "react-router-dom";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button/index.js"
+import Dialog from "@mui/material/Dialog/index.js"
+import DialogActions from "@mui/material/DialogActions/index.js"
+import DialogContent from "@mui/material/DialogContent/index.js"
+import DialogContentText from "@mui/material/DialogContentText/index.js"
+import DialogTitle from "@mui/material/DialogTitle/index.js"
 import { jsx as jsx6, jsxs as jsxs5 } from "react/jsx-runtime";
 var debug10 = __require("debug")("rde:entity:entitycreation");
 function Dialog422(props) {
@@ -4415,7 +4415,7 @@ function Dialog422(props) {
 // src/containers/EntityCreationContainer.tsx
 import { Navigate as Navigate3, useParams as useParams2, useLocation as useLocation2 } from "react-router-dom";
 import { useEffect as useEffect5 } from "react";
-import NotFoundIcon2 from "@mui/icons-material/BrokenImage";
+import NotFoundIcon2 from "@mui/icons-material/BrokenImage.js"
 import i18n6 from "i18next";
 import queryString2 from "query-string";
 import * as rdf7 from "rdflib";
@@ -4544,7 +4544,7 @@ import { useState as useState7, useEffect as useEffect6 } from "react";
 import i18n7 from "i18next";
 import { useRecoilState as useRecoilState7 } from "recoil";
 import { Link as Link3, Navigate as Navigate4, useParams as useParams3, useNavigate as useNavigate2 } from "react-router-dom";
-import { TextField as TextField3, MenuItem as MenuItem3 } from "@mui/material";
+import { TextField as TextField3, MenuItem as MenuItem3 } from "@mui/material/index.js"
 import { Fragment as Fragment6, jsx as jsx8, jsxs as jsxs7 } from "react/jsx-runtime";
 var debug12 = __require("debug")("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
@@ -4695,7 +4695,7 @@ var EntityShapeChooserContainer_default = EntityShapeChooserContainer;
 import React9, { useEffect as useEffect7, useState as useState8, useRef as useRef4, useLayoutEffect as useLayoutEffect2, useCallback as useCallback3 } from "react";
 import { useRecoilState as useRecoilState8 } from "recoil";
 import { makeStyles as makeStyles2 } from "@mui/styles";
-import { TextField as TextField4, MenuItem as MenuItem4 } from "@mui/material";
+import { TextField as TextField4, MenuItem as MenuItem4 } from "@mui/material/index.js"
 import i18n8 from "i18next";
 import { useNavigate as useNavigate3, Link as Link4 } from "react-router-dom";
 import * as rdf8 from "rdflib";
