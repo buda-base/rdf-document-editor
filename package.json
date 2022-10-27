@@ -50,11 +50,11 @@
     "fix-materialui": "sed -i -e \"s/\\(material-ui\\/core.*\\)\\(['\\\"]\\).*$/\\1\\/index.js\\2/g\" -e \"s/\\(material-ui\\/icons.*\\)\\(['\\\"]\\).*$/\\1.js\\2/g\" dist/index.mjs"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,json,css,tsx,ts}": [
+    "src/**/*.{js,jsx,css,tsx,ts}": [
       "prettier --write --config ./.prettierrc",
       "eslint --color --fix"
     ],
-    "demo/**/*.{js,jsx,json,css,tsx,ts}": [
+    "demo/**/*.{js,jsx,css,tsx,ts}": [
       "prettier --write --config ./.prettierrc",
       "eslint --color --fix"
     ]
