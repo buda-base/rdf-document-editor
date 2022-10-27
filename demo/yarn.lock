@@ -9092,7 +9092,7 @@ rdf-canonize@^3.0.0:
 
 "rdf-document-editor@https://github.com/buda-base/rdf-document-editor":
   version "0.1.0"
-  resolved "https://github.com/buda-base/rdf-document-editor#a66f95bec230c0f92191bdb5d99c5dd328acd130"
+  resolved "https://github.com/buda-base/rdf-document-editor#15af1514ffc1b1ae19c1ec3afce18a44b27ac5d2"
   dependencies:
     "@material-ui/core" "^4.11.0"
     "@material-ui/icons" "^4.9.1"

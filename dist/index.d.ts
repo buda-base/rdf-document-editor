@@ -498,9 +498,6 @@ interface getPreviewLink {
 interface getUserLocalEntities {
     (): Promise<Record<string, LocalEntityInfo>>;
 }
-interface setUserLocalEntities {
-    (localEntities: Record<string, LocalEntityInfo>): Promise<void>;
-}
 interface getUserMenuState {
     (): Promise<Record<string, Entity>>;
 }
@@ -566,7 +563,6 @@ interface RDEConfig {
     readonly getShapesDocument: getShapesDocument;
     readonly getConnexGraph: getConnexGraph;
     readonly getUserLocalEntities: getUserLocalEntities;
-    readonly setUserLocalEntities: setUserLocalEntities;
     readonly getUserMenuState: getUserMenuState;
     readonly setUserMenuState: setUserMenuState;
     readonly setUserLocalEntity: setUserLocalEntity;
