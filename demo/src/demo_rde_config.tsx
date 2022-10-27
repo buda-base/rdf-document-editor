@@ -293,6 +293,10 @@ const previewLiteral = (lit: rdf.Literal, uiLangs: string[]) => {
   return { value: null, error: null }
 }
 
+const putDocument = async (entity: rdf.NamedNode, document: rdf.Store) => {
+  return ""
+}
+
 export const demoConfig: RDEConfig = {
   generateSubnode: generateSubnode,
   valueByLangToStrPrefLang: ValueByLangToStrPrefLang,
@@ -316,6 +320,7 @@ export const demoConfig: RDEConfig = {
   libraryUrl: "https://library.bdrc.io/",
   resourceSelector: BUDAResourceSelector,
   previewLiteral: previewLiteral,
+  putDocument: putDocument,
   getPreviewLink: (entity) => {
     return null
   },
