@@ -19,8 +19,11 @@
     "react-dom": "^18.2.0",
     "react-router": "^6.4.2",
     "react-router-dom": "^6.4.2",
+    "buffer": "^6.0.3",
+    "recoil": "^0.7.1"
+  },
+  "devDependencies": {
     "react-scripts": "5.0.1",
-    "recoil": "^0.7.1",
     "typescript": "^4.8.4"
   },
   "scripts": {

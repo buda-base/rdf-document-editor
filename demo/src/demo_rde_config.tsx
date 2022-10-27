@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react"
 import * as rdf from "rdflib"
 import {
   NodeShape,
@@ -16,7 +17,6 @@ import {
   ns,
 } from "rdf-document-editor"
 
-import React, { useState, useEffect } from "react"
 import { customAlphabet } from "nanoid"
 import edtf, { parse } from "edtf" // see https://github.com/inukshuk/edtf.js/issues/36#issuecomment-1073778277
 
