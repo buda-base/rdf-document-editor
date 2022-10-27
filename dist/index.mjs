@@ -1,70 +1,132 @@
-import * as rdf from 'rdflib';
-import { Memoize } from 'typescript-memoize';
-import { DefaultValue, atom, selectorFamily, useRecoilState, useRecoilValue, useRecoilSnapshot } from 'recoil';
-import { nanoid, customAlphabet } from 'nanoid';
-import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
-import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect, createElement } from 'react';
-import i18n from 'i18next';
-import _ from 'lodash';
-import NotFoundIcon from '@material-ui/icons/BrokenImage.js'
-import { makeStyles } from '@material-ui/core/styles/index.js'
-import { TextField, MenuItem, Tooltip } from '@material-ui/core/index.js'
-import { Img } from 'react-image';
-import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline.js'
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline.js'
-import ErrorIcon from '@material-ui/icons/Error.js'
-import CloseIcon from '@material-ui/icons/Close.js'
-import '@material-ui/icons/FindReplace.js'
-import LookupIcon from '@material-ui/icons/Search.js'
-import LaunchIcon from '@material-ui/icons/Launch.js'
-import InfoIcon from '@material-ui/icons/Info.js'
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined.js'
-import '@material-ui/icons/Settings.js'
-import VisibilityIcon from '@material-ui/icons/Visibility.js'
-import '@material-ui/icons/VisibilityOff.js'
-import EditIcon from '@material-ui/icons/Edit.js'
-import KeyboardIcon from '@material-ui/icons/Keyboard.js'
-import HelpIcon from '@material-ui/icons/Help.js'
-import ContentPasteIcon from '@material-ui/icons/AssignmentReturned.js'
-import MDEditor, { commands } from '@uiw/react-md-editor';
-import { MapContainer, LayersControl, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import ReactLeafletGoogleLayer from 'react-leaflet-google-layer';
-import { GoogleProvider, OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet-geosearch/dist/geosearch.css';
-import { Navigate, useNavigate, Link, useParams as useParams$1, useLocation as useLocation$1 } from 'react-router-dom';
-import { HashLink } from 'react-router-hash-link';
-import queryString from 'query-string';
-import { useParams, useLocation } from 'react-router';
-import { Trans } from 'react-i18next';
-import Button from '@material-ui/core/Button/index.js'
-import Dialog from '@material-ui/core/Dialog/index.js'
-import DialogActions from '@material-ui/core/DialogActions/index.js'
-import DialogContent from '@material-ui/core/DialogContent/index.js'
-import DialogContentText from '@material-ui/core/DialogContentText/index.js'
-import DialogTitle from '@material-ui/core/DialogTitle/index.js'
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+  get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
+}) : x)(function(x) {
+  if (typeof require !== "undefined")
+    return require.apply(this, arguments);
+  throw new Error('Dynamic require of "' + x + '" is not supported');
+});
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result)
+    __defProp(target, key, result);
+  return result;
+};
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 
-const DASH_uri = "http://datashapes.org/dash#";
-const DASH = rdf.Namespace(DASH_uri);
-const OWL_uri = "http://www.w3.org/2002/07/owl#";
-const OWL = rdf.Namespace(OWL_uri);
-const RDFS_uri = "http://www.w3.org/2000/01/rdf-schema#";
-const RDFS = rdf.Namespace(RDFS_uri);
-const SH_uri = "http://www.w3.org/ns/shacl#";
-const SH = rdf.Namespace(SH_uri);
-const RDF_uri = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-const RDF = rdf.Namespace(RDF_uri);
-const SKOS_uri = "http://www.w3.org/2004/02/skos/core#";
-const SKOS = rdf.Namespace(SKOS_uri);
-const XSD_uri = "http://www.w3.org/2001/XMLSchema#";
-const XSD = rdf.Namespace(XSD_uri);
-const FOAF_uri = "http://xmlcom/foaf/0.1/";
-const FOAF = rdf.Namespace(FOAF_uri);
-const RDE_uri = "https://github.com/buda-base/rdf-document-editor/";
-const RDE = rdf.Namespace(RDE_uri);
-require("debug")("rde:rdf:ns");
-const defaultPrefixToURI = {
+// src/helpers/rdf/ns.ts
+var ns_exports = {};
+__export(ns_exports, {
+  DASH: () => DASH,
+  DASH_uri: () => DASH_uri,
+  FOAF: () => FOAF,
+  FOAF_uri: () => FOAF_uri,
+  OWL: () => OWL,
+  OWL_uri: () => OWL_uri,
+  PrefixMap: () => PrefixMap,
+  RDE: () => RDE,
+  RDE_uri: () => RDE_uri,
+  RDF: () => RDF,
+  RDFS: () => RDFS,
+  RDFS_uri: () => RDFS_uri,
+  RDF_uri: () => RDF_uri,
+  SH: () => SH,
+  SH_uri: () => SH_uri,
+  SKOS: () => SKOS,
+  SKOS_uri: () => SKOS_uri,
+  XSD: () => XSD,
+  XSD_uri: () => XSD_uri,
+  dashEditor: () => dashEditor,
+  dashEnumSelectEditor: () => dashEnumSelectEditor,
+  dashListShape: () => dashListShape,
+  dashSingleLine: () => dashSingleLine,
+  defaultDescriptionProperties: () => defaultDescriptionProperties,
+  defaultLabelProperties: () => defaultLabelProperties,
+  defaultPrefixMap: () => defaultPrefixMap,
+  prefLabel: () => prefLabel,
+  rdeAllowBatchManagement: () => rdeAllowBatchManagement,
+  rdeAllowMarkDown: () => rdeAllowMarkDown,
+  rdeAllowPushToTopLevelLabel: () => rdeAllowPushToTopLevelLabel,
+  rdeClassIn: () => rdeClassIn,
+  rdeConnectIDs: () => rdeConnectIDs,
+  rdeCopyObjectsOfProperty: () => rdeCopyObjectsOfProperty,
+  rdeDefaultLanguage: () => rdeDefaultLanguage,
+  rdeDefaultValue: () => rdeDefaultValue,
+  rdeDisplayPriority: () => rdeDisplayPriority,
+  rdeExternalShape: () => rdeExternalShape,
+  rdeIdentifierPrefix: () => rdeIdentifierPrefix,
+  rdeIgnoreShape: () => rdeIgnoreShape,
+  rdeIndependentIdentifiers: () => rdeIndependentIdentifiers,
+  rdeInternalShape: () => rdeInternalShape,
+  rdePropertyShapeType: () => rdePropertyShapeType,
+  rdeReadOnly: () => rdeReadOnly,
+  rdeSortOnProperty: () => rdeSortOnProperty,
+  rdeSpecialPattern: () => rdeSpecialPattern,
+  rdeUniqueValueAmongSiblings: () => rdeUniqueValueAmongSiblings,
+  rdfLangString: () => rdfLangString,
+  rdfType: () => rdfType,
+  rdfsComment: () => rdfsComment,
+  rdfsLabel: () => rdfsLabel,
+  shClass: () => shClass,
+  shDatatype: () => shDatatype,
+  shDescription: () => shDescription,
+  shGroup: () => shGroup,
+  shIn: () => shIn,
+  shInversePath: () => shInversePath,
+  shLanguageIn: () => shLanguageIn,
+  shMaxCount: () => shMaxCount,
+  shMaxExclusive: () => shMaxExclusive,
+  shMaxInclusive: () => shMaxInclusive,
+  shMessage: () => shMessage,
+  shMinCount: () => shMinCount,
+  shMinExclusive: () => shMinExclusive,
+  shMinInclusive: () => shMinInclusive,
+  shName: () => shName,
+  shNamespace: () => shNamespace,
+  shNode: () => shNode,
+  shOrder: () => shOrder,
+  shPath: () => shPath,
+  shPattern: () => shPattern,
+  shProperty: () => shProperty,
+  shTargetClass: () => shTargetClass,
+  shTargetObjectsOf: () => shTargetObjectsOf,
+  shTargetSubjectsOf: () => shTargetSubjectsOf,
+  shUniqueLang: () => shUniqueLang,
+  skosDefinition: () => skosDefinition
+});
+import * as rdf from "rdflib";
+var DASH_uri = "http://datashapes.org/dash#";
+var DASH = rdf.Namespace(DASH_uri);
+var OWL_uri = "http://www.w3.org/2002/07/owl#";
+var OWL = rdf.Namespace(OWL_uri);
+var RDFS_uri = "http://www.w3.org/2000/01/rdf-schema#";
+var RDFS = rdf.Namespace(RDFS_uri);
+var SH_uri = "http://www.w3.org/ns/shacl#";
+var SH = rdf.Namespace(SH_uri);
+var RDF_uri = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+var RDF = rdf.Namespace(RDF_uri);
+var SKOS_uri = "http://www.w3.org/2004/02/skos/core#";
+var SKOS = rdf.Namespace(SKOS_uri);
+var XSD_uri = "http://www.w3.org/2001/XMLSchema#";
+var XSD = rdf.Namespace(XSD_uri);
+var FOAF_uri = "http://xmlcom/foaf/0.1/";
+var FOAF = rdf.Namespace(FOAF_uri);
+var RDE_uri = "https://github.com/buda-base/rdf-document-editor/";
+var RDE = rdf.Namespace(RDE_uri);
+var debug = __require("debug")("rde:rdf:ns");
+var defaultPrefixToURI = {
   dash: DASH_uri,
   owl: OWL_uri,
   rde: RDE_uri,
@@ -75,7 +137,7 @@ const defaultPrefixToURI = {
   xsd: XSD_uri,
   foaf: FOAF_uri
 };
-class PrefixMap {
+var PrefixMap = class {
   prefixToURI;
   URItoPrefix;
   constructor(prefixToURI) {
@@ -138,170 +200,86 @@ class PrefixMap {
       throw new Error("Cannot make lname out of <" + qname + ">");
     return qname.slice(j + 1);
   };
-}
-const rdfType = RDF("type");
-const shProperty = SH("property");
-const shGroup = SH("group");
-const shOrder = SH("order");
-const rdfsLabel = RDFS("label");
-const prefLabel = SKOS("prefLabel");
-const shName = SH("name");
-const shPath = SH("path");
-const dashEditor = DASH("editor");
-const shNode = SH("node");
-const dashListShape = DASH("ListShape");
-const dashEnumSelectEditor = DASH("EnumSelectEditor");
-const shMessage = SH("message");
-const rdeDisplayPriority = RDE("displayPriority");
-const shMinCount = SH("minCount");
-const shMinInclusive = SH("minInclusive");
-const shMinExclusive = SH("minExclusive");
-const shClass = SH("class");
-const shMaxCount = SH("maxCount");
-const shMaxInclusive = SH("maxInclusive");
-const shMaxExclusive = SH("maxExclusive");
-const shDatatype = SH("datatype");
-const dashSingleLine = DASH("singleLine");
-const shTargetClass = SH("targetClass");
-const shTargetObjectsOf = SH("targetObjectsOf");
-const shTargetSubjectsOf = SH("targetSubjectsOf");
-const rdePropertyShapeType = RDE("propertyShapeType");
-const rdeInternalShape = RDE("InternalShape");
-const rdeExternalShape = RDE("ExternalShape");
-const rdeIgnoreShape = RDE("IgnoreShape");
-const rdeClassIn = RDE("classIn");
-const shIn = SH("in");
-const shInversePath = SH("inversePath");
-const shUniqueLang = SH("uniqueLang");
-const rdeReadOnly = RDE("readOnly");
-const rdeIdentifierPrefix = RDE("identifierPrefix");
-const rdeAllowMarkDown = RDE("allowMarkDown");
-const shNamespace = SH("namespace");
-const rdeDefaultLanguage = RDE("defaultLanguage");
-const rdeDefaultValue = RDE("defaultValue");
-const shLanguageIn = SH("languageIn");
-const shPattern = SH("pattern");
-const rdeSortOnProperty = RDE("sortOnProperty");
-const rdeAllowPushToTopLevelLabel = RDE("allowPushToTopLevelLabel");
-const rdeIndependentIdentifiers = RDE("independentIdentifiers");
-const rdeSpecialPattern = RDE("specialPattern");
-const rdeConnectIDs = RDE("connectIDs");
-const rdeAllowBatchManagement = RDE("allowBatchManagement");
-const rdeCopyObjectsOfProperty = RDE("copyObjectsOfProperty");
-const rdeUniqueValueAmongSiblings = RDE("uniqueValueAmongSiblings");
-const rdfLangString = RDF("langString");
-const skosDefinition = SKOS("definition");
-const rdfsComment = RDFS("comment");
-const shDescription = SH("description");
-const defaultLabelProperties = [prefLabel, rdfsLabel, shName];
-const defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription];
-const defaultPrefixMap = new PrefixMap({});
-
-var ns = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  DASH_uri: DASH_uri,
-  DASH: DASH,
-  OWL_uri: OWL_uri,
-  OWL: OWL,
-  RDFS_uri: RDFS_uri,
-  RDFS: RDFS,
-  SH_uri: SH_uri,
-  SH: SH,
-  RDF_uri: RDF_uri,
-  RDF: RDF,
-  SKOS_uri: SKOS_uri,
-  SKOS: SKOS,
-  XSD_uri: XSD_uri,
-  XSD: XSD,
-  FOAF_uri: FOAF_uri,
-  FOAF: FOAF,
-  RDE_uri: RDE_uri,
-  RDE: RDE,
-  PrefixMap: PrefixMap,
-  rdfType: rdfType,
-  shProperty: shProperty,
-  shGroup: shGroup,
-  shOrder: shOrder,
-  rdfsLabel: rdfsLabel,
-  prefLabel: prefLabel,
-  shName: shName,
-  shPath: shPath,
-  dashEditor: dashEditor,
-  shNode: shNode,
-  dashListShape: dashListShape,
-  dashEnumSelectEditor: dashEnumSelectEditor,
-  shMessage: shMessage,
-  rdeDisplayPriority: rdeDisplayPriority,
-  shMinCount: shMinCount,
-  shMinInclusive: shMinInclusive,
-  shMinExclusive: shMinExclusive,
-  shClass: shClass,
-  shMaxCount: shMaxCount,
-  shMaxInclusive: shMaxInclusive,
-  shMaxExclusive: shMaxExclusive,
-  shDatatype: shDatatype,
-  dashSingleLine: dashSingleLine,
-  shTargetClass: shTargetClass,
-  shTargetObjectsOf: shTargetObjectsOf,
-  shTargetSubjectsOf: shTargetSubjectsOf,
-  rdePropertyShapeType: rdePropertyShapeType,
-  rdeInternalShape: rdeInternalShape,
-  rdeExternalShape: rdeExternalShape,
-  rdeIgnoreShape: rdeIgnoreShape,
-  rdeClassIn: rdeClassIn,
-  shIn: shIn,
-  shInversePath: shInversePath,
-  shUniqueLang: shUniqueLang,
-  rdeReadOnly: rdeReadOnly,
-  rdeIdentifierPrefix: rdeIdentifierPrefix,
-  rdeAllowMarkDown: rdeAllowMarkDown,
-  shNamespace: shNamespace,
-  rdeDefaultLanguage: rdeDefaultLanguage,
-  rdeDefaultValue: rdeDefaultValue,
-  shLanguageIn: shLanguageIn,
-  shPattern: shPattern,
-  rdeSortOnProperty: rdeSortOnProperty,
-  rdeAllowPushToTopLevelLabel: rdeAllowPushToTopLevelLabel,
-  rdeIndependentIdentifiers: rdeIndependentIdentifiers,
-  rdeSpecialPattern: rdeSpecialPattern,
-  rdeConnectIDs: rdeConnectIDs,
-  rdeAllowBatchManagement: rdeAllowBatchManagement,
-  rdeCopyObjectsOfProperty: rdeCopyObjectsOfProperty,
-  rdeUniqueValueAmongSiblings: rdeUniqueValueAmongSiblings,
-  rdfLangString: rdfLangString,
-  skosDefinition: skosDefinition,
-  rdfsComment: rdfsComment,
-  shDescription: shDescription,
-  defaultLabelProperties: defaultLabelProperties,
-  defaultDescriptionProperties: defaultDescriptionProperties,
-  defaultPrefixMap: defaultPrefixMap
-});
-
-var __defProp$1 = Object.defineProperty;
-var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
-var __decorateClass$1 = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$1(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp$1(target, key, result);
-  return result;
 };
-require("debug")("rde:rdf:types");
-const defaultGraphNode = new rdf.NamedNode(rdf.Store.defaultGraphURI);
-const errors = {};
-const history = {};
-var ObjectType = /* @__PURE__ */ ((ObjectType2) => {
-  ObjectType2[ObjectType2["Literal"] = 0] = "Literal";
-  ObjectType2[ObjectType2["Internal"] = 1] = "Internal";
-  ObjectType2[ObjectType2["ResInList"] = 2] = "ResInList";
-  ObjectType2[ObjectType2["ResExt"] = 3] = "ResExt";
-  ObjectType2[ObjectType2["ResIgnore"] = 4] = "ResIgnore";
-  ObjectType2[ObjectType2["LitInList"] = 5] = "LitInList";
-  return ObjectType2;
-})(ObjectType || {});
-const updateHistory = (entity, qname, prop, val, noHisto = true) => {
+var rdfType = RDF("type");
+var shProperty = SH("property");
+var shGroup = SH("group");
+var shOrder = SH("order");
+var rdfsLabel = RDFS("label");
+var prefLabel = SKOS("prefLabel");
+var shName = SH("name");
+var shPath = SH("path");
+var dashEditor = DASH("editor");
+var shNode = SH("node");
+var dashListShape = DASH("ListShape");
+var dashEnumSelectEditor = DASH("EnumSelectEditor");
+var shMessage = SH("message");
+var rdeDisplayPriority = RDE("displayPriority");
+var shMinCount = SH("minCount");
+var shMinInclusive = SH("minInclusive");
+var shMinExclusive = SH("minExclusive");
+var shClass = SH("class");
+var shMaxCount = SH("maxCount");
+var shMaxInclusive = SH("maxInclusive");
+var shMaxExclusive = SH("maxExclusive");
+var shDatatype = SH("datatype");
+var dashSingleLine = DASH("singleLine");
+var shTargetClass = SH("targetClass");
+var shTargetObjectsOf = SH("targetObjectsOf");
+var shTargetSubjectsOf = SH("targetSubjectsOf");
+var rdePropertyShapeType = RDE("propertyShapeType");
+var rdeInternalShape = RDE("InternalShape");
+var rdeExternalShape = RDE("ExternalShape");
+var rdeIgnoreShape = RDE("IgnoreShape");
+var rdeClassIn = RDE("classIn");
+var shIn = SH("in");
+var shInversePath = SH("inversePath");
+var shUniqueLang = SH("uniqueLang");
+var rdeReadOnly = RDE("readOnly");
+var rdeIdentifierPrefix = RDE("identifierPrefix");
+var rdeAllowMarkDown = RDE("allowMarkDown");
+var shNamespace = SH("namespace");
+var rdeDefaultLanguage = RDE("defaultLanguage");
+var rdeDefaultValue = RDE("defaultValue");
+var shLanguageIn = SH("languageIn");
+var shPattern = SH("pattern");
+var rdeSortOnProperty = RDE("sortOnProperty");
+var rdeAllowPushToTopLevelLabel = RDE("allowPushToTopLevelLabel");
+var rdeIndependentIdentifiers = RDE("independentIdentifiers");
+var rdeSpecialPattern = RDE("specialPattern");
+var rdeConnectIDs = RDE("connectIDs");
+var rdeAllowBatchManagement = RDE("allowBatchManagement");
+var rdeCopyObjectsOfProperty = RDE("copyObjectsOfProperty");
+var rdeUniqueValueAmongSiblings = RDE("uniqueValueAmongSiblings");
+var rdfLangString = RDF("langString");
+var skosDefinition = SKOS("definition");
+var rdfsComment = RDFS("comment");
+var shDescription = SH("description");
+var defaultLabelProperties = [prefLabel, rdfsLabel, shName];
+var defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription];
+var defaultPrefixMap = new PrefixMap({});
+
+// src/helpers/rdf/shapes.ts
+var shapes_exports = {};
+__export(shapes_exports, {
+  NodeShape: () => NodeShape,
+  PropertyGroup: () => PropertyGroup,
+  PropertyShape: () => PropertyShape,
+  generateSubnode: () => generateSubnode,
+  sortByPropValue: () => sortByPropValue
+});
+import * as rdf3 from "rdflib";
+
+// src/helpers/rdf/types.ts
+import * as rdf2 from "rdflib";
+import { Memoize } from "typescript-memoize";
+import { atom, DefaultValue } from "recoil";
+import { nanoid } from "nanoid";
+var debug2 = __require("debug")("rde:rdf:types");
+var defaultGraphNode = new rdf2.NamedNode(rdf2.Store.defaultGraphURI);
+var errors = {};
+var history = {};
+var updateHistory = (entity, qname, prop, val, noHisto = true) => {
   if (!history[entity])
     history[entity] = [];
   else {
@@ -324,7 +302,7 @@ const updateHistory = (entity, qname, prop, val, noHisto = true) => {
   } else
     history[entity].push(newVal);
 };
-const getHistoryStatus = (entityUri) => {
+var getHistoryStatus = (entityUri) => {
   if (!history[entityUri])
     return {};
   const top = history[entityUri].length - 1;
@@ -362,19 +340,19 @@ function getParentPath(entityUri, sub) {
   }
   return parentPath;
 }
-const rdfLitAsNumber = (lit) => {
+var rdfLitAsNumber = (lit) => {
   const n = Number(lit.value);
   if (!isNaN(n)) {
     return +n;
   }
   return null;
 };
-class Path {
+var Path = class {
   sparqlString;
   directPathNode = null;
   inversePathNode = null;
-  constructor(node, graph, listMode) {
-    const invpaths = graph.store.each(node, shInversePath, null);
+  constructor(node, graph3, listMode) {
+    const invpaths = graph3.store.each(node, shInversePath, null);
     if (invpaths.length > 1) {
       throw "too many inverse path in shacl path:" + invpaths;
     }
@@ -391,8 +369,8 @@ class Path {
       this.directPathNode = node;
     }
   }
-}
-class EntityGraphValues {
+};
+var EntityGraphValues = class {
   oldSubjectProps = {};
   newSubjectProps = {};
   subjectUri = "";
@@ -425,18 +403,19 @@ class EntityGraphValues {
     return subjectUri in this.oldSubjectProps && pathString in this.oldSubjectProps[subjectUri];
   };
   addNewValuestoStore(store, subjectUri) {
+    var _a, _b, _c, _d;
     if (!(subjectUri in this.newSubjectProps))
       return;
-    const subject = new rdf.NamedNode(subjectUri);
+    const subject = new rdf2.NamedNode(subjectUri);
     for (const pathString in this.newSubjectProps[subjectUri]) {
       if (pathString.startsWith("^")) {
-        const property = new rdf.NamedNode(pathString.substring(1));
+        const property = new rdf2.NamedNode(pathString.substring(1));
         const values = this.newSubjectProps[subjectUri][pathString];
         for (const val of values) {
           if (val instanceof LiteralWithId) {
             throw "can't add literals in inverse path, something's wrong with the data!";
           } else {
-            if (val.node?.value == "tmp:uri" || val.node?.value == "tmp:none")
+            if (((_a = val.node) == null ? void 0 : _a.value) == "tmp:uri" || ((_b = val.node) == null ? void 0 : _b.value) == "tmp:none")
               continue;
             store.add(val.node, property, subject, defaultGraphNode);
             if (val instanceof Subject) {
@@ -446,9 +425,9 @@ class EntityGraphValues {
         }
       } else {
         const listMode = pathString.endsWith("[]");
-        const property = new rdf.NamedNode(listMode ? pathString.substring(0, pathString.length - 2) : pathString);
+        const property = new rdf2.NamedNode(listMode ? pathString.substring(0, pathString.length - 2) : pathString);
         const values = this.newSubjectProps[subjectUri][pathString];
-        const collection = new rdf.Collection();
+        const collection = new rdf2.Collection();
         for (const val of values) {
           if (val instanceof LiteralWithId) {
             if (val.value == "")
@@ -458,12 +437,12 @@ class EntityGraphValues {
             else
               store.add(subject, property, val, defaultGraphNode);
           } else {
-            if (val.node?.value == "tmp:uri" || val.node?.value == "tmp:none")
+            if (((_c = val.node) == null ? void 0 : _c.value) == "tmp:uri" || ((_d = val.node) == null ? void 0 : _d.value) == "tmp:none")
               continue;
             if (listMode) {
               if (val.node) {
                 collection.append(val.node);
-              } else if (val instanceof rdf.Literal) {
+              } else if (val instanceof rdf2.Literal) {
                 collection.append(val);
               } else
                 throw "could not add " + val + " to collection " + collection;
@@ -499,13 +478,13 @@ class EntityGraphValues {
   hasSubject(subjectUri) {
     return subjectUri in this.newSubjectProps;
   }
-}
-__decorateClass$1([
+};
+__decorateClass([
   Memoize((pathString, subjectUri) => {
     return subjectUri + pathString;
   })
 ], EntityGraphValues.prototype, "getAtomForSubjectProperty", 1);
-class EntityGraph {
+var _EntityGraph = class {
   onGetInitialValues;
   getAtomForSubjectProperty;
   getValues;
@@ -518,7 +497,7 @@ class EntityGraph {
   prefixMap;
   labelProperties;
   descriptionProperties;
-  constructor(store, topSubjectUri, prefixMap = defaultPrefixMap, connexGraph = rdf.graph(), labelProperties = defaultLabelProperties, descriptionProperties = defaultDescriptionProperties) {
+  constructor(store, topSubjectUri, prefixMap = defaultPrefixMap, connexGraph = rdf2.graph(), labelProperties = defaultLabelProperties, descriptionProperties = defaultDescriptionProperties) {
     this.store = store;
     this.prefixMap = prefixMap;
     this.descriptionProperties = descriptionProperties;
@@ -535,43 +514,11 @@ class EntityGraph {
   addNewValuestoStore(store) {
     this.values.addNewValuestoStore(store, this.topSubjectUri);
   }
-  static addIdToLitList = (litList) => {
-    return litList.map((lit) => {
-      return new LiteralWithId(lit.value, lit.language, lit.datatype);
-    });
-  };
-  static addLabelsFromGraph = (resList, graph) => {
-    return resList.map((res) => {
-      return new RDFResourceWithLabel(res, graph);
-    });
-  };
-  static addExtDataFromGraph = (resList, graph) => {
-    return resList.map((res) => {
-      if (!graph.connexGraph) {
-        throw "trying to access inexistant associatedStore";
-      }
-      const perLang = {};
-      for (const p of graph.labelProperties) {
-        const lits = graph.connexGraph.each(res, p, null);
-        for (const lit of lits) {
-          if (lit.language in perLang)
-            continue;
-          perLang[lit.language] = lit.value;
-        }
-      }
-      return new ExtRDFResourceWithLabel(res.uri, perLang);
-    });
-  };
   hasSubject(subjectUri) {
     if (this.values.hasSubject(subjectUri))
       return true;
-    return this.store.any(new rdf.NamedNode(subjectUri), null, null) != null;
+    return this.store.any(new rdf2.NamedNode(subjectUri), null, null) != null;
   }
-  static subjectify = (resList, graph) => {
-    return resList.map((res) => {
-      return new Subject(res, graph);
-    });
-  };
   getUnitializedValues(s, p) {
     const path = p.path;
     if (!path)
@@ -591,22 +538,25 @@ class EntityGraph {
           throw "can't have non-direct path for property " + p.uri;
         }
         const fromRDFResExt = s.getPropResValuesFromPath(p.path);
-        const fromRDFResExtwData = EntityGraph.addExtDataFromGraph(fromRDFResExt, s.graph);
+        const fromRDFResExtwData = _EntityGraph.addExtDataFromGraph(fromRDFResExt, s.graph);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFResExtwData);
         return fromRDFResExtwData;
+        break;
       case 1 /* Internal */:
         const fromRDFSubNode = s.getPropResValuesFromPath(p.path);
-        const fromRDFSubs = EntityGraph.subjectify(fromRDFSubNode, s.graph);
+        const fromRDFSubs = _EntityGraph.subjectify(fromRDFSubNode, s.graph);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFSubs);
         return fromRDFSubs;
+        break;
       case 2 /* ResInList */:
         if (!p.path.directPathNode) {
           throw "can't have non-direct path for property " + p.uri;
         }
         const fromRDFResList = s.getPropResValues(p.path.directPathNode);
-        const fromRDFReswLabels = EntityGraph.addLabelsFromGraph(fromRDFResList, p.graph);
+        const fromRDFReswLabels = _EntityGraph.addLabelsFromGraph(fromRDFResList, p.graph);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFReswLabels);
         return fromRDFReswLabels;
+        break;
       case 0 /* Literal */:
       case 5 /* LitInList */:
       default:
@@ -620,20 +570,54 @@ class EntityGraph {
         } else {
           fromRDFLits = s.getPropLitValues(p.path.directPathNode);
         }
-        const fromRDFLitIDs = EntityGraph.addIdToLitList(fromRDFLits);
+        const fromRDFLitIDs = _EntityGraph.addIdToLitList(fromRDFLits);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFLitIDs);
         return fromRDFLitIDs;
+        break;
     }
   }
-}
-class RDFResource {
+};
+var EntityGraph = _EntityGraph;
+__publicField(EntityGraph, "addIdToLitList", (litList) => {
+  return litList.map((lit) => {
+    return new LiteralWithId(lit.value, lit.language, lit.datatype);
+  });
+});
+__publicField(EntityGraph, "addLabelsFromGraph", (resList, graph3) => {
+  return resList.map((res) => {
+    return new RDFResourceWithLabel(res, graph3);
+  });
+});
+__publicField(EntityGraph, "addExtDataFromGraph", (resList, graph3) => {
+  return resList.map((res) => {
+    if (!graph3.connexGraph) {
+      throw "trying to access inexistant associatedStore";
+    }
+    const perLang = {};
+    for (const p of graph3.labelProperties) {
+      const lits = graph3.connexGraph.each(res, p, null);
+      for (const lit of lits) {
+        if (lit.language in perLang)
+          continue;
+        perLang[lit.language] = lit.value;
+      }
+    }
+    return new ExtRDFResourceWithLabel(res.uri, perLang);
+  });
+});
+__publicField(EntityGraph, "subjectify", (resList, graph3) => {
+  return resList.map((res) => {
+    return new Subject(res, graph3);
+  });
+});
+var RDFResource = class {
   node;
   graph;
   isCollection;
-  constructor(node, graph) {
+  constructor(node, graph3) {
     this.node = node;
-    this.graph = graph;
-    this.isCollection = node instanceof rdf.Collection;
+    this.graph = graph3;
+    this.isCollection = node instanceof rdf2.Collection;
   }
   get id() {
     return this.node.value;
@@ -663,7 +647,7 @@ class RDFResource {
     return res;
   }
   getPropValueByLang(p) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return {};
     const lits = this.graph.store.each(this.node, p, null);
     const res = {};
@@ -673,7 +657,7 @@ class RDFResource {
     return res;
   }
   getPropValueOrNullByLang(p) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return {};
     const lits = this.graph.store.each(this.node, p, null);
     const res = {};
@@ -687,17 +671,17 @@ class RDFResource {
     return res;
   }
   getPropLitValues(p) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return [];
     return this.graph.store.each(this.node, p, null);
   }
   getPropResValues(p) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return [];
     return this.graph.store.each(this.node, p, null);
   }
   getPropResValuesFromList(p) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     const colls = this.graph.store.each(this.node, p, null);
     for (const coll of colls) {
@@ -706,7 +690,7 @@ class RDFResource {
     return null;
   }
   getPropLitValuesFromList(p) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     const colls = this.graph.store.each(this.node, p, null);
     for (const coll of colls) {
@@ -715,7 +699,7 @@ class RDFResource {
     return null;
   }
   getPropIntValue(p) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     const lit = this.graph.store.any(this.node, p, null);
     if (lit === null)
@@ -723,7 +707,7 @@ class RDFResource {
     return rdfLitAsNumber(lit);
   }
   getPropStringValue(p) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     const lit = this.graph.store.any(this.node, p, null);
     if (lit === null)
@@ -731,13 +715,13 @@ class RDFResource {
     return lit.value;
   }
   getPropResValue(p) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     const res = this.graph.store.any(this.node, p, null);
     return res;
   }
   getPropResValuesFromPath(p) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return [];
     if (p.directPathNode) {
       return this.graph.store.each(this.node, p.directPathNode, null);
@@ -745,7 +729,7 @@ class RDFResource {
     return this.graph.store.each(null, p.inversePathNode, this.node);
   }
   getPropResValueFromPath(p) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return null;
     if (p.directPathNode) {
       return this.graph.store.any(this.node, p.directPathNode, null);
@@ -753,7 +737,7 @@ class RDFResource {
     return this.graph.store.any(this.node, p.inversePathNode, null);
   }
   getPropBooleanValue(p, dflt = false) {
-    if (this.node instanceof rdf.Collection)
+    if (this.node instanceof rdf2.Collection)
       return dflt;
     const lit = this.graph.store.any(this.node, p, null);
     if (!lit)
@@ -764,11 +748,11 @@ class RDFResource {
     }
     return dflt;
   }
-}
-class RDFResourceWithLabel extends RDFResource {
+};
+var RDFResourceWithLabel = class extends RDFResource {
   node;
-  constructor(node, graph, labelProp) {
-    super(node, graph);
+  constructor(node, graph3, labelProp) {
+    super(node, graph3);
     this.node = node;
   }
   get prefLabels() {
@@ -787,14 +771,14 @@ class RDFResourceWithLabel extends RDFResource {
     }
     return null;
   }
-}
-__decorateClass$1([
+};
+__decorateClass([
   Memoize()
 ], RDFResourceWithLabel.prototype, "prefLabels", 1);
-__decorateClass$1([
+__decorateClass([
   Memoize()
 ], RDFResourceWithLabel.prototype, "description", 1);
-class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
+var ExtRDFResourceWithLabel = class extends RDFResourceWithLabel {
   _prefLabels;
   _description;
   _otherData;
@@ -808,7 +792,7 @@ class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
     return this._otherData;
   }
   constructor(uri, prefLabels, data = {}, description = null) {
-    super(new rdf.NamedNode(uri), new EntityGraph(new rdf.Store(), uri));
+    super(new rdf2.NamedNode(uri), new EntityGraph(new rdf2.Store(), uri));
     this._prefLabels = prefLabels;
     this._description = description;
     this._otherData = data;
@@ -816,8 +800,8 @@ class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
   addOtherData(key, value) {
     return new ExtRDFResourceWithLabel(this.uri, this._prefLabels, { ...this._otherData, [key]: value });
   }
-}
-class LiteralWithId extends rdf.Literal {
+};
+var LiteralWithId = class extends rdf2.Literal {
   id;
   constructor(value, language, datatype, id) {
     super(value, language, datatype);
@@ -836,11 +820,11 @@ class LiteralWithId extends rdf.Literal {
   copyWithUpdatedLanguage(language) {
     return new LiteralWithId(this.value, language, this.datatype, this.id);
   }
-}
-class Subject extends RDFResource {
+};
+var Subject = class extends RDFResource {
   node;
-  constructor(node, graph) {
-    super(node, graph);
+  constructor(node, graph3) {
+    super(node, graph3);
     this.node = node;
   }
   getUnitializedValues(property) {
@@ -862,31 +846,23 @@ class Subject extends RDFResource {
     this.graph.getValues().noHisto = false;
   }
   static createEmpty() {
-    return new Subject(new rdf.NamedNode("tmp:uri"), new EntityGraph(new rdf.Store(), "tmp:uri"));
+    return new Subject(new rdf2.NamedNode("tmp:uri"), new EntityGraph(new rdf2.Store(), "tmp:uri"));
   }
   isEmpty() {
     return this.node.uri == "tmp:uri";
   }
-}
-const noneSelected = new ExtRDFResourceWithLabel("tmp:none", { en: "\u2013" }, {}, { en: "none provided" });
-new LiteralWithId("");
-const sameLanguage = (lang1, lang2) => {
+};
+var noneSelected = new ExtRDFResourceWithLabel("tmp:none", { en: "\u2013" }, {}, { en: "none provided" });
+var emptyLiteral = new LiteralWithId("");
+var sameLanguage = (lang1, lang2) => {
   return lang1 == lang2;
 };
 
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp(target, key, result);
-  return result;
-};
-const debug$9 = require("debug")("rde:rdf:shapes");
-const sortByPropValue = (nodelist, property, store) => {
+// src/helpers/rdf/shapes.ts
+import { Memoize as Memoize2 } from "typescript-memoize";
+import { customAlphabet } from "nanoid";
+var debug3 = __require("debug")("rde:rdf:shapes");
+var sortByPropValue = (nodelist, property, store) => {
   const nodeUriToPropValue = {};
   for (const node of nodelist) {
     const ordern = store.any(node, property, null);
@@ -899,9 +875,9 @@ const sortByPropValue = (nodelist, property, store) => {
     return nodeUriToPropValue[a.uri] - nodeUriToPropValue[b.uri];
   });
 };
-const _PropertyShape = class extends RDFResourceWithLabel {
-  constructor(node, graph) {
-    super(node, graph, rdfsLabel);
+var _PropertyShape = class extends RDFResourceWithLabel {
+  constructor(node, graph3) {
+    super(node, graph3, rdfsLabel);
   }
   get prefLabels() {
     let res = {};
@@ -1020,13 +996,13 @@ const _PropertyShape = class extends RDFResourceWithLabel {
   get specialPattern() {
     return this.getPropResValue(rdeSpecialPattern);
   }
-  static resourcizeWithInit(nodes, graph) {
+  static resourcizeWithInit(nodes, graph3) {
     const res = [];
     for (const node of nodes)
-      if (node instanceof rdf.NamedNode) {
-        const r = new RDFResourceWithLabel(node, graph);
-        r.description;
-        r.prefLabels;
+      if (node instanceof rdf3.NamedNode) {
+        const r = new RDFResourceWithLabel(node, graph3);
+        let justforinit = r.description;
+        justforinit = r.prefLabels;
         res.push(r);
       }
     return res;
@@ -1092,26 +1068,26 @@ const _PropertyShape = class extends RDFResourceWithLabel {
     if (!propertyShapeType) {
       const editor = this.getPropResValue(dashEditor);
       if (!editor)
-        return ObjectType.Literal;
+        return 0 /* Literal */;
       if (editor.value == dashEnumSelectEditor.value) {
         if (this.datatype)
-          return ObjectType.LitInList;
-        return ObjectType.ResInList;
+          return 5 /* LitInList */;
+        return 2 /* ResInList */;
       }
-      return ObjectType.Literal;
+      return 0 /* Literal */;
     }
     if (propertyShapeType.value == rdeInternalShape.value)
-      return ObjectType.Internal;
+      return 1 /* Internal */;
     else if (propertyShapeType.value == rdeExternalShape.value)
-      return ObjectType.ResExt;
+      return 3 /* ResExt */;
     else if (propertyShapeType.value == rdeIgnoreShape.value)
-      return ObjectType.ResIgnore;
+      return 4 /* ResIgnore */;
     throw "can't handle property shape type " + propertyShapeType.value + " for property shape " + this.qname;
   }
   get targetShape() {
     const path = this.path;
     if (!path) {
-      debug$9("can't find path for " + this.uri);
+      debug3("can't find path for " + this.uri);
       return null;
     }
     let val;
@@ -1130,109 +1106,109 @@ const _PropertyShape = class extends RDFResourceWithLabel {
     return null;
   }
 };
-let PropertyShape = _PropertyShape;
+var PropertyShape = _PropertyShape;
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "prefLabels", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "helpMessage", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "errorMessage", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "defaultValue", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "singleLine", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "connectIDs", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "displayPriority", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "minCount", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "maxCount", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "minInclusive", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "maxInclusive", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "minExclusive", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "maxExclusive", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "allowMarkDown", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "allowBatchManagement", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "uniqueValueAmongSiblings", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "uniqueLang", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "readOnly", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "defaultLanguage", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "editorLname", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "group", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "copyObjectsOfProperty", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "datatype", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "pattern", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "sortOnProperty", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "allowPushToTopLevelLabel", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "specialPattern", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "hasListAsObject", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "in", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "expectedObjectTypes", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "path", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "objectType", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyShape.prototype, "targetShape", 1);
-class PropertyGroup extends RDFResourceWithLabel {
-  constructor(node, graph) {
-    super(node, graph, rdfsLabel);
+var PropertyGroup = class extends RDFResourceWithLabel {
+  constructor(node, graph3) {
+    super(node, graph3, rdfsLabel);
   }
   get properties() {
     const res = [];
@@ -1246,16 +1222,16 @@ class PropertyGroup extends RDFResourceWithLabel {
   get prefLabels() {
     return this.getPropValueByLang(rdfsLabel);
   }
-}
+};
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyGroup.prototype, "properties", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], PropertyGroup.prototype, "prefLabels", 1);
-class NodeShape extends RDFResourceWithLabel {
-  constructor(node, graph) {
-    super(node, graph, rdfsLabel);
+var NodeShape = class extends RDFResourceWithLabel {
+  constructor(node, graph3) {
+    super(node, graph3, rdfsLabel);
   }
   get targetClassPrefLabels() {
     const targetClass = this.graph.store.any(this.node, shTargetClass, null);
@@ -1292,21 +1268,21 @@ class NodeShape extends RDFResourceWithLabel {
     }
     return res;
   }
-}
+};
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], NodeShape.prototype, "targetClassPrefLabels", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], NodeShape.prototype, "properties", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], NodeShape.prototype, "independentIdentifiers", 1);
 __decorateClass([
-  Memoize()
+  Memoize2()
 ], NodeShape.prototype, "groups", 1);
-const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
-const generateSubnode = async (subshape, parent) => {
+var nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
+var generateSubnode = async (subshape, parent) => {
   const prefix = subshape.getPropStringValue(rdeIdentifierPrefix);
   if (prefix == null)
     throw "cannot find entity prefix for " + subshape.qname;
@@ -1317,114 +1293,109 @@ const generateSubnode = async (subshape, parent) => {
   while (parent.graph.hasSubject(uri)) {
     uri = namespace + prefix + nanoidCustom();
   }
-  const res = new Subject(new rdf.NamedNode(uri), parent.graph);
+  const res = new Subject(new rdf3.NamedNode(uri), parent.graph);
   return Promise.resolve(res);
 };
 
-var shapes = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  sortByPropValue: sortByPropValue,
-  PropertyShape: PropertyShape,
-  PropertyGroup: PropertyGroup,
-  NodeShape: NodeShape,
-  generateSubnode: generateSubnode
-});
+// src/containers/EntityEditContainer.tsx
+import React4, { useState as useState4, useEffect as useEffect4, useCallback as useCallback2, useRef as useRef3 } from "react";
 
-require("debug")("rde:common");
-var EditedEntityState = /* @__PURE__ */ ((EditedEntityState2) => {
-  EditedEntityState2[EditedEntityState2["Error"] = 0] = "Error";
-  EditedEntityState2[EditedEntityState2["Saved"] = 1] = "Saved";
-  EditedEntityState2[EditedEntityState2["NeedsSaving"] = 2] = "NeedsSaving";
-  EditedEntityState2[EditedEntityState2["Loading"] = 3] = "Loading";
-  EditedEntityState2[EditedEntityState2["NotLoaded"] = 4] = "NotLoaded";
-  return EditedEntityState2;
-})(EditedEntityState || {});
-const entitiesAtom = atom({
+// src/helpers/rdf/io.ts
+import * as rdf4 from "rdflib";
+import i18n from "i18next";
+import { useState, useEffect } from "react";
+import { useRecoilState } from "recoil";
+
+// src/atoms/common.ts
+import { atom as atom2, selectorFamily } from "recoil";
+import _ from "lodash";
+var debug4 = __require("debug")("rde:common");
+var entitiesAtom = atom2({
   key: "entities",
   default: []
 });
-const defaultEntityLabelAtom = atom({
+var defaultEntityLabelAtom = atom2({
   key: "defaultEntityLabelAtom",
   default: [new LiteralWithId("...", "en")]
 });
-const uiLangState = atom({
+var uiLangState = atom2({
   key: "uiLangState",
   default: ["en"]
 });
-const uiLitLangState = atom({
+var uiLitLangState = atom2({
   key: "uiLitLangState",
   default: ["en"]
 });
-const uiReadyState = atom({
+var uiReadyState = atom2({
   key: "uiReadyState",
   default: false
 });
-const uiTabState = atom({
+var uiTabState = atom2({
   key: "uiTabState",
   default: -1
 });
-atom({
+var uiRIDState = atom2({
   key: "uiRIDState",
   default: []
 });
-const uiEditState = atom({
+var uiEditState = atom2({
   key: "uiEditState",
   default: ""
 });
-const uiGroupState = atom({
+var uiGroupState = atom2({
   key: "uiGroupState",
   default: ""
 });
-atom({
+var uiHistoryState = atom2({
   key: "uiHistoryState",
   default: {}
 });
-const noUndo = { enabled: false, subjectUri: "", propertyPath: "", parentPath: [] };
-const noUndoRedo = { prev: noUndo, next: noUndo };
-const uiUndosState = atom({
+var noUndo = { enabled: false, subjectUri: "", propertyPath: "", parentPath: [] };
+var noUndoRedo = { prev: noUndo, next: noUndo };
+var uiUndosState = atom2({
   key: "uiUndosState",
   default: {}
 });
-atom({
+var uiNavState = atom2({
   key: "uiNavState",
   default: ""
 });
-const sessionLoadedState = atom({
+var sessionLoadedState = atom2({
   key: "sessionLoadedState",
   default: false
 });
-const profileIdState = atom({
+var profileIdState = atom2({
   key: "profileIdState",
   default: ""
 });
-const uiDisabledTabsState = atom({
+var uiDisabledTabsState = atom2({
   key: "uiDisabledTabsState",
   default: false
 });
-const userIdState = atom({
+var userIdState = atom2({
   key: "userIdState",
   default: ""
 });
-atom({
+var reloadProfileState = atom2({
   key: "reloadProfileState",
   default: true
 });
-const reloadEntityState = atom({
+var reloadEntityState = atom2({
   key: "reloadEntityState",
   default: ""
 });
-const RIDprefixState = atom({
+var RIDprefixState = atom2({
   key: "RIDprefixState",
   default: null
 });
-const orderedByPropSelector = selectorFamily({
+var orderedByPropSelector = selectorFamily({
   key: "orderedByPropSelector",
   get: (args) => ({ get }) => {
-    let { atom: atom2, propertyPath, order } = args;
+    let { atom: atom3, propertyPath, order } = args;
     if (propertyPath) {
       if (!order)
         order = "asc";
-      const unorderedList = get(atom2);
+      const unorderedList = get(atom3);
       const orderedList = _.orderBy(
         unorderedList.map((w) => {
           if (w instanceof Subject) {
@@ -1449,12 +1420,12 @@ const orderedByPropSelector = selectorFamily({
     return [];
   }
 });
-selectorFamily({
+var personNamesLabelsSelector = selectorFamily({
   key: "personNamesLabelsSelector",
   get: (args) => ({ get }) => {
-    const { atom: atom2 } = args;
-    if (atom2) {
-      const names = get(atom2);
+    const { atom: atom3 } = args;
+    if (atom3) {
+      const names = get(atom3);
       const namesLabelsAtoms = names.map((n) => n.getAtomForProperty(rdfsLabel.uri));
       const namesLabels = namesLabelsAtoms.reduce(
         (acc, nl) => [...acc, ...get(nl)],
@@ -1465,19 +1436,19 @@ selectorFamily({
     return [];
   }
 });
-const initListAtom = atom({ key: "initListAtom", default: [] });
-const initStringAtom = atom({ key: "initStringAtom", default: "" });
-const initMapAtom = atom({ key: "initMapAtom", default: {} });
-atom({
+var initListAtom = atom2({ key: "initListAtom", default: [] });
+var initStringAtom = atom2({ key: "initStringAtom", default: "" });
+var initMapAtom = atom2({ key: "initMapAtom", default: {} });
+var initkvAtom = atom2({
   key: "initkvAtom",
   default: {}
 });
-const possiblePrefLabelsSelector = selectorFamily({
+var possiblePrefLabelsSelector = selectorFamily({
   key: "possiblePrefLabelsSelector",
   get: (args) => ({ get }) => {
     const res = {};
     for (const g of Object.keys(args.canPushPrefLabelGroups)) {
-      const labels = [];
+      const labels = [], atoms = [];
       const canPushPrefLabelGroup = args.canPushPrefLabelGroups[g];
       if (canPushPrefLabelGroup.subprops) {
         Object.keys(canPushPrefLabelGroup.subprops).map((k) => {
@@ -1505,7 +1476,7 @@ const possiblePrefLabelsSelector = selectorFamily({
     return res;
   }
 });
-const orderedNewValSelector = selectorFamily({
+var orderedNewValSelector = selectorFamily({
   key: "orderedNewValSelector",
   get: (args) => ({ get }) => {
     let newVal = -1;
@@ -1530,28 +1501,30 @@ const orderedNewValSelector = selectorFamily({
     return newVal.toString();
   }
 });
-const toCopySelector = selectorFamily({
+var toCopySelector = selectorFamily({
   key: "toCopySelector",
   get: (args) => ({ get }) => {
+    var _a;
     const res = [];
-    args.list?.map(({ property, atom: atom2 }) => {
-      const val = get(atom2);
+    (_a = args.list) == null ? void 0 : _a.map(({ property, atom: atom3 }) => {
+      const val = get(atom3);
       res.push({ k: property, val });
     });
     return res;
   },
   set: (args) => ({ get, set }, [{ k, val }]) => {
-    args.list?.map(({ property, atom: atom2 }) => {
+    var _a;
+    (_a = args.list) == null ? void 0 : _a.map(({ property, atom: atom3 }) => {
       if (k == property)
-        set(atom2, [...get(atom2).filter((lit) => lit.value), ...val]);
+        set(atom3, [...get(atom3).filter((lit) => lit.value), ...val]);
     });
   }
 });
-atom({
+var savePopupState = atom2({
   key: "savePopupState",
   default: false
 });
-const ESfromRecoilSelector = selectorFamily({
+var ESfromRecoilSelector = selectorFamily({
   key: "ESfromRecoilSelector",
   get: ({}) => ({ get }) => {
     return true;
@@ -1596,7 +1569,7 @@ const ESfromRecoilSelector = selectorFamily({
     }
   }
 });
-const isUniqueTestSelector = selectorFamily({
+var isUniqueTestSelector = selectorFamily({
   key: "isUniqueTestSelector",
   get: (args) => ({ get }) => {
     if (!args.checkUnique)
@@ -1615,14 +1588,15 @@ const isUniqueTestSelector = selectorFamily({
   }
 });
 
-const debug$8 = require("debug")("rde:rdf:io");
-const defaultFetchTtlHeaders = new Headers();
+// src/helpers/rdf/io.ts
+var debug5 = __require("debug")("rde:rdf:io");
+var defaultFetchTtlHeaders = new Headers();
 defaultFetchTtlHeaders.set("Accept", "text/turtle");
-const fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, allowEmptyEtag = true) => {
+var fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, allowEmptyEtag = true) => {
   return new Promise(async (resolve, reject) => {
     const response = await fetch(url, { headers });
     if (allow404 && response.status == 404) {
-      resolve({ store: rdf.graph(), etag: null });
+      resolve({ store: rdf4.graph(), etag: null });
       return;
     }
     if (response.status != 200) {
@@ -1635,9 +1609,9 @@ const fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders,
       return;
     }
     const body = await response.text();
-    const store = rdf.graph();
+    const store = rdf4.graph();
     try {
-      rdf.parse(body, store, rdf.Store.defaultGraphURI, "text/turtle");
+      rdf4.parse(body, store, rdf4.Store.defaultGraphURI, "text/turtle");
     } catch {
       reject(new Error("cannot parse result of " + url + " in ttl"));
       return;
@@ -1645,9 +1619,9 @@ const fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders,
     resolve({ store, etag });
   });
 };
-const defaultPutTtlHeaders = new Headers();
+var defaultPutTtlHeaders = new Headers();
 defaultPutTtlHeaders.set("Content-Type", "text/turtle");
-const shapesMap = {};
+var shapesMap = {};
 function ShapeFetcher(shapeQname, entityQname, config) {
   const [loadingState, setLoadingState] = useState({ status: "idle", error: void 0 });
   const [shape, setShape] = useState();
@@ -1674,7 +1648,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
     }
     async function fetchResource(shapeQname2) {
       setLoadingState({ status: "fetching", error: void 0 });
-      const shapeNode = rdf.sym(config.prefixMap.uriFromQname(shapeQname2));
+      const shapeNode = rdf4.sym(config.prefixMap.uriFromQname(shapeQname2));
       const loadShape = config.getShapesDocument(shapeNode);
       try {
         const shape2 = await loadShape;
@@ -1693,7 +1667,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
         }
         setLoadingState({ status: "fetched", error: void 0 });
       } catch (e) {
-        debug$8("shape error:", e);
+        debug5("shape error:", e);
         setLoadingState({ status: "error", error: "error fetching shape or ontology" });
       }
     }
@@ -1736,39 +1710,42 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       return;
     async function fetchResource(entityQname2) {
       setEntityLoadingState({ status: "fetching", error: void 0 });
-      debug$8("fetching", entity, shapeQname, entityQname2, entities);
-      let loadRes, useLocal, notFound, etag, res, needsSaving;
+      debug5("fetching", entity, shapeQname, entityQname2, entities);
+      let loadRes, loadLabels, localRes, useLocal, notFound, etag, res, needsSaving;
       const localEntities = await config.getUserLocalEntities();
       if (reloadEntity !== entityQname2 && shapeQname && localEntities[entityQname2] !== void 0) {
         useLocal = window.confirm("found previous local edits for this resource, load them?");
-        const store = rdf.graph();
+        const store = rdf4.graph();
         if (useLocal) {
           try {
-            rdf.parse(localEntities[entityQname2].ttl, store, rdf.Store.defaultGraphURI, "text/turtle");
+            rdf4.parse(localEntities[entityQname2].ttl, store, rdf4.Store.defaultGraphURI, "text/turtle");
             etag = localEntities[entityQname2].etag;
             needsSaving = localEntities[entityQname2].needsSaving;
-            debug$8("nS:", needsSaving);
+            debug5("nS:", needsSaving);
           } catch (e) {
-            debug$8(e);
-            debug$8(localEntities[entityQname2]);
+            debug5(e);
+            debug5(localEntities[entityQname2]);
             window.alert("could not load local data, fetching remote version");
             useLocal = false;
             delete localEntities[entityQname2];
           }
         } else {
-          rdf.parse("", store, rdf.Store.defaultGraphURI, "text/turtle");
+          rdf4.parse("", store, rdf4.Store.defaultGraphURI, "text/turtle");
         }
         res = { store, etag };
       }
       const entityUri = config.prefixMap.uriFromQname(entityQname2);
-      const entityNode = rdf.sym(entityUri);
+      const entityNode = rdf4.sym(entityUri);
       try {
         if (!useLocal) {
           res = await config.getDocument(entityNode);
           needsSaving = false;
         }
       } catch (e) {
-        notFound = true;
+        if (localRes)
+          res = { store: localRes, etag };
+        else
+          notFound = true;
       }
       let _entities = entities;
       if (!sessionLoaded) {
@@ -1781,7 +1758,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
               subject: null,
               shapeQname: obj[k].shapeQname,
               subjectLabelState: defaultEntityLabelAtom,
-              state: EditedEntityState.NotLoaded,
+              state: 4 /* NotLoaded */,
               preloadedLabel: obj[k].preloadedLabel,
               etag: obj[k].etag,
               loadedUnsavedFromLocalStorage: true
@@ -1803,7 +1780,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
         if (index2 === -1) {
           newEntities.push({
             subjectQname: actualQname,
-            state: EditedEntityState.Loading,
+            state: 3 /* Loading */,
             shapeQname,
             subject: null,
             subjectLabelState: defaultEntityLabelAtom,
@@ -1816,7 +1793,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
           newEntities[index2] = {
             ...newEntities[index2],
             subject,
-            state: EditedEntityState.Saved,
+            state: 1 /* Saved */,
             subjectLabelState: subject.getAtomForProperty(prefLabel.uri),
             preloadedLabel: "",
             etag,
@@ -1830,7 +1807,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
         if (reloadEntity)
           setReloadEntity("");
       } catch (e) {
-        debug$8("e:", e.message, e);
+        debug5("e:", e.message, e);
         setDisabled(false);
         setEntityLoadingState({
           status: "error",
@@ -1869,15 +1846,53 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   return retVal;
 }
 
-const MDIcon = (props) => /* @__PURE__ */ jsx(Img, {
+// src/containers/EntityEditContainer.tsx
+import NotFoundIcon from "@mui/icons-material/BrokenImage";
+import i18n4 from "i18next";
+
+// src/containers/PropertyGroupContainer.tsx
+import { useState as useState3, useRef as useRef2, useMemo as useMemo2, useEffect as useEffect3 } from "react";
+
+// src/containers/ValueList.tsx
+import React2, { useEffect as useEffect2, useState as useState2, useRef, useLayoutEffect, useCallback, useMemo } from "react";
+import * as rdf5 from "rdflib";
+import { useRecoilState as useRecoilState2, useRecoilValue } from "recoil";
+import { makeStyles } from "@mui/styles";
+import { TextField, MenuItem, Tooltip } from "@mui/material";
+
+// src/routes/layout/icons.jsx
+import React from "react";
+import { Img } from "react-image";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { default as default2 } from "@mui/icons-material/Error";
+import { default as default3 } from "@mui/icons-material/Close";
+import { default as default4 } from "@mui/icons-material/FindReplace";
+import { default as default5 } from "@mui/icons-material/Search";
+import { default as default6 } from "@mui/icons-material/Launch";
+import { default as default7 } from "@mui/icons-material/Info";
+import { default as default8 } from "@mui/icons-material/InfoOutlined";
+import { default as default9 } from "@mui/icons-material/Settings";
+import { default as default10 } from "@mui/icons-material/Visibility";
+import { default as default11 } from "@mui/icons-material/VisibilityOff";
+import { default as default12 } from "@mui/icons-material/Edit";
+import { default as default13 } from "@mui/icons-material/Keyboard";
+import { default as default14 } from "@mui/icons-material/Help";
+import { default as default15 } from "@mui/icons-material/AssignmentReturned";
+import { jsx } from "react/jsx-runtime";
+var MDIcon = (props) => /* @__PURE__ */ jsx(Img, {
   src: "/icons/Markdown-mark.svg",
   ...props
 });
-const AddIcon = AddCircleOutlineIcon;
-const RemoveIcon = RemoveCircleOutlineIcon;
+var AddIcon = AddCircleOutlineIcon;
+var RemoveIcon = RemoveCircleOutlineIcon;
 
-const debug$7 = require("debug")("rde:rdf:lang");
-const ValueByLangToStrPrefLang = (vbl, prefLang) => {
+// src/containers/ValueList.tsx
+import i18n2 from "i18next";
+
+// src/helpers/lang.ts
+var debug6 = __require("debug")("rde:rdf:lang");
+var ValueByLangToStrPrefLang = (vbl, prefLang) => {
   if (vbl == null)
     return "";
   if (!Array.isArray(prefLang))
@@ -1891,13 +1906,13 @@ const ValueByLangToStrPrefLang = (vbl, prefLang) => {
     return vals[0];
   return "";
 };
-const cache = {};
-const langsWithDefault = (defaultLanguage, langs) => {
+var cache = {};
+var langsWithDefault = (defaultLanguage, langs) => {
   if (defaultLanguage in cache)
     return cache[defaultLanguage];
   let res = langs.filter((l) => l.value === defaultLanguage);
-  if (!res?.length) {
-    debug$7("can't find defaultLanguage ", defaultLanguage, " in languages");
+  if (!(res == null ? void 0 : res.length)) {
+    debug6("can't find defaultLanguage ", defaultLanguage, " in languages");
     return langs;
   }
   res = res.concat(langs.filter((l) => l.value !== defaultLanguage));
@@ -1905,15 +1920,18 @@ const langsWithDefault = (defaultLanguage, langs) => {
   return res;
 };
 
-const debug$6 = require("debug")("rde:entity:container:ValueList");
-function replaceItemAtIndex$1(arr, index, newValue) {
+// src/containers/ValueList.tsx
+import MDEditor, { commands } from "@uiw/react-md-editor";
+import { Fragment, jsx as jsx2, jsxs } from "react/jsx-runtime";
+var debug7 = __require("debug")("rde:entity:container:ValueList");
+function replaceItemAtIndex(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
 function removeItemAtIndex(arr, index) {
   return [...arr.slice(0, index), ...arr.slice(index + 1)];
 }
-const PropertyContainer = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
-  const [css, setCss] = useState("");
+var PropertyContainer = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
+  const [css, setCss] = useState2("");
   const setCssClass = (txt, add = true) => {
     if (add) {
       if (!css.includes(txt))
@@ -1923,16 +1941,16 @@ const PropertyContainer = ({ property, subject, embedded, force, editable, owner
         setCss(css.replace(new RegExp(txt), ""));
     }
   };
-  return /* @__PURE__ */ jsx(React.Fragment, {
-    children: /* @__PURE__ */ jsx("div", {
+  return /* @__PURE__ */ jsx2(React2.Fragment, {
+    children: /* @__PURE__ */ jsx2("div", {
       role: "main",
       ...css ? { className: css } : {},
-      children: /* @__PURE__ */ jsx("section", {
+      children: /* @__PURE__ */ jsx2("section", {
         className: "album",
-        children: /* @__PURE__ */ jsx("div", {
+        children: /* @__PURE__ */ jsx2("div", {
           className: "container" + (embedded ? " px-0" : "") + " editable-" + editable,
           style: { border: "dashed 1px none" },
-          children: /* @__PURE__ */ jsx(ValueList, {
+          children: /* @__PURE__ */ jsx2(ValueList, {
             subject,
             property,
             embedded,
@@ -1950,25 +1968,25 @@ const PropertyContainer = ({ property, subject, embedded, force, editable, owner
     })
   });
 };
-const MinimalAddButton = ({ add, className, disable }) => {
-  return /* @__PURE__ */ jsx("div", {
+var MinimalAddButton = ({ add, className, disable }) => {
+  return /* @__PURE__ */ jsx2("div", {
     className: "minimalAdd disable_" + disable + (className !== void 0 ? className : " text-right"),
-    children: /* @__PURE__ */ jsx("button", {
+    children: /* @__PURE__ */ jsx2("button", {
       className: "btn btn-link ml-2 px-0",
       onClick: (ev) => add(ev, 1),
       ...disable ? { disabled: true } : {},
-      children: /* @__PURE__ */ jsx(AddIcon, {})
+      children: /* @__PURE__ */ jsx2(AddIcon, {})
     })
   });
 };
-const BlockAddButton = ({ add, label, count = 1 }) => {
-  const [n, setN] = useState(1);
-  const [disable, setDisable] = useState(false);
+var BlockAddButton = ({ add, label, count = 1 }) => {
+  const [n, setN] = useState2(1);
+  const [disable, setDisable] = useState2(false);
   return /* @__PURE__ */ jsxs("div", {
     className: "blockAdd text-center pb-1 mt-3",
     style: { width: "100%", ...count > 1 ? { display: "flex" } : {} },
     children: [
-      /* @__PURE__ */ jsx("button", {
+      /* @__PURE__ */ jsx2("button", {
         className: "btn btn-sm btn-block btn-outline-primary px-0",
         style: {
           boxShadow: "none",
@@ -1978,15 +1996,15 @@ const BlockAddButton = ({ add, label, count = 1 }) => {
         onClick: (e) => add(e, n),
         children: /* @__PURE__ */ jsxs(Fragment, {
           children: [
-            i18n.t("general.add_another", { val: label, count }),
+            i18n2.t("general.add_another", { val: label, count }),
             "\xA0",
-            /* @__PURE__ */ jsx(AddIcon, {})
+            /* @__PURE__ */ jsx2(AddIcon, {})
           ]
         })
       }),
-      count > 1 && /* @__PURE__ */ jsx(TextField, {
-        label: /* @__PURE__ */ jsx(Fragment, {
-          children: i18n.t("general.add_nb", { val: label })
+      count > 1 && /* @__PURE__ */ jsx2(TextField, {
+        label: /* @__PURE__ */ jsx2(Fragment, {
+          children: i18n2.t("general.add_nb", { val: label })
         }),
         style: { width: 200 },
         value: n,
@@ -1999,15 +2017,18 @@ const BlockAddButton = ({ add, label, count = 1 }) => {
     ]
   });
 };
-const generateDefault = async (property, parent, RIDprefix, idToken, val = "", config) => {
+var generateDefault = async (property, parent, RIDprefix, idToken, val = "", config) => {
+  var _a, _b;
   switch (property.objectType) {
-    case ObjectType.ResExt:
+    case 3 /* ResExt */:
       return new ExtRDFResourceWithLabel("tmp:uri", {}, {}, config);
-    case ObjectType.Internal:
+      break;
+    case 1 /* Internal */:
       if (property.targetShape == null)
         throw "no target shape for " + property.uri;
       return generateSubnode(property.targetShape, parent);
-    case ObjectType.ResInList:
+      break;
+    case 2 /* ResInList */:
       if (property.defaultValue)
         return new ExtRDFResourceWithLabel(property.defaultValue.value, {}, {}, config);
       if (!property.minCount)
@@ -2016,14 +2037,15 @@ const generateDefault = async (property, parent, RIDprefix, idToken, val = "", c
       if (!propIn)
         throw "can't find a list for " + property.uri;
       return propIn[0];
-    case ObjectType.LitInList:
+      break;
+    case 5 /* LitInList */:
       const defaultValueLiL = property.defaultValue;
       if (defaultValueLiL !== null)
         return new LiteralWithId(defaultValueLiL.value, defaultValueLiL.language, defaultValueLiL.datatype);
       if (!property.minCount) {
-        const datatype2 = property.datatype?.value;
+        const datatype2 = (_a = property.datatype) == null ? void 0 : _a.value;
         if (datatype2 === RDF("langString").value) {
-          return new LiteralWithId("", property?.defaultLanguage ? property.defaultLanguage : "bo-x-ewts");
+          return new LiteralWithId("", (property == null ? void 0 : property.defaultLanguage) ? property.defaultLanguage : "bo-x-ewts");
         } else {
           return new LiteralWithId("", null, property.datatype ? property.datatype : void 0);
         }
@@ -2032,32 +2054,35 @@ const generateDefault = async (property, parent, RIDprefix, idToken, val = "", c
       if (!propInLit)
         throw "can't find a list for " + property.uri;
       return propInLit[0];
-    case ObjectType.Literal:
+      break;
+    case 0 /* Literal */:
     default:
       const defaultValue = property.defaultValue;
       if (defaultValue !== null)
         return new LiteralWithId(defaultValue.value, defaultValue.language, defaultValue.datatype);
-      const datatype = property.datatype?.value;
+      const datatype = (_b = property.datatype) == null ? void 0 : _b.value;
       if (datatype === RDF("langString").value) {
-        return new LiteralWithId("", property?.defaultLanguage ? property.defaultLanguage : "bo-x-ewts");
+        return new LiteralWithId("", (property == null ? void 0 : property.defaultLanguage) ? property.defaultLanguage : "bo-x-ewts");
       } else if (datatype === XSD("integer").value) {
         return new LiteralWithId(val, null, property.datatype ? property.datatype : void 0);
       } else {
         return new LiteralWithId("", null, property.datatype ? property.datatype : void 0);
       }
+      break;
   }
 };
-const ValueList = ({ subject, property, embedded, force, editable, owner, topEntity, shape, siblingsPath, setCssClass, config }) => {
+var ValueList = ({ subject, property, embedded, force, editable, owner, topEntity, shape, siblingsPath, setCssClass, config }) => {
+  var _a, _b;
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [unsortedList, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
-  const [uiLang] = useRecoilState(uiLangState);
-  const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"));
-  const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState);
+  const [unsortedList, setList] = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
+  const [uiLang] = useRecoilState2(uiLangState);
+  const [idToken, setIdToken] = useState2(localStorage.getItem("BLMPidToken"));
+  const [RIDprefix, setRIDprefix] = useRecoilState2(RIDprefixState);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
-  const [undos, setUndos] = useRecoilState(uiUndosState);
-  const sortOnPath = property?.sortOnProperty?.value;
+  const [undos, setUndos] = useRecoilState2(uiUndosState);
+  const sortOnPath = (_a = property == null ? void 0 : property.sortOnProperty) == null ? void 0 : _a.value;
   const orderedList = useRecoilValue(
     orderedByPropSelector({
       atom: subject.getAtomForProperty(property.path.sparqlString),
@@ -2067,7 +2092,10 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
   let list = unsortedList;
   if (orderedList.length)
     list = orderedList;
-  const withOrder = shape.properties.filter((p) => p.sortOnProperty?.value === property.path?.sparqlString);
+  const withOrder = shape.properties.filter((p) => {
+    var _a2, _b2;
+    return ((_a2 = p.sortOnProperty) == null ? void 0 : _a2.value) === ((_b2 = property.path) == null ? void 0 : _b2.sparqlString);
+  });
   let newVal = useRecoilValue(
     orderedNewValSelector({
       atom: withOrder.length && withOrder[0].path ? (topEntity ? topEntity : subject).getAtomForProperty(withOrder[0].path.sparqlString) : null,
@@ -2081,7 +2109,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     if (property.maxInclusive && newValNum > property.maxInclusive)
       newVal = property.maxInclusive.toString();
   }
-  const [getESfromRecoil, setESfromRecoil] = useRecoilState(ESfromRecoilSelector({}));
+  const [getESfromRecoil, setESfromRecoil] = useRecoilState2(ESfromRecoilSelector({}));
   const updateEntityState = (status, id, removingFacet = false, forceRemove = false) => {
     if (id === void 0)
       throw new Error("id undefined");
@@ -2099,10 +2127,10 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     }
     return false;
   };
-  const canAdd = !editable || alreadyHasEmptyValue() || property.readOnly && property.readOnly === true || property.displayPriority && property.displayPriority > 1 ? false : property.objectType != ObjectType.ResExt && property.maxCount ? list.length < property.maxCount : true;
+  const canAdd = !editable || alreadyHasEmptyValue() || property.readOnly && property.readOnly === true || property.displayPriority && property.displayPriority > 1 ? false : property.objectType != 3 /* ResExt */ && property.maxCount ? list.length < property.maxCount : true;
   const canDel = (!property.minCount || property.minCount < list.length) && !property.readOnly && editable;
   const onChange = (value, idx, removeFirst) => {
-    const newList = replaceItemAtIndex$1(list, idx, value);
+    const newList = replaceItemAtIndex(list, idx, value);
     setList(newList);
   };
   const exists = useCallback(
@@ -2117,7 +2145,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     [list]
   );
   let firstValueIsEmptyField = true;
-  useEffect(() => {
+  useEffect2(() => {
     if (list.length) {
       const first = list[0];
       if (first instanceof ExtRDFResourceWithLabel && first.uri !== "tmp:uri" && first.uri !== "tmp:none")
@@ -2140,7 +2168,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
       } else {
         setList(vals);
       }
-    } else if (property.objectType != ObjectType.ResInList && property.objectType != ObjectType.LitInList && property.objectType != ObjectType.Internal && (!property.displayPriority || property.displayPriority === 0 || property.displayPriority === 1 && (list.length || force)) && (property.minCount && list.length < property.minCount || !list.length || !firstValueIsEmptyField) && (!property.maxCount || property.maxCount >= list.length)) {
+    } else if (property.objectType != 2 /* ResInList */ && property.objectType != 5 /* LitInList */ && property.objectType != 1 /* Internal */ && (!property.displayPriority || property.displayPriority === 0 || property.displayPriority === 1 && (list.length || force)) && (property.minCount && list.length < property.minCount || !list.length || !firstValueIsEmptyField) && (!property.maxCount || property.maxCount >= list.length)) {
       if (!firstValueIsEmptyField) {
         const setListAsync = async () => {
           const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
@@ -2166,7 +2194,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
         };
         setListAsync();
       }
-    } else if (property.objectType == ObjectType.Internal && property.minCount && list.length < property.minCount) {
+    } else if (property.objectType == 1 /* Internal */ && property.minCount && list.length < property.minCount) {
       const setListAsync = async () => {
         const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
         if (topEntity)
@@ -2178,7 +2206,8 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
         setList((oldList) => (Array.isArray(res) ? res : [res]).concat(oldList));
       };
       setListAsync();
-    } else if (property.objectType != ObjectType.ResInList && property.objectType != ObjectType.LitInList && property.displayPriority && property.displayPriority === 1 && list.length === 1 && !force) ; else if (!list.length && (property.objectType == ObjectType.ResInList || property.objectType == ObjectType.LitInList)) {
+    } else if (property.objectType != 2 /* ResInList */ && property.objectType != 5 /* LitInList */ && property.displayPriority && property.displayPriority === 1 && list.length === 1 && !force) {
+    } else if (!list.length && (property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */)) {
       const setListAsync = async () => {
         const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
         if (topEntity)
@@ -2192,7 +2221,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
       setListAsync();
     }
   }, [subject, list, force]);
-  let addBtn = property.objectType === ObjectType.Internal;
+  let addBtn = property.objectType === 1 /* Internal */;
   const isEmptyValue = (val) => {
     if (val instanceof RDFResourceWithLabel) {
       return val.uri === "tmp:uri" || val.uri === "tmp:none";
@@ -2209,7 +2238,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     return false;
   };
   const hasNonEmptyValue = list.some((v) => !isEmptyValue(v) || isErrorValue(v));
-  useEffect(() => {
+  useEffect2(() => {
     if (setCssClass) {
       if (!hasNonEmptyValue)
         setCssClass("unset", true);
@@ -2219,13 +2248,14 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
   }, [hasNonEmptyValue]);
   const showLabel = !property.displayPriority || property.displayPriority === 0 || property.displayPriority === 1 && (force || list.length > 1 || hasNonEmptyValue) || property.displayPriority === 2 && (list.length >= 1 || hasNonEmptyValue);
   const scrollElem = useRef(null);
-  const [edit, setEdit] = useRecoilState(uiEditState);
-  useEffect(() => {
-    if (property?.group?.value !== edit && scrollElem?.current) {
+  const [edit, setEdit] = useRecoilState2(uiEditState);
+  useEffect2(() => {
+    var _a2;
+    if (((_a2 = property == null ? void 0 : property.group) == null ? void 0 : _a2.value) !== edit && (scrollElem == null ? void 0 : scrollElem.current)) {
       scrollElem.current.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     }
   }, [edit]);
-  const hasEmptyExtEntityAsFirst = list.length > 0 && list[0] instanceof RDFResourceWithLabel && property.objectType == ObjectType.ResExt && list[0].uri === "tmp:uri";
+  const hasEmptyExtEntityAsFirst = list.length > 0 && list[0] instanceof RDFResourceWithLabel && property.objectType == 3 /* ResExt */ && list[0].uri === "tmp:uri";
   const titleCase = (s) => {
     if (!s)
       return s;
@@ -2241,9 +2271,9 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
   );
   const renderListElem = useMemo(
     () => (val, i, nbvalues) => {
-      if (val instanceof RDFResourceWithLabel || property.objectType == ObjectType.ResInList || property.objectType == ObjectType.LitInList) {
-        if (property.objectType == ObjectType.ResExt)
-          return /* @__PURE__ */ jsx(ExtEntityComponent, {
+      if (val instanceof RDFResourceWithLabel || property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */) {
+        if (property.objectType == 3 /* ResExt */)
+          return /* @__PURE__ */ jsx2(ExtEntityComponent, {
             subject,
             property,
             extRes: val,
@@ -2261,7 +2291,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
         else if (val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
           addBtn = false;
           const canSelectNone = i == 0 && !property.minCount || i > 0 && i == nbvalues - 1;
-          return /* @__PURE__ */ jsx(SelectComponent, {
+          return /* @__PURE__ */ jsx2(SelectComponent, {
             canSelectNone,
             subject,
             property,
@@ -2269,7 +2299,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
             selectIdx: i,
             canDel: canDel && val != noneSelected,
             editable,
-            create: canAdd ? /* @__PURE__ */ jsx(Create, {
+            create: canAdd ? /* @__PURE__ */ jsx2(Create, {
               subject,
               property,
               embedded,
@@ -2282,7 +2312,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
         }
       } else if (val instanceof Subject) {
         addBtn = true;
-        return /* @__PURE__ */ jsx(FacetComponent, {
+        return /* @__PURE__ */ jsx2(FacetComponent, {
           subject,
           property,
           subNode: val,
@@ -2297,12 +2327,12 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
       } else if (val instanceof LiteralWithId) {
         addBtn = false;
         const isUniqueLang = list.filter((l) => l instanceof LiteralWithId && l.language === val.language).length === 1;
-        return /* @__PURE__ */ jsx(LiteralComponent, {
+        return /* @__PURE__ */ jsx2(LiteralComponent, {
           subject,
           property,
           lit: val,
           ...{ canDel, isUniqueLang, isUniqueValueAmongSiblings },
-          create: /* @__PURE__ */ jsx(Create, {
+          create: /* @__PURE__ */ jsx2(Create, {
             disable: !canAdd || !(val && val.value !== ""),
             subject,
             property,
@@ -2320,10 +2350,10 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     },
     void 0
   );
-  return /* @__PURE__ */ jsxs(React.Fragment, {
+  return /* @__PURE__ */ jsxs(React2.Fragment, {
     children: [
       /* @__PURE__ */ jsxs("div", {
-        className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === ObjectType.ResExt ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
+        className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === 3 /* ResExt */ ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
         "data-priority": property.displayPriority ? property.displayPriority : 0,
         role: "main",
         style: {
@@ -2339,24 +2369,24 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
             "data-priority": property.displayPriority,
             children: [
               titleCase(propLabel),
-              helpMessage && property.objectType === ObjectType.ResExt && /* @__PURE__ */ jsx(Tooltip, {
+              helpMessage && property.objectType === 3 /* ResExt */ && /* @__PURE__ */ jsx2(Tooltip, {
                 title: helpMessage,
-                children: /* @__PURE__ */ jsx(HelpIcon, {
+                children: /* @__PURE__ */ jsx2(default14, {
                   className: "help label"
                 })
               })
             ]
           }),
-          hasEmptyExtEntityAsFirst && /* @__PURE__ */ jsx("div", {
+          hasEmptyExtEntityAsFirst && /* @__PURE__ */ jsx2("div", {
             style: { width: "100%" },
             children: renderListElem(list[0], 0, list.length)
           }),
-          /* @__PURE__ */ jsx("div", {
+          /* @__PURE__ */ jsx2("div", {
             ref: scrollElem,
-            className: !embedded && property.objectType !== ObjectType.Internal ? "overFauto" : "",
+            className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
             style: {
               width: "100%",
-              ...property?.group?.value !== edit ? { paddingRight: "0.5rem" } : {}
+              ...((_b = property == null ? void 0 : property.group) == null ? void 0 : _b.value) !== edit ? { paddingRight: "0.5rem" } : {}
             },
             children: list.map((val, i) => {
               if (!hasEmptyExtEntityAsFirst || i > 0)
@@ -2365,7 +2395,7 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
           })
         ]
       }),
-      canAdd && addBtn && /* @__PURE__ */ jsx(Create, {
+      canAdd && addBtn && /* @__PURE__ */ jsx2(Create, {
         subject,
         property,
         embedded,
@@ -2376,50 +2406,54 @@ const ValueList = ({ subject, property, embedded, force, editable, owner, topEnt
     ]
   });
 };
-const Create = ({ subject, property, embedded, disable, newVal, shape, config }) => {
+var Create = ({ subject, property, embedded, disable, newVal, shape, config }) => {
+  var _a, _b;
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
+  const [list, setList] = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
   let collecNode = null;
-  if (list.length === 1 && list[0] instanceof RDFResource && list[0].node && list[0].node instanceof rdf.Collection) {
+  if (list.length === 1 && list[0] instanceof RDFResource && list[0].node && list[0].node instanceof rdf5.Collection) {
     collecNode = list[0].node;
   }
-  const collec = collecNode?.termType === "Collection" ? collecNode?.elements : void 0;
+  const collec = (collecNode == null ? void 0 : collecNode.termType) === "Collection" ? collecNode == null ? void 0 : collecNode.elements : void 0;
   const listOrCollec = collec ? collec : list;
-  const [uiLang] = useRecoilState(uiLangState);
-  const [entities, setEntities] = useRecoilState(entitiesAtom);
-  const [uiTab] = useRecoilState(uiTabState);
-  entities.findIndex((e, i) => i === uiTab);
-  const [edit, setEdit] = useRecoilState(uiEditState);
-  const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"));
-  const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState);
+  const [uiLang] = useRecoilState2(uiLangState);
+  const [entities, setEntities] = useRecoilState2(entitiesAtom);
+  const [uiTab] = useRecoilState2(uiTabState);
+  const entity = entities.findIndex((e, i) => i === uiTab);
+  const [edit, setEdit] = useRecoilState2(uiEditState);
+  const [idToken, setIdToken] = useState2(localStorage.getItem("BLMPidToken"));
+  const [RIDprefix, setRIDprefix] = useRecoilState2(RIDprefixState);
   let nextVal = useRecoilValue(
     property.sortOnProperty ? orderedNewValSelector({
       atom: property.sortOnProperty ? subject.getAtomForProperty(property.path.sparqlString) : null,
       propertyPath: property.sortOnProperty.value
     }) : initStringAtom
   );
-  const sortProps = property.targetShape?.properties.filter(
-    (p) => p.path?.sparqlString === property.sortOnProperty?.value
+  const sortProps = (_a = property.targetShape) == null ? void 0 : _a.properties.filter(
+    (p) => {
+      var _a2, _b2;
+      return ((_a2 = p.path) == null ? void 0 : _a2.sparqlString) === ((_b2 = property.sortOnProperty) == null ? void 0 : _b2.value);
+    }
   );
-  if (sortProps?.length) {
+  if (sortProps == null ? void 0 : sortProps.length) {
     const sortProp = sortProps[0];
-    if (sortProp?.minInclusive != null && Number(nextVal) < sortProp.minInclusive)
+    if ((sortProp == null ? void 0 : sortProp.minInclusive) != null && Number(nextVal) < sortProp.minInclusive)
       nextVal = sortProp.minInclusive.toString();
-    if (sortProp?.maxInclusive != null && Number(nextVal) > sortProp.maxInclusive)
+    if ((sortProp == null ? void 0 : sortProp.maxInclusive) != null && Number(nextVal) > sortProp.maxInclusive)
       nextVal = sortProp.maxInclusive.toString();
   }
   let waitForNoHisto = false;
   const addItem = async (event, n) => {
     if (waitForNoHisto)
       return;
-    if (property.objectType === ObjectType.Internal) {
+    if (property.objectType === 1 /* Internal */) {
       waitForNoHisto = true;
       subject.noHisto(false, 1);
     }
-    const item = await generateDefault(property, subject, RIDprefix, idToken, newVal?.toString(), config);
+    const item = await generateDefault(property, subject, RIDprefix, idToken, newVal == null ? void 0 : newVal.toString(), config);
     setList([...listOrCollec, item]);
-    if (property.objectType === ObjectType.Internal && item instanceof Subject) {
+    if (property.objectType === 1 /* Internal */ && item instanceof Subject) {
       setImmediate(() => {
         setEdit(subject.qname + " " + property.qname + " " + item.qname);
       });
@@ -2429,73 +2463,73 @@ const Create = ({ subject, property, embedded, disable, newVal, shape, config })
       }, 350);
     }
   };
-  if (property.objectType !== ObjectType.Internal && (embedded || property.objectType == ObjectType.Literal || property.objectType == ObjectType.ResInList || property.objectType == ObjectType.LitInList))
-    return /* @__PURE__ */ jsx(MinimalAddButton, {
+  if (property.objectType !== 1 /* Internal */ && (embedded || property.objectType == 0 /* Literal */ || property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */))
+    return /* @__PURE__ */ jsx2(MinimalAddButton, {
       disable,
       add: addItem,
       className: " "
     });
   else {
-    const targetShapeLabels = property.targetShape?.targetClassPrefLabels;
+    const targetShapeLabels = (_b = property.targetShape) == null ? void 0 : _b.targetClassPrefLabels;
     const labels = targetShapeLabels ? targetShapeLabels : property.prefLabels;
     const count = property.allowBatchManagement ? 2 : 1;
-    return /* @__PURE__ */ jsx(BlockAddButton, {
+    return /* @__PURE__ */ jsx2(BlockAddButton, {
       add: addItem,
       label: ValueByLangToStrPrefLang(labels, uiLang),
       count
     });
   }
 };
-const useStyles = makeStyles((theme) => ({
+var useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
     }
   }
 }));
-const EditLangString = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
-  useStyles();
-  const [editMD, setEditMD] = useState(false);
-  const [keyboard, setKeyboard] = useState(false);
+var EditLangString = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
+  const classes = useStyles();
+  const [editMD, setEditMD] = useState2(false);
+  const [keyboard, setKeyboard] = useState2(false);
   const canPushPrefLabel = property.allowPushToTopLevelLabel;
   const getLangStringError = (val) => {
     let err = "";
     if (!val && property.minCount)
-      err = i18n.t("error.empty");
+      err = i18n2.t("error.empty");
     else if (globalError)
       err = globalError;
     return err;
   };
-  const [error, setError] = useState(null);
-  useEffect(() => {
+  const [error, setError] = useState2(null);
+  useEffect2(() => {
     const newError = getLangStringError(lit.value);
     if (newError != error) {
-      updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+      updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
       setError(newError);
     }
   });
-  useEffect(() => {
+  useEffect2(() => {
     return () => {
       const inOtherEntity = !window.location.href.includes("/" + entity.qname + "/");
       if (!inOtherEntity)
-        updateEntityState(EditedEntityState.Saved, lit.id, false, !inOtherEntity);
+        updateEntityState(1 /* Saved */, lit.id, false, !inOtherEntity);
     };
   }, []);
-  ({
-    helperText: /* @__PURE__ */ jsxs(React.Fragment, {
+  const errorData = {
+    helperText: /* @__PURE__ */ jsxs(React2.Fragment, {
       children: [
-        /* @__PURE__ */ jsx(ErrorIcon, {
+        /* @__PURE__ */ jsx2(default2, {
           style: { fontSize: "20px", verticalAlign: "-7px" }
         }),
         "\xA0",
-        /* @__PURE__ */ jsx("i", {
+        /* @__PURE__ */ jsx2("i", {
           children: error
         })
       ]
     }),
     error: true
-  });
-  const [preview, setPreview] = useState(null);
+  };
+  const [preview, setPreview] = useState2(null);
   useLayoutEffect(() => {
     if (document.activeElement === inputRef.current) {
       const { value, error: error2 } = config.previewLiteral(lit, uiLang);
@@ -2511,9 +2545,9 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
   } else if (property.singleLine && editMD) {
     padBot = "1px";
   }
-  const codeEdit = { ...commands.codeEdit, icon: /* @__PURE__ */ jsx(EditIcon, {
+  const codeEdit = { ...commands.codeEdit, icon: /* @__PURE__ */ jsx2(default12, {
     style: { width: "12px", height: "12px" }
-  }) }, codePreview = { ...commands.codePreview, icon: /* @__PURE__ */ jsx(VisibilityIcon, {
+  }) }, codePreview = { ...commands.codePreview, icon: /* @__PURE__ */ jsx2(default10, {
     style: { width: "12px", height: "12px" }
   }) };
   const hasKB = config.possibleLiteralLangs.filter((l) => l.value === lit.language);
@@ -2535,11 +2569,11 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
       }, 10);
     }
   };
-  let prefLabelAtom = entity?.getAtomForProperty(SKOS("prefLabel").value);
+  let prefLabelAtom = entity == null ? void 0 : entity.getAtomForProperty(SKOS("prefLabel").value);
   if (!prefLabelAtom)
     prefLabelAtom = initListAtom;
-  const [prefLabels, setPrefLabels] = useRecoilState(prefLabelAtom);
-  const [uiLang] = useRecoilState(uiLangState);
+  const [prefLabels, setPrefLabels] = useRecoilState2(prefLabelAtom);
+  const [uiLang] = useRecoilState2(uiLangState);
   const pushAsPrefLabel = () => {
     let newPrefLabels = [], found = false;
     for (const l in prefLabels) {
@@ -2547,7 +2581,7 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
         const litWi = prefLabels[l];
         if (litWi.language === lit.language) {
           found = true;
-          newPrefLabels = replaceItemAtIndex$1(prefLabels, Number(l), lit);
+          newPrefLabels = replaceItemAtIndex(prefLabels, Number(l), lit);
           break;
         }
       }
@@ -2567,15 +2601,15 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
       position: "relative"
     },
     children: [
-      canPushPrefLabel && !error && !globalError && /* @__PURE__ */ jsx("span", {
+      canPushPrefLabel && !error && !globalError && /* @__PURE__ */ jsx2("span", {
         className: "canPushPrefLabel",
-        children: /* @__PURE__ */ jsx("span", {
+        children: /* @__PURE__ */ jsx2("span", {
           onClick: pushAsPrefLabel,
-          children: /* @__PURE__ */ jsx(Tooltip, {
-            title: /* @__PURE__ */ jsx(Fragment, {
+          children: /* @__PURE__ */ jsx2(Tooltip, {
+            title: /* @__PURE__ */ jsx2(Fragment, {
               children: "Use as the main name or title for this language"
             }),
-            children: /* @__PURE__ */ jsx("span", {
+            children: /* @__PURE__ */ jsx2("span", {
               className: "img"
             })
           }, lit.id)
@@ -2584,7 +2618,7 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
       (property.singleLine || !editMD) && /* @__PURE__ */ jsxs("div", {
         style: { width: "100%", position: "relative" },
         children: [
-          /* @__PURE__ */ jsx(TextField, {
+          /* @__PURE__ */ jsx2(TextField, {
             variant: "standard",
             inputRef,
             className: lit.language === "bo" ? " lang-bo" : "",
@@ -2599,7 +2633,7 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
               if (newError && error != newError)
                 setError(newError);
               else
-                updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+                updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
               onChange(lit.copyWithUpdatedValue(e.target.value));
             },
             ...error ? { error: true, helperText: error } : {},
@@ -2622,15 +2656,15 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
             style: { position: "absolute", right: 0, top: 0, fontSize: "0px" },
             onClick: () => setEditMD(!editMD),
             children: [
-              !editMD && /* @__PURE__ */ jsx(MDIcon, {
+              !editMD && /* @__PURE__ */ jsx2(MDIcon, {
                 style: { height: "16px" }
               }),
-              editMD && /* @__PURE__ */ jsx(MDIcon, {
+              editMD && /* @__PURE__ */ jsx2(MDIcon, {
                 style: { height: "16px" }
               })
             ]
           }),
-          hasKB.length > 0 && hasKB[0].keyboard && /* @__PURE__ */ jsx("span", {
+          hasKB.length > 0 && hasKB[0].keyboard && /* @__PURE__ */ jsx2("span", {
             onClick: () => {
               setKeyboard(!keyboard);
               keepFocus();
@@ -2644,13 +2678,13 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
               display: "flex",
               alignItems: "center"
             },
-            children: /* @__PURE__ */ jsx(KeyboardIcon, {})
+            children: /* @__PURE__ */ jsx2(default13, {})
           }),
-          hasKB.length > 0 && hasKB[0].keyboard && keyboard && /* @__PURE__ */ jsx("div", {
+          hasKB.length > 0 && hasKB[0].keyboard && keyboard && /* @__PURE__ */ jsx2("div", {
             className: "card px-2 py-2 hasKB",
             style: { display: "block", width: "405px" },
             onClick: keepFocus,
-            children: hasKB[0].keyboard.map((k, i) => /* @__PURE__ */ jsx("span", {
+            children: hasKB[0].keyboard.map((k, i) => /* @__PURE__ */ jsx2("span", {
               className: "card mx-1 my-1",
               style: {
                 display: "inline-flex",
@@ -2669,7 +2703,7 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
       !property.singleLine && editMD && /* @__PURE__ */ jsxs("div", {
         style: { width: "100%", position: "relative", paddingBottom: "1px" },
         children: [
-          /* @__PURE__ */ jsx(MDEditor, {
+          /* @__PURE__ */ jsx2(MDEditor, {
             textareaProps: { spellCheck: "true", lang: lit.language === "en" ? "en_US" : lit.language },
             value: lit.value,
             preview: "edit",
@@ -2698,18 +2732,18 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
             ],
             extraCommands: []
           }),
-          /* @__PURE__ */ jsx("span", {
+          /* @__PURE__ */ jsx2("span", {
             className: "opaHover on",
             style: { position: "absolute", right: "5px", top: "7px", fontSize: "0px", cursor: "pointer" },
             onClick: () => setEditMD(!editMD),
-            children: /* @__PURE__ */ jsx(MDIcon, {
+            children: /* @__PURE__ */ jsx2(MDIcon, {
               style: { height: "15px" },
               title: "Use rich text editor"
             })
           })
         ]
       }),
-      /* @__PURE__ */ jsx(LangSelect, {
+      /* @__PURE__ */ jsx2(LangSelect, {
         onChange: (value) => {
           onChange(lit.copyWithUpdatedLanguage(value));
         },
@@ -2719,9 +2753,9 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
         editable,
         config
       }),
-      preview && /* @__PURE__ */ jsx("div", {
+      preview && /* @__PURE__ */ jsx2("div", {
         className: "preview-ewts",
-        children: /* @__PURE__ */ jsx(TextField, {
+        children: /* @__PURE__ */ jsx2(TextField, {
           disabled: true,
           value: preview
         })
@@ -2729,12 +2763,12 @@ const EditLangString = ({ property, lit, onChange, label, globalError, editable,
     ]
   });
 };
-const LangSelect = ({ onChange, value, property, disabled, error, editable, config }) => {
+var LangSelect = ({ onChange, value, property, disabled, error, editable, config }) => {
   const onChangeHandler = (event) => {
     onChange(event.target.value);
   };
-  const languages = property?.defaultLanguage ? langsWithDefault(property.defaultLanguage, config.possibleLiteralLangs) : config.possibleLiteralLangs;
-  return /* @__PURE__ */ jsx("div", {
+  const languages = (property == null ? void 0 : property.defaultLanguage) ? langsWithDefault(property.defaultLanguage, config.possibleLiteralLangs) : config.possibleLiteralLangs;
+  return /* @__PURE__ */ jsx2("div", {
     style: { position: "relative" },
     children: /* @__PURE__ */ jsxs(TextField, {
       select: true,
@@ -2744,14 +2778,14 @@ const LangSelect = ({ onChange, value, property, disabled, error, editable, conf
       style: { minWidth: 100, flexShrink: 0, marginTop: "5px" },
       onChange: onChangeHandler,
       ...disabled ? { disabled: true } : {},
-      ...error ? { error: true, helperText: /* @__PURE__ */ jsx("br", {}) } : {},
+      ...error ? { error: true, helperText: /* @__PURE__ */ jsx2("br", {}) } : {},
       ...!editable ? { disabled: true } : {},
       children: [
-        languages.map((option) => /* @__PURE__ */ jsx(MenuItem, {
+        languages.map((option) => /* @__PURE__ */ jsx2(MenuItem, {
           value: option.value,
           children: option.value
         }, option.value)),
-        !languages.some((l) => l.value === value) && /* @__PURE__ */ jsx(MenuItem, {
+        !languages.some((l) => l.value === value) && /* @__PURE__ */ jsx2(MenuItem, {
           value,
           children: value
         }, value)
@@ -2759,18 +2793,18 @@ const LangSelect = ({ onChange, value, property, disabled, error, editable, conf
     })
   });
 };
-const EditString = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
-  useStyles();
-  const [uiLang] = useRecoilState(uiLangState);
-  property.datatype;
+var EditString = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
+  const classes = useStyles();
+  const [uiLang] = useRecoilState2(uiLangState);
+  const dt = property.datatype;
   const pattern = property.pattern ? new RegExp(property.pattern) : void 0;
-  const [error, setError] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [error, setError] = useState2(null);
+  const [preview, setPreview] = useState2(null);
   const getPatternError = (val) => {
     let err = "";
     if (pattern !== void 0 && val !== "" && !val.match(pattern)) {
       err = ValueByLangToStrPrefLang(property.errorMessage, uiLang);
-      debug$6("err:", property.errorMessage);
+      debug7("err:", property.errorMessage);
     }
     return err;
   };
@@ -2778,25 +2812,25 @@ const EditString = ({ property, lit, onChange, label, editable, updateEntityStat
   let changeCallback = (val) => {
     return;
   };
-  useEffect(() => {
+  useEffect2(() => {
     changeCallback = (val) => {
       if (val === "") {
         setError(null);
         setPreview(null);
-        updateEntityState(EditedEntityState.Saved, lit.id);
+        updateEntityState(1 /* Saved */, lit.id);
       } else {
         if (timerPreview)
           window.clearTimeout(timerPreview);
         const delay = 350;
         timerPreview = window.setTimeout(() => {
-          const obj = config.previewLiteral(new rdf.Literal(val, lit.language, lit.datatype), uiLang);
+          const obj = config.previewLiteral(new rdf5.Literal(val, lit.language, lit.datatype), uiLang);
           const { value } = obj;
           let { error: error2 } = obj;
           setPreview(value);
           if (!error2)
             error2 = getPatternError(val);
           setError(error2);
-          updateEntityState(error2 ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+          updateEntityState(error2 ? 0 /* Error */ : 1 /* Saved */, lit.id);
         }, delay);
       }
       onChange(lit.copyWithUpdatedValue(val));
@@ -2807,30 +2841,30 @@ const EditString = ({ property, lit, onChange, label, editable, updateEntityStat
       return;
     /* @__PURE__ */ jsxs(Fragment, {
       children: [
-        /* @__PURE__ */ jsx(ErrorIcon, {
+        /* @__PURE__ */ jsx2(default2, {
           style: { fontSize: "20px", verticalAlign: "-7px" }
         }),
         " ",
-        /* @__PURE__ */ jsx("i", {
-          children: /* @__PURE__ */ jsx(Fragment, {
-            children: i18n.t("error.empty")
+        /* @__PURE__ */ jsx2("i", {
+          children: /* @__PURE__ */ jsx2(Fragment, {
+            children: i18n2.t("error.empty")
           })
         })
       ]
     });
     return null;
   };
-  useEffect(() => {
+  useEffect2(() => {
     const newError = error || getEmptyStringError(lit.value);
     if (newError != error) {
       setError(newError);
-      updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+      updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
     }
   });
   return /* @__PURE__ */ jsxs("div", {
     style: { display: "flex", flexDirection: "column", width: "100%" },
     children: [
-      /* @__PURE__ */ jsx(TextField, {
+      /* @__PURE__ */ jsx2(TextField, {
         variant: "standard",
         label,
         style: { width: "100%" },
@@ -2842,26 +2876,26 @@ const EditString = ({ property, lit, onChange, label, editable, updateEntityStat
         ...!editable ? { disabled: true } : {},
         ...error ? { error: true, helperText: error } : {}
       }),
-      preview && /* @__PURE__ */ jsx("div", {
+      preview && /* @__PURE__ */ jsx2("div", {
         className: "preview-EDTF",
         style: { width: "100%" },
-        children: /* @__PURE__ */ jsx("pre", {
+        children: /* @__PURE__ */ jsx2("pre", {
           children: preview
         })
       })
     ]
   });
 };
-const EditBool = ({ property, lit, onChange, label, editable }) => {
-  useStyles();
-  property.datatype;
+var EditBool = ({ property, lit, onChange, label, editable }) => {
+  const classes = useStyles();
+  const dt = property.datatype;
   let val = !lit.value || lit.value == "false" || lit.value == "0" ? false : true;
   if (property.defaultValue === null && lit.value == "")
     val = "unset";
   const changeCallback = (val2) => {
     onChange(lit.copyWithUpdatedValue(val2 == "false" ? "0" : "1"));
   };
-  return /* @__PURE__ */ jsx(TextField, {
+  return /* @__PURE__ */ jsx2(TextField, {
     select: true,
     style: { padding: "1px", minWidth: "250px" },
     label,
@@ -2872,14 +2906,14 @@ const EditBool = ({ property, lit, onChange, label, editable }) => {
         changeCallback(e.target.value);
     },
     ...!editable ? { disabled: true } : {},
-    children: ["true", "false"].concat(val === "unset" ? [val] : []).map((v) => /* @__PURE__ */ jsx(MenuItem, {
+    children: ["true", "false"].concat(val === "unset" ? [val] : []).map((v) => /* @__PURE__ */ jsx2(MenuItem, {
       value: v,
-      children: i18n.t("types." + v)
+      children: i18n2.t("types." + v)
     }, v))
   });
 };
-const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
-  useStyles();
+var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
+  const classes = useStyles();
   const dt = property.datatype;
   const minInclusive = property.minInclusive;
   const maxInclusive = property.maxInclusive;
@@ -2890,29 +2924,29 @@ const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, 
     if (globalError) {
       err = globalError;
     } else if (hasNoOtherValue && val === "") {
-      err = i18n.t("error.empty");
+      err = i18n2.t("error.empty");
     } else if (val !== void 0 && val !== "") {
       const valueInt = parseInt(val);
       if (minInclusive && minInclusive > valueInt) {
-        err = i18n.t("error.superiorTo", { val: minInclusive });
+        err = i18n2.t("error.superiorTo", { val: minInclusive });
       } else if (maxInclusive && maxInclusive < valueInt) {
-        err = i18n.t("error.inferiorTo", { val: maxInclusive });
+        err = i18n2.t("error.inferiorTo", { val: maxInclusive });
       } else if (minExclusive && minExclusive >= valueInt) {
-        err = i18n.t("error.superiorToStrict", { val: minExclusive });
+        err = i18n2.t("error.superiorToStrict", { val: minExclusive });
       } else if (maxExclusive && maxExclusive <= valueInt) {
-        err = i18n.t("error.inferiorToStrict", { val: maxExclusive });
+        err = i18n2.t("error.inferiorToStrict", { val: maxExclusive });
       }
     }
     return err;
   };
-  const [error, setError] = useState("");
-  useEffect(() => {
+  const [error, setError] = useState2("");
+  useEffect2(() => {
     if (!hasNoOtherValue && (lit.value === void 0 || lit.value === null || lit.value === ""))
       return;
     const newError = getIntError(lit.value);
     if (newError != error) {
       setError(newError);
-      updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+      updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
     }
   });
   const changeCallback = (val) => {
@@ -2920,7 +2954,7 @@ const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, 
     if (newError != error)
       setError(newError);
     else
-      updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id);
+      updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
     if (dt && dt.value == xsdgYear) {
       if (val.startsWith("-")) {
         val = "-" + val.substring(1).padStart(4, "0");
@@ -2934,14 +2968,14 @@ const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, 
   if (dt && dt.value == xsdgYear) {
     value = value.replace(/^(-?)0+/, "$1");
   }
-  return /* @__PURE__ */ jsx(TextField, {
+  return /* @__PURE__ */ jsx2(TextField, {
     label,
     style: { width: 240 },
     value,
     ...error ? {
-      helperText: /* @__PURE__ */ jsxs(React.Fragment, {
+      helperText: /* @__PURE__ */ jsxs(React2.Fragment, {
         children: [
-          /* @__PURE__ */ jsx(ErrorIcon, {
+          /* @__PURE__ */ jsx2(default2, {
             style: { fontSize: "20px", verticalAlign: "-7px" }
           }),
           /* @__PURE__ */ jsxs("i", {
@@ -2961,14 +2995,14 @@ const EditInt = ({ property, lit, onChange, label, editable, updateEntityState, 
     ...!editable ? { disabled: true } : {}
   });
 };
-const xsdgYear = XSD("gYear").value;
-const rdflangString = RDF("langString").value;
-const xsdinteger = XSD("integer").value;
-const xsddecimal = XSD("decimal").value;
-const xsdint = XSD("int").value;
-const xsdboolean = XSD("boolean").value;
-const intishTypeList = [xsdinteger, xsddecimal, xsdint];
-const LiteralComponent = ({
+var xsdgYear = XSD("gYear").value;
+var rdflangString = RDF("langString").value;
+var xsdinteger = XSD("integer").value;
+var xsddecimal = XSD("decimal").value;
+var xsdint = XSD("int").value;
+var xsdboolean = XSD("boolean").value;
+var intishTypeList = [xsdinteger, xsddecimal, xsdint];
+var LiteralComponent = ({
   lit,
   subject,
   property,
@@ -2983,70 +3017,70 @@ const LiteralComponent = ({
 }) => {
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
+  const [list, setList] = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
   const index = list.findIndex((listItem) => listItem === lit);
-  const [entities, setEntities] = useRecoilState(entitiesAtom);
-  const [undos, setUndos] = useRecoilState(uiUndosState);
-  const [uiLang] = useRecoilState(uiLangState);
+  const [entities, setEntities] = useRecoilState2(entitiesAtom);
+  const [undos, setUndos] = useRecoilState2(uiUndosState);
+  const [uiLang] = useRecoilState2(uiLangState);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
   const onChange = (value) => {
-    const newList = replaceItemAtIndex$1(list, index, value);
+    const newList = replaceItemAtIndex(list, index, value);
     setList(newList);
   };
   const deleteItem = () => {
     const newList = removeItemAtIndex(list, index);
     setList(newList);
-    updateEntityState(EditedEntityState.Saved, lit.id);
+    updateEntityState(1 /* Saved */, lit.id);
   };
-  useEffect(() => {
+  useEffect2(() => {
     let error = false;
     const entityQname = topEntity ? topEntity.qname : subject.qname;
     const n = entities.findIndex((e) => e.subjectQname === entityQname);
     if (n > -1) {
       const ent = entities[n];
-      if (ent.state === EditedEntityState.Error)
+      if (ent.state === 0 /* Error */)
         error = true;
     }
     if (!error && (!errors[entityQname] || !Object.keys(errors[entityQname]).length)) {
-      updateEntityState(EditedEntityState.Saved, lit.id);
+      updateEntityState(1 /* Saved */, lit.id);
     }
   }, [undos]);
   const t = property.datatype;
   let edit, classN;
-  if (t?.value === rdflangString) {
+  if ((t == null ? void 0 : t.value) === rdflangString) {
     classN = "langString " + (lit.value ? "lang-" + lit.language : "");
-    edit = /* @__PURE__ */ jsx(EditLangString, {
+    edit = /* @__PURE__ */ jsx2(EditLangString, {
       property,
       lit,
       onChange,
       label: [
         propLabel,
-        helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
+        helpMessage ? /* @__PURE__ */ jsx2(Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsx(HelpIcon, {
+          children: /* @__PURE__ */ jsx2(default14, {
             className: "help literal"
           })
         }, lit.id) : null
       ],
-      ...property.uniqueLang && !isUniqueLang ? { globalError: i18n.t("error.unique") } : {},
+      ...property.uniqueLang && !isUniqueLang ? { globalError: i18n2.t("error.unique") } : {},
       editable: editable && !property.readOnly,
       updateEntityState,
       entity: topEntity ? topEntity : subject,
       index,
       config
     });
-  } else if (t?.value === xsdgYear || t && t?.value && intishTypeList.includes(t.value)) {
+  } else if ((t == null ? void 0 : t.value) === xsdgYear || t && (t == null ? void 0 : t.value) && intishTypeList.includes(t.value)) {
     classN = "gYear intish";
-    edit = /* @__PURE__ */ jsx(EditInt, {
+    edit = /* @__PURE__ */ jsx2(EditInt, {
       property,
       lit,
       onChange,
       label: [
         propLabel,
-        helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
+        helpMessage ? /* @__PURE__ */ jsx2(Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsx(HelpIcon, {
+          children: /* @__PURE__ */ jsx2(default14, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3055,18 +3089,18 @@ const LiteralComponent = ({
       updateEntityState,
       hasNoOtherValue: property.minCount === 1 && list.length === 1,
       index,
-      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: i18n.t("error.uniqueV") } : {}
+      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: i18n2.t("error.uniqueV") } : {}
     });
-  } else if (t?.value === xsdboolean) {
-    edit = /* @__PURE__ */ jsx(EditBool, {
+  } else if ((t == null ? void 0 : t.value) === xsdboolean) {
+    edit = /* @__PURE__ */ jsx2(EditBool, {
       property,
       lit,
       onChange,
       label: [
         propLabel,
-        helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
+        helpMessage ? /* @__PURE__ */ jsx2(Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsx(HelpIcon, {
+          children: /* @__PURE__ */ jsx2(default14, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3074,15 +3108,15 @@ const LiteralComponent = ({
       editable: editable && !property.readOnly
     });
   } else {
-    edit = /* @__PURE__ */ jsx(EditString, {
+    edit = /* @__PURE__ */ jsx2(EditString, {
       property,
       lit,
       onChange,
       label: [
         propLabel,
-        helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
+        helpMessage ? /* @__PURE__ */ jsx2(Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsx(HelpIcon, {
+          children: /* @__PURE__ */ jsx2(default14, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3094,7 +3128,7 @@ const LiteralComponent = ({
       config
     });
   }
-  return /* @__PURE__ */ jsx(Fragment, {
+  return /* @__PURE__ */ jsx2(Fragment, {
     children: /* @__PURE__ */ jsxs("div", {
       className: classN,
       style: { display: "flex", alignItems: "flex-end" },
@@ -3103,11 +3137,11 @@ const LiteralComponent = ({
         /* @__PURE__ */ jsxs("div", {
           className: "hoverPart",
           children: [
-            /* @__PURE__ */ jsx("button", {
+            /* @__PURE__ */ jsx2("button", {
               className: "btn btn-link ml-2 px-0 py-0 close-facet-btn",
               onClick: deleteItem,
               ...!canDel ? { disabled: true } : {},
-              children: /* @__PURE__ */ jsx(RemoveIcon, {
+              children: /* @__PURE__ */ jsx2(RemoveIcon, {
                 className: "my-0 close-facet-btn"
               })
             }),
@@ -3118,15 +3152,15 @@ const LiteralComponent = ({
     })
   });
 };
-const FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity, updateEntityState, shape, config }) => {
+var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity, updateEntityState, shape, config }) => {
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
-  const [uiLang] = useRecoilState(uiLangState);
+  const [list, setList] = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
+  const [uiLang] = useRecoilState2(uiLangState);
   const index = list.findIndex((listItem) => listItem === subNode);
-  useRecoilState(entitiesAtom);
+  const [entities, setEntities] = useRecoilState2(entitiesAtom);
   const deleteItem = () => {
-    updateEntityState(EditedEntityState.Saved, subNode.qname, true);
+    updateEntityState(1 /* Saved */, subNode.qname, true);
     const newList = removeItemAtIndex(list, index);
     setList(newList);
   };
@@ -3141,7 +3175,7 @@ const FacetComponent = ({ subNode, subject, property, canDel, editable, topEntit
       withoutDisplayPriority.push(subprop);
     }
   });
-  const [force, setForce] = useState(false);
+  const [force, setForce] = useState2(false);
   const hasExtra = withDisplayPriority.length > 0;
   let waitForNoHisto = false;
   const toggleExtra = () => {
@@ -3157,73 +3191,80 @@ const FacetComponent = ({ subNode, subject, property, canDel, editable, topEntit
       waitForNoHisto = false;
     }, delay);
   };
-  const [edit, setEdit] = useRecoilState(uiEditState);
+  const [edit, setEdit] = useRecoilState2(uiEditState);
   let editClass = "";
   if (edit === subject.qname + " " + property.qname + " " + subNode.qname || edit.startsWith(subNode.qname + " ") || edit.endsWith(" " + subject.qname)) {
     editClass = "edit";
   }
-  return /* @__PURE__ */ jsx(Fragment, {
-    children: /* @__PURE__ */ jsx("div", {
+  return /* @__PURE__ */ jsx2(Fragment, {
+    children: /* @__PURE__ */ jsx2("div", {
       className: "facet " + editClass + " editable-" + editable + " force-" + force,
       onClick: (ev) => {
+        var _a;
         setEdit(subject.qname + " " + property.qname + " " + subNode.qname);
         const target = ev.target;
-        if (editClass || target?.classList && !target?.classList?.contains("close-facet-btn")) {
+        if (editClass || (target == null ? void 0 : target.classList) && !((_a = target == null ? void 0 : target.classList) == null ? void 0 : _a.contains("close-facet-btn"))) {
           ev.stopPropagation();
         }
       },
       children: /* @__PURE__ */ jsxs("div", {
         className: "card pt-2 pb-3 pr-3 mt-4 pl-2 " + (hasExtra ? "hasDisplayPriority" : ""),
         children: [
-          targetShape.independentIdentifiers && /* @__PURE__ */ jsx("div", {
+          targetShape.independentIdentifiers && /* @__PURE__ */ jsx2("div", {
             className: "internalId",
             children: subNode.lname
           }),
-          withoutDisplayPriority.map((p, index2) => /* @__PURE__ */ jsx(PropertyContainer, {
-            property: p,
-            subject: subNode,
-            embedded: true,
-            force,
-            editable: !p.readOnly,
-            owner: subject,
-            topEntity,
-            shape,
-            siblingsPath: property.path?.sparqlString,
-            config
-          }, index2 + p.uri)),
-          withDisplayPriority.map((p, index2) => /* @__PURE__ */ jsx(PropertyContainer, {
-            property: p,
-            subject: subNode,
-            embedded: true,
-            force,
-            editable: !p.readOnly,
-            owner: subject,
-            topEntity,
-            shape,
-            siblingsPath: property.path?.sparqlString,
-            config
-          }, index2 + p.uri)),
-          hasExtra && /* @__PURE__ */ jsx("span", {
+          withoutDisplayPriority.map((p, index2) => {
+            var _a;
+            return /* @__PURE__ */ jsx2(PropertyContainer, {
+              property: p,
+              subject: subNode,
+              embedded: true,
+              force,
+              editable: !p.readOnly,
+              owner: subject,
+              topEntity,
+              shape,
+              siblingsPath: (_a = property.path) == null ? void 0 : _a.sparqlString,
+              config
+            }, index2 + p.uri);
+          }),
+          withDisplayPriority.map((p, index2) => {
+            var _a;
+            return /* @__PURE__ */ jsx2(PropertyContainer, {
+              property: p,
+              subject: subNode,
+              embedded: true,
+              force,
+              editable: !p.readOnly,
+              owner: subject,
+              topEntity,
+              shape,
+              siblingsPath: (_a = property.path) == null ? void 0 : _a.sparqlString,
+              config
+            }, index2 + p.uri);
+          }),
+          hasExtra && /* @__PURE__ */ jsx2("span", {
             className: "toggle-btn btn btn-rouge mt-4",
             onClick: toggleExtra,
-            children: /* @__PURE__ */ jsx(Fragment, {
-              children: i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })
+            children: /* @__PURE__ */ jsx2(Fragment, {
+              children: i18n2.t("general.toggle", { show: force ? i18n2.t("general.hide") : i18n2.t("general.show") })
             })
           }),
           /* @__PURE__ */ jsxs("div", {
             className: "close-btn",
             children: [
-              targetShape.description && /* @__PURE__ */ jsx(Tooltip, {
+              targetShape.description && /* @__PURE__ */ jsx2(Tooltip, {
                 title: ValueByLangToStrPrefLang(targetShape.description, uiLang),
-                children: /* @__PURE__ */ jsx(HelpIcon, {
+                children: /* @__PURE__ */ jsx2(default14, {
                   className: "help"
                 })
               }),
-              /* @__PURE__ */ jsx("button", {
+              /* @__PURE__ */ jsx2("button", {
                 className: "btn btn-link ml-2 px-0 close-facet-btn py-0",
                 onClick: deleteItem,
                 ...!canDel ? { disabled: true } : {},
-                children: /* @__PURE__ */ jsx(CloseIcon, {
+                children: /* @__PURE__ */ jsx2(default3, {
                   className: "close-facet-btn my-1"
                 })
               })
@@ -3234,7 +3275,7 @@ const FacetComponent = ({ subNode, subject, property, canDel, editable, topEntit
     })
   });
 };
-const ExtEntityComponent = ({
+var ExtEntityComponent = ({
   extRes,
   subject,
   property,
@@ -3251,9 +3292,9 @@ const ExtEntityComponent = ({
 }) => {
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
+  const [list, setList] = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
   const index = list.findIndex((listItem) => listItem === extRes);
-  useRecoilState(entitiesAtom);
+  const [entities, setEntities] = useRecoilState2(entitiesAtom);
   const deleteItem = () => {
     let newList = removeItemAtIndex(list, index);
     if (idx === 1 && newList.length === 1) {
@@ -3263,20 +3304,20 @@ const ExtEntityComponent = ({
     }
     setList(newList);
   };
-  const [error, setError] = useState("");
-  useEffect(() => {
+  const [error, setError] = useState2("");
+  useEffect2(() => {
     let newError;
     const nonEmptyList = list.filter((e) => e instanceof RDFResource && e.uri !== "tmp:uri");
     if (property.minCount && nonEmptyList.length < property.minCount) {
-      newError = i18n.t("error.minC", { count: property.minCount });
+      newError = i18n2.t("error.minC", { count: property.minCount });
     } else if (property.maxCount && nonEmptyList.length > property.maxCount) {
-      newError = i18n.t("error.maxC", { count: property.maxCount });
+      newError = i18n2.t("error.maxC", { count: property.maxCount });
     } else
       newError = "";
     setError(newError);
-    updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, property.qname);
+    updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, property.qname);
   }, [list]);
-  return /* @__PURE__ */ jsx("div", {
+  return /* @__PURE__ */ jsx2("div", {
     className: "extEntity" + (extRes.uri === "tmp:uri" ? " new" : ""),
     style: { position: "relative" },
     children: /* @__PURE__ */ jsxs("div", {
@@ -3295,7 +3336,7 @@ const ExtEntityComponent = ({
       },
       ...extRes.uri !== "tmp:uri" ? { className: "px-2 py-1 mr-2 mt-2 card" } : {},
       children: [
-        /* @__PURE__ */ jsx(config.resourceSelector, {
+        /* @__PURE__ */ jsx2(config.resourceSelector, {
           value: extRes,
           onChange,
           property,
@@ -3310,24 +3351,24 @@ const ExtEntityComponent = ({
           shape,
           config
         }),
-        extRes.uri !== "tmp:uri" && /* @__PURE__ */ jsx("button", {
+        extRes.uri !== "tmp:uri" && /* @__PURE__ */ jsx2("button", {
           className: "btn btn-link ml-2 px-0",
           onClick: deleteItem,
           ...!canDel ? { disabled: true } : {},
-          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ jsx(RemoveIcon, {}) : /* @__PURE__ */ jsx(CloseIcon, {})
+          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ jsx2(RemoveIcon, {}) : /* @__PURE__ */ jsx2(default3, {})
         })
       ]
     })
   });
 };
-const SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectIdx, editable, create, updateEntityState }) => {
+var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectIdx, editable, create, updateEntityState }) => {
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString));
-  const [uiLang, setUiLang] = useRecoilState(uiLangState);
-  const [uiLitLang, setUiLitLang] = useRecoilState(uiLitLangState);
-  const [entities, setEntities] = useRecoilState(entitiesAtom);
-  const [uiTab] = useRecoilState(uiTabState);
+  const [list, setList] = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
+  const [uiLang, setUiLang] = useRecoilState2(uiLangState);
+  const [uiLitLang, setUiLitLang] = useRecoilState2(uiLitLangState);
+  const [entities, setEntities] = useRecoilState2(entitiesAtom);
+  const [uiTab] = useRecoilState2(uiTabState);
   const entity = entities.findIndex((e, i) => i === uiTab);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLitLang);
@@ -3349,7 +3390,7 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
         return v;
       }
     }
-    debug$6("error cannot get element from value " + value);
+    debug7("error cannot get element from value " + value);
     return null;
   };
   const val = res instanceof RDFResourceWithLabel ? res : getElementFromValue(list[index].value, true);
@@ -3362,33 +3403,35 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
     if (resForNewValue == noneSelected && canDel) {
       newList = removeItemAtIndex(list, index);
     } else {
-      newList = replaceItemAtIndex$1(list, index, resForNewValue);
+      newList = replaceItemAtIndex(list, index, resForNewValue);
     }
     setList(newList);
   };
-  useStyles();
+  const classes = useStyles();
   if (possibleValues.length == 1 && list.length == 0) {
     setList([possibleValues[0]]);
   }
-  const [error, setError] = useState("");
-  const valueNotInList = !possibleValues.some((pv) => pv.id === val?.id);
-  useEffect(() => {
+  const [error, setError] = useState2("");
+  const valueNotInList = !possibleValues.some((pv) => pv.id === (val == null ? void 0 : val.id));
+  useEffect2(() => {
+    var _a, _b;
     if (valueNotInList) {
-      setError(i18n.t("error.select", { val: val?.value }));
-      updateEntityState(EditedEntityState.Error, property.path?.sparqlString + "_" + selectIdx);
+      setError("" + i18n2.t("error.select", { val: val == null ? void 0 : val.value }));
+      updateEntityState(0 /* Error */, ((_a = property.path) == null ? void 0 : _a.sparqlString) + "_" + selectIdx);
     } else {
-      updateEntityState(EditedEntityState.Saved, property.path?.sparqlString + "_" + selectIdx);
+      updateEntityState(1 /* Saved */, ((_b = property.path) == null ? void 0 : _b.sparqlString) + "_" + selectIdx);
     }
   }, [valueNotInList]);
-  useEffect(() => {
+  useEffect2(() => {
     return () => {
-      const inOtherEntity = !window.location.href.includes("/" + entities[entity]?.subjectQname + "/");
+      var _a, _b;
+      const inOtherEntity = !window.location.href.includes("/" + ((_a = entities[entity]) == null ? void 0 : _a.subjectQname) + "/");
       if (!inOtherEntity)
-        updateEntityState(EditedEntityState.Saved, property.path?.sparqlString + "_" + selectIdx, false, !inOtherEntity);
+        updateEntityState(1 /* Saved */, ((_b = property.path) == null ? void 0 : _b.sparqlString) + "_" + selectIdx, false, !inOtherEntity);
     };
   }, []);
   if (possibleValues.length > 1 || error) {
-    return /* @__PURE__ */ jsx(Fragment, {
+    return /* @__PURE__ */ jsx2(Fragment, {
       children: /* @__PURE__ */ jsxs("div", {
         className: "resSelect",
         style: { display: "inline-flex", alignItems: "flex-end" },
@@ -3396,22 +3439,22 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
           /* @__PURE__ */ jsxs(TextField, {
             select: true,
             className: "selector mr-2",
-            value: val?.id,
+            value: val == null ? void 0 : val.id,
             style: { padding: "1px", minWidth: "250px" },
             onChange,
             label: [
               propLabel,
-              helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
+              helpMessage ? /* @__PURE__ */ jsx2(Tooltip, {
                 title: helpMessage,
-                children: /* @__PURE__ */ jsx(HelpIcon, {
+                children: /* @__PURE__ */ jsx2(default14, {
                   className: "help"
                 })
               }, "tooltip_" + selectIdx + "_" + index) : null
             ],
             ...error ? {
-              helperText: /* @__PURE__ */ jsxs(React.Fragment, {
+              helperText: /* @__PURE__ */ jsxs(React2.Fragment, {
                 children: [
-                  /* @__PURE__ */ jsx(ErrorIcon, {
+                  /* @__PURE__ */ jsx2(default2, {
                     style: { fontSize: "20px", verticalAlign: "-7px" }
                   }),
                   /* @__PURE__ */ jsxs("i", {
@@ -3430,42 +3473,42 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
                 if (v instanceof RDFResourceWithLabel) {
                   const r = v;
                   const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang);
-                  const span = /* @__PURE__ */ jsx("span", {
+                  const span = /* @__PURE__ */ jsx2("span", {
                     children: label ? label : r.lname
                   });
-                  return /* @__PURE__ */ jsx(MenuItem, {
+                  return /* @__PURE__ */ jsx2(MenuItem, {
                     value: r.id,
                     className: "withDescription",
-                    children: r.description ? /* @__PURE__ */ jsx(Tooltip, {
+                    children: r.description ? /* @__PURE__ */ jsx2(Tooltip, {
                       title: ValueByLangToStrPrefLang(r.description, uiLitLang),
                       children: span
                     }) : span
                   }, "menu-uri_" + selectIdx + r.id);
                 } else {
                   const l = v;
-                  return /* @__PURE__ */ jsx(MenuItem, {
+                  return /* @__PURE__ */ jsx2(MenuItem, {
                     value: l.id,
                     className: "withDescription",
                     children: l.value
                   }, "menu-lit_" + selectIdx + l.id + "_" + index + "_" + k);
                 }
               }),
-              valueNotInList && /* @__PURE__ */ jsx(MenuItem, {
-                value: val?.id,
+              valueNotInList && /* @__PURE__ */ jsx2(MenuItem, {
+                value: val == null ? void 0 : val.id,
                 className: "withDescription",
                 style: { color: "red" },
                 disabled: true,
-                children: val?.value
+                children: val == null ? void 0 : val.value
               }, "extra-val-id")
             ]
           }, "textfield_" + selectIdx + "_" + index),
           /* @__PURE__ */ jsxs("div", {
             className: "hoverPart",
             children: [
-              canDel && /* @__PURE__ */ jsx("button", {
+              canDel && /* @__PURE__ */ jsx2("button", {
                 className: "btn btn-link mx-0 px-0 py-0",
                 onClick: deleteItem,
-                children: /* @__PURE__ */ jsx(RemoveIcon, {})
+                children: /* @__PURE__ */ jsx2(RemoveIcon, {})
               }),
               create
             ]
@@ -3474,11 +3517,21 @@ const SelectComponent = ({ res, subject, property, canDel, canSelectNone, select
       })
     });
   }
-  return /* @__PURE__ */ jsx(Fragment, {});
+  return /* @__PURE__ */ jsx2(Fragment, {});
 };
 
-const debug$5 = require("debug")("rde:entity:propertygroup");
-const redIcon = new L.Icon({
+// src/containers/PropertyGroupContainer.tsx
+import { useRecoilState as useRecoilState3 } from "recoil";
+import i18n3 from "i18next";
+import { MapContainer, LayersControl, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import ReactLeafletGoogleLayer from "react-leaflet-google-layer";
+import { GeoSearchControl, OpenStreetMapProvider, GoogleProvider } from "leaflet-geosearch";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-geosearch/dist/geosearch.css";
+import { Fragment as Fragment2, jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
+var debug8 = __require("debug")("rde:entity:propertygroup");
+var redIcon = new L.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
   iconSize: [25, 41],
@@ -3491,9 +3544,9 @@ function DraggableMarker({
   icon,
   setCoords
 }) {
-  const [position, setPosition] = useState(pos);
-  const markerRef = useRef(null);
-  const eventHandlers = useMemo(
+  const [position, setPosition] = useState3(pos);
+  const markerRef = useRef2(null);
+  const eventHandlers = useMemo2(
     () => ({
       dragend() {
         const marker = markerRef.current;
@@ -3505,12 +3558,12 @@ function DraggableMarker({
     }),
     []
   );
-  useEffect(() => {
+  useEffect3(() => {
     if (markerRef.current && (markerRef.current.lat != pos.lat || markerRef.current.lng != pos.lng)) {
       markerRef.current.setLatLng(pos);
     }
   });
-  return /* @__PURE__ */ jsx(Marker, {
+  return /* @__PURE__ */ jsx3(Marker, {
     draggable: true,
     eventHandlers,
     position,
@@ -3518,7 +3571,7 @@ function DraggableMarker({
     ref: markerRef
   });
 }
-const MapEventHandler = ({
+var MapEventHandler = ({
   coords,
   redraw,
   setCoords,
@@ -3526,14 +3579,14 @@ const MapEventHandler = ({
 }) => {
   const map = useMapEvents({
     click: (ev) => {
-      debug$5("click:", ev);
+      debug8("click:", ev);
       setCoords(ev.latlng);
     }
   });
-  useEffect(() => {
+  useEffect3(() => {
     map.setView(coords, map.getZoom());
   });
-  useEffect(() => {
+  useEffect3(() => {
     const provider = config.googleMapsAPIKey ? new GoogleProvider({ apiKey: config.googleMapsAPIKey }) : new OpenStreetMapProvider();
     const searchControl = GeoSearchControl({
       provider,
@@ -3550,15 +3603,16 @@ const MapEventHandler = ({
   }, []);
   return null;
 };
-const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, config }) => {
-  const [uiLang] = useRecoilState(uiLangState);
+var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, config }) => {
+  const [uiLang] = useRecoilState3(uiLangState);
   const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
-  const [force, setForce] = useState(false);
+  const [force, setForce] = useState3(false);
   const withDisplayPriority = [], withoutDisplayPriority = [];
   const errorKeys = Object.keys(errors[subject.qname] ? errors[subject.qname] : {});
   let hasError = false;
   group.properties.map((property) => {
-    if (!hasError && errorKeys.some((k) => k.includes(property.qname)) || property.targetShape?.properties.some((p) => errorKeys.some((k) => k.includes(p.qname)))) {
+    var _a;
+    if (!hasError && errorKeys.some((k) => k.includes(property.qname)) || ((_a = property.targetShape) == null ? void 0 : _a.properties.some((p) => errorKeys.some((k) => k.includes(p.qname))))) {
       hasError = true;
     }
     if (property.displayPriority && property.displayPriority >= 1) {
@@ -3571,11 +3625,11 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
   const toggleExtra = () => {
     setForce(!force);
   };
-  const [edit, setEdit] = useRecoilState(uiEditState);
-  const [groupEd, setGroupEd] = useRecoilState(uiGroupState);
-  const [lat, setLat] = useRecoilState(config.latProp ? subject.getAtomForProperty(config.latProp.uri) : initListAtom);
-  const [lng, setLng] = useRecoilState(config.lngProp ? subject.getAtomForProperty(config.lngProp.uri) : initListAtom);
-  const [redraw, setRedraw] = useState(false);
+  const [edit, setEdit] = useRecoilState3(uiEditState);
+  const [groupEd, setGroupEd] = useRecoilState3(uiGroupState);
+  const [lat, setLat] = useRecoilState3(config.latProp ? subject.getAtomForProperty(config.latProp.uri) : initListAtom);
+  const [lng, setLng] = useRecoilState3(config.lngProp ? subject.getAtomForProperty(config.lngProp.uri) : initListAtom);
+  const [redraw, setRedraw] = useState3(false);
   let coords, zoom = 5, unset = false;
   if (lat.length && lng.length && lat[0].value != "" && lat[0].value != "")
     coords = new L.LatLng(Number(lat[0].value), Number(lng[0].value));
@@ -3584,7 +3638,7 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
     coords = new L.LatLng(30, 0);
     zoom = 2;
   }
-  useEffect(() => {
+  useEffect3(() => {
     setRedraw(true);
   }, [lng, lat]);
   const setCoords = (val) => {
@@ -3602,17 +3656,17 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
         setLng([new LiteralWithId("" + val.lat)]);
     }
   };
-  return /* @__PURE__ */ jsx("div", {
+  return /* @__PURE__ */ jsx3("div", {
     role: "main",
     className: "group " + (hasError ? "hasError" : ""),
     id: group.qname,
     style: { scrollMargin: "90px" },
-    children: /* @__PURE__ */ jsx("section", {
+    children: /* @__PURE__ */ jsx3("section", {
       className: "album",
-      children: /* @__PURE__ */ jsx("div", {
+      children: /* @__PURE__ */ jsx3("div", {
         className: "container col-lg-6 col-md-6 col-sm-12",
         style: { border: "dashed 1px none" },
-        children: /* @__PURE__ */ jsxs("div", {
+        children: /* @__PURE__ */ jsxs2("div", {
           className: "row card my-2 pb-3" + (edit === group.qname ? " group-edit" : "") + " show-displayPriority-" + force,
           onClick: (e) => {
             if (onGroupOpen && groupEd !== group.qname)
@@ -3621,26 +3675,26 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
             setGroupEd(group.qname);
           },
           children: [
-            /* @__PURE__ */ jsxs("p", {
+            /* @__PURE__ */ jsxs2("p", {
               className: "",
               children: [
                 label,
-                hasError && /* @__PURE__ */ jsx(ErrorIcon, {})
+                hasError && /* @__PURE__ */ jsx3(default2, {})
               ]
             }),
-            /* @__PURE__ */ jsx(Fragment, {
-              children: /* @__PURE__ */ jsxs("div", {
+            /* @__PURE__ */ jsx3(Fragment2, {
+              children: /* @__PURE__ */ jsxs2("div", {
                 className: group.properties.length <= 1 ? "hidePropLabel" : "",
                 style: { fontSize: 0 },
                 children: [
-                  withoutDisplayPriority.map((property, index) => /* @__PURE__ */ jsx(PropertyContainer, {
+                  withoutDisplayPriority.map((property, index) => /* @__PURE__ */ jsx3(PropertyContainer, {
                     property,
                     subject,
                     editable: property.readOnly !== true,
                     shape,
                     config
                   }, index)),
-                  withDisplayPriority.map((property, index) => /* @__PURE__ */ jsx(PropertyContainer, {
+                  withDisplayPriority.map((property, index) => /* @__PURE__ */ jsx3(PropertyContainer, {
                     property,
                     subject,
                     force,
@@ -3648,64 +3702,64 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
                     shape,
                     config
                   }, index)),
-                  config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri && groupEd === group.qname && coords && /* @__PURE__ */ jsx("div", {
+                  config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri && groupEd === group.qname && coords && /* @__PURE__ */ jsx3("div", {
                     style: { position: "relative", overflow: "hidden", marginTop: "16px" },
-                    children: /* @__PURE__ */ jsxs(MapContainer, {
+                    children: /* @__PURE__ */ jsxs2(MapContainer, {
                       style: { width: "100%", height: "400px" },
                       zoom,
                       center: coords,
                       children: [
-                        /* @__PURE__ */ jsxs(LayersControl, {
+                        /* @__PURE__ */ jsxs2(LayersControl, {
                           position: "topright",
                           children: [
-                            config.googleMapsAPIKey && /* @__PURE__ */ jsxs(Fragment, {
+                            config.googleMapsAPIKey && /* @__PURE__ */ jsxs2(Fragment2, {
                               children: [
-                                /* @__PURE__ */ jsx(LayersControl.BaseLayer, {
+                                /* @__PURE__ */ jsx3(LayersControl.BaseLayer, {
                                   checked: true,
                                   name: "Satellite+Roadmap",
-                                  children: /* @__PURE__ */ jsx(ReactLeafletGoogleLayer, {
+                                  children: /* @__PURE__ */ jsx3(ReactLeafletGoogleLayer, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "hybrid"
                                   })
                                 }),
-                                /* @__PURE__ */ jsx(LayersControl.BaseLayer, {
+                                /* @__PURE__ */ jsx3(LayersControl.BaseLayer, {
                                   name: "Satellite",
-                                  children: /* @__PURE__ */ jsx(ReactLeafletGoogleLayer, {
+                                  children: /* @__PURE__ */ jsx3(ReactLeafletGoogleLayer, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "satellite"
                                   })
                                 }),
-                                /* @__PURE__ */ jsx(LayersControl.BaseLayer, {
+                                /* @__PURE__ */ jsx3(LayersControl.BaseLayer, {
                                   name: "Roadmap",
-                                  children: /* @__PURE__ */ jsx(ReactLeafletGoogleLayer, {
+                                  children: /* @__PURE__ */ jsx3(ReactLeafletGoogleLayer, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "roadmap"
                                   })
                                 }),
-                                /* @__PURE__ */ jsx(LayersControl.BaseLayer, {
+                                /* @__PURE__ */ jsx3(LayersControl.BaseLayer, {
                                   name: "Terrain",
-                                  children: /* @__PURE__ */ jsx(ReactLeafletGoogleLayer, {
+                                  children: /* @__PURE__ */ jsx3(ReactLeafletGoogleLayer, {
                                     apiKey: config.googleMapsAPIKey,
                                     type: "terrain"
                                   })
                                 })
                               ]
                             }),
-                            !config.googleMapsAPIKey && /* @__PURE__ */ jsx(LayersControl.BaseLayer, {
+                            !config.googleMapsAPIKey && /* @__PURE__ */ jsx3(LayersControl.BaseLayer, {
                               checked: true,
                               name: "OpenStreetMap",
-                              children: /* @__PURE__ */ jsx(TileLayer, {
+                              children: /* @__PURE__ */ jsx3(TileLayer, {
                                 url: "https://{s}.tile.iosb.fraunhofer.de/tiles/osmde/{z}/{x}/{y}.png"
                               })
                             })
                           ]
                         }),
-                        !unset && /* @__PURE__ */ jsx(DraggableMarker, {
+                        !unset && /* @__PURE__ */ jsx3(DraggableMarker, {
                           pos: coords,
                           icon: redIcon,
                           setCoords
                         }),
-                        /* @__PURE__ */ jsx(MapEventHandler, {
+                        /* @__PURE__ */ jsx3(MapEventHandler, {
                           coords,
                           redraw,
                           setCoords,
@@ -3714,11 +3768,11 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
                       ]
                     })
                   }),
-                  hasExtra && /* @__PURE__ */ jsx("span", {
+                  hasExtra && /* @__PURE__ */ jsx3("span", {
                     className: "toggle-btn  btn btn-rouge my-4",
                     onClick: toggleExtra,
-                    children: /* @__PURE__ */ jsx(Fragment, {
-                      children: i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })
+                    children: /* @__PURE__ */ jsx3(Fragment2, {
+                      children: i18n3.t("general.toggle", { show: force ? i18n3.t("general.hide") : i18n3.t("general.show") })
                     })
                   })
                 ]
@@ -3730,9 +3784,18 @@ const PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, 
     })
   });
 };
+var PropertyGroupContainer_default = PropertyGroupContainer;
 
-const debug$4 = require("debug")("rde:entity:edit");
-function replaceItemAtIndex(arr, index, newValue) {
+// src/containers/EntityEditContainer.tsx
+import { useRecoilState as useRecoilState4, useRecoilSnapshot, useRecoilValue as useRecoilValue2 } from "recoil";
+import * as rdf6 from "rdflib";
+import { Navigate } from "react-router-dom";
+import { HashLink as Link } from "react-router-hash-link";
+import queryString from "query-string";
+import { useLocation, useParams } from "react-router";
+import { Fragment as Fragment3, jsx as jsx4, jsxs as jsxs3 } from "react/jsx-runtime";
+var debug9 = __require("debug")("rde:entity:edit");
+function replaceItemAtIndex2(arr, index, newValue) {
   return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
 }
 function EntityEditContainerMayUpdate(props) {
@@ -3744,11 +3807,12 @@ function EntityEditContainerMayUpdate(props) {
   const propertyQname = params.propertyQname;
   const index = params.index;
   const subnodeQname = params.subnodeQname;
-  const [entities, setEntities] = useRecoilState(entitiesAtom);
+  const [entities, setEntities] = useRecoilState4(entitiesAtom);
   const snapshot = useRecoilSnapshot();
-  const [subject, setSubject] = useState(null);
+  const [subject, setSubject] = useState4(null);
   const { copy } = queryString.parse(location.search, { decode: false });
-  useEffect(() => {
+  useEffect4(() => {
+    var _a;
     const i = entities.findIndex((e) => e.subjectQname === subjectQname);
     let subj;
     if (i === -1)
@@ -3759,12 +3823,12 @@ function EntityEditContainerMayUpdate(props) {
         defaultPrefixMap.uriFromQname(subnodeQname)
       );
       if (pp.length > 1 && i >= 0) {
-        const atom = entities[i].subject?.getAtomForProperty(pp[1]);
-        if (!atom) {
+        const atom3 = (_a = entities[i].subject) == null ? void 0 : _a.getAtomForProperty(pp[1]);
+        if (!atom3) {
           setSubject(null);
           return;
         }
-        subj = snapshot.getLoadable(atom).contents;
+        subj = snapshot.getLoadable(atom3).contents;
         if (Array.isArray(subj)) {
           subj = subj.filter((s) => s.qname === subnodeQname);
           if (subj.length)
@@ -3780,8 +3844,8 @@ function EntityEditContainerMayUpdate(props) {
     }
   }, []);
   if (subject && propertyQname && entityQname && index) {
-    ({ ...props, copy });
-    return /* @__PURE__ */ jsx(EntityEditContainerDoUpdate, {
+    const propsForCall = { ...props, copy };
+    return /* @__PURE__ */ jsx4(EntityEditContainerDoUpdate, {
       subject,
       propertyQname,
       objectQname: entityQname,
@@ -3790,21 +3854,22 @@ function EntityEditContainerMayUpdate(props) {
       ...props
     });
   } else if (subject != null)
-    return /* @__PURE__ */ jsx(Navigate, {
+    return /* @__PURE__ */ jsx4(Navigate, {
       to: "/edit/" + entityQname + "/" + shapeQname
     });
   else
-    return /* @__PURE__ */ jsx("div", {});
+    return /* @__PURE__ */ jsx4("div", {});
 }
 function EntityEditContainerDoUpdate(props) {
+  var _a;
   const config = props.config;
   const params = useParams();
   const shapeQname = params.shapeQname;
-  const atom = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
-  const [list, setList] = useRecoilState(atom);
-  const [entities, setEntities] = useRecoilState(entitiesAtom);
+  const atom3 = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
+  const [list, setList] = useRecoilState4(atom3);
+  const [entities, setEntities] = useRecoilState4(entitiesAtom);
   const i = entities.findIndex((e) => e.subjectQname === props.objectQname);
-  const subject = entities[i]?.subject;
+  const subject = (_a = entities[i]) == null ? void 0 : _a.subject;
   let copy = null;
   if (props.copy && typeof props.copy === "string") {
     copy = props.copy.split(";").reduce((acc, p) => {
@@ -3816,7 +3881,7 @@ function EntityEditContainerDoUpdate(props) {
       return { ...acc, [q[0]]: literals };
     }, {});
   }
-  const [getProp, setProp] = useRecoilState(
+  const [getProp, setProp] = useRecoilState4(
     toCopySelector({
       list: subject && copy ? Object.keys(copy).map((p) => ({
         property: p,
@@ -3824,8 +3889,8 @@ function EntityEditContainerDoUpdate(props) {
       })) : void 0
     })
   );
-  debug$4("LIST:", list, atom, props.copy, copy);
-  useEffect(() => {
+  debug9("LIST:", list, atom3, props.copy, copy);
+  useEffect4(() => {
     if (copy) {
       setTimeout(() => {
         if (copy) {
@@ -3838,31 +3903,32 @@ function EntityEditContainerDoUpdate(props) {
       }, 1150);
     }
     const newObject = new ExtRDFResourceWithLabel(defaultPrefixMap.uriFromQname(props.objectQname), {}, {});
-    const newList = replaceItemAtIndex(list, props.index, newObject);
+    const newList = replaceItemAtIndex2(list, props.index, newObject);
     setList(newList);
   }, []);
-  return /* @__PURE__ */ jsx(Navigate, {
+  return /* @__PURE__ */ jsx4(Navigate, {
     to: "/edit/" + props.objectQname + "/" + shapeQname
   });
 }
 function EntityEditContainer(props) {
+  var _a, _b, _c, _d, _e, _f;
   const config = props.config;
   const params = useParams();
   const shapeQname = params.shapeQname || "";
   const entityQname = params.entityQname || "";
-  const [entities, setEntities] = useRecoilState(entitiesAtom);
-  const [uiLang] = useRecoilState(uiLangState);
-  const [edit, setEdit] = useRecoilState(uiEditState);
-  const [groupEd, setGroupEd] = useRecoilState(uiGroupState);
-  const [undos, setUndos] = useRecoilState(uiUndosState);
-  const [profileId, setProfileId] = useRecoilState(profileIdState);
-  const [tab, setTab] = useRecoilState(uiTabState);
+  const [entities, setEntities] = useRecoilState4(entitiesAtom);
+  const [uiLang] = useRecoilState4(uiLangState);
+  const [edit, setEdit] = useRecoilState4(uiEditState);
+  const [groupEd, setGroupEd] = useRecoilState4(uiGroupState);
+  const [undos, setUndos] = useRecoilState4(uiUndosState);
+  const [profileId, setProfileId] = useRecoilState4(profileIdState);
+  const [tab, setTab] = useRecoilState4(uiTabState);
   const entityObj = entities.filter(
     (e) => e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user"
   );
   const icon = config.iconFromEntity(entityObj.length ? entityObj[0] : null);
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config);
-  const canPushPrefLabelGroups = shape?.groups.reduce(
+  const canPushPrefLabelGroups = shape == null ? void 0 : shape.groups.reduce(
     (acc, group) => {
       const props2 = group.properties.filter((p) => p.allowPushToTopLevelLabel).map((p) => {
         if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
@@ -3870,8 +3936,12 @@ function EntityEditContainer(props) {
       }).filter((a) => a != void 0);
       const subprops = group.properties.reduce(
         (accG, p) => {
-          const allowPush = p.targetShape?.properties.filter((s) => s.allowPushToTopLevelLabel).map((s) => s.path?.sparqlString);
-          if (allowPush?.length && entityObj && entityObj[0] && entityObj[0].subject && p.path)
+          var _a2;
+          const allowPush = (_a2 = p.targetShape) == null ? void 0 : _a2.properties.filter((s) => s.allowPushToTopLevelLabel).map((s) => {
+            var _a3;
+            return (_a3 = s.path) == null ? void 0 : _a3.sparqlString;
+          });
+          if ((allowPush == null ? void 0 : allowPush.length) && entityObj && entityObj[0] && entityObj[0].subject && p.path)
             return {
               ...accG,
               [p.qname]: { atom: entityObj[0].subject.getAtomForProperty(p.path.sparqlString), allowPush }
@@ -3880,24 +3950,24 @@ function EntityEditContainer(props) {
         },
         {}
       );
-      if (props2?.length || Object.keys(subprops).length)
+      if ((props2 == null ? void 0 : props2.length) || Object.keys(subprops).length)
         return { ...acc, [group.qname]: { props: props2, subprops } };
       return { ...acc };
     },
     {}
   );
-  const possiblePrefLabels = useRecoilValue(
+  const possiblePrefLabels = useRecoilValue2(
     canPushPrefLabelGroups ? possiblePrefLabelsSelector({ canPushPrefLabelGroups }) : initMapAtom
   );
-  let prefLabelAtom = entityObj[0]?.subject?.getAtomForProperty(SKOS("prefLabel").value);
+  let prefLabelAtom = (_b = (_a = entityObj[0]) == null ? void 0 : _a.subject) == null ? void 0 : _b.getAtomForProperty(SKOS("prefLabel").value);
   if (!prefLabelAtom)
     prefLabelAtom = initListAtom;
-  const [prefLabels, setPrefLabels] = useRecoilState(prefLabelAtom);
-  let altLabelAtom = entityObj[0]?.subject?.getAtomForProperty(SKOS("altLabel").value);
+  const [prefLabels, setPrefLabels] = useRecoilState4(prefLabelAtom);
+  let altLabelAtom = (_d = (_c = entityObj[0]) == null ? void 0 : _c.subject) == null ? void 0 : _d.getAtomForProperty(SKOS("altLabel").value);
   if (!altLabelAtom)
     altLabelAtom = initListAtom;
-  const altLabels = useRecoilValue(altLabelAtom);
-  useEffect(() => {
+  const altLabels = useRecoilValue2(altLabelAtom);
+  useEffect4(() => {
     entities.map((e, i) => {
       if (e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user") {
         if (tab != i) {
@@ -3908,7 +3978,7 @@ function EntityEditContainer(props) {
     });
   }, [entities, profileId]);
   let init = 0;
-  useEffect(() => {
+  useEffect4(() => {
     if (entityQname === "tmp:user" && !profileId)
       return;
     const delay = 350;
@@ -3930,21 +4000,23 @@ function EntityEditContainer(props) {
       }
     }, delay);
   }, [entities, tab, profileId, entityQname]);
-  const [userId, setUserId] = useRecoilState(userIdState);
-  const save = useCallback(
+  const [userId, setUserId] = useRecoilState4(userIdState);
+  const save = useCallback2(
     (obj) => {
       return new Promise(async (resolve) => {
-        if ([EditedEntityState.NeedsSaving, EditedEntityState.Error].includes(obj[0].state)) {
-          const defaultRef = new rdf.NamedNode(rdf.Store.defaultGraphURI);
-          const store = new rdf.Store();
+        var _a2, _b2;
+        if ([2 /* NeedsSaving */, 0 /* Error */].includes(obj[0].state)) {
+          const defaultRef = new rdf6.NamedNode(rdf6.Store.defaultGraphURI);
+          const store = new rdf6.Store();
           defaultPrefixMap.setDefaultPrefixes(store);
-          obj[0]?.subject?.graph.addNewValuestoStore(store);
-          rdf.serialize(defaultRef, store, void 0, "text/turtle", async function(err, str) {
+          (_b2 = (_a2 = obj[0]) == null ? void 0 : _a2.subject) == null ? void 0 : _b2.graph.addNewValuestoStore(store);
+          rdf6.serialize(defaultRef, store, void 0, "text/turtle", async function(err, str) {
+            var _a3;
             if (err || !str) {
-              debug$4(err, store);
+              debug9(err, store);
               throw "error when serializing";
             }
-            const shape2 = obj[0]?.shapeQname;
+            const shape2 = (_a3 = obj[0]) == null ? void 0 : _a3.shapeQname;
             config.setUserLocalEntity(
               obj[0].subjectQname,
               shape2,
@@ -3952,7 +4024,7 @@ function EntityEditContainer(props) {
               false,
               userId,
               obj[0].etag,
-              obj[0].state === EditedEntityState.NeedsSaving
+              obj[0].state === 2 /* NeedsSaving */
             );
             resolve(true);
           });
@@ -3961,31 +4033,32 @@ function EntityEditContainer(props) {
     },
     [entityQname, shapeQname, entityObj]
   );
-  const entityObjRef = useRef(entityObj);
-  useEffect(() => {
-    if (entityObjRef.current?.length && entityObj?.length) {
-      if (entityObjRef.current[0]?.subjectQname != entityObj[0]?.subjectQname) {
+  const entityObjRef = useRef3(entityObj);
+  useEffect4(() => {
+    var _a2, _b2, _c2;
+    if (((_a2 = entityObjRef.current) == null ? void 0 : _a2.length) && (entityObj == null ? void 0 : entityObj.length)) {
+      if (((_b2 = entityObjRef.current[0]) == null ? void 0 : _b2.subjectQname) != ((_c2 = entityObj[0]) == null ? void 0 : _c2.subjectQname)) {
         save(entityObjRef.current);
       }
     }
   });
-  useEffect(() => {
+  useEffect4(() => {
     return () => {
       const fun = async () => {
         if (entityObjRef.current) {
-          debug$4("unmounting /edit", entityObjRef.current);
+          debug9("unmounting /edit", entityObjRef.current);
           await save(entityObjRef.current);
         }
       };
       fun();
     };
   }, []);
-  const [warning, setWarning] = useState(() => (event) => {
+  const [warning, setWarning] = useState4(() => (event) => {
   });
-  useEffect(() => {
+  useEffect4(() => {
     const willSave = [];
     for (const e of entities) {
-      if (e.state !== EditedEntityState.Saved && e.state !== EditedEntityState.NotLoaded) {
+      if (e.state !== 1 /* Saved */ && e.state !== 4 /* NotLoaded */) {
         willSave.push(e);
       }
     }
@@ -4004,15 +4077,15 @@ function EntityEditContainer(props) {
       });
     }
   }, [entities]);
-  useEffect(() => {
+  useEffect4(() => {
     window.addEventListener("beforeunload", warning, true);
   }, [warning]);
   const { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config);
   if (loadingState.status === "error" || entityLoadingState.status === "error") {
-    return /* @__PURE__ */ jsxs("p", {
+    return /* @__PURE__ */ jsxs3("p", {
       className: "text-center text-muted",
       children: [
-        /* @__PURE__ */ jsx(NotFoundIcon, {
+        /* @__PURE__ */ jsx4(NotFoundIcon, {
           className: "icon mr-2"
         }),
         loadingState.error,
@@ -4021,29 +4094,30 @@ function EntityEditContainer(props) {
     });
   }
   if (loadingState.status === "fetching" || entityLoadingState.status === "fetching" || !entity || entity.isEmpty()) {
-    return /* @__PURE__ */ jsx(Fragment, {
-      children: /* @__PURE__ */ jsx("div", {
-        children: /* @__PURE__ */ jsx("div", {
-          children: /* @__PURE__ */ jsx(Fragment, {
-            children: i18n.t("types.loading")
+    return /* @__PURE__ */ jsx4(Fragment3, {
+      children: /* @__PURE__ */ jsx4("div", {
+        children: /* @__PURE__ */ jsx4("div", {
+          children: /* @__PURE__ */ jsx4(Fragment3, {
+            children: i18n4.t("types.loading")
           })
         })
       })
     });
   }
   if (!shape || !entity)
-    return /* @__PURE__ */ jsx(Fragment, {
-      children: /* @__PURE__ */ jsx("div", {
-        children: /* @__PURE__ */ jsx("div", {
-          children: /* @__PURE__ */ jsx(Fragment, {
-            children: i18n.t("types.loading")
+    return /* @__PURE__ */ jsx4(Fragment3, {
+      children: /* @__PURE__ */ jsx4("div", {
+        children: /* @__PURE__ */ jsx4("div", {
+          children: /* @__PURE__ */ jsx4(Fragment3, {
+            children: i18n4.t("types.loading")
           })
         })
       })
     });
   const shapeLabel = ValueByLangToStrPrefLang(shape.targetClassPrefLabels, uiLang);
   const checkPushNameAsPrefLabel = (e, currentGroupName) => {
-    if (possiblePrefLabels && possiblePrefLabels[currentGroupName]?.length) {
+    var _a2;
+    if (possiblePrefLabels && ((_a2 = possiblePrefLabels[currentGroupName]) == null ? void 0 : _a2.length)) {
       const newLabels = [...prefLabels];
       for (const n of possiblePrefLabels[currentGroupName]) {
         if (n instanceof LiteralWithId && !newLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language)) && !altLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language)))
@@ -4057,36 +4131,36 @@ function EntityEditContainer(props) {
     e.stopPropagation();
   };
   const previewLink = config.getPreviewLink(entity.node);
-  return /* @__PURE__ */ jsxs(React.Fragment, {
+  return /* @__PURE__ */ jsxs3(React4.Fragment, {
     children: [
-      /* @__PURE__ */ jsx("div", {
+      /* @__PURE__ */ jsx4("div", {
         role: "main",
         className: "pt-4",
         style: { textAlign: "center" },
-        children: /* @__PURE__ */ jsxs("div", {
-          className: "header " + icon?.toLowerCase(),
+        children: /* @__PURE__ */ jsxs3("div", {
+          className: "header " + (icon == null ? void 0 : icon.toLowerCase()),
           ...!icon ? { "data-shape": shape.qname } : {},
           children: [
-            /* @__PURE__ */ jsx("div", {
+            /* @__PURE__ */ jsx4("div", {
               className: "shape-icon"
             }),
-            /* @__PURE__ */ jsxs("div", {
+            /* @__PURE__ */ jsxs3("div", {
               children: [
-                /* @__PURE__ */ jsx("h1", {
+                /* @__PURE__ */ jsx4("h1", {
                   children: shapeLabel
                 }),
-                /* @__PURE__ */ jsx("span", {
+                /* @__PURE__ */ jsx4("span", {
                   children: entity.qname
                 }),
-                previewLink && /* @__PURE__ */ jsx("div", {
+                previewLink && /* @__PURE__ */ jsx4("div", {
                   className: "buda-link",
-                  children: /* @__PURE__ */ jsx("a", {
-                    className: "btn-rouge" + (!entityObj[0]?.etag ? " disabled" : ""),
+                  children: /* @__PURE__ */ jsx4("a", {
+                    className: "btn-rouge" + (!((_e = entityObj[0]) == null ? void 0 : _e.etag) ? " disabled" : ""),
                     target: "_blank",
                     rel: "noreferrer",
-                    ...!entityObj[0]?.etag ? { title: i18n.t("error.preview") } : { href: previewLink },
-                    children: /* @__PURE__ */ jsx(Fragment, {
-                      children: i18n.t("general.preview")
+                    ...!((_f = entityObj[0]) == null ? void 0 : _f.etag) ? { title: i18n4.t("error.preview") } : { href: previewLink },
+                    children: /* @__PURE__ */ jsx4(Fragment3, {
+                      children: i18n4.t("general.preview")
                     })
                   })
                 })
@@ -4095,40 +4169,40 @@ function EntityEditContainer(props) {
           ]
         })
       }),
-      /* @__PURE__ */ jsxs("div", {
+      /* @__PURE__ */ jsxs3("div", {
         role: "navigation",
         className: "innerNav",
         children: [
-          /* @__PURE__ */ jsx("p", {
+          /* @__PURE__ */ jsx4("p", {
             className: "text-uppercase small my-2",
-            children: /* @__PURE__ */ jsx(Fragment, {
-              children: i18n.t("home.nav")
+            children: /* @__PURE__ */ jsx4(Fragment3, {
+              children: i18n4.t("home.nav")
             })
           }),
           shape.groups.map((group, index) => {
             const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
-            return /* @__PURE__ */ jsx(HashLink, {
+            return /* @__PURE__ */ jsx4(Link, {
               to: "#" + group.qname,
               onClick: () => {
                 setGroupEd(group.qname);
                 setEdit(group.qname);
               },
               className: groupEd === group.qname ? "on" : "",
-              children: /* @__PURE__ */ jsx("span", {
+              children: /* @__PURE__ */ jsx4("span", {
                 children: label
               })
             }, group.qname);
           })
         ]
       }),
-      /* @__PURE__ */ jsx("div", {
-        children: shape.groups.map((group, index) => /* @__PURE__ */ jsxs(Fragment, {
+      /* @__PURE__ */ jsx4("div", {
+        children: shape.groups.map((group, index) => /* @__PURE__ */ jsxs3(Fragment3, {
           children: [
-            groupEd === group.qname && /* @__PURE__ */ jsx("div", {
+            groupEd === group.qname && /* @__PURE__ */ jsx4("div", {
               className: "group-edit-BG",
               onClick: (e) => checkPushNameAsPrefLabel(e, group.qname)
             }),
-            /* @__PURE__ */ jsx(PropertyGroupContainer, {
+            /* @__PURE__ */ jsx4(PropertyGroupContainer_default, {
               group,
               subject: entity,
               onGroupOpen: checkPushNameAsPrefLabel,
@@ -4141,25 +4215,34 @@ function EntityEditContainer(props) {
     ]
   });
 }
+var EntityEditContainer_default = EntityEditContainer;
 
+// src/containers/NewEntityContainer.tsx
+import { useState as useState5 } from "react";
+import { useRecoilState as useRecoilState5 } from "recoil";
+import { Link as Link2, useNavigate } from "react-router-dom";
+import i18n5 from "i18next";
+import { Trans } from "react-i18next";
+import { TextField as TextField2, MenuItem as MenuItem2 } from "@mui/material";
+import { Fragment as Fragment4, jsx as jsx5, jsxs as jsxs4 } from "react/jsx-runtime";
 function NewEntityContainer(props) {
   const config = props.config || {};
-  const [uiLang] = useRecoilState(uiLangState);
-  const [RID, setRID] = useState("");
-  const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState);
+  const [uiLang] = useRecoilState5(uiLangState);
+  const [RID, setRID] = useState5("");
+  const [RIDprefix, setRIDprefix] = useRecoilState5(RIDprefixState);
   const navigate = useNavigate();
   const disabled = !RIDprefix;
-  return /* @__PURE__ */ jsxs("div", {
+  return /* @__PURE__ */ jsxs4("div", {
     className: "new-fix",
     children: [
-      /* @__PURE__ */ jsxs("div", {
+      /* @__PURE__ */ jsxs4("div", {
         children: [
-          /* @__PURE__ */ jsx("b", {
+          /* @__PURE__ */ jsx5("b", {
             children: "New entity:"
           }),
-          /* @__PURE__ */ jsxs("span", {
+          /* @__PURE__ */ jsxs4("span", {
             children: [
-              /* @__PURE__ */ jsx(TextField, {
+              /* @__PURE__ */ jsx5(TextField2, {
                 ...disabled ? { disabled: true } : {},
                 select: true,
                 helperText: "List of all possible shapes",
@@ -4167,22 +4250,22 @@ function NewEntityContainer(props) {
                 className: "shapeSelector",
                 value: config.possibleShapeRefs[0].qname,
                 style: { marginTop: "3px", marginLeft: "10px" },
-                children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ jsx(MenuItem, {
+                children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ jsx5(MenuItem2, {
                   value: shape.qname,
                   style: { padding: 0 },
-                  children: /* @__PURE__ */ jsx(Link, {
+                  children: /* @__PURE__ */ jsx5(Link2, {
                     to: "/new/" + shape.qname,
                     className: "popLink",
                     children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang)
                   })
                 }, shape.qname))
               }),
-              disabled && RIDprefix === "" && /* @__PURE__ */ jsx("span", {
+              disabled && RIDprefix === "" && /* @__PURE__ */ jsx5("span", {
                 className: "pl-2",
                 style: { fontStyle: "italic", fontWeight: 500, color: "#d73449", fontSize: 14 },
-                children: /* @__PURE__ */ jsx(Trans, {
+                children: /* @__PURE__ */ jsx5(Trans, {
                   i18nKey: "error.prefix",
-                  components: { res: /* @__PURE__ */ jsx(Link, {
+                  components: { res: /* @__PURE__ */ jsx5(Link2, {
                     className: "profile-link",
                     to: "/profile"
                   }) }
@@ -4192,20 +4275,20 @@ function NewEntityContainer(props) {
           })
         ]
       }),
-      /* @__PURE__ */ jsxs("div", {
+      /* @__PURE__ */ jsxs4("div", {
         style: { display: "flex", alignItems: "baseline" },
         children: [
-          /* @__PURE__ */ jsxs("div", {
+          /* @__PURE__ */ jsxs4("div", {
             style: { marginRight: "10px" },
             children: [
-              /* @__PURE__ */ jsx("b", {
+              /* @__PURE__ */ jsx5("b", {
                 children: "Load entity:"
               }),
               " "
             ]
           }),
-          /* @__PURE__ */ jsx("div", {
-            children: /* @__PURE__ */ jsx(TextField, {
+          /* @__PURE__ */ jsx5("div", {
+            children: /* @__PURE__ */ jsx5(TextField2, {
               style: { width: "100%" },
               value: RID,
               InputLabelProps: { shrink: true },
@@ -4217,13 +4300,13 @@ function NewEntityContainer(props) {
               }
             })
           }),
-          /* @__PURE__ */ jsx("div", {
-            children: /* @__PURE__ */ jsx(Link, {
+          /* @__PURE__ */ jsx5("div", {
+            children: /* @__PURE__ */ jsx5(Link2, {
               to: "/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase(),
               className: "btn btn-sm btn-outline-primary py-3 ml-2 lookup btn-rouge " + (!RID ? "disabled" : ""),
               style: { boxShadow: "none", alignSelf: "center", marginBottom: "15px" },
-              children: /* @__PURE__ */ jsx(Fragment, {
-                children: i18n.t("search.open")
+              children: /* @__PURE__ */ jsx5(Fragment4, {
+                children: i18n5.t("search.open")
               })
             })
           })
@@ -4232,14 +4315,29 @@ function NewEntityContainer(props) {
     ]
   });
 }
+var NewEntityContainer_default = NewEntityContainer;
 
-const debug$3 = require("debug")("rde:entity:entitycreation");
+// src/containers/EntityCreationContainer.tsx
+import { useRecoilState as useRecoilState6 } from "recoil";
+
+// src/containers/Dialog.tsx
+import React6, { useState as useState6 } from "react";
+import { Navigate as Navigate2 } from "react-router-dom";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import { jsx as jsx6, jsxs as jsxs5 } from "react/jsx-runtime";
+var debug10 = __require("debug")("rde:entity:entitycreation");
 function Dialog422(props) {
-  const [open, setOpen] = React.useState(props.open);
-  const shape = props.shaped.split(":")[1]?.replace(/Shape$/, "");
-  const [createNew, setCreateNew] = useState(false);
-  const [loadNamed, setLoadNamed] = useState(false);
-  debug$3("422:", props);
+  var _a;
+  const [open, setOpen] = React6.useState(props.open);
+  const shape = (_a = props.shaped.split(":")[1]) == null ? void 0 : _a.replace(/Shape$/, "");
+  const [createNew, setCreateNew] = useState6(false);
+  const [loadNamed, setLoadNamed] = useState6(false);
+  debug10("422:", props);
   const handleLoad = () => {
     setLoadNamed(true);
     setOpen(false);
@@ -4249,19 +4347,19 @@ function Dialog422(props) {
     setOpen(false);
   };
   if (createNew)
-    return /* @__PURE__ */ jsx(Navigate, {
+    return /* @__PURE__ */ jsx6(Navigate2, {
       to: props.newUrl
     });
   else if (loadNamed)
-    return /* @__PURE__ */ jsx(Navigate, {
+    return /* @__PURE__ */ jsx6(Navigate2, {
       to: props.editUrl
     });
   else
-    return /* @__PURE__ */ jsx("div", {
-      children: /* @__PURE__ */ jsxs(Dialog, {
+    return /* @__PURE__ */ jsx6("div", {
+      children: /* @__PURE__ */ jsxs5(Dialog, {
         open,
         children: [
-          /* @__PURE__ */ jsxs(DialogTitle, {
+          /* @__PURE__ */ jsxs5(DialogTitle, {
             children: [
               shape,
               " ",
@@ -4269,8 +4367,8 @@ function Dialog422(props) {
               " has already been created"
             ]
           }),
-          /* @__PURE__ */ jsx(DialogContent, {
-            children: /* @__PURE__ */ jsxs(DialogContentText, {
+          /* @__PURE__ */ jsx6(DialogContent, {
+            children: /* @__PURE__ */ jsxs5(DialogContentText, {
               children: [
                 "Do you want to use it, or to create a new ",
                 shape,
@@ -4278,28 +4376,28 @@ function Dialog422(props) {
               ]
             })
           }),
-          /* @__PURE__ */ jsxs(DialogActions, {
+          /* @__PURE__ */ jsxs5(DialogActions, {
             style: { justifyContent: "space-around" },
             children: [
-              /* @__PURE__ */ jsxs(Button, {
+              /* @__PURE__ */ jsxs5(Button, {
                 className: "btn-rouge",
                 onClick: handleLoad,
                 color: "primary",
                 children: [
                   "Use\xA0",
-                  /* @__PURE__ */ jsx("span", {
+                  /* @__PURE__ */ jsx6("span", {
                     style: { textTransform: "none" },
                     children: props.named
                   })
                 ]
               }),
-              /* @__PURE__ */ jsxs(Button, {
+              /* @__PURE__ */ jsxs5(Button, {
                 className: "btn-rouge",
                 onClick: handleNew,
                 color: "primary",
                 children: [
                   "Create\xA0",
-                  /* @__PURE__ */ jsx("span", {
+                  /* @__PURE__ */ jsx6("span", {
                     style: { textTransform: "none" },
                     children: shape
                   }),
@@ -4308,42 +4406,50 @@ function Dialog422(props) {
               })
             ]
           }),
-          /* @__PURE__ */ jsx("br", {})
+          /* @__PURE__ */ jsx6("br", {})
         ]
       })
     });
 }
 
-const debug$2 = require("debug")("rde:entity:entitycreation");
+// src/containers/EntityCreationContainer.tsx
+import { Navigate as Navigate3, useParams as useParams2, useLocation as useLocation2 } from "react-router-dom";
+import { useEffect as useEffect5 } from "react";
+import NotFoundIcon2 from "@mui/icons-material/BrokenImage";
+import i18n6 from "i18next";
+import queryString2 from "query-string";
+import * as rdf7 from "rdflib";
+import { Fragment as Fragment5, jsx as jsx7, jsxs as jsxs6 } from "react/jsx-runtime";
+var debug11 = __require("debug")("rde:entity:entitycreation");
 function EntityCreationContainer(props) {
   const config = props.config;
-  const params = useParams$1();
+  const params = useParams2();
   const subjectQname = params.subjectQname;
   const shapeQname = params.shapeQname || "";
   const propertyQname = params.propertyQname;
   const index = params.index;
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
-  const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState);
-  const location = useLocation$1();
+  const [RIDprefix, setRIDprefix] = useRecoilState6(RIDprefixState);
+  const location = useLocation2();
   const unmounting = { val: false };
-  useEffect(() => {
+  useEffect5(() => {
     return () => {
       unmounting.val = true;
     };
   }, []);
   if (RIDprefix == "")
-    return /* @__PURE__ */ jsx(Navigate, {
+    return /* @__PURE__ */ jsx7(Navigate3, {
       to: "/new"
     });
-  const shapeNode = rdf.sym(config.prefixMap.uriFromQname(shapeQname));
-  const entityNode = rdf.sym(config.prefixMap.uriFromQname(entityQname));
+  const shapeNode = rdf7.sym(config.prefixMap.uriFromQname(shapeQname));
+  const entityNode = rdf7.sym(config.prefixMap.uriFromQname(entityQname));
   const { entityLoadingState, entity } = unmounting.val ? { entityLoadingState: { status: "idle", error: void 0 }, entity: null } : config.entityCreator(shapeNode, entityNode, unmounting);
-  debug$2("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname);
+  debug11("new:", entityLoadingState, entity, entityQname, entity == null ? void 0 : entity.qname, shapeQname);
   if (entityLoadingState.error === "422" && entity) {
     const editUrl = subjectQname && propertyQname && index != void 0 ? "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "") : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname;
     const newUrl = location.pathname.replace(/\/named\/.*/, "") + location.search;
-    return /* @__PURE__ */ jsx(Dialog422, {
+    return /* @__PURE__ */ jsx7(Dialog422, {
       open: true,
       shaped: shapeQname,
       named: entityQname,
@@ -4352,90 +4458,109 @@ function EntityCreationContainer(props) {
     });
   } else if (entity) {
     if (subjectQname && propertyQname && index != void 0)
-      return /* @__PURE__ */ jsx(Navigate, {
+      return /* @__PURE__ */ jsx7(Navigate3, {
         to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
       });
     else
-      return /* @__PURE__ */ jsx(Navigate, {
+      return /* @__PURE__ */ jsx7(Navigate3, {
         to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname
       });
   }
   if (entityLoadingState.status === "error") {
-    return /* @__PURE__ */ jsxs("p", {
+    return /* @__PURE__ */ jsxs6("p", {
       className: "text-center text-muted",
       children: [
-        /* @__PURE__ */ jsx(NotFoundIcon, {
+        /* @__PURE__ */ jsx7(NotFoundIcon2, {
           className: "icon mr-2"
         }),
         entityLoadingState.error
       ]
     });
   }
-  return /* @__PURE__ */ jsx(Fragment, {
-    children: /* @__PURE__ */ jsx("div", {
-      children: /* @__PURE__ */ jsx("div", {
-        children: /* @__PURE__ */ jsx(Fragment, {
-          children: i18n.t("types.creating")
+  return /* @__PURE__ */ jsx7(Fragment5, {
+    children: /* @__PURE__ */ jsx7("div", {
+      children: /* @__PURE__ */ jsx7("div", {
+        children: /* @__PURE__ */ jsx7(Fragment5, {
+          children: i18n6.t("types.creating")
         })
       })
     })
   });
 }
 function EntityCreationContainerAlreadyOpen(props) {
-  const params = useParams$1();
+  const params = useParams2();
   const subjectQname = params.subjectQname;
   const shapeQname = params.shapeQname;
   const propertyQname = params.propertyQname;
   const index = params.index;
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname;
-  useEffect(() => {
-    return () => {
-    };
-  }, []);
-  if (subjectQname && propertyQname && index != void 0)
-    return /* @__PURE__ */ jsx(Navigate, {
-      to: "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
-    });
-  else
-    return /* @__PURE__ */ jsx(Navigate, {
-      to: "/edit/" + entityQname + "/" + shapeQname
-    });
-}
-function EntityCreationContainerRoute(props) {
-  const params = useParams$1();
-  const [entities, setEntities] = useRecoilState(entitiesAtom);
-  const i = entities.findIndex((e) => e.subjectQname === params.entityQname);
-  const theEntity = entities[i];
-  const location = useLocation$1();
-  const { copy } = queryString.parse(location.search, { decode: false });
-  if (theEntity)
-    return /* @__PURE__ */ jsx(EntityCreationContainerAlreadyOpen, {
-      ...props,
-      copy
-    });
-  else
-    return /* @__PURE__ */ jsx(EntityCreationContainer, {
-      ...props,
-      copy
-    });
-}
-
-const debug$1 = require("debug")("rde:entity:shape");
-function EntityShapeChooserContainer(props) {
-  const config = props.config;
-  const params = useParams$1();
-  const navigate = useNavigate();
-  const [entityQname, setEntityQname] = useState(params.entityQname || "");
-  const [uiLang] = useRecoilState(uiLangState);
-  const [entities, setEntities] = useRecoilState(entitiesAtom);
   const unmounting = { val: false };
-  useEffect(() => {
+  useEffect5(() => {
     return () => {
       unmounting.val = true;
     };
   }, []);
-  useEffect(() => {
+  if (subjectQname && propertyQname && index != void 0)
+    return /* @__PURE__ */ jsx7(Navigate3, {
+      to: "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
+    });
+  else
+    return /* @__PURE__ */ jsx7(Navigate3, {
+      to: "/edit/" + entityQname + "/" + shapeQname
+    });
+  return /* @__PURE__ */ jsx7(Fragment5, {
+    children: /* @__PURE__ */ jsx7("div", {
+      children: /* @__PURE__ */ jsx7("div", {
+        children: /* @__PURE__ */ jsx7(Fragment5, {
+          children: i18n6.t("types.loading")
+        })
+      })
+    })
+  });
+}
+function EntityCreationContainerRoute(props) {
+  const params = useParams2();
+  const [entities, setEntities] = useRecoilState6(entitiesAtom);
+  const i = entities.findIndex((e) => e.subjectQname === params.entityQname);
+  const theEntity = entities[i];
+  const location = useLocation2();
+  const { copy } = queryString2.parse(location.search, { decode: false });
+  if (theEntity)
+    return /* @__PURE__ */ jsx7(EntityCreationContainerAlreadyOpen, {
+      ...props,
+      copy
+    });
+  else
+    return /* @__PURE__ */ jsx7(EntityCreationContainer, {
+      ...props,
+      copy
+    });
+}
+var EntityCreationContainer_default = EntityCreationContainer;
+
+// src/containers/EntityShapeChooserContainer.tsx
+import { useState as useState7, useEffect as useEffect6 } from "react";
+import i18n7 from "i18next";
+import { useRecoilState as useRecoilState7 } from "recoil";
+import { Link as Link3, Navigate as Navigate4, useParams as useParams3, useNavigate as useNavigate2 } from "react-router-dom";
+import { TextField as TextField3, MenuItem as MenuItem3 } from "@mui/material";
+import { Fragment as Fragment6, jsx as jsx8, jsxs as jsxs7 } from "react/jsx-runtime";
+var debug12 = __require("debug")("rde:entity:shape");
+function EntityShapeChooserContainer(props) {
+  const config = props.config;
+  const params = useParams3();
+  const navigate = useNavigate2();
+  const [entityQname, setEntityQname] = useState7(params.entityQname || "");
+  const [uiLang] = useRecoilState7(uiLangState);
+  const [entities, setEntities] = useRecoilState7(entitiesAtom);
+  const unmounting = { val: false };
+  useEffect6(() => {
+    return () => {
+      unmounting.val = true;
+    };
+  }, []);
+  useEffect6(() => {
     if (unmounting.val)
       return;
     else if (params.entityQname)
@@ -4445,10 +4570,10 @@ function EntityShapeChooserContainer(props) {
   if (entityFromList && entityFromList.shapeQname) {
     const shapeQname = entityFromList.shapeQname;
     navigate("/edit/" + entityQname + "/" + shapeQname, { replace: true });
-    return /* @__PURE__ */ jsx("div", {
-      children: /* @__PURE__ */ jsx("div", {
-        children: /* @__PURE__ */ jsx(Fragment, {
-          children: i18n.t("types.redirect")
+    return /* @__PURE__ */ jsx8("div", {
+      children: /* @__PURE__ */ jsx8("div", {
+        children: /* @__PURE__ */ jsx8(Fragment6, {
+          children: i18n7.t("types.redirect")
         })
       })
     });
@@ -4457,51 +4582,51 @@ function EntityShapeChooserContainer(props) {
   if (entity) {
     const possibleShapes = config.possibleShapeRefsForEntity(entity.node);
     if (entityLoadingState.status === "fetching") {
-      return /* @__PURE__ */ jsx("div", {
-        children: /* @__PURE__ */ jsx("div", {
-          children: /* @__PURE__ */ jsx(Fragment, {
-            children: i18n.t("types.loading")
+      return /* @__PURE__ */ jsx8("div", {
+        children: /* @__PURE__ */ jsx8("div", {
+          children: /* @__PURE__ */ jsx8(Fragment6, {
+            children: i18n7.t("types.loading")
           })
         })
       });
     } else if (entityLoadingState.error === "not found") {
-      return /* @__PURE__ */ jsx("div", {
+      return /* @__PURE__ */ jsx8("div", {
         className: "error",
-        children: /* @__PURE__ */ jsxs("div", {
+        children: /* @__PURE__ */ jsxs7("div", {
           children: [
-            /* @__PURE__ */ jsx("span", {
-              children: /* @__PURE__ */ jsx(Fragment, {
-                children: i18n.t("error.exist", { id: entityQname })
+            /* @__PURE__ */ jsx8("span", {
+              children: /* @__PURE__ */ jsx8(Fragment6, {
+                children: i18n7.t("error.exist", { id: entityQname })
               })
             }),
-            /* @__PURE__ */ jsx("br", {}),
-            /* @__PURE__ */ jsx(Link, {
+            /* @__PURE__ */ jsx8("br", {}),
+            /* @__PURE__ */ jsx8(Link3, {
               style: { fontWeight: 700 },
               to: "/new",
-              children: /* @__PURE__ */ jsx(Fragment, {
-                children: i18n.t("error.redirect")
+              children: /* @__PURE__ */ jsx8(Fragment6, {
+                children: i18n7.t("error.redirect")
               })
             })
           ]
         })
       });
     } else if (!possibleShapes) {
-      debug$1("cannot find", entity, entityLoadingState);
-      return /* @__PURE__ */ jsx("div", {
+      debug12("cannot find", entity, entityLoadingState);
+      return /* @__PURE__ */ jsx8("div", {
         className: "error",
-        children: /* @__PURE__ */ jsxs("div", {
+        children: /* @__PURE__ */ jsxs7("div", {
           children: [
-            /* @__PURE__ */ jsx("span", {
-              children: /* @__PURE__ */ jsx(Fragment, {
-                children: i18n.t("error.shape", { id: entityQname })
+            /* @__PURE__ */ jsx8("span", {
+              children: /* @__PURE__ */ jsx8(Fragment6, {
+                children: i18n7.t("error.shape", { id: entityQname })
               })
             }),
-            /* @__PURE__ */ jsx("br", {}),
-            /* @__PURE__ */ jsx(Link, {
+            /* @__PURE__ */ jsx8("br", {}),
+            /* @__PURE__ */ jsx8(Link3, {
               style: { fontWeight: 700 },
               to: "/new",
-              children: /* @__PURE__ */ jsx(Fragment, {
-                children: i18n.t("error.redirect")
+              children: /* @__PURE__ */ jsx8(Fragment6, {
+                children: i18n7.t("error.redirect")
               })
             })
           ]
@@ -4520,24 +4645,24 @@ function EntityShapeChooserContainer(props) {
           }
         }
       };
-      return /* @__PURE__ */ jsx("div", {
+      return /* @__PURE__ */ jsx8("div", {
         className: "centered-ctn",
-        children: /* @__PURE__ */ jsxs("div", {
+        children: /* @__PURE__ */ jsxs7("div", {
           children: [
-            /* @__PURE__ */ jsx("b", {
+            /* @__PURE__ */ jsx8("b", {
               children: "Choose a shape:"
             }),
-            /* @__PURE__ */ jsx(TextField, {
+            /* @__PURE__ */ jsx8(TextField3, {
               select: true,
               helperText: "List of all possible shapes",
               id: "shapeSelec",
               className: "shapeSelector",
               value: config.possibleShapeRefs[0].qname,
               style: { marginTop: "3px", marginLeft: "10px" },
-              children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ jsx(MenuItem, {
+              children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ jsx8(MenuItem3, {
                 value: shape.qname,
                 style: { padding: 0 },
-                children: /* @__PURE__ */ jsx(Link, {
+                children: /* @__PURE__ */ jsx8(Link3, {
                   to: "/edit/" + entityQname + "/" + shape.qname,
                   className: "popLink",
                   onClick: (ev) => handleClick(ev, shape),
@@ -4549,32 +4674,43 @@ function EntityShapeChooserContainer(props) {
         })
       });
     } else {
-      return /* @__PURE__ */ jsx(Navigate, {
+      return /* @__PURE__ */ jsx8(Navigate4, {
         to: "/edit/" + entityQname + "/" + possibleShapes[0].qname
       });
     }
   }
-  return /* @__PURE__ */ jsx(Fragment, {
-    children: /* @__PURE__ */ jsx("div", {
-      children: /* @__PURE__ */ jsx("div", {
-        children: /* @__PURE__ */ jsx(Fragment, {
-          children: i18n.t("types.loading")
+  return /* @__PURE__ */ jsx8(Fragment6, {
+    children: /* @__PURE__ */ jsx8("div", {
+      children: /* @__PURE__ */ jsx8("div", {
+        children: /* @__PURE__ */ jsx8(Fragment6, {
+          children: i18n7.t("types.loading")
         })
       })
     })
   });
 }
+var EntityShapeChooserContainer_default = EntityShapeChooserContainer;
 
-const debug = require("debug")("rde:atom:event:RS");
-makeStyles((theme) => ({
+// src/containers/BUDAResourceSelector.tsx
+import React9, { useEffect as useEffect7, useState as useState8, useRef as useRef4, useLayoutEffect as useLayoutEffect2, useCallback as useCallback3 } from "react";
+import { useRecoilState as useRecoilState8 } from "recoil";
+import { makeStyles as makeStyles2 } from "@mui/styles";
+import { TextField as TextField4, MenuItem as MenuItem4 } from "@mui/material";
+import i18n8 from "i18next";
+import { useNavigate as useNavigate3, Link as Link4 } from "react-router-dom";
+import * as rdf8 from "rdflib";
+import { Fragment as Fragment7, jsx as jsx9, jsxs as jsxs8 } from "react/jsx-runtime";
+import { createElement } from "react";
+var debug13 = __require("debug")("rde:atom:event:RS");
+var useStyles2 = makeStyles2((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
     }
   }
 }));
-const BDR_uri = "http://purl.bdrc.io/resource/";
-const BUDAResourceSelector = ({
+var BDR_uri = "http://purl.bdrc.io/resource/";
+var BUDAResourceSelector = ({
   value,
   onChange,
   property,
@@ -4589,34 +4725,36 @@ const BUDAResourceSelector = ({
   shape,
   config
 }) => {
-  const [keyword, setKeyword] = useState("");
-  const [language, setLanguage] = useState("bo-x-ewts");
-  const [type, setType] = useState(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
-  const [libraryURL, setLibraryURL] = useState("");
-  const [uiLang, setUiLang] = useRecoilState(uiLangState);
-  const [uiLitLang, setUiLitLang] = useRecoilState(uiLitLangState);
-  const [error, setError] = useState();
-  const [entities, setEntities] = useRecoilState(entitiesAtom);
-  const navigate = useNavigate();
+  var _a, _b, _c, _d;
+  const [keyword, setKeyword] = useState8("");
+  const [language, setLanguage] = useState8("bo-x-ewts");
+  const [type, setType] = useState8(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
+  const [libraryURL, setLibraryURL] = useState8("");
+  const [uiLang, setUiLang] = useRecoilState8(uiLangState);
+  const [uiLitLang, setUiLitLang] = useRecoilState8(uiLitLangState);
+  const [error, setError] = useState8();
+  const [entities, setEntities] = useRecoilState8(entitiesAtom);
+  const navigate = useNavigate3();
   const msgId = subject.qname + property.qname + idx;
-  const [popupNew, setPopupNew] = useState(false);
-  const iframeRef = useRef(null);
-  const [canCopy, setCanCopy] = useState([]);
+  const [popupNew, setPopupNew] = useState8(false);
+  const iframeRef = useRef4(null);
+  const [canCopy, setCanCopy] = useState8([]);
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i);
-  const [toCopy, setProp] = useRecoilState(
+  const [toCopy, setProp] = useRecoilState8(
     toCopySelector({
-      list: property.copyObjectsOfProperty?.map((p) => ({
+      list: (_a = property.copyObjectsOfProperty) == null ? void 0 : _a.map((p) => ({
         property: defaultPrefixMap.qnameFromUri(p.value),
         atom: (owner ? owner : subject).getAtomForProperty(p.uri)
       }))
     })
   );
-  useEffect(() => {
-    if (property.copyObjectsOfProperty?.length) {
+  useEffect7(() => {
+    var _a2, _b2;
+    if ((_a2 = property.copyObjectsOfProperty) == null ? void 0 : _a2.length) {
       const copy = [];
       for (const prop of property.copyObjectsOfProperty) {
         const propQname = defaultPrefixMap.qnameFromUri(prop.value);
-        if (value.otherData[propQname]?.length)
+        if ((_b2 = value.otherData[propQname]) == null ? void 0 : _b2.length)
           copy.push({
             k: propQname,
             val: value.otherData[propQname].map(
@@ -4627,18 +4765,18 @@ const BUDAResourceSelector = ({
       setCanCopy(copy);
     }
   }, []);
-  useEffect(() => {
+  useEffect7(() => {
     if (globalError && !error)
       setError(globalError);
   }, [globalError]);
   if (!property.expectedObjectTypes) {
-    debug(property);
+    debug13(property);
     throw "can't get the types for property " + property.qname;
   }
   const closeFrame = () => {
-    debug("close?", value, isRid, libraryURL);
+    debug13("close?", value, isRid, libraryURL);
     if (iframeRef.current && isRid) {
-      debug("if:", iframeRef.current);
+      debug13("if:", iframeRef.current);
       iframeRef.current.click();
       const wn = iframeRef.current.contentWindow;
       if (wn)
@@ -4649,7 +4787,7 @@ const BUDAResourceSelector = ({
     }
   };
   let msgHandler = null;
-  useEffect(() => {
+  useEffect7(() => {
     const updateRes = (data) => {
       let isTypeOk = false;
       let actual;
@@ -4663,7 +4801,7 @@ const BUDAResourceSelector = ({
           isTypeOk = true;
         const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
         if (!isTypeOk) {
-          setError(i18n.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+          setError("" + i18n8.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
           if (libraryURL)
             setLibraryURL("");
         }
@@ -4706,18 +4844,18 @@ const BUDAResourceSelector = ({
         if (!window.location.href.includes(ev.origin)) {
           const data = JSON.parse(ev.data);
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
-            debug("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug13("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
-            setError(i18n.t("error.notF", { RID: data["@id"] }));
+            setError("" + i18n8.t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
-            debug("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug13("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
           } else {
             setLibraryURL("");
           }
         }
       } catch (err) {
-        debug("error: %o", err);
+        debug13("error: %o", err);
       }
     };
     window.addEventListener("message", msgHandler, true);
@@ -4726,14 +4864,14 @@ const BUDAResourceSelector = ({
         window.removeEventListener("message", msgHandler, true);
     };
   }, [libraryURL]);
-  useEffect(() => {
+  useEffect7(() => {
     if (value.otherData["tmp:keyword"]) {
       setKeyword(value.otherData["tmp:keyword"]["@value"]);
       setLanguage(value.otherData["tmp:keyword"]["@language"]);
     }
   }, []);
   const updateLibrary = (ev, newlang, newtype) => {
-    debug("updLib: %o", msgId);
+    debug13("updLib: %o", msgId);
     if (ev && libraryURL) {
       setLibraryURL("");
     } else if (msgId) {
@@ -4742,16 +4880,16 @@ const BUDAResourceSelector = ({
           config.libraryUrl + "/simple/" + (!keyword.startsWith("bdr:") ? "bdr:" : "") + keyword + "?for=" + msgId
         );
       } else {
-        let lang2 = language;
+        let lang = language;
         if (newlang)
-          lang2 = newlang;
-        else if (!lang2)
-          lang2 = "bo-x-ewts";
+          lang = newlang;
+        else if (!lang)
+          lang = "bo-x-ewts";
         let key = encodeURIComponent(keyword);
         key = '"' + key + '"';
-        if (lang2.startsWith("bo"))
+        if (lang.startsWith("bo"))
           key = key + "~1";
-        lang2 = encodeURIComponent(lang2);
+        lang = encodeURIComponent(lang);
         let t = type;
         if (newtype)
           t = newtype;
@@ -4765,7 +4903,7 @@ const BUDAResourceSelector = ({
         else if (t.includes("Collection"))
           t = "Product";
         setLibraryURL(
-          config.libraryUrl + "/simplesearch?q=" + key + "&lg=" + lang2 + "&t=" + t + "&for=" + msgId + "&f=provider,inc,bda:CP021"
+          config.libraryUrl + "/simplesearch?q=" + key + "&lg=" + lang + "&t=" + t + "&for=" + msgId + "&f=provider,inc,bda:CP021"
         );
       }
     }
@@ -4799,10 +4937,11 @@ const BUDAResourceSelector = ({
     if (dates)
       dates = "(" + dates + ")";
   }
-  const createAndUpdate = useCallback(
+  const createAndUpdate = useCallback3(
     async (type2, named = "") => {
+      var _a2, _b2;
       let url = "";
-      url = "/new/" + config.possibleShapeRefsForType(type2.node)[0].qname + "/" + (owner?.qname && owner.qname !== subject.qname ? owner.qname : subject.qname) + "/" + config.prefixMap.qnameFromUri(property?.path?.sparqlString) + "/" + idx + (owner?.qname && owner.qname !== subject.qname ? "/" + subject.qname : "");
+      url = "/new/" + config.possibleShapeRefsForType(type2.node)[0].qname + "/" + ((owner == null ? void 0 : owner.qname) && owner.qname !== subject.qname ? owner.qname : subject.qname) + "/" + config.prefixMap.qnameFromUri((_a2 = property == null ? void 0 : property.path) == null ? void 0 : _a2.sparqlString) + "/" + idx + ((owner == null ? void 0 : owner.qname) && owner.qname !== subject.qname ? "/" + subject.qname : "");
       if (property.connectIDs) {
         const newNode = await config.generateConnectedID(subject, shape, property.targetShape);
         const newQname = config.prefixMap.qnameFromUri(newNode.uri);
@@ -4810,7 +4949,7 @@ const BUDAResourceSelector = ({
           url += "/named/" + (named ? named : newQname);
       }
       let urlParams = "";
-      if (property.copyObjectsOfProperty?.length) {
+      if ((_b2 = property.copyObjectsOfProperty) == null ? void 0 : _b2.length) {
         for (const kv of toCopy) {
           if (urlParams)
             urlParams += ";";
@@ -4839,7 +4978,7 @@ const BUDAResourceSelector = ({
   const togglePopup = () => {
     setPopupNew(!popupNew);
   };
-  ValueByLangToStrPrefLang(property.prefLabels, uiLitLang);
+  const label = ValueByLangToStrPrefLang(property.prefLabels, uiLitLang);
   const textOnChange = (e) => {
     const newValue = e.currentTarget.value;
     setKeyword(newValue);
@@ -4858,49 +4997,49 @@ const BUDAResourceSelector = ({
   const onClickKB = (e) => {
     updateLibrary(e);
   };
-  let name = /* @__PURE__ */ jsx("div", {
+  let name = /* @__PURE__ */ jsx9("div", {
     style: { fontSize: "16px" },
     children: ValueByLangToStrPrefLang(value.prefLabels, uiLitLang) + " " + dates
   });
   const entity = entities.filter((e) => e.subjectQname === value.qname);
   if (entity.length) {
-    name = /* @__PURE__ */ jsx(LabelWithRID, {
+    name = /* @__PURE__ */ jsx9(LabelWithRID, {
       entity: entity[0]
     });
   }
-  useEffect(() => {
+  useEffect7(() => {
     if (error) {
-      debug("error:", error);
+      debug13("error:", error);
     }
   }, [error]);
-  const inputRef = useRef();
-  const [preview, setPreview] = useState(null);
-  useLayoutEffect(() => {
+  const inputRef = useRef4();
+  const [preview, setPreview] = useState8(null);
+  useLayoutEffect2(() => {
     if (document.activeElement === inputRef.current && !isRid && keyword) {
-      const previewVal = config.previewLiteral(new rdf.Literal(keyword, language), uiLang);
+      const previewVal = config.previewLiteral(new rdf8.Literal(keyword, language), uiLang);
       setPreview(previewVal.value);
       setPreview(previewVal.value);
     }
   });
-  return /* @__PURE__ */ jsxs(React.Fragment, {
+  return /* @__PURE__ */ jsxs8(React9.Fragment, {
     children: [
-      /* @__PURE__ */ jsxs("div", {
+      /* @__PURE__ */ jsxs8("div", {
         className: "resSelect " + (error ? "error" : ""),
         style: { position: "relative", ...value.uri === "tmp:uri" ? { width: "100%" } : {} },
         children: [
-          value.uri === "tmp:uri" && /* @__PURE__ */ jsx("div", {
+          value.uri === "tmp:uri" && /* @__PURE__ */ jsx9("div", {
             className: preview ? "withPreview" : "",
             style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
-            children: /* @__PURE__ */ jsxs(React.Fragment, {
+            children: /* @__PURE__ */ jsxs8(React9.Fragment, {
               children: [
-                preview && /* @__PURE__ */ jsx("div", {
+                preview && /* @__PURE__ */ jsx9("div", {
                   className: "preview-ewts",
-                  children: /* @__PURE__ */ jsx(TextField, {
+                  children: /* @__PURE__ */ jsx9(TextField4, {
                     disabled: true,
                     value: preview
                   })
                 }),
-                /* @__PURE__ */ jsx(TextField, {
+                /* @__PURE__ */ jsx9(TextField4, {
                   onKeyPress: (e) => {
                     if (e.key === "Enter")
                       onClickKB(e);
@@ -4908,7 +5047,7 @@ const BUDAResourceSelector = ({
                   onFocus: () => {
                     if (!keyword || isRid)
                       setPreview(null);
-                    const { value: value2, error: error2 } = config.previewLiteral(new rdf.Literal(keyword, language), uiLang);
+                    const { value: value2, error: error2 } = config.previewLiteral(new rdf8.Literal(keyword, language), uiLang);
                     setPreview(value2);
                   },
                   onBlur: () => setPreview(null),
@@ -4919,12 +5058,12 @@ const BUDAResourceSelector = ({
                   onChange: textOnChange,
                   placeholder: "Search name or RID for " + title,
                   ...error ? {
-                    helperText: /* @__PURE__ */ jsxs(React.Fragment, {
+                    helperText: /* @__PURE__ */ jsxs8(React9.Fragment, {
                       children: [
-                        /* @__PURE__ */ jsx(ErrorIcon, {
+                        /* @__PURE__ */ jsx9(default2, {
                           style: { fontSize: "20px", verticalAlign: "-7px" }
                         }),
-                        /* @__PURE__ */ jsx("i", {
+                        /* @__PURE__ */ jsx9("i", {
                           children: error
                         })
                       ]
@@ -4933,20 +5072,20 @@ const BUDAResourceSelector = ({
                   } : {},
                   ...!editable ? { disabled: true } : {}
                 }),
-                /* @__PURE__ */ jsx(LangSelect, {
+                /* @__PURE__ */ jsx9(LangSelect, {
                   value: language,
-                  onChange: (lang2) => {
-                    setLanguage(lang2);
-                    debug(lang2);
+                  onChange: (lang) => {
+                    setLanguage(lang);
+                    debug13(lang);
                     if (libraryURL)
-                      updateLibrary(void 0, lang2);
+                      updateLibrary(void 0, lang);
                   },
                   ...isRid ? { disabled: true } : { disabled: false },
                   editable,
                   error: !!error,
                   config
                 }),
-                property.expectedObjectTypes?.length > 1 && /* @__PURE__ */ jsx(TextField, {
+                ((_b = property.expectedObjectTypes) == null ? void 0 : _b.length) > 1 && /* @__PURE__ */ jsx9(TextField4, {
                   select: true,
                   style: { width: 100, flexShrink: 0 },
                   value: type,
@@ -4956,49 +5095,49 @@ const BUDAResourceSelector = ({
                   ...isRid ? { disabled: true } : {},
                   ...!editable ? { disabled: true } : {},
                   ...error ? {
-                    helperText: /* @__PURE__ */ jsx("br", {}),
+                    helperText: /* @__PURE__ */ jsx9("br", {}),
                     error: true
                   } : {},
-                  children: property.expectedObjectTypes?.map((r) => {
+                  children: (_c = property.expectedObjectTypes) == null ? void 0 : _c.map((r) => {
                     const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                    return /* @__PURE__ */ jsx(MenuItem, {
+                    return /* @__PURE__ */ jsx9(MenuItem4, {
                       value: r.qname,
                       children: label2
                     }, r.qname);
                   })
                 }),
-                /* @__PURE__ */ jsx("button", {
+                /* @__PURE__ */ jsx9("button", {
                   ...!keyword || !isRid && (!language || !type) ? { disabled: true } : {},
                   className: "btn btn-sm btn-outline-primary ml-2 lookup btn-rouge",
                   style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
                   onClick,
                   ...!editable ? { disabled: true } : {},
-                  children: libraryURL ? /* @__PURE__ */ jsx(CloseIcon, {}) : /* @__PURE__ */ jsx(LookupIcon, {})
+                  children: libraryURL ? /* @__PURE__ */ jsx9(default3, {}) : /* @__PURE__ */ jsx9(default5, {})
                 }),
-                /* @__PURE__ */ jsx("button", {
+                /* @__PURE__ */ jsx9("button", {
                   className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
                   style: { boxShadow: "none", alignSelf: "center" },
                   onClick: togglePopup,
                   ...!editable ? { disabled: true } : {},
-                  children: /* @__PURE__ */ jsx(Fragment, {
-                    children: i18n.t("search.create")
+                  children: /* @__PURE__ */ jsx9(Fragment7, {
+                    children: i18n8.t("search.create")
                   })
                 })
               ]
             })
           }),
-          value.uri !== "tmp:uri" && /* @__PURE__ */ jsx(React.Fragment, {
-            children: /* @__PURE__ */ jsxs("div", {
+          value.uri !== "tmp:uri" && /* @__PURE__ */ jsx9(React9.Fragment, {
+            children: /* @__PURE__ */ jsxs8("div", {
               className: "selected",
               children: [
                 name,
-                /* @__PURE__ */ jsxs("div", {
+                /* @__PURE__ */ jsxs8("div", {
                   style: { fontSize: "12px", opacity: "0.5", display: "flex", alignItems: "center" },
                   children: [
                     value.qname,
                     "\xA0",
-                    /* @__PURE__ */ jsxs("a", {
-                      title: i18n.t("search.help.preview"),
+                    /* @__PURE__ */ jsxs8("a", {
+                      title: i18n8.t("search.help.preview"),
                       onClick: () => {
                         if (libraryURL)
                           setLibraryURL("");
@@ -5008,36 +5147,36 @@ const BUDAResourceSelector = ({
                           setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
                       },
                       children: [
-                        !libraryURL && /* @__PURE__ */ jsx(InfoOutlinedIcon, {
+                        !libraryURL && /* @__PURE__ */ jsx9(default8, {
                           style: { width: "18px", cursor: "pointer" }
                         }),
-                        libraryURL && /* @__PURE__ */ jsx(InfoIcon, {
+                        libraryURL && /* @__PURE__ */ jsx9(default7, {
                           style: { width: "18px", cursor: "pointer" }
                         })
                       ]
                     }),
                     "\xA0",
-                    /* @__PURE__ */ jsx("a", {
-                      title: i18n.t("search.help.open"),
+                    /* @__PURE__ */ jsx9("a", {
+                      title: i18n8.t("search.help.open"),
                       href: config.libraryUrl + "/show/" + value.qname,
                       rel: "noopener noreferrer",
                       target: "_blank",
-                      children: /* @__PURE__ */ jsx(LaunchIcon, {
+                      children: /* @__PURE__ */ jsx9(default6, {
                         style: { width: "16px" }
                       })
                     }),
                     "\xA0",
-                    /* @__PURE__ */ jsx(Link, {
-                      title: i18n.t("search.help.edit"),
+                    /* @__PURE__ */ jsx9(Link4, {
+                      title: i18n8.t("search.help.edit"),
                       to: "/edit/" + value.qname,
-                      children: /* @__PURE__ */ jsx(EditIcon, {
+                      children: /* @__PURE__ */ jsx9(default12, {
                         style: { width: "16px" }
                       })
                     }),
                     "\xA0",
-                    canCopy.length > 0 && /* @__PURE__ */ jsx("span", {
-                      title: i18n.t("general.import"),
-                      children: /* @__PURE__ */ jsx(ContentPasteIcon, {
+                    canCopy.length > 0 && /* @__PURE__ */ jsx9("span", {
+                      title: i18n8.t("general.import"),
+                      children: /* @__PURE__ */ jsx9(default15, {
                         style: { width: "17px", cursor: "pointer" },
                         onClick: () => {
                           setProp(canCopy);
@@ -5052,7 +5191,7 @@ const BUDAResourceSelector = ({
           })
         ]
       }),
-      libraryURL && /* @__PURE__ */ jsxs("div", {
+      libraryURL && /* @__PURE__ */ jsxs8("div", {
         className: "row card px-3 py-3 iframe",
         style: {
           position: "absolute",
@@ -5067,43 +5206,47 @@ const BUDAResourceSelector = ({
           ...value.uri !== "tmp:uri" ? { left: "calc(1rem)", width: "calc(100%)", bottom: "calc(100% - 0.5rem)" } : {}
         },
         children: [
-          /* @__PURE__ */ jsx("iframe", {
+          /* @__PURE__ */ jsx9("iframe", {
             style: { border: "none" },
             height: "400",
             src: libraryURL,
             ref: iframeRef
           }),
-          /* @__PURE__ */ jsx("div", {
+          /* @__PURE__ */ jsx9("div", {
             className: "iframe-BG",
             onClick: closeFrame
           })
         ]
       }),
-      popupNew && /* @__PURE__ */ jsxs("div", {
+      popupNew && /* @__PURE__ */ jsxs8("div", {
         className: "card popup-new",
         children: [
-          /* @__PURE__ */ jsxs("div", {
+          /* @__PURE__ */ jsxs8("div", {
             className: "front",
             children: [
               entities.map((e, i) => {
-                if (!exists(e?.subjectQname) && e?.subjectQname != subject.qname && e?.subjectQname != owner?.qname && property.expectedObjectTypes?.some(
-                  (t) => e.shapeQname?.startsWith(t.qname.replace(/^bdo:/, "bds:"))
-                )) {
-                  return /* @__PURE__ */ jsx(MenuItem, {
+                var _a2;
+                if (!exists(e == null ? void 0 : e.subjectQname) && (e == null ? void 0 : e.subjectQname) != subject.qname && (e == null ? void 0 : e.subjectQname) != (owner == null ? void 0 : owner.qname) && ((_a2 = property.expectedObjectTypes) == null ? void 0 : _a2.some(
+                  (t) => {
+                    var _a3;
+                    return (_a3 = e.shapeQname) == null ? void 0 : _a3.startsWith(t.qname.replace(/^bdo:/, "bds:"));
+                  }
+                ))) {
+                  return /* @__PURE__ */ jsx9(MenuItem4, {
                     className: "px-0 py-0",
-                    children: /* @__PURE__ */ jsx(LabelWithRID, {
+                    children: /* @__PURE__ */ jsx9(LabelWithRID, {
                       choose: chooseEntity,
                       entity: e
                     })
                   }, i + 1);
                 }
               }),
-              /* @__PURE__ */ jsx("hr", {
+              /* @__PURE__ */ jsx9("hr", {
                 className: "my-1"
               }),
-              property.expectedObjectTypes?.map((r) => {
+              (_d = property.expectedObjectTypes) == null ? void 0 : _d.map((r) => {
                 const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                return /* @__PURE__ */ createElement(MenuItem, {
+                return /* @__PURE__ */ createElement(MenuItem4, {
                   ...r.qname === "bdo:EtextInstance" ? { disabled: true } : {},
                   key: r.qname,
                   value: r.qname,
@@ -5111,11 +5254,11 @@ const BUDAResourceSelector = ({
                     const url = await createAndUpdate(r);
                     navigate(url);
                   }
-                }, i18n.t("search.new", { type: label2 }));
+                }, i18n8.t("search.new", { type: label2 }));
               })
             ]
           }),
-          /* @__PURE__ */ jsx("div", {
+          /* @__PURE__ */ jsx9("div", {
             className: "popup-new-BG",
             onClick: togglePopup
           })
@@ -5124,40 +5267,59 @@ const BUDAResourceSelector = ({
     ]
   });
 };
-const LabelWithRID = ({
+var LabelWithRID = ({
   entity,
   choose
 }) => {
-  useRecoilState(uiLangState);
-  const [uiLitLang] = useRecoilState(uiLitLangState);
-  const [labelValues] = useRecoilState(entity.subjectLabelState);
+  var _a;
+  const [uiLang] = useRecoilState8(uiLangState);
+  const [uiLitLang] = useRecoilState8(uiLitLangState);
+  const [labelValues] = useRecoilState8(entity.subjectLabelState);
   const prefLabels = RDFResource.valuesByLang(labelValues);
   const label = ValueByLangToStrPrefLang(prefLabels, uiLitLang);
-  let name = label && label != "..." ? label : entity.subject?.lname ? entity.subject.lname : entity.subjectQname.split(":")[1];
+  let name = label && label != "..." ? label : ((_a = entity.subject) == null ? void 0 : _a.lname) ? entity.subject.lname : entity.subjectQname.split(":")[1];
   if (!name)
     name = label;
   if (!choose)
-    return /* @__PURE__ */ jsx("span", {
+    return /* @__PURE__ */ jsx9("span", {
       style: { fontSize: "16px" },
       children: name
     });
   else
-    return /* @__PURE__ */ jsxs("div", {
+    return /* @__PURE__ */ jsxs8("div", {
       className: "px-3 py-1",
       style: { width: "100%" },
       onClick: choose(entity, prefLabels),
       children: [
-        /* @__PURE__ */ jsx("div", {
+        /* @__PURE__ */ jsx9("div", {
           className: "label",
           children: name
         }),
-        /* @__PURE__ */ jsx("div", {
+        /* @__PURE__ */ jsx9("div", {
           className: "RID",
           children: entity.subjectQname
         })
       ]
     });
 };
-
-export { BUDAResourceSelector, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntityShapeChooserContainer, ExtRDFResourceWithLabel, LiteralWithId, NewEntityContainer, NodeShape, RDFResource, Subject, ValueByLangToStrPrefLang, fetchTtl, generateSubnode, ns, shapes };
-//# sourceMappingURL=index.mjs.map
+var BUDAResourceSelector_default = BUDAResourceSelector;
+export {
+  BUDAResourceSelector_default as BUDAResourceSelector,
+  EntityCreationContainer_default as EntityCreationContainer,
+  EntityCreationContainerRoute,
+  EntityEditContainer_default as EntityEditContainer,
+  EntityEditContainerMayUpdate,
+  EntityGraph,
+  EntityShapeChooserContainer_default as EntityShapeChooserContainer,
+  ExtRDFResourceWithLabel,
+  LiteralWithId,
+  NewEntityContainer_default as NewEntityContainer,
+  NodeShape,
+  RDFResource,
+  Subject,
+  ValueByLangToStrPrefLang,
+  fetchTtl,
+  generateSubnode,
+  ns_exports as ns,
+  shapes_exports as shapes
+};

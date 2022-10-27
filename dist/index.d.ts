@@ -2,6 +2,7 @@ import * as rdflib_lib_tf_types from 'rdflib/lib/tf-types';
 import * as rdf from 'rdflib';
 import { RecoilState, AtomEffect } from 'recoil';
 import { FC } from 'react';
+import { Theme } from '@mui/material/styles';
 
 declare const DASH_uri = "http://datashapes.org/dash#";
 declare const DASH: (ln: string) => rdflib_lib_tf_types.NamedNode;
@@ -608,6 +609,10 @@ interface StoreWithEtag {
 }
 declare const fetchTtl: (url: string, allow404?: boolean, headers?: Headers, allowEmptyEtag?: boolean) => Promise<StoreWithEtag>;
 
+declare module '@mui/styles/defaultTheme' {
+    interface DefaultTheme extends Theme {
+    }
+}
 declare const BUDAResourceSelector: FC<{
     value: ExtRDFResourceWithLabel;
     onChange: (value: ExtRDFResourceWithLabel, idx: number, removeFirst: boolean | undefined) => void;
