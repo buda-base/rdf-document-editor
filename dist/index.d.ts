@@ -343,7 +343,7 @@ declare class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
     get prefLabels(): Record<string, string>;
     get description(): Record<string, string> | null;
     get otherData(): Record<string, any>;
-    constructor(uri: string, prefLabels: Record<string, string>, data?: Record<string, any>, description?: Record<string, any> | null);
+    constructor(uri: string, prefLabels: Record<string, string>, data?: Record<string, any>, description?: Record<string, any> | null, prefixMap?: PrefixMap);
     addOtherData(key: string, value: any): ExtRDFResourceWithLabel;
 }
 declare class LiteralWithId extends rdf.Literal {

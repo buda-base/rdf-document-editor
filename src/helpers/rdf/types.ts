@@ -611,9 +611,10 @@ export class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
     uri: string,
     prefLabels: Record<string, string>,
     data: Record<string, any> = {},
-    description: Record<string, any> | null = null
+    description: Record<string, any> | null = null,
+    prefixMap?: ns.PrefixMap
   ) {
-    super(new rdf.NamedNode(uri), new EntityGraph(new rdf.Store(), uri))
+    super(new rdf.NamedNode(uri), new EntityGraph(new rdf.Store(), uri, prefixMap))
     this._prefLabels = prefLabels
     this._description = description
     //debug("data", data)

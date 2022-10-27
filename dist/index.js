@@ -194,13 +194,17 @@ var PrefixMap = class {
     let j = uri.indexOf("#");
     if (j < 0)
       j = uri.lastIndexOf("/");
-    if (j < 0)
-      throw new Error("Cannot make qname out of <" + uri + ">");
+    if (j < 0) {
+      debug("Cannot make qname out of <" + uri + ">");
+      return uri;
+    }
     const localid = uri.slice(j + 1);
     const namesp = uri.slice(0, j + 1);
     const prefix = this.URItoPrefix[namesp];
-    if (!prefix)
-      throw new Error("Cannot make qname out of <" + uri + ">");
+    if (!prefix) {
+      debug("Cannot make qname out of <" + uri + "> (can't find appropriate prefix)");
+      return uri;
+    }
     return prefix + ":" + localid;
   };
   lnameFromUri = (uri) => {
@@ -208,7 +212,7 @@ var PrefixMap = class {
     if (j < 0)
       j = uri.lastIndexOf("/");
     if (j < 0)
-      throw new Error("Cannot make qname out of <" + uri + ">");
+      throw new Error("Cannot make lname out of <" + uri + ">");
     return uri.slice(j + 1);
   };
   namespaceFromUri = (uri) => {
@@ -216,7 +220,7 @@ var PrefixMap = class {
     if (j < 0)
       j = uri.lastIndexOf("/");
     if (j < 0)
-      throw new Error("Cannot make namespace out of <" + uri + ">");
+      throw new Error("Cannot get namespace from <" + uri + ">");
     return uri.slice(0, j + 1);
   };
   uriFromQname = (qname = "") => {
@@ -828,8 +832,8 @@ var ExtRDFResourceWithLabel = class extends RDFResourceWithLabel {
   get otherData() {
     return this._otherData;
   }
-  constructor(uri, prefLabels, data = {}, description = null) {
-    super(new rdf2.NamedNode(uri), new EntityGraph(new rdf2.Store(), uri));
+  constructor(uri, prefLabels, data = {}, description = null, prefixMap) {
+    super(new rdf2.NamedNode(uri), new EntityGraph(new rdf2.Store(), uri, prefixMap));
     this._prefLabels = prefLabels;
     this._description = description;
     this._otherData = data;
