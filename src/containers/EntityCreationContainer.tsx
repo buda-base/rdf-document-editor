@@ -100,7 +100,7 @@ export function EntityCreationContainer(props: RDEProps) {
   if (entityLoadingState.status === "error") {
     return (
       <p className="text-center text-muted">
-        <BrokenImageIcon className="icon mr-2" />
+        <NotFoundIcon className="icon mr-2" />
         {entityLoadingState.error}
       </p>
     )

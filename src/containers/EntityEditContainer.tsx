@@ -413,7 +413,7 @@ function EntityEditContainer(props: RDEProps) {
   if (loadingState.status === "error" || entityLoadingState.status === "error") {
     return (
       <p className="text-center text-muted">
-        <BrokenImageIcon className="icon mr-2" />
+        <NotFoundIcon className="icon mr-2" />
         {loadingState.error}
 
         {entityLoadingState.error}
