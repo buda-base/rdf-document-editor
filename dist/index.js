@@ -157,7 +157,7 @@ var SKOS_uri = "http://www.w3.org/2004/02/skos/core#";
 var SKOS = rdf.Namespace(SKOS_uri);
 var XSD_uri = "http://www.w3.org/2001/XMLSchema#";
 var XSD = rdf.Namespace(XSD_uri);
-var FOAF_uri = "http://xmlcom/foaf/0.1/";
+var FOAF_uri = "http://xmlns.com/foaf/0.1/";
 var FOAF = rdf.Namespace(FOAF_uri);
 var RDE_uri = "https://github.com/buda-base/rdf-document-editor/";
 var RDE = rdf.Namespace(RDE_uri);
@@ -182,6 +182,7 @@ var PrefixMap = class {
     for (const [prefix, uri] of Object.entries(this.prefixToURI)) {
       this.URItoPrefix[uri] = prefix;
     }
+    debug("pM:", this);
   }
   setDefaultPrefixes = (s) => {
     for (const [prefix, uri] of Object.entries(this.prefixToURI)) {
@@ -189,6 +190,7 @@ var PrefixMap = class {
     }
   };
   qnameFromUri = (uri = "") => {
+    debug("uri:", uri, this);
     if (uri.match(/^[^:/#]+:[^:/#]+$/))
       return uri;
     let j = uri.indexOf("#");
