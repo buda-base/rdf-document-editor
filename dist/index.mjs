@@ -19,6 +19,10 @@ var __publicField = (obj, key, value) => {
   return value;
 };
 
+// src/index.ts
+import i18n9 from "i18next";
+import { initReactI18next } from "react-i18next";
+
 // src/helpers/rdf/ns.ts
 var ns_exports = {};
 __export(ns_exports, {
@@ -501,7 +505,6 @@ var _EntityGraph = class {
   constructor(store, topSubjectUri, prefixMap = defaultPrefixMap, connexGraph = rdf2.graph(), labelProperties = defaultLabelProperties, descriptionProperties = defaultDescriptionProperties) {
     this.store = store;
     this.prefixMap = prefixMap;
-    debug2(this.prefixMap);
     this.descriptionProperties = descriptionProperties;
     this.labelProperties = labelProperties;
     const values = new EntityGraphValues(topSubjectUri);
@@ -1299,6 +1302,72 @@ var generateSubnode = async (subshape, parent) => {
   const res = new Subject(new rdf3.NamedNode(uri), parent.graph);
   return Promise.resolve(res);
 };
+
+// src/translations/en.js
+var enTranslations = {
+  home: {
+    title: "RDF Document Editor",
+    uilang: "UI Language",
+    nav: "navigation"
+  },
+  types: {
+    loading: "Loading...",
+    creating: "Creating...",
+    redirect: "Redirecting...",
+    boolean: "Boolean",
+    true: "True",
+    false: "False",
+    unset: "-"
+  },
+  search: {
+    help: {
+      preview: "Preview resource",
+      open: "Open in Library",
+      replace: "Replace",
+      edit: "Edit resource"
+    },
+    lookup: "lookup",
+    cancel: "cancel",
+    change: "change",
+    create: "...",
+    new: "new {{type}}",
+    open: "open"
+  },
+  error: {
+    inferiorTo: "must be inferior to {{val}}",
+    superiorTo: "must be superior to {{val}}",
+    inferiorToStrict: "must be inferior and not equal to {{val}}",
+    superiorToStrict: "must be superior and not equal to {{val}}",
+    empty: "should not be empty",
+    unique: "duplicate language",
+    uniqueV: "duplicate value",
+    exist: "Entity {{id}} does not exist",
+    shape: "Cannot find any appropriate shape for entity {{id}}",
+    redirect: "Create new or load another entity",
+    minC: "at least {{count}} value must be provided",
+    maxC: "at most {{count}} value can be provided",
+    prefix: "RID prefix must be set in <res>user profile</res>",
+    notF: "Resource {{RID}} not found",
+    type: "{{id}} is a {{actual}}; but a {{allow}} is required here",
+    preview: "This entity has not been saved yet",
+    force: "Errors are detected and will be likely rejected by the server.\nTry anyway?",
+    modified: "Entity must be reloaded first (modified by someone else?)",
+    unauthorized: "not authorized to modify {{url}}",
+    year: "Year must be between {{min}} and {{max}}",
+    select: "'{{val}}' is not in list of allowed values"
+  },
+  general: {
+    add_another: "Add {{val}}",
+    add_another_plural: "Add N {{val}}",
+    toggle: "{{show}} empty secondary properties",
+    show: "Show",
+    hide: "Hide",
+    add_nb: "Number of {{val}} to add",
+    close: "Close all open entities",
+    import: "Import labels"
+  }
+};
+var en_default = enTranslations;
 
 // src/containers/EntityEditContainer.tsx
 import React4, { useState as useState4, useEffect as useEffect4, useCallback as useCallback2, useRef as useRef3 } from "react";
@@ -5316,6 +5385,53 @@ var LabelWithRID = ({
     });
 };
 var BUDAResourceSelector_default = BUDAResourceSelector;
+
+// src/index.ts
+var numtobodic = {
+  "0": "\u0F20",
+  "1": "\u0F21",
+  "2": "\u0F22",
+  "3": "\u0F23",
+  "4": "\u0F24",
+  "5": "\u0F25",
+  "6": "\u0F26",
+  "7": "\u0F27",
+  "8": "\u0F28",
+  "9": "\u0F29"
+};
+var numtobo = function(cstr) {
+  let res = "";
+  for (const ch of cstr) {
+    if (numtobodic[ch])
+      res += numtobodic[ch];
+    else
+      res += ch;
+  }
+  return res;
+};
+i18n9.use(initReactI18next).init({
+  resources: {
+    en: {
+      translation: en_default
+    }
+  },
+  lng: "en",
+  fallbackLng: "en",
+  interpolation: {
+    escapeValue: false,
+    format: function(value, format, lng) {
+      if (format === "counttobo") {
+        return numtobo("" + value);
+      } else if (format === "counttozh" && value) {
+        return value.toLocaleString("zh-u-nu-hanidec");
+      } else if (format === "lowercase")
+        return value.toLowerCase();
+      else if (format === "uppercase")
+        return value.toUpperCase();
+      return value;
+    }
+  }
+});
 export {
   BUDAResourceSelector_default as BUDAResourceSelector,
   EntityCreationContainer_default as EntityCreationContainer,
