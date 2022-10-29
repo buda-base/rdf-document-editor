@@ -334,8 +334,8 @@ const ValueList: FC<{
   const updateEntityState = (status: EditedEntityState, id: string, removingFacet = false, forceRemove = false) => {
     if (id === undefined) throw new Error("id undefined")
     const entityQname = topEntity ? topEntity.qname : subject.qname
-    const undo = undos[ns.defaultPrefixMap.uriFromQname(entityQname)]
-    const hStatus = getHistoryStatus(ns.defaultPrefixMap.uriFromQname(entityQname))
+    const undo = undos[config.prefixMap.uriFromQname(entityQname)]
+    const hStatus = getHistoryStatus(config.prefixMap.uriFromQname(entityQname))
     //debug("undo:", undo, hStatus, history, entityQname, undos)
 
     setESfromRecoil({ property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove })

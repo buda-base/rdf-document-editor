@@ -2187,8 +2187,8 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     if (id === void 0)
       throw new Error("id undefined");
     const entityQname = topEntity ? topEntity.qname : subject.qname;
-    const undo = undos[defaultPrefixMap.uriFromQname(entityQname)];
-    const hStatus = getHistoryStatus(defaultPrefixMap.uriFromQname(entityQname));
+    const undo = undos[config.prefixMap.uriFromQname(entityQname)];
+    const hStatus = getHistoryStatus(config.prefixMap.uriFromQname(entityQname));
     setESfromRecoil({ property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove });
   };
   const alreadyHasEmptyValue = () => {
@@ -3897,8 +3897,8 @@ function EntityEditContainerMayUpdate(props) {
       return;
     if (subnodeQname) {
       const pp = getParentPath(
-        defaultPrefixMap.uriFromQname(subjectQname),
-        defaultPrefixMap.uriFromQname(subnodeQname)
+        props.config.prefixMap.uriFromQname(subjectQname),
+        props.config.prefixMap.uriFromQname(subnodeQname)
       );
       if (pp.length > 1 && i >= 0) {
         const atom3 = (_a = entities[i].subject) == null ? void 0 : _a.getAtomForProperty(pp[1]);
@@ -3943,7 +3943,7 @@ function EntityEditContainerDoUpdate(props) {
   const config = props.config;
   const params = useParams();
   const shapeQname = params.shapeQname;
-  const atom3 = props.subject.getAtomForProperty(defaultPrefixMap.uriFromQname(props.propertyQname));
+  const atom3 = props.subject.getAtomForProperty(props.config.prefixMap.uriFromQname(props.propertyQname));
   const [list, setList] = useRecoilState4(atom3);
   const [entities, setEntities] = useRecoilState4(entitiesAtom);
   const i = entities.findIndex((e) => e.subjectQname === props.objectQname);
@@ -3980,7 +3980,7 @@ function EntityEditContainerDoUpdate(props) {
         }
       }, 1150);
     }
-    const newObject = new ExtRDFResourceWithLabel(defaultPrefixMap.uriFromQname(props.objectQname), {}, {});
+    const newObject = new ExtRDFResourceWithLabel(props.config.prefixMap.uriFromQname(props.objectQname), {}, {}, props.config.prefixMap);
     const newList = replaceItemAtIndex2(list, props.index, newObject);
     setList(newList);
   }, []);
@@ -4061,7 +4061,7 @@ function EntityEditContainer(props) {
       return;
     const delay = 350;
     let n = -1;
-    const entityUri = defaultPrefixMap.uriFromQname(entityQname === "tmp:user" ? profileId : entityQname);
+    const entityUri = props.config.prefixMap.uriFromQname(entityQname === "tmp:user" ? profileId : entityQname);
     if (init)
       clearInterval(init);
     init = window.setInterval(() => {
@@ -4086,7 +4086,7 @@ function EntityEditContainer(props) {
         if ([2 /* NeedsSaving */, 0 /* Error */].includes(obj[0].state)) {
           const defaultRef = new rdf6.NamedNode(rdf6.Store.defaultGraphURI);
           const store = new rdf6.Store();
-          defaultPrefixMap.setDefaultPrefixes(store);
+          props.config.prefixMap.setDefaultPrefixes(store);
           (_b2 = (_a2 = obj[0]) == null ? void 0 : _a2.subject) == null ? void 0 : _b2.graph.addNewValuestoStore(store);
           rdf6.serialize(defaultRef, store, void 0, "text/turtle", async function(err, str) {
             var _a3;
@@ -4825,7 +4825,7 @@ var BUDAResourceSelector = ({
   const [toCopy, setProp] = useRecoilState8(
     toCopySelector({
       list: (_a = property.copyObjectsOfProperty) == null ? void 0 : _a.map((p) => ({
-        property: defaultPrefixMap.qnameFromUri(p.value),
+        property: config.prefixMap.qnameFromUri(p.value),
         atom: (owner ? owner : subject).getAtomForProperty(p.uri)
       }))
     })
@@ -4835,7 +4835,7 @@ var BUDAResourceSelector = ({
     if ((_a2 = property.copyObjectsOfProperty) == null ? void 0 : _a2.length) {
       const copy = [];
       for (const prop of property.copyObjectsOfProperty) {
-        const propQname = defaultPrefixMap.qnameFromUri(prop.value);
+        const propQname = config.prefixMap.qnameFromUri(prop.value);
         if ((_b2 = value.otherData[propQname]) == null ? void 0 : _b2.length)
           copy.push({
             k: propQname,

@@ -80,8 +80,8 @@ export function EntityEditContainerMayUpdate(props: RDEProps) {
     if (i === -1) return
     if (subnodeQname) {
       const pp = getParentPath(
-        ns.defaultPrefixMap.uriFromQname(subjectQname),
-        ns.defaultPrefixMap.uriFromQname(subnodeQname)
+        props.config.prefixMap.uriFromQname(subjectQname),
+        props.config.prefixMap.uriFromQname(subnodeQname)
       )
       //debug("gPP:", pp)
       if (pp.length > 1 && i >= 0) {
@@ -130,7 +130,7 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
   const params = useParams()
 
   const shapeQname = params.shapeQname
-  const atom = props.subject.getAtomForProperty(ns.defaultPrefixMap.uriFromQname(props.propertyQname))
+  const atom = props.subject.getAtomForProperty(props.config.prefixMap.uriFromQname(props.propertyQname))
   const [list, setList] = useRecoilState(atom)
 
   const [entities, setEntities] = useRecoilState(entitiesAtom)
@@ -179,7 +179,7 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
       }, 1150) // eslint-disable-line no-magic-numbers
     }
 
-    const newObject = new ExtRDFResourceWithLabel(ns.defaultPrefixMap.uriFromQname(props.objectQname), {}, {})
+    const newObject = new ExtRDFResourceWithLabel(props.config.prefixMap.uriFromQname(props.objectQname), {}, {}, props.config.prefixMap)
     // DONE: must also give set index in url
     const newList = replaceItemAtIndex(list as [], props.index, newObject)
     setList(newList)
@@ -283,7 +283,7 @@ function EntityEditContainer(props: RDEProps) {
 
     const delay = 350
     let n = -1 // is this used at all??
-    const entityUri = ns.defaultPrefixMap.uriFromQname(entityQname === "tmp:user" ? profileId : entityQname)
+    const entityUri = props.config.prefixMap.uriFromQname(entityQname === "tmp:user" ? profileId : entityQname)
 
     // wait for all data to be loaded then add flag in history
     if (init) clearInterval(init)
@@ -314,7 +314,7 @@ function EntityEditContainer(props: RDEProps) {
           // save to localStorage
           const defaultRef = new rdf.NamedNode(rdf.Store.defaultGraphURI)
           const store = new rdf.Store()
-          ns.defaultPrefixMap.setDefaultPrefixes(store)
+          props.config.prefixMap.setDefaultPrefixes(store)
           obj[0]?.subject?.graph.addNewValuestoStore(store)
           //debug(store)
           //debugStore(store)

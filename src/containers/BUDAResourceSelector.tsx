@@ -133,7 +133,7 @@ const BUDAResourceSelector: FC<{
   const [toCopy, setProp] = useRecoilState(
     toCopySelector({
       list: property.copyObjectsOfProperty?.map((p) => ({
-        property: ns.defaultPrefixMap.qnameFromUri(p.value),
+        property: config.prefixMap.qnameFromUri(p.value),
         atom: (owner ? owner : subject).getAtomForProperty(p.uri),
       })),
     })
@@ -144,7 +144,7 @@ const BUDAResourceSelector: FC<{
       //debug("copy:", property.copyObjectsOfProperty, value.otherData)
       const copy = []
       for (const prop of property.copyObjectsOfProperty) {
-        const propQname = ns.defaultPrefixMap.qnameFromUri(prop.value)
+        const propQname = config.prefixMap.qnameFromUri(prop.value)
         if (value.otherData[propQname]?.length)
           copy.push({
             k: propQname,
