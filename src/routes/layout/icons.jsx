@@ -14,15 +14,10 @@ export { default as VisibilityIcon } from "@mui/icons-material/Visibility"
 export { default as VisibilityOffIcon } from "@mui/icons-material/VisibilityOff"
 export { default as EditIcon } from "@mui/icons-material/Edit"
 export { default as KeyboardIcon } from "@mui/icons-material/Keyboard"
+export { default as Label } from "@mui/icons-material/More"
 export { default as HelpIcon } from "@mui/icons-material/Help"
 export { default as ContentPasteIcon } from "@mui/icons-material/AssignmentReturned"
-
-export const PersonIcon = (props) => <Img src="/icons/person.svg" {...props} />
-export const WorkIcon = (props) => <Img src="/icons/work.svg" {...props} />
-export const PlaceIcon = (props) => <Img src="/icons/place.svg" {...props} />
-export const VersionIcon = (props) => <Img src="/icons/instance.svg" {...props} />
-
-export const MDIcon = (props) => <Img src="/icons/Markdown-mark.svg" {...props} />
+export { default as MDIcon } from "@mui/icons-material/FormatBold"
 
 export const AddIcon = AddCircleOutlineIcon
 export const RemoveIcon = RemoveCircleOutlineIcon

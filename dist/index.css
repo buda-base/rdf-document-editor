@@ -10544,18 +10544,6 @@ section,
   border-radius: 2px;
   display: block;
 }
-.canPushPrefLabel > span .img::after {
-  content: "";
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background-image: url(./label-XEBF5QQB.svg);
-  background-size: auto 14px;
-  background-position: center;
-  filter: invert(100%);
-  display: block;
-  background-repeat: no-repeat;
-}
 .ValueList .ValueList.canPush {
   overflow: visible;
 }

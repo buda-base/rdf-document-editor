@@ -341,7 +341,7 @@ export class EntityGraph {
           perLang[lit.language] = lit.value
         }
       }
-      return new ExtRDFResourceWithLabel(res.uri, perLang)
+      return new ExtRDFResourceWithLabel(res.uri, perLang, undefined, undefined, graph.prefixMap)
     })
   }
 

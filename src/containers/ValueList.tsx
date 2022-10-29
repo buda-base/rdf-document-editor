@@ -25,6 +25,7 @@ import {
   CloseIcon,
   VisibilityIcon,
   MDIcon,
+  Label,
   EditIcon,
   KeyboardIcon,
   HelpIcon,
@@ -1075,6 +1076,7 @@ const EditLangString: FC<{
             <Tooltip key={lit.id} title={<>Use as the main name or title for this language</>}>
               <span className="img"></span>
             </Tooltip>
+            <Label/>
           </span>
         </span>
       )}
