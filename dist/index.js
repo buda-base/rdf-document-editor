@@ -2854,7 +2854,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
             onClick: () => setEditMD(!editMD),
             children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_FormatBold.default, {
               style: { height: "15px" },
-              title: "Use rich text editor"
+              titleAccess: "Use rich text editor"
             })
           })
         ]
