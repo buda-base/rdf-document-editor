@@ -2814,7 +2814,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
             onClick: () => setEditMD(!editMD),
             children: /* @__PURE__ */ jsx(default17, {
               style: { height: "15px" },
-              title: "Use rich text editor"
+              titleAccess: "Use rich text editor"
             })
           })
         ]

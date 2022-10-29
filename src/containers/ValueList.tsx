@@ -1199,7 +1199,7 @@ const EditLangString: FC<{
             style={{ position: "absolute", right: "5px", top: "7px", fontSize: "0px", cursor: "pointer" }}
             onClick={() => setEditMD(!editMD)}
           >
-            <MDIcon style={{ height: "15px" }} title={"Use rich text editor"} />
+            <MDIcon style={{ height: "15px" }} titleAccess={"Use rich text editor"} />
           </span>
         </div>
       )}
