@@ -18,7 +18,6 @@
     "leaflet-geosearch": "^3.7.0",
     "lodash": "^4.17.21",
     "nanoid": "^4.0.0",
-    "node-sass-chokidar": "^2.0.0",
     "query-string": "^7.1.1",
     "rdflib": "^2.2.20",
     "react": "^18.2.0",
@@ -35,8 +34,7 @@
     "typescript-memoize": "^1.1.1"
   },
   "scripts": {
-    "build-css": "node-sass-chokidar src/stylesheets -o public/ --output-style compressed",
-    "watch-css": "npm run build-css && node-sass-chokidar src/stylesheets -o public/ --watch --recursive",
+    "build-css": "yarn run sass src/stylesheets/app.scss:dist/index.css -s compressed --update",
     "analyze": "source-map-explorer 'dist/static/js/*.js'",
     "predeploy": "npm run build",
     "lint": "eslint --ignore-path .gitignore src/ && dpdm --exit-code circular:1 src/index.ts",
@@ -66,6 +64,7 @@
     "dpdm": "^3.10.0",
     "esbuild": "^0.15.12",
     "eslint": "^8.26.0",
+    "sass": "^1.55.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-prettier": "^4.2.1",
@@ -87,11 +86,6 @@
     "not dead",
     "not op_mini all"
   ],
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
