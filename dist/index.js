@@ -321,7 +321,7 @@ var import_recoil = require("recoil");
 var import_nanoid = require("nanoid");
 var import_debug2 = require("debug");
 var debug2 = (0, import_debug2.debug)("rde:rdf:types");
-var defaultGraphNode = new rdf2.NamedNode(rdf2.Store.defaultGraphURI);
+var defaultGraphNode = rdf2.sym(rdf2.Store.defaultGraphURI);
 var errors = {};
 var history = {};
 var updateHistory = (entity, qname, prop, val, noHisto = true) => {
@@ -451,10 +451,10 @@ var EntityGraphValues = class {
     var _a, _b, _c, _d;
     if (!(subjectUri in this.newSubjectProps))
       return;
-    const subject = new rdf2.NamedNode(subjectUri);
+    const subject = rdf2.sym(subjectUri);
     for (const pathString in this.newSubjectProps[subjectUri]) {
       if (pathString.startsWith("^")) {
-        const property = new rdf2.NamedNode(pathString.substring(1));
+        const property = rdf2.sym(pathString.substring(1));
         const values = this.newSubjectProps[subjectUri][pathString];
         for (const val of values) {
           if (val instanceof LiteralWithId) {
@@ -470,7 +470,7 @@ var EntityGraphValues = class {
         }
       } else {
         const listMode = pathString.endsWith("[]");
-        const property = new rdf2.NamedNode(listMode ? pathString.substring(0, pathString.length - 2) : pathString);
+        const property = rdf2.sym(listMode ? pathString.substring(0, pathString.length - 2) : pathString);
         const values = this.newSubjectProps[subjectUri][pathString];
         const collection = new rdf2.Collection();
         for (const val of values) {
@@ -562,7 +562,7 @@ var _EntityGraph = class {
   hasSubject(subjectUri) {
     if (this.values.hasSubject(subjectUri))
       return true;
-    return this.store.any(new rdf2.NamedNode(subjectUri), null, null) != null;
+    return this.store.any(rdf2.sym(subjectUri), null, null) != null;
   }
   getUnitializedValues(s, p) {
     const path = p.path;
@@ -837,7 +837,7 @@ var ExtRDFResourceWithLabel = class extends RDFResourceWithLabel {
     return this._otherData;
   }
   constructor(uri, prefLabels, data = {}, description = null, prefixMap) {
-    super(new rdf2.NamedNode(uri), new EntityGraph(new rdf2.Store(), uri, prefixMap));
+    super(rdf2.sym(uri), new EntityGraph(new rdf2.Store(), uri, prefixMap));
     this._prefLabels = prefLabels;
     this._description = description;
     this._otherData = data;
@@ -891,7 +891,7 @@ var Subject = class extends RDFResource {
     this.graph.getValues().noHisto = false;
   }
   static createEmpty() {
-    return new Subject(new rdf2.NamedNode("tmp:uri"), new EntityGraph(new rdf2.Store(), "tmp:uri"));
+    return new Subject(rdf2.sym("tmp:uri"), new EntityGraph(new rdf2.Store(), "tmp:uri"));
   }
   isEmpty() {
     return this.node.uri == "tmp:uri";

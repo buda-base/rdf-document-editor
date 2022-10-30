@@ -3,12 +3,11 @@ import * as ns from "./ns"
 import { Memoize } from "typescript-memoize"
 import { atom, DefaultValue, AtomEffect, RecoilState } from "recoil"
 import { nanoid } from "nanoid"
-import { shInversePath } from "./ns"
 import { debug as debugfactory } from "debug"
 
 const debug = debugfactory("rde:rdf:types")
 
-const defaultGraphNode = new rdf.NamedNode(rdf.Store.defaultGraphURI)
+const defaultGraphNode = rdf.sym(rdf.Store.defaultGraphURI) as rdf.NamedNode
 
 export const errors: Record<string, Record<string, boolean>> = {}
 
@@ -117,7 +116,7 @@ export class Path {
   inversePathNode: rdf.NamedNode | null = null
 
   constructor(node: rdf.NamedNode, graph: EntityGraph, listMode: boolean) {
-    const invpaths = graph.store.each(node, shInversePath, null) as Array<rdf.NamedNode>
+    const invpaths = graph.store.each(node, ns.shInversePath, null) as Array<rdf.NamedNode>
     if (invpaths.length > 1) {
       throw "too many inverse path in shacl path:" + invpaths
     }
@@ -177,11 +176,11 @@ export class EntityGraphValues {
 
   addNewValuestoStore(store: rdf.Store, subjectUri: string) {
     if (!(subjectUri in this.newSubjectProps)) return
-    const subject = new rdf.NamedNode(subjectUri)
+    const subject = rdf.sym(subjectUri) as rdf.NamedNode
     for (const pathString in this.newSubjectProps[subjectUri]) {
       // handling inverse path vs. direct path
       if (pathString.startsWith("^")) {
-        const property = new rdf.NamedNode(pathString.substring(1))
+        const property = rdf.sym(pathString.substring(1)) as rdf.NamedNode
         const values: Array<Value> = this.newSubjectProps[subjectUri][pathString]
         for (const val of values) {
           if (val instanceof LiteralWithId) {
@@ -196,7 +195,7 @@ export class EntityGraphValues {
         }
       } else {
         const listMode = pathString.endsWith("[]")
-        const property = new rdf.NamedNode(listMode ? pathString.substring(0, pathString.length - 2) : pathString)
+        const property = rdf.sym(listMode ? pathString.substring(0, pathString.length - 2) : pathString) as rdf.NamedNode
         const values: Array<Value> = this.newSubjectProps[subjectUri][pathString]
         const collection = new rdf.Collection()
         for (const val of values) {
@@ -347,7 +346,7 @@ export class EntityGraph {
 
   hasSubject(subjectUri: string): boolean {
     if (this.values.hasSubject(subjectUri)) return true
-    return this.store.any(new rdf.NamedNode(subjectUri), null, null) != null
+    return this.store.any(rdf.sym(subjectUri) as rdf.NamedNode, null, null) != null
   }
 
   static subjectify = (resList: Array<rdf.NamedNode>, graph: EntityGraph): Array<Subject> => {
@@ -614,7 +613,7 @@ export class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
     description: Record<string, any> | null = null,
     prefixMap?: ns.PrefixMap
   ) {
-    super(new rdf.NamedNode(uri), new EntityGraph(new rdf.Store(), uri, prefixMap))
+    super(rdf.sym(uri) as rdf.NamedNode, new EntityGraph(new rdf.Store(), uri, prefixMap))
     this._prefLabels = prefLabels
     this._description = description
     //debug("data", data)
@@ -693,7 +692,7 @@ export class Subject extends RDFResource {
   }
 
   static createEmpty(): Subject {
-    return new Subject(new rdf.NamedNode("tmp:uri"), new EntityGraph(new rdf.Store(), "tmp:uri"))
+    return new Subject(rdf.sym("tmp:uri") as rdf.NamedNode, new EntityGraph(new rdf.Store(), "tmp:uri"))
   }
 
   isEmpty(): boolean {
