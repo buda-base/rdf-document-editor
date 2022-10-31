@@ -44,7 +44,6 @@ export class PrefixMap {
     for (const [prefix, uri] of Object.entries(this.prefixToURI)) {
       this.URItoPrefix[uri] = prefix
     }
-    debug("pM:",this)
   }
 
   setDefaultPrefixes = (s: rdf.Store): void => {
@@ -54,10 +53,8 @@ export class PrefixMap {
   }
 
   qnameFromUri = (uri = ""): string => {
-    debug("uri:",uri,this)
-
     if (uri.match(/^[^:/#]+:[^:/#]+$/)) return uri
-
+    
     let j = uri.indexOf("#")
     if (j < 0) j = uri.lastIndexOf("/")
     if (j < 0) {

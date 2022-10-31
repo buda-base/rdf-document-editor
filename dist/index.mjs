@@ -144,7 +144,6 @@ var PrefixMap = class {
     for (const [prefix, uri] of Object.entries(this.prefixToURI)) {
       this.URItoPrefix[uri] = prefix;
     }
-    debug("pM:", this);
   }
   setDefaultPrefixes = (s) => {
     for (const [prefix, uri] of Object.entries(this.prefixToURI)) {
@@ -152,7 +151,6 @@ var PrefixMap = class {
     }
   };
   qnameFromUri = (uri = "") => {
-    debug("uri:", uri, this);
     if (uri.match(/^[^:/#]+:[^:/#]+$/))
       return uri;
     let j = uri.indexOf("#");
@@ -467,16 +465,20 @@ var EntityGraphValues = class {
   }
   propsUpdateEffect = (subjectUri, pathString) => ({ setSelf, onSet }) => {
     onSet((newValues) => {
+      debug2("set", newValues);
       if (!(newValues instanceof DefaultValue)) {
+        debug2("updating:", subjectUri, pathString, newValues);
         this.onUpdateValues(subjectUri, pathString, newValues);
       }
     });
+    debug2("onSet", onSet);
   };
   getAtomForSubjectProperty(pathString, subjectUri) {
+    debug2("gAtomfSprop", pathString, subjectUri);
     return atom({
       key: this.idHash + subjectUri + pathString,
       default: [],
-      effects_UNSTABLE: [this.propsUpdateEffect(subjectUri, pathString)],
+      effects: [this.propsUpdateEffect(subjectUri, pathString)],
       dangerouslyAllowMutability: true
     });
   }
@@ -1917,6 +1919,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     }
   }, [config, entities, entityQname, entity, current, shapeQname, idToken, profileId, reloadEntity]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
+  debug5("ret:", retVal);
   return retVal;
 }
 
