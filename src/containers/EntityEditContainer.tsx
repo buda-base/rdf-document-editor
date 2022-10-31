@@ -507,7 +507,7 @@ function EntityEditContainer(props: RDEProps) {
           const label = lang.ValueByLangToStrPrefLang(group.prefLabels, uiLang)
           return (
             <Link
-              key={group.qname}
+              key={"lk"+group.qname}
               to={"#" + group.qname}
               // eslint-disable-next-line no-magic-numbers
               onClick={() => {
@@ -523,7 +523,7 @@ function EntityEditContainer(props: RDEProps) {
       </div>
       <div>
         {shape.groups.map((group, index) => (
-          <>
+          <React.Fragment key={"rf"+group.qname}>
             {groupEd === group.qname && (
               <div
                 className="group-edit-BG"
@@ -531,14 +531,14 @@ function EntityEditContainer(props: RDEProps) {
               ></div>
             )}
             <PropertyGroupContainer
-              key={group.uri}
+              key={"pg"+group.qname}
               group={group}
               subject={entity}
               onGroupOpen={checkPushNameAsPrefLabel}
               shape={shape}
               config={config}
             />
-          </>
+          </React.Fragment>
         ))}
       </div>
     </React.Fragment>

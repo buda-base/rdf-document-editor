@@ -2108,40 +2108,7 @@ var MinimalAddButton = ({ add, className, disable }) => {
 var BlockAddButton = ({ add, label, count = 1 }) => {
   const [n, setN] = (0, import_react3.useState)(1);
   const [disable, setDisable] = (0, import_react3.useState)(false);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-    className: "blockAdd text-center pb-1 mt-3",
-    style: { width: "100%", ...count > 1 ? { display: "flex" } : {} },
-    children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-        className: "btn btn-sm btn-block btn-outline-primary px-0",
-        style: {
-          boxShadow: "none",
-          pointerEvents: disable ? "none" : "auto",
-          ...disable ? { opacity: 0.5, pointerEvents: "none" } : {}
-        },
-        onClick: (e) => add(e, n),
-        children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, {
-          children: [
-            import_i18next2.default.t("general.add_another", { val: label, count }),
-            "\xA0",
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AddIcon, {})
-          ]
-        })
-      }),
-      count > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
-        label: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-          children: import_i18next2.default.t("general.add_nb", { val: label })
-        }),
-        style: { width: 200 },
-        value: n,
-        className: "ml-2",
-        type: "number",
-        InputLabelProps: { shrink: true },
-        onChange: (e) => setN(Number(e.target.value)),
-        InputProps: { inputProps: { min: 1, max: 500 } }
-      })
-    ]
-  });
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {});
 };
 var generateDefault = async (property, parent, RIDprefix, idToken, val = "", config) => {
   var _a, _b;
@@ -2216,8 +2183,11 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     })
   );
   let list = unsortedList;
+  debug7("list", list);
   if (orderedList.length)
     list = orderedList;
+  if (list === void 0)
+    list = [];
   const withOrder = shape.properties.filter((p) => {
     var _a2, _b2;
     return ((_a2 = p.sortOnProperty) == null ? void 0 : _a2.value) === ((_b2 = property.path) == null ? void 0 : _b2.sparqlString);
@@ -2245,6 +2215,8 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     setESfromRecoil({ property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove });
   };
   const alreadyHasEmptyValue = () => {
+    if (!list)
+      return false;
     for (const val of list) {
       if (val instanceof LiteralWithId && val.value === "")
         return true;
@@ -2478,67 +2450,44 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     },
     void 0
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react3.default.Fragment, {
-    children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-        className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === 3 /* ResExt */ ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
-        "data-priority": property.displayPriority ? property.displayPriority : 0,
-        role: "main",
-        style: {
-          display: "flex",
-          flexWrap: "wrap",
-          ...list.length > 1 && firstValueIsEmptyField && property.path.sparqlString !== SKOS("prefLabel").value ? {} : {}
-        },
-        children: [
-          showLabel && (!property.in || property.in.length > 1) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-            className: "propLabel",
-            "data-prop": property.qname,
-            "data-type": property.objectType,
-            "data-priority": property.displayPriority,
-            children: [
-              titleCase(propLabel),
-              helpMessage && property.objectType === 3 /* ResExt */ && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
-                title: helpMessage,
-                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Help.default, {
-                  className: "help label"
-                })
-              })
-            ]
-          }),
-          hasEmptyExtEntityAsFirst && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-            style: { width: "100%" },
-            children: renderListElem(list[0], 0, list.length)
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-            ref: scrollElem,
-            className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
-            style: {
-              width: "100%",
-              ...((_b = property == null ? void 0 : property.group) == null ? void 0 : _b.value) !== edit ? { paddingRight: "0.5rem" } : {}
-            },
-            children: list.map((val, i) => {
-              if (!hasEmptyExtEntityAsFirst || i > 0)
-                return renderListElem(val, i, list.length);
-            })
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react3.default.Fragment, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+      className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === 3 /* ResExt */ ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
+      "data-priority": property.displayPriority ? property.displayPriority : 0,
+      role: "main",
+      style: {
+        display: "flex",
+        flexWrap: "wrap",
+        ...list.length > 1 && firstValueIsEmptyField && property.path.sparqlString !== SKOS("prefLabel").value ? {} : {}
+      },
+      children: [
+        hasEmptyExtEntityAsFirst && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+          style: { width: "100%" },
+          children: renderListElem(list[0], 0, list.length)
+        }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+          ref: scrollElem,
+          className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
+          style: {
+            width: "100%",
+            ...((_b = property == null ? void 0 : property.group) == null ? void 0 : _b.value) !== edit ? { paddingRight: "0.5rem" } : {}
+          },
+          children: list.map((val, i) => {
+            if (!hasEmptyExtEntityAsFirst || i > 0)
+              return renderListElem(val, i, list.length);
           })
-        ]
-      }),
-      canAdd && addBtn && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Create, {
-        subject,
-        property,
-        embedded,
-        newVal: Number(newVal),
-        shape,
-        config
-      })
-    ]
+        })
+      ]
+    })
   });
 };
 var Create = ({ subject, property, embedded, disable, newVal, shape, config }) => {
   var _a, _b;
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  const [list, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
+  let [list, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
+  if (list === void 0)
+    list = [];
   let collecNode = null;
   if (list.length === 1 && list[0] instanceof RDFResource && list[0].node && list[0].node instanceof rdf5.Collection) {
     collecNode = list[0].node;
@@ -4314,6 +4263,7 @@ function EntityEditContainer(props) {
           }),
           shape.groups.map((group, index) => {
             const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
+            debug9(group.qname);
             return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_router_hash_link.HashLink, {
               to: "#" + group.qname,
               onClick: () => {
@@ -4324,12 +4274,12 @@ function EntityEditContainer(props) {
               children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", {
                 children: label
               })
-            }, group.qname);
+            }, "lk" + group.qname);
           })
         ]
       }),
       /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
-        children: shape.groups.map((group, index) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_jsx_runtime3.Fragment, {
+        children: shape.groups.map((group, index) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_react5.default.Fragment, {
           children: [
             groupEd === group.qname && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
               className: "group-edit-BG",
@@ -4341,9 +4291,9 @@ function EntityEditContainer(props) {
               onGroupOpen: checkPushNameAsPrefLabel,
               shape,
               config
-            }, group.uri)
+            }, "pg" + group.qname)
           ]
-        }))
+        }, "rf" + group.qname))
       })
     ]
   });

@@ -159,6 +159,7 @@ export const BlockAddButton: FC<{
   */
 
   return (
+    <>
     <div
       className="blockAdd text-center pb-1 mt-3"
       style={{ width: "100%", ...count > 1 ? { display: "flex" } : {} }}
@@ -192,6 +193,7 @@ export const BlockAddButton: FC<{
         />
       )}
     </div>
+    </>
   )
 }
 
@@ -200,6 +202,7 @@ export const OtherButton: FC<{ onClick: React.MouseEventHandler<HTMLButtonElemen
   label,
 }) => {
   return (
+    <>
     <div className="blockAdd text-center pb-1" style={{ margin: "0 15px" }}>
       <button
         className="btn btn-sm btn-block btn-outline-primary mb-2 px-0 py-2"
@@ -209,6 +212,7 @@ export const OtherButton: FC<{ onClick: React.MouseEventHandler<HTMLButtonElemen
         {label}
       </button>
     </div>
+    </>
   )
 }
 
@@ -311,7 +315,10 @@ const ValueList: FC<{
     } as orderedByPropSelectorArgs)
   )
   let list: Value[] = unsortedList
+  debug("list", list)
   if (orderedList.length) list = orderedList
+  if (list === undefined)
+    list = []
 
   const withOrder = shape.properties.filter((p) => p.sortOnProperty?.value === property.path?.sparqlString)
   let newVal: string | number = useRecoilValue(
@@ -342,6 +349,7 @@ const ValueList: FC<{
   }
 
   const alreadyHasEmptyValue: () => boolean = (): boolean => {
+    if (!list) return false
     for (const val of list) {
       if (val instanceof LiteralWithId && val.value === "") return true
       if (val instanceof RDFResourceWithLabel && val.node.value === "tmp:none") return true
@@ -763,7 +771,9 @@ type CreateComponentType = FC<{
  */
 const Create: CreateComponentType = ({ subject, property, embedded, disable, newVal, shape, config }) => {
   if (property.path == null) throw "can't find path of " + property.qname
-  const [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
+  let [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
+  if (list === undefined)
+    list = []
   let collecNode: rdf.Collection | null = null
   if (list.length === 1 && list[0] instanceof RDFResource && list[0].node && list[0].node instanceof rdf.Collection) {
     collecNode = list[0].node
@@ -914,12 +924,12 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
       property.path.sparqlString === ns.RDFS("comment").value)
     */
   )
-    return <MinimalAddButton disable={disable} add={addItem} className=" " />
+    return (<MinimalAddButton disable={disable} add={addItem} className=" " />)
   else {
     const targetShapeLabels = property.targetShape?.targetClassPrefLabels
     const labels = targetShapeLabels ? targetShapeLabels : property.prefLabels
     const count = property.allowBatchManagement ? 2 : 1
-    return <BlockAddButton add={addItem} label={ValueByLangToStrPrefLang(labels, uiLang)} count={count} />
+    return (<BlockAddButton add={addItem} label={ValueByLangToStrPrefLang(labels, uiLang)} count={count} />)
   }
 }
 
