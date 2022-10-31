@@ -136,6 +136,21 @@ export class Path {
   }
 }
 
+type setSelfOnSet = {
+  setSelf: (arg: any) => void
+  onSet: (newValues: (arg: Array<Value> | DefaultValue) => void) => void
+}
+
+export const debugAtomEffect = ({ setSelf, onSet }: setSelfOnSet) => {
+  onSet((newValues: Array<Value> | DefaultValue): void => {
+    debug("onSet",newValues)
+  })
+
+  setSelf((newValues: Array<Value> | DefaultValue): void => {
+    debug("setSelf",newValues)
+  })
+}
+
 // an EntityGraphValues represents the global state of an entity we're editing, in a javascript object (and not an RDF store)
 export class EntityGraphValues {
   oldSubjectProps: Record<string, Record<string, Array<Value>>> = {}
@@ -233,7 +248,7 @@ export class EntityGraphValues {
 
   propsUpdateEffect: (subjectUri: string, pathString: string) => AtomEffect<Array<Value>> =
     (subjectUri: string, pathString: string) =>
-    ({ setSelf, onSet }: setSelfOnSelf) => {
+    ({ setSelf, onSet }: setSelfOnSet) => {
       onSet((newValues: Array<Value> | DefaultValue): void => {
         debug("set",newValues)
         if (!(newValues instanceof DefaultValue)) {
@@ -241,7 +256,6 @@ export class EntityGraphValues {
           this.onUpdateValues(subjectUri, pathString, newValues)
         }
       })
-      debug("onSet",onSet)
     }
 
   @Memoize((pathString: string, subjectUri: string) => {
@@ -253,7 +267,7 @@ export class EntityGraphValues {
       key: this.idHash + subjectUri + pathString,
       default: [],
       // effects_UNSTABLE no more, see https://github.com/facebookexperimental/Recoil/blob/main/CHANGELOG-recoil.md#breaking-changes-1
-      effects: [this.propsUpdateEffect(subjectUri, pathString)],
+      effects: [debugAtomEffect, this.propsUpdateEffect(subjectUri, pathString)],
       // disable immutability in production
       dangerouslyAllowMutability: true,
     })
@@ -262,11 +276,6 @@ export class EntityGraphValues {
   hasSubject(subjectUri: string): boolean {
     return subjectUri in this.newSubjectProps
   }
-}
-
-type setSelfOnSelf = {
-  setSelf: (arg: any) => void
-  onSet: (newValues: (arg: Array<Value> | DefaultValue) => void) => void
 }
 
 // a proxy to an EntityGraph that updates the entity graph but is purely read-only, so that React is happy
@@ -307,8 +316,7 @@ export class EntityGraph {
     const values = new EntityGraphValues(topSubjectUri)
     this.topSubjectUri = topSubjectUri
     this.onGetInitialValues = values.onGetInitialValues
-    this.getAtomForSubjectProperty = (pathString, subjectUri) =>
-      values.getAtomForSubjectProperty(pathString, subjectUri)
+    this.getAtomForSubjectProperty = (pathString, subjectUri) => values.getAtomForSubjectProperty(pathString, subjectUri)
     this.connexGraph = connexGraph
     this.getValues = () => {
       return values

@@ -373,6 +373,14 @@ var Path = class {
     }
   }
 };
+var debugAtomEffect = ({ setSelf, onSet }) => {
+  onSet((newValues) => {
+    debug2("onSet", newValues);
+  });
+  setSelf((newValues) => {
+    debug2("setSelf", newValues);
+  });
+};
 var EntityGraphValues = class {
   oldSubjectProps = {};
   newSubjectProps = {};
@@ -471,14 +479,13 @@ var EntityGraphValues = class {
         this.onUpdateValues(subjectUri, pathString, newValues);
       }
     });
-    debug2("onSet", onSet);
   };
   getAtomForSubjectProperty(pathString, subjectUri) {
     debug2("gAtomfSprop", pathString, subjectUri);
     return atom({
       key: this.idHash + subjectUri + pathString,
       default: [],
-      effects: [this.propsUpdateEffect(subjectUri, pathString)],
+      effects: [debugAtomEffect, this.propsUpdateEffect(subjectUri, pathString)],
       dangerouslyAllowMutability: true
     });
   }
