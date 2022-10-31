@@ -16,20 +16,8 @@ import { generateSubnode, NodeShape, PropertyShape } from "../helpers/rdf/shapes
 import * as ns from "../helpers/rdf/ns"
 // import { generateSubnode, reserveLname } from "../../../helpers/rdf/construct"
 import { useRecoilState, useRecoilValue } from "recoil"
-import { makeStyles } from "@mui/styles"
 import { TextField, MenuItem, Tooltip } from "@mui/material"
-import {
-  AddIcon,
-  RemoveIcon,
-  ErrorIcon,
-  CloseIcon,
-  VisibilityIcon,
-  MDIcon,
-  Label,
-  EditIcon,
-  KeyboardIcon,
-  HelpIcon,
-} from "../routes/layout/icons"
+import { AddCircleOutline as AddCircleOutlineIcon, RemoveCircleOutline as RemoveCircleOutlineIcon, Error as ErrorIcon, Close as CloseIcon, Visibility as VisibilityIcon, FormatBold as MDIcon, More as Label, Edit as EditIcon, Keyboard as KeyboardIcon, Help as HelpIcon  } from '@mui/icons-material';
 import i18n from "i18next"
 import { ValueByLangToStrPrefLang, langsWithDefault } from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
@@ -135,7 +123,7 @@ export const MinimalAddButton: FC<{
         onClick={(ev: React.MouseEvent<HTMLButtonElement>) => add(ev, 1)}
         {...(disable ? { disabled: true } : {})}
       >
-        <AddIcon />
+        <AddCircleOutlineIcon />
       </button>
     </div>
   )
@@ -174,11 +162,9 @@ export const BlockAddButton: FC<{
         onClick={(e: React.MouseEvent<HTMLButtonElement>) => add(e, n)}
         //disabled={disable}
       >
-        <>
           {i18n.t("general.add_another", { val: label, count })}
           &nbsp;
-          <AddIcon />
-        </>
+          <AddCircleOutlineIcon/>
       </button>
       {count > 1 && (
         <TextField
@@ -933,14 +919,6 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
   }
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-  },
-}))
-
 /**
  * Edit component
  */
@@ -956,7 +934,6 @@ const EditLangString: FC<{
   index: number
   config: RDEConfig
 }> = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
-  const classes = useStyles()
   const [editMD, setEditMD] = useState(false)
   const [keyboard, setKeyboard] = useState(false)
 
@@ -1291,7 +1268,6 @@ const EditString: FC<{
   index: number
   config: RDEConfig
 }> = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
-  const classes = useStyles()
   const [uiLang] = useRecoilState(uiLangState)
 
   const dt = property.datatype
@@ -1388,7 +1364,6 @@ const EditBool: FC<{
   label: React.ReactNode
   editable?: boolean
 }> = ({ property, lit, onChange, label, editable }) => {
-  const classes = useStyles()
 
   const dt = property.datatype
 
@@ -1433,8 +1408,6 @@ const EditInt: FC<{
   globalError?: string
 }> = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
   // used for integers and gYear
-
-  const classes = useStyles()
 
   const dt = property.datatype
   const minInclusive = property.minInclusive
@@ -1699,7 +1672,7 @@ const LiteralComponent: FC<{
             onClick={deleteItem}
             {...(!canDel ? { disabled: true } : {})}
           >
-            <RemoveIcon className="my-0 close-facet-btn" />
+            <RemoveCircleOutlineIcon className="my-0 close-facet-btn" />
           </button>
           {create}
         </div>
@@ -1949,7 +1922,7 @@ const ExtEntityComponent: FC<{
         />
         {extRes.uri !== "tmp:uri" && (
           <button className={"btn btn-link ml-2 px-0"} onClick={deleteItem} {...(!canDel ? { disabled: true } : {})}>
-            {extRes.uri === "tmp:uri" ? <RemoveIcon /> : <CloseIcon />}
+            {extRes.uri === "tmp:uri" ? <RemoveCircleOutlineIcon /> : <CloseIcon />}
           </button>
         )}
       </div>
@@ -2022,8 +1995,6 @@ const SelectComponent: FC<{
     }
     setList(newList)
   }
-
-  const classes = useStyles()
 
   // does this work? to me using a "setXyz" in a condition must fail (should work encapsulated in a useEffect though)
   if (possibleValues.length == 1 && list.length == 0) {
@@ -2125,7 +2096,7 @@ const SelectComponent: FC<{
           <div className="hoverPart">
             {canDel && (
               <button className="btn btn-link mx-0 px-0 py-0" onClick={deleteItem}>
-                <RemoveIcon />
+                <RemoveCircleOutlineIcon />
               </button>
             )}
             {create}

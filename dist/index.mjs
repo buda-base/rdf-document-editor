@@ -1382,7 +1382,7 @@ var enTranslations = {
 var en_default = enTranslations;
 
 // src/containers/EntityEditContainer.tsx
-import React4, { useState as useState4, useEffect as useEffect4, useCallback as useCallback2, useRef as useRef3 } from "react";
+import React3, { useState as useState4, useEffect as useEffect4, useCallback as useCallback2, useRef as useRef3 } from "react";
 
 // src/helpers/rdf/io.ts
 import * as rdf4 from "rdflib";
@@ -1934,44 +1934,18 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
 }
 
 // src/containers/EntityEditContainer.tsx
-import NotFoundIcon from "@mui/icons-material/BrokenImage.js"
+import { BrokenImage as NotFoundIcon } from "@mui/icons-material";
 import i18n4 from "i18next";
 
 // src/containers/PropertyGroupContainer.tsx
 import { useState as useState3, useRef as useRef2, useMemo as useMemo2, useEffect as useEffect3 } from "react";
 
 // src/containers/ValueList.tsx
-import React2, { useEffect as useEffect2, useState as useState2, useRef, useLayoutEffect, useCallback, useMemo } from "react";
+import React, { useEffect as useEffect2, useState as useState2, useRef, useLayoutEffect, useCallback, useMemo } from "react";
 import * as rdf5 from "rdflib";
 import { useRecoilState as useRecoilState2, useRecoilValue } from "recoil";
-import { makeStyles } from "@mui/styles";
-import { TextField, MenuItem, Tooltip } from "@mui/material/index.js"
-
-// src/routes/layout/icons.jsx
-import React from "react";
-import { Img } from "react-image";
-import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline.js"
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline.js"
-import { default as default2 } from "@mui/icons-material/Error.js"
-import { default as default3 } from "@mui/icons-material/Close.js"
-import { default as default4 } from "@mui/icons-material/FindReplace.js"
-import { default as default5 } from "@mui/icons-material/Search.js"
-import { default as default6 } from "@mui/icons-material/Launch.js"
-import { default as default7 } from "@mui/icons-material/Info.js"
-import { default as default8 } from "@mui/icons-material/InfoOutlined.js"
-import { default as default9 } from "@mui/icons-material/Settings.js"
-import { default as default10 } from "@mui/icons-material/Visibility.js"
-import { default as default11 } from "@mui/icons-material/VisibilityOff.js"
-import { default as default12 } from "@mui/icons-material/Edit.js"
-import { default as default13 } from "@mui/icons-material/Keyboard.js"
-import { default as default14 } from "@mui/icons-material/More.js"
-import { default as default15 } from "@mui/icons-material/Help.js"
-import { default as default16 } from "@mui/icons-material/AssignmentReturned.js"
-import { default as default17 } from "@mui/icons-material/FormatBold.js"
-var AddIcon = AddCircleOutlineIcon;
-var RemoveIcon = RemoveCircleOutlineIcon;
-
-// src/containers/ValueList.tsx
+import { TextField, MenuItem, Tooltip } from "@mui/material";
+import { AddCircleOutline as AddCircleOutlineIcon, RemoveCircleOutline as RemoveCircleOutlineIcon, Error as ErrorIcon, Close as CloseIcon, Visibility as VisibilityIcon, FormatBold as MDIcon, More as Label, Edit as EditIcon, Keyboard as KeyboardIcon, Help as HelpIcon } from "@mui/icons-material";
 import i18n2 from "i18next";
 
 // src/helpers/lang.ts
@@ -2027,7 +2001,7 @@ var PropertyContainer = ({ property, subject, embedded, force, editable, owner, 
         setCss(css.replace(new RegExp(txt), ""));
     }
   };
-  return /* @__PURE__ */ jsx(React2.Fragment, {
+  return /* @__PURE__ */ jsx(React.Fragment, {
     children: /* @__PURE__ */ jsx("div", {
       role: "main",
       ...css ? { className: css } : {},
@@ -2061,14 +2035,47 @@ var MinimalAddButton = ({ add, className, disable }) => {
       className: "btn btn-link ml-2 px-0",
       onClick: (ev) => add(ev, 1),
       ...disable ? { disabled: true } : {},
-      children: /* @__PURE__ */ jsx(AddIcon, {})
+      children: /* @__PURE__ */ jsx(AddCircleOutlineIcon, {})
     })
   });
 };
 var BlockAddButton = ({ add, label, count = 1 }) => {
   const [n, setN] = useState2(1);
   const [disable, setDisable] = useState2(false);
-  return /* @__PURE__ */ jsx(Fragment, {});
+  return /* @__PURE__ */ jsx(Fragment, {
+    children: /* @__PURE__ */ jsxs("div", {
+      className: "blockAdd text-center pb-1 mt-3",
+      style: { width: "100%", ...count > 1 ? { display: "flex" } : {} },
+      children: [
+        /* @__PURE__ */ jsxs("button", {
+          className: "btn btn-sm btn-block btn-outline-primary px-0",
+          style: {
+            boxShadow: "none",
+            pointerEvents: disable ? "none" : "auto",
+            ...disable ? { opacity: 0.5, pointerEvents: "none" } : {}
+          },
+          onClick: (e) => add(e, n),
+          children: [
+            i18n2.t("general.add_another", { val: label, count }),
+            "\xA0",
+            /* @__PURE__ */ jsx(AddCircleOutlineIcon, {})
+          ]
+        }),
+        count > 1 && /* @__PURE__ */ jsx(TextField, {
+          label: /* @__PURE__ */ jsx(Fragment, {
+            children: i18n2.t("general.add_nb", { val: label })
+          }),
+          style: { width: 200 },
+          value: n,
+          className: "ml-2",
+          type: "number",
+          InputLabelProps: { shrink: true },
+          onChange: (e) => setN(Number(e.target.value)),
+          InputProps: { inputProps: { min: 1, max: 500 } }
+        })
+      ]
+    })
+  });
 };
 var generateDefault = async (property, parent, RIDprefix, idToken, val = "", config) => {
   var _a, _b;
@@ -2410,35 +2417,60 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     },
     void 0
   );
-  return /* @__PURE__ */ jsx(React2.Fragment, {
-    children: /* @__PURE__ */ jsxs("div", {
-      className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === 3 /* ResExt */ ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
-      "data-priority": property.displayPriority ? property.displayPriority : 0,
-      role: "main",
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        ...list.length > 1 && firstValueIsEmptyField && property.path.sparqlString !== SKOS("prefLabel").value ? {} : {}
-      },
-      children: [
-        hasEmptyExtEntityAsFirst && /* @__PURE__ */ jsx("div", {
-          style: { width: "100%" },
-          children: renderListElem(list[0], 0, list.length)
-        }),
-        /* @__PURE__ */ jsx("div", {
-          ref: scrollElem,
-          className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
-          style: {
-            width: "100%",
-            ...((_b = property == null ? void 0 : property.group) == null ? void 0 : _b.value) !== edit ? { paddingRight: "0.5rem" } : {}
-          },
-          children: list.map((val, i) => {
-            if (!hasEmptyExtEntityAsFirst || i > 0)
-              return renderListElem(val, i, list.length);
+  return /* @__PURE__ */ jsxs(React.Fragment, {
+    children: [
+      /* @__PURE__ */ jsxs("div", {
+        className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === 3 /* ResExt */ ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
+        "data-priority": property.displayPriority ? property.displayPriority : 0,
+        role: "main",
+        style: {
+          display: "flex",
+          flexWrap: "wrap",
+          ...list.length > 1 && firstValueIsEmptyField && property.path.sparqlString !== SKOS("prefLabel").value ? {} : {}
+        },
+        children: [
+          showLabel && (!property.in || property.in.length > 1) && /* @__PURE__ */ jsxs("label", {
+            className: "propLabel",
+            "data-prop": property.qname,
+            "data-type": property.objectType,
+            "data-priority": property.displayPriority,
+            children: [
+              titleCase(propLabel),
+              helpMessage && property.objectType === 3 /* ResExt */ && /* @__PURE__ */ jsx(Tooltip, {
+                title: helpMessage,
+                children: /* @__PURE__ */ jsx(HelpIcon, {
+                  className: "help label"
+                })
+              })
+            ]
+          }),
+          hasEmptyExtEntityAsFirst && /* @__PURE__ */ jsx("div", {
+            style: { width: "100%" },
+            children: renderListElem(list[0], 0, list.length)
+          }),
+          /* @__PURE__ */ jsx("div", {
+            ref: scrollElem,
+            className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
+            style: {
+              width: "100%",
+              ...((_b = property == null ? void 0 : property.group) == null ? void 0 : _b.value) !== edit ? { paddingRight: "0.5rem" } : {}
+            },
+            children: list.map((val, i) => {
+              if (!hasEmptyExtEntityAsFirst || i > 0)
+                return renderListElem(val, i, list.length);
+            })
           })
-        })
-      ]
-    })
+        ]
+      }),
+      canAdd && addBtn && /* @__PURE__ */ jsx(Create, {
+        subject,
+        property,
+        embedded,
+        newVal: Number(newVal),
+        shape,
+        config
+      })
+    ]
   });
 };
 var Create = ({ subject, property, embedded, disable, newVal, shape, config }) => {
@@ -2517,15 +2549,7 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
     });
   }
 };
-var useStyles = makeStyles((theme) => ({
-  root: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main
-    }
-  }
-}));
 var EditLangString = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
-  const classes = useStyles();
   const [editMD, setEditMD] = useState2(false);
   const [keyboard, setKeyboard] = useState2(false);
   const canPushPrefLabel = property.allowPushToTopLevelLabel;
@@ -2553,9 +2577,9 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
     };
   }, []);
   const errorData = {
-    helperText: /* @__PURE__ */ jsxs(React2.Fragment, {
+    helperText: /* @__PURE__ */ jsxs(React.Fragment, {
       children: [
-        /* @__PURE__ */ jsx(default2, {
+        /* @__PURE__ */ jsx(ErrorIcon, {
           style: { fontSize: "20px", verticalAlign: "-7px" }
         }),
         "\xA0",
@@ -2582,9 +2606,9 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
   } else if (property.singleLine && editMD) {
     padBot = "1px";
   }
-  const codeEdit = { ...commands.codeEdit, icon: /* @__PURE__ */ jsx(default12, {
+  const codeEdit = { ...commands.codeEdit, icon: /* @__PURE__ */ jsx(EditIcon, {
     style: { width: "12px", height: "12px" }
-  }) }, codePreview = { ...commands.codePreview, icon: /* @__PURE__ */ jsx(default10, {
+  }) }, codePreview = { ...commands.codePreview, icon: /* @__PURE__ */ jsx(VisibilityIcon, {
     style: { width: "12px", height: "12px" }
   }) };
   const hasKB = config.possibleLiteralLangs.filter((l) => l.value === lit.language);
@@ -2651,7 +2675,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
                 className: "img"
               })
             }, lit.id),
-            /* @__PURE__ */ jsx(default14, {})
+            /* @__PURE__ */ jsx(Label, {})
           ]
         })
       }),
@@ -2696,10 +2720,10 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
             style: { position: "absolute", right: 0, top: 0, fontSize: "0px" },
             onClick: () => setEditMD(!editMD),
             children: [
-              !editMD && /* @__PURE__ */ jsx(default17, {
+              !editMD && /* @__PURE__ */ jsx(MDIcon, {
                 style: { height: "16px" }
               }),
-              editMD && /* @__PURE__ */ jsx(default17, {
+              editMD && /* @__PURE__ */ jsx(MDIcon, {
                 style: { height: "16px" }
               })
             ]
@@ -2718,7 +2742,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
               display: "flex",
               alignItems: "center"
             },
-            children: /* @__PURE__ */ jsx(default13, {})
+            children: /* @__PURE__ */ jsx(KeyboardIcon, {})
           }),
           hasKB.length > 0 && hasKB[0].keyboard && keyboard && /* @__PURE__ */ jsx("div", {
             className: "card px-2 py-2 hasKB",
@@ -2776,7 +2800,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
             className: "opaHover on",
             style: { position: "absolute", right: "5px", top: "7px", fontSize: "0px", cursor: "pointer" },
             onClick: () => setEditMD(!editMD),
-            children: /* @__PURE__ */ jsx(default17, {
+            children: /* @__PURE__ */ jsx(MDIcon, {
               style: { height: "15px" },
               titleAccess: "Use rich text editor"
             })
@@ -2834,7 +2858,6 @@ var LangSelect = ({ onChange, value, property, disabled, error, editable, config
   });
 };
 var EditString = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
-  const classes = useStyles();
   const [uiLang] = useRecoilState2(uiLangState);
   const dt = property.datatype;
   const pattern = property.pattern ? new RegExp(property.pattern) : void 0;
@@ -2881,7 +2904,7 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
       return;
     /* @__PURE__ */ jsxs(Fragment, {
       children: [
-        /* @__PURE__ */ jsx(default2, {
+        /* @__PURE__ */ jsx(ErrorIcon, {
           style: { fontSize: "20px", verticalAlign: "-7px" }
         }),
         " ",
@@ -2927,7 +2950,6 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
   });
 };
 var EditBool = ({ property, lit, onChange, label, editable }) => {
-  const classes = useStyles();
   const dt = property.datatype;
   let val = !lit.value || lit.value == "false" || lit.value == "0" ? false : true;
   if (property.defaultValue === null && lit.value == "")
@@ -2953,7 +2975,6 @@ var EditBool = ({ property, lit, onChange, label, editable }) => {
   });
 };
 var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
-  const classes = useStyles();
   const dt = property.datatype;
   const minInclusive = property.minInclusive;
   const maxInclusive = property.maxInclusive;
@@ -3013,9 +3034,9 @@ var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, ha
     style: { width: 240 },
     value,
     ...error ? {
-      helperText: /* @__PURE__ */ jsxs(React2.Fragment, {
+      helperText: /* @__PURE__ */ jsxs(React.Fragment, {
         children: [
-          /* @__PURE__ */ jsx(default2, {
+          /* @__PURE__ */ jsx(ErrorIcon, {
             style: { fontSize: "20px", verticalAlign: "-7px" }
           }),
           /* @__PURE__ */ jsxs("i", {
@@ -3098,7 +3119,7 @@ var LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsx(default15, {
+          children: /* @__PURE__ */ jsx(HelpIcon, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3120,7 +3141,7 @@ var LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsx(default15, {
+          children: /* @__PURE__ */ jsx(HelpIcon, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3140,7 +3161,7 @@ var LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsx(default15, {
+          children: /* @__PURE__ */ jsx(HelpIcon, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3156,7 +3177,7 @@ var LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ jsx(default15, {
+          children: /* @__PURE__ */ jsx(HelpIcon, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3181,7 +3202,7 @@ var LiteralComponent = ({
               className: "btn btn-link ml-2 px-0 py-0 close-facet-btn",
               onClick: deleteItem,
               ...!canDel ? { disabled: true } : {},
-              children: /* @__PURE__ */ jsx(RemoveIcon, {
+              children: /* @__PURE__ */ jsx(RemoveCircleOutlineIcon, {
                 className: "my-0 close-facet-btn"
               })
             }),
@@ -3296,7 +3317,7 @@ var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity,
             children: [
               targetShape.description && /* @__PURE__ */ jsx(Tooltip, {
                 title: ValueByLangToStrPrefLang(targetShape.description, uiLang),
-                children: /* @__PURE__ */ jsx(default15, {
+                children: /* @__PURE__ */ jsx(HelpIcon, {
                   className: "help"
                 })
               }),
@@ -3304,7 +3325,7 @@ var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity,
                 className: "btn btn-link ml-2 px-0 close-facet-btn py-0",
                 onClick: deleteItem,
                 ...!canDel ? { disabled: true } : {},
-                children: /* @__PURE__ */ jsx(default3, {
+                children: /* @__PURE__ */ jsx(CloseIcon, {
                   className: "close-facet-btn my-1"
                 })
               })
@@ -3395,7 +3416,7 @@ var ExtEntityComponent = ({
           className: "btn btn-link ml-2 px-0",
           onClick: deleteItem,
           ...!canDel ? { disabled: true } : {},
-          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ jsx(RemoveIcon, {}) : /* @__PURE__ */ jsx(default3, {})
+          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ jsx(RemoveCircleOutlineIcon, {}) : /* @__PURE__ */ jsx(CloseIcon, {})
         })
       ]
     })
@@ -3447,7 +3468,6 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
     }
     setList(newList);
   };
-  const classes = useStyles();
   if (possibleValues.length == 1 && list.length == 0) {
     setList([possibleValues[0]]);
   }
@@ -3486,15 +3506,15 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
               propLabel,
               helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
                 title: helpMessage,
-                children: /* @__PURE__ */ jsx(default15, {
+                children: /* @__PURE__ */ jsx(HelpIcon, {
                   className: "help"
                 })
               }, "tooltip_" + selectIdx + "_" + index) : null
             ],
             ...error ? {
-              helperText: /* @__PURE__ */ jsxs(React2.Fragment, {
+              helperText: /* @__PURE__ */ jsxs(React.Fragment, {
                 children: [
-                  /* @__PURE__ */ jsx(default2, {
+                  /* @__PURE__ */ jsx(ErrorIcon, {
                     style: { fontSize: "20px", verticalAlign: "-7px" }
                   }),
                   /* @__PURE__ */ jsxs("i", {
@@ -3548,7 +3568,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
               canDel && /* @__PURE__ */ jsx("button", {
                 className: "btn btn-link mx-0 px-0 py-0",
                 onClick: deleteItem,
-                children: /* @__PURE__ */ jsx(RemoveIcon, {})
+                children: /* @__PURE__ */ jsx(RemoveCircleOutlineIcon, {})
               }),
               create
             ]
@@ -3561,6 +3581,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
 };
 
 // src/containers/PropertyGroupContainer.tsx
+import { Error as ErrorIcon2 } from "@mui/icons-material";
 import { useRecoilState as useRecoilState3 } from "recoil";
 import i18n3 from "i18next";
 import { MapContainer, LayersControl, TileLayer, Marker, useMapEvents } from "react-leaflet";
@@ -3720,7 +3741,7 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
               className: "",
               children: [
                 label,
-                hasError && /* @__PURE__ */ jsx2(default2, {})
+                hasError && /* @__PURE__ */ jsx2(ErrorIcon2, {})
               ]
             }),
             /* @__PURE__ */ jsx2(Fragment2, {
@@ -4173,7 +4194,7 @@ function EntityEditContainer(props) {
     e.stopPropagation();
   };
   const previewLink = config.getPreviewLink(entity.node);
-  return /* @__PURE__ */ jsxs3(React4.Fragment, {
+  return /* @__PURE__ */ jsxs3(React3.Fragment, {
     children: [
       /* @__PURE__ */ jsx3("div", {
         role: "main",
@@ -4223,7 +4244,6 @@ function EntityEditContainer(props) {
           }),
           shape.groups.map((group, index) => {
             const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
-            debug9(group.qname);
             return /* @__PURE__ */ jsx3(Link, {
               to: "#" + group.qname,
               onClick: () => {
@@ -4239,7 +4259,7 @@ function EntityEditContainer(props) {
         ]
       }),
       /* @__PURE__ */ jsx3("div", {
-        children: shape.groups.map((group, index) => /* @__PURE__ */ jsxs3(React4.Fragment, {
+        children: shape.groups.map((group, index) => /* @__PURE__ */ jsxs3(React3.Fragment, {
           children: [
             groupEd === group.qname && /* @__PURE__ */ jsx3("div", {
               className: "group-edit-BG",
@@ -4266,7 +4286,7 @@ import { useRecoilState as useRecoilState5 } from "recoil";
 import { Link as Link2, useNavigate } from "react-router-dom";
 import i18n5 from "i18next";
 import { Trans } from "react-i18next";
-import { TextField as TextField2, MenuItem as MenuItem2 } from "@mui/material/index.js"
+import { TextField as TextField2, MenuItem as MenuItem2 } from "@mui/material";
 import { Fragment as Fragment4, jsx as jsx4, jsxs as jsxs4 } from "react/jsx-runtime";
 function NewEntityContainer(props) {
   const config = props.config || {};
@@ -4364,20 +4384,15 @@ var NewEntityContainer_default = NewEntityContainer;
 import { useRecoilState as useRecoilState6 } from "recoil";
 
 // src/containers/Dialog.tsx
-import React6, { useState as useState6 } from "react";
+import React5, { useState as useState6 } from "react";
 import { Navigate as Navigate2 } from "react-router-dom";
-import Button from "@mui/material/Button/index.js"
-import Dialog from "@mui/material/Dialog/index.js"
-import DialogActions from "@mui/material/DialogActions/index.js"
-import DialogContent from "@mui/material/DialogContent/index.js"
-import DialogContentText from "@mui/material/DialogContentText/index.js"
-import DialogTitle from "@mui/material/DialogTitle/index.js"
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { debug as debugfactory10 } from "debug";
 import { jsx as jsx5, jsxs as jsxs5 } from "react/jsx-runtime";
 var debug10 = debugfactory10("rde:entity:dialog");
 function Dialog422(props) {
   var _a;
-  const [open, setOpen] = React6.useState(props.open);
+  const [open, setOpen] = React5.useState(props.open);
   const shape = (_a = props.shaped.split(":")[1]) == null ? void 0 : _a.replace(/Shape$/, "");
   const [createNew, setCreateNew] = useState6(false);
   const [loadNamed, setLoadNamed] = useState6(false);
@@ -4459,7 +4474,7 @@ function Dialog422(props) {
 // src/containers/EntityCreationContainer.tsx
 import { Navigate as Navigate3, useParams as useParams2, useLocation as useLocation2 } from "react-router-dom";
 import { useEffect as useEffect5 } from "react";
-import NotFoundIcon2 from "@mui/icons-material/BrokenImage.js"
+import { BrokenImage as NotFoundIcon2 } from "@mui/icons-material";
 import i18n6 from "i18next";
 import queryString2 from "query-string";
 import * as rdf7 from "rdflib";
@@ -4589,7 +4604,7 @@ import { useState as useState7, useEffect as useEffect6 } from "react";
 import i18n7 from "i18next";
 import { useRecoilState as useRecoilState7 } from "recoil";
 import { Link as Link3, Navigate as Navigate4, useParams as useParams3, useNavigate as useNavigate2 } from "react-router-dom";
-import { TextField as TextField3, MenuItem as MenuItem3 } from "@mui/material/index.js"
+import { TextField as TextField3, MenuItem as MenuItem3 } from "@mui/material";
 import { debug as debugfactory12 } from "debug";
 import { Fragment as Fragment6, jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
 var debug12 = debugfactory12("rde:entity:shape");
@@ -4738,18 +4753,19 @@ function EntityShapeChooserContainer(props) {
 var EntityShapeChooserContainer_default = EntityShapeChooserContainer;
 
 // src/containers/BUDAResourceSelector.tsx
-import React9, { useEffect as useEffect7, useState as useState8, useRef as useRef4, useLayoutEffect as useLayoutEffect2, useCallback as useCallback3 } from "react";
+import React8, { useEffect as useEffect7, useState as useState8, useRef as useRef4, useLayoutEffect as useLayoutEffect2, useCallback as useCallback3 } from "react";
 import { useRecoilState as useRecoilState8 } from "recoil";
-import { makeStyles as makeStyles2 } from "@mui/styles";
-import { TextField as TextField4, MenuItem as MenuItem4 } from "@mui/material/index.js"
+import { makeStyles } from "@mui/styles";
+import { TextField as TextField4, MenuItem as MenuItem4 } from "@mui/material";
 import i18n8 from "i18next";
 import { useNavigate as useNavigate3, Link as Link4 } from "react-router-dom";
 import * as rdf8 from "rdflib";
+import { Launch as LaunchIcon, Info as InfoIcon, InfoOutlined as InfoOutlinedIcon, Search as LookupIcon, ContentPaste as ContentPasteIcon, Error as ErrorIcon3, Close as CloseIcon2, Edit as EditIcon2 } from "@mui/icons-material";
 import { debug as debugfactory13 } from "debug";
 import { Fragment as Fragment7, jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
 import { createElement } from "react";
 var debug13 = debugfactory13("rde:atom:event:RS");
-var useStyles2 = makeStyles2((theme) => ({
+var useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
@@ -5068,7 +5084,7 @@ var BUDAResourceSelector = ({
       setPreview(previewVal.value);
     }
   });
-  return /* @__PURE__ */ jsxs8(React9.Fragment, {
+  return /* @__PURE__ */ jsxs8(React8.Fragment, {
     children: [
       /* @__PURE__ */ jsxs8("div", {
         className: "resSelect " + (error ? "error" : ""),
@@ -5077,7 +5093,7 @@ var BUDAResourceSelector = ({
           value.uri === "tmp:uri" && /* @__PURE__ */ jsx8("div", {
             className: preview ? "withPreview" : "",
             style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
-            children: /* @__PURE__ */ jsxs8(React9.Fragment, {
+            children: /* @__PURE__ */ jsxs8(React8.Fragment, {
               children: [
                 preview && /* @__PURE__ */ jsx8("div", {
                   className: "preview-ewts",
@@ -5105,9 +5121,9 @@ var BUDAResourceSelector = ({
                   onChange: textOnChange,
                   placeholder: "Search name or RID for " + title,
                   ...error ? {
-                    helperText: /* @__PURE__ */ jsxs8(React9.Fragment, {
+                    helperText: /* @__PURE__ */ jsxs8(React8.Fragment, {
                       children: [
-                        /* @__PURE__ */ jsx8(default2, {
+                        /* @__PURE__ */ jsx8(ErrorIcon3, {
                           style: { fontSize: "20px", verticalAlign: "-7px" }
                         }),
                         /* @__PURE__ */ jsx8("i", {
@@ -5159,7 +5175,7 @@ var BUDAResourceSelector = ({
                   style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
                   onClick,
                   ...!editable ? { disabled: true } : {},
-                  children: libraryURL ? /* @__PURE__ */ jsx8(default3, {}) : /* @__PURE__ */ jsx8(default5, {})
+                  children: libraryURL ? /* @__PURE__ */ jsx8(CloseIcon2, {}) : /* @__PURE__ */ jsx8(LookupIcon, {})
                 }),
                 /* @__PURE__ */ jsx8("button", {
                   className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
@@ -5173,7 +5189,7 @@ var BUDAResourceSelector = ({
               ]
             })
           }),
-          value.uri !== "tmp:uri" && /* @__PURE__ */ jsx8(React9.Fragment, {
+          value.uri !== "tmp:uri" && /* @__PURE__ */ jsx8(React8.Fragment, {
             children: /* @__PURE__ */ jsxs8("div", {
               className: "selected",
               children: [
@@ -5194,10 +5210,10 @@ var BUDAResourceSelector = ({
                           setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
                       },
                       children: [
-                        !libraryURL && /* @__PURE__ */ jsx8(default8, {
+                        !libraryURL && /* @__PURE__ */ jsx8(InfoOutlinedIcon, {
                           style: { width: "18px", cursor: "pointer" }
                         }),
-                        libraryURL && /* @__PURE__ */ jsx8(default7, {
+                        libraryURL && /* @__PURE__ */ jsx8(InfoIcon, {
                           style: { width: "18px", cursor: "pointer" }
                         })
                       ]
@@ -5208,7 +5224,7 @@ var BUDAResourceSelector = ({
                       href: config.libraryUrl + "/show/" + value.qname,
                       rel: "noopener noreferrer",
                       target: "_blank",
-                      children: /* @__PURE__ */ jsx8(default6, {
+                      children: /* @__PURE__ */ jsx8(LaunchIcon, {
                         style: { width: "16px" }
                       })
                     }),
@@ -5216,14 +5232,14 @@ var BUDAResourceSelector = ({
                     /* @__PURE__ */ jsx8(Link4, {
                       title: i18n8.t("search.help.edit"),
                       to: "/edit/" + value.qname,
-                      children: /* @__PURE__ */ jsx8(default12, {
+                      children: /* @__PURE__ */ jsx8(EditIcon2, {
                         style: { width: "16px" }
                       })
                     }),
                     "\xA0",
                     canCopy.length > 0 && /* @__PURE__ */ jsx8("span", {
                       title: i18n8.t("general.import"),
-                      children: /* @__PURE__ */ jsx8(default16, {
+                      children: /* @__PURE__ */ jsx8(ContentPasteIcon, {
                         style: { width: "17px", cursor: "pointer" },
                         onClick: () => {
                           setProp(canCopy);

@@ -26,16 +26,7 @@ import {
   LiteralWithId,
 } from "../helpers/rdf/types"
 import { PropertyShape, NodeShape } from "../helpers/rdf/shapes"
-import {
-  LaunchIcon,
-  InfoIcon,
-  InfoOutlinedIcon,
-  ErrorIcon,
-  EditIcon,
-  LookupIcon,
-  CloseIcon,
-  ContentPasteIcon,
-} from "../routes/layout/icons"
+import { Launch as LaunchIcon, Info as InfoIcon, InfoOutlined as InfoOutlinedIcon, Search as LookupIcon, ContentPaste as ContentPasteIcon, Error as ErrorIcon, Close as CloseIcon, Visibility as VisibilityIcon, FormatBold as MDIcon, More as Label, Edit as EditIcon, Keyboard as KeyboardIcon, Help as HelpIcon  } from '@mui/icons-material';
 import { LangSelect } from "./ValueList"
 import * as ns from "../helpers/rdf/ns"
 import { Theme } from '@mui/material/styles';

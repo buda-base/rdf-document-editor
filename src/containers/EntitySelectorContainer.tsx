@@ -1,7 +1,7 @@
 /* eslint-disable no-extra-parens */
 import React, { useEffect, ChangeEvent } from "react"
 import { history as undoHistory } from "../helpers/rdf/types"
-import { CloseIcon } from "../routes/layout/icons"
+import { Close as CloseIcon } from "@mui/icons-material"
 import i18n from "i18next"
 import { useRecoilState } from "recoil"
 import { RDEProps } from "../helpers/editor_props"
@@ -20,8 +20,7 @@ import {
   Entity,
 } from "../atoms/common"
 import { makeStyles } from "@mui/styles"
-import Tabs from "@mui/material/Tabs"
-import Tab from "@mui/material/Tab"
+import { Tabs, Tab } from "@mui/material"
 import * as lang from "../helpers/lang"
 import * as ns from "../helpers/rdf/ns"
 import { EntityInEntitySelectorContainer } from "./EntityInEntitySelectorContainer"

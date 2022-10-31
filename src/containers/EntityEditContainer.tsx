@@ -10,7 +10,7 @@ import {
   history,
 } from "../helpers/rdf/types"
 import { PropertyShape, PropertyGroup } from "../helpers/rdf/shapes"
-import NotFoundIcon from "@mui/icons-material/BrokenImage"
+import { BrokenImage as NotFoundIcon } from "@mui/icons-material"
 import i18n from "i18next"
 import PropertyGroupContainer from "./PropertyGroupContainer"
 import {

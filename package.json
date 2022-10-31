@@ -38,8 +38,7 @@
     "predeploy": "npm run build",
     "lint": "eslint --ignore-path .gitignore src/ && dpdm --exit-code circular:1 src/index.ts",
     "rollup": "./node_modules/rollup/dist/bin/rollup -c rollup.config.js --bundleConfigAsCjs",
-    "build": "yarn run build-css && tsup src/index.ts --format cjs,esm --dts --clean && yarn run fix-mui",
-    "fix-mui": "sed -i -e \"s/\\(mui\\/material.*\\)\\(['\\\"]\\).*$/\\1\\/index.js\\2/g\" -e \"s/\\(mui\\/icons.*\\)\\(['\\\"]\\).*$/\\1.js\\2/g\" dist/index.mjs"
+    "build": "yarn run build-css && tsup src/index.ts --format cjs,esm --dts --clean"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,css,tsx,ts}": [

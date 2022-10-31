@@ -1422,7 +1422,7 @@ var enTranslations = {
 var en_default = enTranslations;
 
 // src/containers/EntityEditContainer.tsx
-var import_react5 = __toESM(require("react"));
+var import_react4 = __toESM(require("react"));
 
 // src/helpers/rdf/io.ts
 var rdf4 = __toESM(require("rdflib"));
@@ -1974,44 +1974,18 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
 }
 
 // src/containers/EntityEditContainer.tsx
-var import_BrokenImage = __toESM(require("@mui/icons-material/BrokenImage"));
+var import_icons_material3 = require("@mui/icons-material");
 var import_i18next4 = __toESM(require("i18next"));
 
 // src/containers/PropertyGroupContainer.tsx
-var import_react4 = require("react");
+var import_react3 = require("react");
 
 // src/containers/ValueList.tsx
-var import_react3 = __toESM(require("react"));
+var import_react2 = __toESM(require("react"));
 var rdf5 = __toESM(require("rdflib"));
 var import_recoil4 = require("recoil");
-var import_styles = require("@mui/styles");
 var import_material = require("@mui/material");
-
-// src/routes/layout/icons.jsx
-var import_react2 = __toESM(require("react"));
-var import_react_image = require("react-image");
-var import_RemoveCircleOutline = __toESM(require("@mui/icons-material/RemoveCircleOutline"));
-var import_AddCircleOutline = __toESM(require("@mui/icons-material/AddCircleOutline"));
-var import_Error = __toESM(require("@mui/icons-material/Error"));
-var import_Close = __toESM(require("@mui/icons-material/Close"));
-var import_FindReplace = __toESM(require("@mui/icons-material/FindReplace"));
-var import_Search = __toESM(require("@mui/icons-material/Search"));
-var import_Launch = __toESM(require("@mui/icons-material/Launch"));
-var import_Info = __toESM(require("@mui/icons-material/Info"));
-var import_InfoOutlined = __toESM(require("@mui/icons-material/InfoOutlined"));
-var import_Settings = __toESM(require("@mui/icons-material/Settings"));
-var import_Visibility = __toESM(require("@mui/icons-material/Visibility"));
-var import_VisibilityOff = __toESM(require("@mui/icons-material/VisibilityOff"));
-var import_Edit = __toESM(require("@mui/icons-material/Edit"));
-var import_Keyboard = __toESM(require("@mui/icons-material/Keyboard"));
-var import_More = __toESM(require("@mui/icons-material/More"));
-var import_Help = __toESM(require("@mui/icons-material/Help"));
-var import_AssignmentReturned = __toESM(require("@mui/icons-material/AssignmentReturned"));
-var import_FormatBold = __toESM(require("@mui/icons-material/FormatBold"));
-var AddIcon = import_AddCircleOutline.default;
-var RemoveIcon = import_RemoveCircleOutline.default;
-
-// src/containers/ValueList.tsx
+var import_icons_material = require("@mui/icons-material");
 var import_i18next2 = __toESM(require("i18next"));
 
 // src/helpers/lang.ts
@@ -2057,7 +2031,7 @@ function removeItemAtIndex(arr, index) {
   return [...arr.slice(0, index), ...arr.slice(index + 1)];
 }
 var PropertyContainer = ({ property, subject, embedded, force, editable, owner, topEntity, shape, siblingsPath, config }) => {
-  const [css, setCss] = (0, import_react3.useState)("");
+  const [css, setCss] = (0, import_react2.useState)("");
   const setCssClass = (txt, add = true) => {
     if (add) {
       if (!css.includes(txt))
@@ -2067,7 +2041,7 @@ var PropertyContainer = ({ property, subject, embedded, force, editable, owner, 
         setCss(css.replace(new RegExp(txt), ""));
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react3.default.Fragment, {
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react2.default.Fragment, {
     children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
       role: "main",
       ...css ? { className: css } : {},
@@ -2101,14 +2075,47 @@ var MinimalAddButton = ({ add, className, disable }) => {
       className: "btn btn-link ml-2 px-0",
       onClick: (ev) => add(ev, 1),
       ...disable ? { disabled: true } : {},
-      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AddIcon, {})
+      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.AddCircleOutline, {})
     })
   });
 };
 var BlockAddButton = ({ add, label, count = 1 }) => {
-  const [n, setN] = (0, import_react3.useState)(1);
-  const [disable, setDisable] = (0, import_react3.useState)(false);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {});
+  const [n, setN] = (0, import_react2.useState)(1);
+  const [disable, setDisable] = (0, import_react2.useState)(false);
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+      className: "blockAdd text-center pb-1 mt-3",
+      style: { width: "100%", ...count > 1 ? { display: "flex" } : {} },
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+          className: "btn btn-sm btn-block btn-outline-primary px-0",
+          style: {
+            boxShadow: "none",
+            pointerEvents: disable ? "none" : "auto",
+            ...disable ? { opacity: 0.5, pointerEvents: "none" } : {}
+          },
+          onClick: (e) => add(e, n),
+          children: [
+            import_i18next2.default.t("general.add_another", { val: label, count }),
+            "\xA0",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.AddCircleOutline, {})
+          ]
+        }),
+        count > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
+          label: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
+            children: import_i18next2.default.t("general.add_nb", { val: label })
+          }),
+          style: { width: 200 },
+          value: n,
+          className: "ml-2",
+          type: "number",
+          InputLabelProps: { shrink: true },
+          onChange: (e) => setN(Number(e.target.value)),
+          InputProps: { inputProps: { min: 1, max: 500 } }
+        })
+      ]
+    })
+  });
 };
 var generateDefault = async (property, parent, RIDprefix, idToken, val = "", config) => {
   var _a, _b;
@@ -2170,7 +2177,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     throw "can't find path of " + property.qname;
   const [unsortedList, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
   const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
-  const [idToken, setIdToken] = (0, import_react3.useState)(localStorage.getItem("BLMPidToken"));
+  const [idToken, setIdToken] = (0, import_react2.useState)(localStorage.getItem("BLMPidToken"));
   const [RIDprefix, setRIDprefix] = (0, import_recoil4.useRecoilState)(RIDprefixState);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
@@ -2231,7 +2238,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     const newList = replaceItemAtIndex(list, idx, value);
     setList(newList);
   };
-  const exists = (0, import_react3.useCallback)(
+  const exists = (0, import_react2.useCallback)(
     (uri) => {
       for (const val of list) {
         if (val instanceof RDFResourceWithLabel && (val.qname === uri || val.uri === uri)) {
@@ -2243,7 +2250,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     [list]
   );
   let firstValueIsEmptyField = true;
-  (0, import_react3.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     if (list.length) {
       const first = list[0];
       if (first instanceof ExtRDFResourceWithLabel && first.uri !== "tmp:uri" && first.uri !== "tmp:none")
@@ -2338,7 +2345,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     return false;
   };
   const hasNonEmptyValue = list.some((v) => !isEmptyValue(v) || isErrorValue(v));
-  (0, import_react3.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     if (setCssClass) {
       if (!hasNonEmptyValue)
         setCssClass("unset", true);
@@ -2347,9 +2354,9 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     }
   }, [hasNonEmptyValue]);
   const showLabel = !property.displayPriority || property.displayPriority === 0 || property.displayPriority === 1 && (force || list.length > 1 || hasNonEmptyValue) || property.displayPriority === 2 && (list.length >= 1 || hasNonEmptyValue);
-  const scrollElem = (0, import_react3.useRef)(null);
+  const scrollElem = (0, import_react2.useRef)(null);
   const [edit, setEdit] = (0, import_recoil4.useRecoilState)(uiEditState);
-  (0, import_react3.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     var _a2;
     if (((_a2 = property == null ? void 0 : property.group) == null ? void 0 : _a2.value) !== edit && (scrollElem == null ? void 0 : scrollElem.current)) {
       scrollElem.current.scrollTo({ top: 0, left: 0, behavior: "smooth" });
@@ -2369,7 +2376,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
       propertyPath: property.path.sparqlString
     })
   );
-  const renderListElem = (0, import_react3.useMemo)(
+  const renderListElem = (0, import_react2.useMemo)(
     () => (val, i, nbvalues) => {
       if (val instanceof RDFResourceWithLabel || property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */) {
         if (property.objectType == 3 /* ResExt */)
@@ -2450,35 +2457,60 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     },
     void 0
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react3.default.Fragment, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-      className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === 3 /* ResExt */ ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
-      "data-priority": property.displayPriority ? property.displayPriority : 0,
-      role: "main",
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        ...list.length > 1 && firstValueIsEmptyField && property.path.sparqlString !== SKOS("prefLabel").value ? {} : {}
-      },
-      children: [
-        hasEmptyExtEntityAsFirst && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-          style: { width: "100%" },
-          children: renderListElem(list[0], 0, list.length)
-        }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-          ref: scrollElem,
-          className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
-          style: {
-            width: "100%",
-            ...((_b = property == null ? void 0 : property.group) == null ? void 0 : _b.value) !== edit ? { paddingRight: "0.5rem" } : {}
-          },
-          children: list.map((val, i) => {
-            if (!hasEmptyExtEntityAsFirst || i > 0)
-              return renderListElem(val, i, list.length);
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, {
+    children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+        className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === 3 /* ResExt */ ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
+        "data-priority": property.displayPriority ? property.displayPriority : 0,
+        role: "main",
+        style: {
+          display: "flex",
+          flexWrap: "wrap",
+          ...list.length > 1 && firstValueIsEmptyField && property.path.sparqlString !== SKOS("prefLabel").value ? {} : {}
+        },
+        children: [
+          showLabel && (!property.in || property.in.length > 1) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+            className: "propLabel",
+            "data-prop": property.qname,
+            "data-type": property.objectType,
+            "data-priority": property.displayPriority,
+            children: [
+              titleCase(propLabel),
+              helpMessage && property.objectType === 3 /* ResExt */ && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
+                title: helpMessage,
+                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
+                  className: "help label"
+                })
+              })
+            ]
+          }),
+          hasEmptyExtEntityAsFirst && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+            style: { width: "100%" },
+            children: renderListElem(list[0], 0, list.length)
+          }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+            ref: scrollElem,
+            className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
+            style: {
+              width: "100%",
+              ...((_b = property == null ? void 0 : property.group) == null ? void 0 : _b.value) !== edit ? { paddingRight: "0.5rem" } : {}
+            },
+            children: list.map((val, i) => {
+              if (!hasEmptyExtEntityAsFirst || i > 0)
+                return renderListElem(val, i, list.length);
+            })
           })
-        })
-      ]
-    })
+        ]
+      }),
+      canAdd && addBtn && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Create, {
+        subject,
+        property,
+        embedded,
+        newVal: Number(newVal),
+        shape,
+        config
+      })
+    ]
   });
 };
 var Create = ({ subject, property, embedded, disable, newVal, shape, config }) => {
@@ -2499,7 +2531,7 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
   const [uiTab] = (0, import_recoil4.useRecoilState)(uiTabState);
   const entity = entities.findIndex((e, i) => i === uiTab);
   const [edit, setEdit] = (0, import_recoil4.useRecoilState)(uiEditState);
-  const [idToken, setIdToken] = (0, import_react3.useState)(localStorage.getItem("BLMPidToken"));
+  const [idToken, setIdToken] = (0, import_react2.useState)(localStorage.getItem("BLMPidToken"));
   const [RIDprefix, setRIDprefix] = (0, import_recoil4.useRecoilState)(RIDprefixState);
   let nextVal = (0, import_recoil4.useRecoilValue)(
     property.sortOnProperty ? orderedNewValSelector({
@@ -2557,17 +2589,9 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
     });
   }
 };
-var useStyles = (0, import_styles.makeStyles)((theme) => ({
-  root: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main
-    }
-  }
-}));
 var EditLangString = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
-  const classes = useStyles();
-  const [editMD, setEditMD] = (0, import_react3.useState)(false);
-  const [keyboard, setKeyboard] = (0, import_react3.useState)(false);
+  const [editMD, setEditMD] = (0, import_react2.useState)(false);
+  const [keyboard, setKeyboard] = (0, import_react2.useState)(false);
   const canPushPrefLabel = property.allowPushToTopLevelLabel;
   const getLangStringError = (val) => {
     let err = "";
@@ -2577,15 +2601,15 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
       err = globalError;
     return err;
   };
-  const [error, setError] = (0, import_react3.useState)(null);
-  (0, import_react3.useEffect)(() => {
+  const [error, setError] = (0, import_react2.useState)(null);
+  (0, import_react2.useEffect)(() => {
     const newError = getLangStringError(lit.value);
     if (newError != error) {
       updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
       setError(newError);
     }
   });
-  (0, import_react3.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     return () => {
       const inOtherEntity = !window.location.href.includes("/" + entity.qname + "/");
       if (!inOtherEntity)
@@ -2593,9 +2617,9 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
     };
   }, []);
   const errorData = {
-    helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react3.default.Fragment, {
+    helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, {
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Error.default, {
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, {
           style: { fontSize: "20px", verticalAlign: "-7px" }
         }),
         "\xA0",
@@ -2606,8 +2630,8 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
     }),
     error: true
   };
-  const [preview, setPreview] = (0, import_react3.useState)(null);
-  (0, import_react3.useLayoutEffect)(() => {
+  const [preview, setPreview] = (0, import_react2.useState)(null);
+  (0, import_react2.useLayoutEffect)(() => {
     if (document.activeElement === inputRef.current) {
       const { value, error: error2 } = config.previewLiteral(lit, uiLang);
       setPreview(value);
@@ -2622,13 +2646,13 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
   } else if (property.singleLine && editMD) {
     padBot = "1px";
   }
-  const codeEdit = { ...import_react_md_editor.commands.codeEdit, icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Edit.default, {
+  const codeEdit = { ...import_react_md_editor.commands.codeEdit, icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Edit, {
     style: { width: "12px", height: "12px" }
-  }) }, codePreview = { ...import_react_md_editor.commands.codePreview, icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Visibility.default, {
+  }) }, codePreview = { ...import_react_md_editor.commands.codePreview, icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Visibility, {
     style: { width: "12px", height: "12px" }
   }) };
   const hasKB = config.possibleLiteralLangs.filter((l) => l.value === lit.language);
-  const inputRef = (0, import_react3.useRef)();
+  const inputRef = (0, import_react2.useRef)();
   const keepFocus = () => {
     if (inputRef.current && document.activeElement != inputRef.current)
       inputRef.current.focus();
@@ -2691,7 +2715,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
                 className: "img"
               })
             }, lit.id),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_More.default, {})
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.More, {})
           ]
         })
       }),
@@ -2736,10 +2760,10 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
             style: { position: "absolute", right: 0, top: 0, fontSize: "0px" },
             onClick: () => setEditMD(!editMD),
             children: [
-              !editMD && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_FormatBold.default, {
+              !editMD && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.FormatBold, {
                 style: { height: "16px" }
               }),
-              editMD && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_FormatBold.default, {
+              editMD && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.FormatBold, {
                 style: { height: "16px" }
               })
             ]
@@ -2758,7 +2782,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
               display: "flex",
               alignItems: "center"
             },
-            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Keyboard.default, {})
+            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Keyboard, {})
           }),
           hasKB.length > 0 && hasKB[0].keyboard && keyboard && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
             className: "card px-2 py-2 hasKB",
@@ -2816,7 +2840,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
             className: "opaHover on",
             style: { position: "absolute", right: "5px", top: "7px", fontSize: "0px", cursor: "pointer" },
             onClick: () => setEditMD(!editMD),
-            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_FormatBold.default, {
+            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.FormatBold, {
               style: { height: "15px" },
               titleAccess: "Use rich text editor"
             })
@@ -2874,12 +2898,11 @@ var LangSelect = ({ onChange, value, property, disabled, error, editable, config
   });
 };
 var EditString = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
-  const classes = useStyles();
   const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
   const dt = property.datatype;
   const pattern = property.pattern ? new RegExp(property.pattern) : void 0;
-  const [error, setError] = (0, import_react3.useState)(null);
-  const [preview, setPreview] = (0, import_react3.useState)(null);
+  const [error, setError] = (0, import_react2.useState)(null);
+  const [preview, setPreview] = (0, import_react2.useState)(null);
   const getPatternError = (val) => {
     let err = "";
     if (pattern !== void 0 && val !== "" && !val.match(pattern)) {
@@ -2892,7 +2915,7 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
   let changeCallback = (val) => {
     return;
   };
-  (0, import_react3.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     changeCallback = (val) => {
       if (val === "") {
         setError(null);
@@ -2921,7 +2944,7 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
       return;
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, {
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Error.default, {
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, {
           style: { fontSize: "20px", verticalAlign: "-7px" }
         }),
         " ",
@@ -2934,7 +2957,7 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
     });
     return null;
   };
-  (0, import_react3.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     const newError = error || getEmptyStringError(lit.value);
     if (newError != error) {
       setError(newError);
@@ -2967,7 +2990,6 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
   });
 };
 var EditBool = ({ property, lit, onChange, label, editable }) => {
-  const classes = useStyles();
   const dt = property.datatype;
   let val = !lit.value || lit.value == "false" || lit.value == "0" ? false : true;
   if (property.defaultValue === null && lit.value == "")
@@ -2993,7 +3015,6 @@ var EditBool = ({ property, lit, onChange, label, editable }) => {
   });
 };
 var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
-  const classes = useStyles();
   const dt = property.datatype;
   const minInclusive = property.minInclusive;
   const maxInclusive = property.maxInclusive;
@@ -3019,8 +3040,8 @@ var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, ha
     }
     return err;
   };
-  const [error, setError] = (0, import_react3.useState)("");
-  (0, import_react3.useEffect)(() => {
+  const [error, setError] = (0, import_react2.useState)("");
+  (0, import_react2.useEffect)(() => {
     if (!hasNoOtherValue && (lit.value === void 0 || lit.value === null || lit.value === ""))
       return;
     const newError = getIntError(lit.value);
@@ -3053,9 +3074,9 @@ var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, ha
     style: { width: 240 },
     value,
     ...error ? {
-      helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react3.default.Fragment, {
+      helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, {
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Error.default, {
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, {
             style: { fontSize: "20px", verticalAlign: "-7px" }
           }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("i", {
@@ -3113,7 +3134,7 @@ var LiteralComponent = ({
     setList(newList);
     updateEntityState(1 /* Saved */, lit.id);
   };
-  (0, import_react3.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     let error = false;
     const entityQname = topEntity ? topEntity.qname : subject.qname;
     const n = entities.findIndex((e) => e.subjectQname === entityQname);
@@ -3138,7 +3159,7 @@ var LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Help.default, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3160,7 +3181,7 @@ var LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Help.default, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3180,7 +3201,7 @@ var LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Help.default, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3196,7 +3217,7 @@ var LiteralComponent = ({
         propLabel,
         helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
           title: helpMessage,
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Help.default, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
             className: "help literal"
           })
         }, lit.id) : null
@@ -3221,7 +3242,7 @@ var LiteralComponent = ({
               className: "btn btn-link ml-2 px-0 py-0 close-facet-btn",
               onClick: deleteItem,
               ...!canDel ? { disabled: true } : {},
-              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RemoveIcon, {
+              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.RemoveCircleOutline, {
                 className: "my-0 close-facet-btn"
               })
             }),
@@ -3255,7 +3276,7 @@ var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity,
       withoutDisplayPriority.push(subprop);
     }
   });
-  const [force, setForce] = (0, import_react3.useState)(false);
+  const [force, setForce] = (0, import_react2.useState)(false);
   const hasExtra = withDisplayPriority.length > 0;
   let waitForNoHisto = false;
   const toggleExtra = () => {
@@ -3336,7 +3357,7 @@ var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity,
             children: [
               targetShape.description && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
                 title: ValueByLangToStrPrefLang(targetShape.description, uiLang),
-                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Help.default, {
+                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
                   className: "help"
                 })
               }),
@@ -3344,7 +3365,7 @@ var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity,
                 className: "btn btn-link ml-2 px-0 close-facet-btn py-0",
                 onClick: deleteItem,
                 ...!canDel ? { disabled: true } : {},
-                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Close.default, {
+                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Close, {
                   className: "close-facet-btn my-1"
                 })
               })
@@ -3384,8 +3405,8 @@ var ExtEntityComponent = ({
     }
     setList(newList);
   };
-  const [error, setError] = (0, import_react3.useState)("");
-  (0, import_react3.useEffect)(() => {
+  const [error, setError] = (0, import_react2.useState)("");
+  (0, import_react2.useEffect)(() => {
     let newError;
     const nonEmptyList = list.filter((e) => e instanceof RDFResource && e.uri !== "tmp:uri");
     if (property.minCount && nonEmptyList.length < property.minCount) {
@@ -3435,7 +3456,7 @@ var ExtEntityComponent = ({
           className: "btn btn-link ml-2 px-0",
           onClick: deleteItem,
           ...!canDel ? { disabled: true } : {},
-          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RemoveIcon, {}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Close.default, {})
+          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.RemoveCircleOutline, {}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Close, {})
         })
       ]
     })
@@ -3487,13 +3508,12 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
     }
     setList(newList);
   };
-  const classes = useStyles();
   if (possibleValues.length == 1 && list.length == 0) {
     setList([possibleValues[0]]);
   }
-  const [error, setError] = (0, import_react3.useState)("");
+  const [error, setError] = (0, import_react2.useState)("");
   const valueNotInList = !possibleValues.some((pv) => pv.id === (val == null ? void 0 : val.id));
-  (0, import_react3.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     var _a, _b;
     if (valueNotInList) {
       setError("" + import_i18next2.default.t("error.select", { val: val == null ? void 0 : val.value }));
@@ -3502,7 +3522,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
       updateEntityState(1 /* Saved */, ((_b = property.path) == null ? void 0 : _b.sparqlString) + "_" + selectIdx);
     }
   }, [valueNotInList]);
-  (0, import_react3.useEffect)(() => {
+  (0, import_react2.useEffect)(() => {
     return () => {
       var _a, _b;
       const inOtherEntity = !window.location.href.includes("/" + ((_a = entities[entity]) == null ? void 0 : _a.subjectQname) + "/");
@@ -3526,15 +3546,15 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
               propLabel,
               helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
                 title: helpMessage,
-                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Help.default, {
+                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
                   className: "help"
                 })
               }, "tooltip_" + selectIdx + "_" + index) : null
             ],
             ...error ? {
-              helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react3.default.Fragment, {
+              helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, {
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_Error.default, {
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, {
                     style: { fontSize: "20px", verticalAlign: "-7px" }
                   }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("i", {
@@ -3588,7 +3608,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
               canDel && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
                 className: "btn btn-link mx-0 px-0 py-0",
                 onClick: deleteItem,
-                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RemoveIcon, {})
+                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.RemoveCircleOutline, {})
               }),
               create
             ]
@@ -3601,6 +3621,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
 };
 
 // src/containers/PropertyGroupContainer.tsx
+var import_icons_material2 = require("@mui/icons-material");
 var import_recoil5 = require("recoil");
 var import_i18next3 = __toESM(require("i18next"));
 var import_react_leaflet = require("react-leaflet");
@@ -3625,9 +3646,9 @@ function DraggableMarker({
   icon,
   setCoords
 }) {
-  const [position, setPosition] = (0, import_react4.useState)(pos);
-  const markerRef = (0, import_react4.useRef)(null);
-  const eventHandlers = (0, import_react4.useMemo)(
+  const [position, setPosition] = (0, import_react3.useState)(pos);
+  const markerRef = (0, import_react3.useRef)(null);
+  const eventHandlers = (0, import_react3.useMemo)(
     () => ({
       dragend() {
         const marker = markerRef.current;
@@ -3639,7 +3660,7 @@ function DraggableMarker({
     }),
     []
   );
-  (0, import_react4.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     if (markerRef.current && (markerRef.current.lat != pos.lat || markerRef.current.lng != pos.lng)) {
       markerRef.current.setLatLng(pos);
     }
@@ -3664,10 +3685,10 @@ var MapEventHandler = ({
       setCoords(ev.latlng);
     }
   });
-  (0, import_react4.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     map.setView(coords, map.getZoom());
   });
-  (0, import_react4.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     const provider = config.googleMapsAPIKey ? new import_leaflet_geosearch.GoogleProvider({ apiKey: config.googleMapsAPIKey }) : new import_leaflet_geosearch.OpenStreetMapProvider();
     const searchControl = (0, import_leaflet_geosearch.GeoSearchControl)({
       provider,
@@ -3687,7 +3708,7 @@ var MapEventHandler = ({
 var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, config }) => {
   const [uiLang] = (0, import_recoil5.useRecoilState)(uiLangState);
   const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
-  const [force, setForce] = (0, import_react4.useState)(false);
+  const [force, setForce] = (0, import_react3.useState)(false);
   const withDisplayPriority = [], withoutDisplayPriority = [];
   const errorKeys = Object.keys(errors[subject.qname] ? errors[subject.qname] : {});
   let hasError = false;
@@ -3710,7 +3731,7 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
   const [groupEd, setGroupEd] = (0, import_recoil5.useRecoilState)(uiGroupState);
   const [lat, setLat] = (0, import_recoil5.useRecoilState)(config.latProp ? subject.getAtomForProperty(config.latProp.uri) : initListAtom);
   const [lng, setLng] = (0, import_recoil5.useRecoilState)(config.lngProp ? subject.getAtomForProperty(config.lngProp.uri) : initListAtom);
-  const [redraw, setRedraw] = (0, import_react4.useState)(false);
+  const [redraw, setRedraw] = (0, import_react3.useState)(false);
   let coords, zoom = 5, unset = false;
   if (lat.length && lng.length && lat[0].value != "" && lat[0].value != "")
     coords = new import_leaflet.default.LatLng(Number(lat[0].value), Number(lng[0].value));
@@ -3719,7 +3740,7 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
     coords = new import_leaflet.default.LatLng(30, 0);
     zoom = 2;
   }
-  (0, import_react4.useEffect)(() => {
+  (0, import_react3.useEffect)(() => {
     setRedraw(true);
   }, [lng, lat]);
   const setCoords = (val) => {
@@ -3760,7 +3781,7 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
               className: "",
               children: [
                 label,
-                hasError && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_Error.default, {})
+                hasError && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_material2.Error, {})
               ]
             }),
             /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {
@@ -3891,9 +3912,9 @@ function EntityEditContainerMayUpdate(props) {
   const subnodeQname = params.subnodeQname;
   const [entities, setEntities] = (0, import_recoil6.useRecoilState)(entitiesAtom);
   const snapshot = (0, import_recoil6.useRecoilSnapshot)();
-  const [subject, setSubject] = (0, import_react5.useState)(null);
+  const [subject, setSubject] = (0, import_react4.useState)(null);
   const { copy } = import_query_string.default.parse(location.search, { decode: false });
-  (0, import_react5.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     var _a;
     const i = entities.findIndex((e) => e.subjectQname === subjectQname);
     let subj;
@@ -3972,7 +3993,7 @@ function EntityEditContainerDoUpdate(props) {
     })
   );
   debug9("LIST:", list, atom3, props.copy, copy);
-  (0, import_react5.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     if (copy) {
       setTimeout(() => {
         if (copy) {
@@ -4049,7 +4070,7 @@ function EntityEditContainer(props) {
   if (!altLabelAtom)
     altLabelAtom = initListAtom;
   const altLabels = (0, import_recoil6.useRecoilValue)(altLabelAtom);
-  (0, import_react5.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     entities.map((e, i) => {
       if (e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user") {
         if (tab != i) {
@@ -4060,7 +4081,7 @@ function EntityEditContainer(props) {
     });
   }, [entities, profileId]);
   let init = 0;
-  (0, import_react5.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     if (entityQname === "tmp:user" && !profileId)
       return;
     const delay = 350;
@@ -4083,7 +4104,7 @@ function EntityEditContainer(props) {
     }, delay);
   }, [entities, tab, profileId, entityQname]);
   const [userId, setUserId] = (0, import_recoil6.useRecoilState)(userIdState);
-  const save = (0, import_react5.useCallback)(
+  const save = (0, import_react4.useCallback)(
     (obj) => {
       return new Promise(async (resolve) => {
         var _a2, _b2;
@@ -4115,8 +4136,8 @@ function EntityEditContainer(props) {
     },
     [entityQname, shapeQname, entityObj]
   );
-  const entityObjRef = (0, import_react5.useRef)(entityObj);
-  (0, import_react5.useEffect)(() => {
+  const entityObjRef = (0, import_react4.useRef)(entityObj);
+  (0, import_react4.useEffect)(() => {
     var _a2, _b2, _c2;
     if (((_a2 = entityObjRef.current) == null ? void 0 : _a2.length) && (entityObj == null ? void 0 : entityObj.length)) {
       if (((_b2 = entityObjRef.current[0]) == null ? void 0 : _b2.subjectQname) != ((_c2 = entityObj[0]) == null ? void 0 : _c2.subjectQname)) {
@@ -4124,7 +4145,7 @@ function EntityEditContainer(props) {
       }
     }
   });
-  (0, import_react5.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     return () => {
       const fun = async () => {
         if (entityObjRef.current) {
@@ -4135,9 +4156,9 @@ function EntityEditContainer(props) {
       fun();
     };
   }, []);
-  const [warning, setWarning] = (0, import_react5.useState)(() => (event) => {
+  const [warning, setWarning] = (0, import_react4.useState)(() => (event) => {
   });
-  (0, import_react5.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     const willSave = [];
     for (const e of entities) {
       if (e.state !== 1 /* Saved */ && e.state !== 4 /* NotLoaded */) {
@@ -4159,7 +4180,7 @@ function EntityEditContainer(props) {
       });
     }
   }, [entities]);
-  (0, import_react5.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     window.addEventListener("beforeunload", warning, true);
   }, [warning]);
   const { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config);
@@ -4167,7 +4188,7 @@ function EntityEditContainer(props) {
     return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("p", {
       className: "text-center text-muted",
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_BrokenImage.default, {
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_icons_material3.BrokenImage, {
           className: "icon mr-2"
         }),
         loadingState.error,
@@ -4213,7 +4234,7 @@ function EntityEditContainer(props) {
     e.stopPropagation();
   };
   const previewLink = config.getPreviewLink(entity.node);
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_react5.default.Fragment, {
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_react4.default.Fragment, {
     children: [
       /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
         role: "main",
@@ -4263,7 +4284,6 @@ function EntityEditContainer(props) {
           }),
           shape.groups.map((group, index) => {
             const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
-            debug9(group.qname);
             return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_router_hash_link.HashLink, {
               to: "#" + group.qname,
               onClick: () => {
@@ -4279,7 +4299,7 @@ function EntityEditContainer(props) {
         ]
       }),
       /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
-        children: shape.groups.map((group, index) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_react5.default.Fragment, {
+        children: shape.groups.map((group, index) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_react4.default.Fragment, {
           children: [
             groupEd === group.qname && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
               className: "group-edit-BG",
@@ -4301,7 +4321,7 @@ function EntityEditContainer(props) {
 var EntityEditContainer_default = EntityEditContainer;
 
 // src/containers/NewEntityContainer.tsx
-var import_react6 = require("react");
+var import_react5 = require("react");
 var import_recoil7 = require("recoil");
 var import_react_router_dom2 = require("react-router-dom");
 var import_i18next5 = __toESM(require("i18next"));
@@ -4311,7 +4331,7 @@ var import_jsx_runtime4 = require("react/jsx-runtime");
 function NewEntityContainer(props) {
   const config = props.config || {};
   const [uiLang] = (0, import_recoil7.useRecoilState)(uiLangState);
-  const [RID, setRID] = (0, import_react6.useState)("");
+  const [RID, setRID] = (0, import_react5.useState)("");
   const [RIDprefix, setRIDprefix] = (0, import_recoil7.useRecoilState)(RIDprefixState);
   const navigate = (0, import_react_router_dom2.useNavigate)();
   const disabled = !RIDprefix;
@@ -4404,23 +4424,18 @@ var NewEntityContainer_default = NewEntityContainer;
 var import_recoil8 = require("recoil");
 
 // src/containers/Dialog.tsx
-var import_react7 = __toESM(require("react"));
+var import_react6 = __toESM(require("react"));
 var import_react_router_dom3 = require("react-router-dom");
-var import_Button = __toESM(require("@mui/material/Button"));
-var import_Dialog = __toESM(require("@mui/material/Dialog"));
-var import_DialogActions = __toESM(require("@mui/material/DialogActions"));
-var import_DialogContent = __toESM(require("@mui/material/DialogContent"));
-var import_DialogContentText = __toESM(require("@mui/material/DialogContentText"));
-var import_DialogTitle = __toESM(require("@mui/material/DialogTitle"));
+var import_material3 = require("@mui/material");
 var import_debug10 = require("debug");
 var import_jsx_runtime5 = require("react/jsx-runtime");
 var debug10 = (0, import_debug10.debug)("rde:entity:dialog");
 function Dialog422(props) {
   var _a;
-  const [open, setOpen] = import_react7.default.useState(props.open);
+  const [open, setOpen] = import_react6.default.useState(props.open);
   const shape = (_a = props.shaped.split(":")[1]) == null ? void 0 : _a.replace(/Shape$/, "");
-  const [createNew, setCreateNew] = (0, import_react7.useState)(false);
-  const [loadNamed, setLoadNamed] = (0, import_react7.useState)(false);
+  const [createNew, setCreateNew] = (0, import_react6.useState)(false);
+  const [loadNamed, setLoadNamed] = (0, import_react6.useState)(false);
   debug10("422:", props);
   const handleLoad = () => {
     setLoadNamed(true);
@@ -4440,10 +4455,10 @@ function Dialog422(props) {
     });
   else
     return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", {
-      children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_Dialog.default, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.Dialog, {
         open,
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_DialogTitle.default, {
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.DialogTitle, {
             children: [
               shape,
               " ",
@@ -4451,8 +4466,8 @@ function Dialog422(props) {
               " has already been created"
             ]
           }),
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_DialogContent.default, {
-            children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_DialogContentText.default, {
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_material3.DialogContent, {
+            children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.DialogContentText, {
               children: [
                 "Do you want to use it, or to create a new ",
                 shape,
@@ -4460,10 +4475,10 @@ function Dialog422(props) {
               ]
             })
           }),
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_DialogActions.default, {
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.DialogActions, {
             style: { justifyContent: "space-around" },
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_Button.default, {
+              /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.Button, {
                 className: "btn-rouge",
                 onClick: handleLoad,
                 color: "primary",
@@ -4475,7 +4490,7 @@ function Dialog422(props) {
                   })
                 ]
               }),
-              /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_Button.default, {
+              /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.Button, {
                 className: "btn-rouge",
                 onClick: handleNew,
                 color: "primary",
@@ -4498,8 +4513,8 @@ function Dialog422(props) {
 
 // src/containers/EntityCreationContainer.tsx
 var import_react_router_dom4 = require("react-router-dom");
-var import_react8 = require("react");
-var import_BrokenImage2 = __toESM(require("@mui/icons-material/BrokenImage"));
+var import_react7 = require("react");
+var import_icons_material4 = require("@mui/icons-material");
 var import_i18next6 = __toESM(require("i18next"));
 var import_query_string2 = __toESM(require("query-string"));
 var rdf7 = __toESM(require("rdflib"));
@@ -4518,7 +4533,7 @@ function EntityCreationContainer(props) {
   const [RIDprefix, setRIDprefix] = (0, import_recoil8.useRecoilState)(RIDprefixState);
   const location = (0, import_react_router_dom4.useLocation)();
   const unmounting = { val: false };
-  (0, import_react8.useEffect)(() => {
+  (0, import_react7.useEffect)(() => {
     return () => {
       unmounting.val = true;
     };
@@ -4555,7 +4570,7 @@ function EntityCreationContainer(props) {
     return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("p", {
       className: "text-center text-muted",
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_BrokenImage2.default, {
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_icons_material4.BrokenImage, {
           className: "icon mr-2"
         }),
         entityLoadingState.error
@@ -4581,7 +4596,7 @@ function EntityCreationContainerAlreadyOpen(props) {
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname;
   const unmounting = { val: false };
-  (0, import_react8.useEffect)(() => {
+  (0, import_react7.useEffect)(() => {
     return () => {
       unmounting.val = true;
     };
@@ -4625,11 +4640,11 @@ function EntityCreationContainerRoute(props) {
 var EntityCreationContainer_default = EntityCreationContainer;
 
 // src/containers/EntityShapeChooserContainer.tsx
-var import_react9 = require("react");
+var import_react8 = require("react");
 var import_i18next7 = __toESM(require("i18next"));
 var import_recoil9 = require("recoil");
 var import_react_router_dom5 = require("react-router-dom");
-var import_material3 = require("@mui/material");
+var import_material4 = require("@mui/material");
 var import_debug12 = require("debug");
 var import_jsx_runtime7 = require("react/jsx-runtime");
 var debug12 = (0, import_debug12.debug)("rde:entity:shape");
@@ -4637,16 +4652,16 @@ function EntityShapeChooserContainer(props) {
   const config = props.config;
   const params = (0, import_react_router_dom5.useParams)();
   const navigate = (0, import_react_router_dom5.useNavigate)();
-  const [entityQname, setEntityQname] = (0, import_react9.useState)(params.entityQname || "");
+  const [entityQname, setEntityQname] = (0, import_react8.useState)(params.entityQname || "");
   const [uiLang] = (0, import_recoil9.useRecoilState)(uiLangState);
   const [entities, setEntities] = (0, import_recoil9.useRecoilState)(entitiesAtom);
   const unmounting = { val: false };
-  (0, import_react9.useEffect)(() => {
+  (0, import_react8.useEffect)(() => {
     return () => {
       unmounting.val = true;
     };
   }, []);
-  (0, import_react9.useEffect)(() => {
+  (0, import_react8.useEffect)(() => {
     if (unmounting.val)
       return;
     else if (params.entityQname)
@@ -4738,14 +4753,14 @@ function EntityShapeChooserContainer(props) {
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", {
               children: "Choose a shape:"
             }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_material3.TextField, {
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_material4.TextField, {
               select: true,
               helperText: "List of all possible shapes",
               id: "shapeSelec",
               className: "shapeSelector",
               value: config.possibleShapeRefs[0].qname,
               style: { marginTop: "3px", marginLeft: "10px" },
-              children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_material3.MenuItem, {
+              children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_material4.MenuItem, {
                 value: shape.qname,
                 style: { padding: 0 },
                 children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Link, {
@@ -4778,18 +4793,19 @@ function EntityShapeChooserContainer(props) {
 var EntityShapeChooserContainer_default = EntityShapeChooserContainer;
 
 // src/containers/BUDAResourceSelector.tsx
-var import_react10 = __toESM(require("react"));
+var import_react9 = __toESM(require("react"));
 var import_recoil10 = require("recoil");
-var import_styles2 = require("@mui/styles");
-var import_material4 = require("@mui/material");
+var import_styles = require("@mui/styles");
+var import_material5 = require("@mui/material");
 var import_i18next8 = __toESM(require("i18next"));
 var import_react_router_dom6 = require("react-router-dom");
 var rdf8 = __toESM(require("rdflib"));
+var import_icons_material5 = require("@mui/icons-material");
 var import_debug13 = require("debug");
 var import_jsx_runtime8 = require("react/jsx-runtime");
-var import_react11 = require("react");
+var import_react10 = require("react");
 var debug13 = (0, import_debug13.debug)("rde:atom:event:RS");
-var useStyles2 = (0, import_styles2.makeStyles)((theme) => ({
+var useStyles = (0, import_styles.makeStyles)((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
@@ -4813,19 +4829,19 @@ var BUDAResourceSelector = ({
   config
 }) => {
   var _a, _b, _c, _d;
-  const [keyword, setKeyword] = (0, import_react10.useState)("");
-  const [language, setLanguage] = (0, import_react10.useState)("bo-x-ewts");
-  const [type, setType] = (0, import_react10.useState)(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
-  const [libraryURL, setLibraryURL] = (0, import_react10.useState)("");
+  const [keyword, setKeyword] = (0, import_react9.useState)("");
+  const [language, setLanguage] = (0, import_react9.useState)("bo-x-ewts");
+  const [type, setType] = (0, import_react9.useState)(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
+  const [libraryURL, setLibraryURL] = (0, import_react9.useState)("");
   const [uiLang, setUiLang] = (0, import_recoil10.useRecoilState)(uiLangState);
   const [uiLitLang, setUiLitLang] = (0, import_recoil10.useRecoilState)(uiLitLangState);
-  const [error, setError] = (0, import_react10.useState)();
+  const [error, setError] = (0, import_react9.useState)();
   const [entities, setEntities] = (0, import_recoil10.useRecoilState)(entitiesAtom);
   const navigate = (0, import_react_router_dom6.useNavigate)();
   const msgId = subject.qname + property.qname + idx;
-  const [popupNew, setPopupNew] = (0, import_react10.useState)(false);
-  const iframeRef = (0, import_react10.useRef)(null);
-  const [canCopy, setCanCopy] = (0, import_react10.useState)([]);
+  const [popupNew, setPopupNew] = (0, import_react9.useState)(false);
+  const iframeRef = (0, import_react9.useRef)(null);
+  const [canCopy, setCanCopy] = (0, import_react9.useState)([]);
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i);
   const [toCopy, setProp] = (0, import_recoil10.useRecoilState)(
     toCopySelector({
@@ -4835,7 +4851,7 @@ var BUDAResourceSelector = ({
       }))
     })
   );
-  (0, import_react10.useEffect)(() => {
+  (0, import_react9.useEffect)(() => {
     var _a2, _b2;
     if ((_a2 = property.copyObjectsOfProperty) == null ? void 0 : _a2.length) {
       const copy = [];
@@ -4852,7 +4868,7 @@ var BUDAResourceSelector = ({
       setCanCopy(copy);
     }
   }, []);
-  (0, import_react10.useEffect)(() => {
+  (0, import_react9.useEffect)(() => {
     if (globalError && !error)
       setError(globalError);
   }, [globalError]);
@@ -4874,7 +4890,7 @@ var BUDAResourceSelector = ({
     }
   };
   let msgHandler = null;
-  (0, import_react10.useEffect)(() => {
+  (0, import_react9.useEffect)(() => {
     const updateRes = (data) => {
       let isTypeOk = false;
       let actual;
@@ -4951,7 +4967,7 @@ var BUDAResourceSelector = ({
         window.removeEventListener("message", msgHandler, true);
     };
   }, [libraryURL]);
-  (0, import_react10.useEffect)(() => {
+  (0, import_react9.useEffect)(() => {
     if (value.otherData["tmp:keyword"]) {
       setKeyword(value.otherData["tmp:keyword"]["@value"]);
       setLanguage(value.otherData["tmp:keyword"]["@language"]);
@@ -5024,7 +5040,7 @@ var BUDAResourceSelector = ({
     if (dates)
       dates = "(" + dates + ")";
   }
-  const createAndUpdate = (0, import_react10.useCallback)(
+  const createAndUpdate = (0, import_react9.useCallback)(
     async (type2, named = "") => {
       var _a2, _b2;
       let url = "";
@@ -5094,21 +5110,21 @@ var BUDAResourceSelector = ({
       entity: entity[0]
     });
   }
-  (0, import_react10.useEffect)(() => {
+  (0, import_react9.useEffect)(() => {
     if (error) {
       debug13("error:", error);
     }
   }, [error]);
-  const inputRef = (0, import_react10.useRef)();
-  const [preview, setPreview] = (0, import_react10.useState)(null);
-  (0, import_react10.useLayoutEffect)(() => {
+  const inputRef = (0, import_react9.useRef)();
+  const [preview, setPreview] = (0, import_react9.useState)(null);
+  (0, import_react9.useLayoutEffect)(() => {
     if (document.activeElement === inputRef.current && !isRid && keyword) {
       const previewVal = config.previewLiteral(new rdf8.Literal(keyword, language), uiLang);
       setPreview(previewVal.value);
       setPreview(previewVal.value);
     }
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_react10.default.Fragment, {
+  return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_react9.default.Fragment, {
     children: [
       /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", {
         className: "resSelect " + (error ? "error" : ""),
@@ -5117,16 +5133,16 @@ var BUDAResourceSelector = ({
           value.uri === "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", {
             className: preview ? "withPreview" : "",
             style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
-            children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_react10.default.Fragment, {
+            children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_react9.default.Fragment, {
               children: [
                 preview && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", {
                   className: "preview-ewts",
-                  children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material4.TextField, {
+                  children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material5.TextField, {
                     disabled: true,
                     value: preview
                   })
                 }),
-                /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material4.TextField, {
+                /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material5.TextField, {
                   onKeyPress: (e) => {
                     if (e.key === "Enter")
                       onClickKB(e);
@@ -5145,9 +5161,9 @@ var BUDAResourceSelector = ({
                   onChange: textOnChange,
                   placeholder: "Search name or RID for " + title,
                   ...error ? {
-                    helperText: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_react10.default.Fragment, {
+                    helperText: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_react9.default.Fragment, {
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_Error.default, {
+                        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_icons_material5.Error, {
                           style: { fontSize: "20px", verticalAlign: "-7px" }
                         }),
                         /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("i", {
@@ -5172,7 +5188,7 @@ var BUDAResourceSelector = ({
                   error: !!error,
                   config
                 }),
-                ((_b = property.expectedObjectTypes) == null ? void 0 : _b.length) > 1 && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material4.TextField, {
+                ((_b = property.expectedObjectTypes) == null ? void 0 : _b.length) > 1 && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material5.TextField, {
                   select: true,
                   style: { width: 100, flexShrink: 0 },
                   value: type,
@@ -5187,7 +5203,7 @@ var BUDAResourceSelector = ({
                   } : {},
                   children: (_c = property.expectedObjectTypes) == null ? void 0 : _c.map((r) => {
                     const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material4.MenuItem, {
+                    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material5.MenuItem, {
                       value: r.qname,
                       children: label2
                     }, r.qname);
@@ -5199,7 +5215,7 @@ var BUDAResourceSelector = ({
                   style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
                   onClick,
                   ...!editable ? { disabled: true } : {},
-                  children: libraryURL ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_Close.default, {}) : /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_Search.default, {})
+                  children: libraryURL ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_icons_material5.Close, {}) : /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_icons_material5.Search, {})
                 }),
                 /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("button", {
                   className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
@@ -5213,7 +5229,7 @@ var BUDAResourceSelector = ({
               ]
             })
           }),
-          value.uri !== "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_react10.default.Fragment, {
+          value.uri !== "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_react9.default.Fragment, {
             children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", {
               className: "selected",
               children: [
@@ -5234,10 +5250,10 @@ var BUDAResourceSelector = ({
                           setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
                       },
                       children: [
-                        !libraryURL && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_InfoOutlined.default, {
+                        !libraryURL && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_icons_material5.InfoOutlined, {
                           style: { width: "18px", cursor: "pointer" }
                         }),
-                        libraryURL && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_Info.default, {
+                        libraryURL && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_icons_material5.Info, {
                           style: { width: "18px", cursor: "pointer" }
                         })
                       ]
@@ -5248,7 +5264,7 @@ var BUDAResourceSelector = ({
                       href: config.libraryUrl + "/show/" + value.qname,
                       rel: "noopener noreferrer",
                       target: "_blank",
-                      children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_Launch.default, {
+                      children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_icons_material5.Launch, {
                         style: { width: "16px" }
                       })
                     }),
@@ -5256,14 +5272,14 @@ var BUDAResourceSelector = ({
                     /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_react_router_dom6.Link, {
                       title: import_i18next8.default.t("search.help.edit"),
                       to: "/edit/" + value.qname,
-                      children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_Edit.default, {
+                      children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_icons_material5.Edit, {
                         style: { width: "16px" }
                       })
                     }),
                     "\xA0",
                     canCopy.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", {
                       title: import_i18next8.default.t("general.import"),
-                      children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_AssignmentReturned.default, {
+                      children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_icons_material5.ContentPaste, {
                         style: { width: "17px", cursor: "pointer" },
                         onClick: () => {
                           setProp(canCopy);
@@ -5319,7 +5335,7 @@ var BUDAResourceSelector = ({
                     return (_a3 = e.shapeQname) == null ? void 0 : _a3.startsWith(t.qname.replace(/^bdo:/, "bds:"));
                   }
                 ))) {
-                  return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material4.MenuItem, {
+                  return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material5.MenuItem, {
                     className: "px-0 py-0",
                     children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(LabelWithRID, {
                       choose: chooseEntity,
@@ -5333,7 +5349,7 @@ var BUDAResourceSelector = ({
               }),
               (_d = property.expectedObjectTypes) == null ? void 0 : _d.map((r) => {
                 const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                return /* @__PURE__ */ (0, import_react11.createElement)(import_material4.MenuItem, {
+                return /* @__PURE__ */ (0, import_react10.createElement)(import_material5.MenuItem, {
                   ...r.qname === "bdo:EtextInstance" ? { disabled: true } : {},
                   key: r.qname,
                   value: r.qname,
