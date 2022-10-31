@@ -33,14 +33,18 @@ export const sortByPropValue = (
   const nodeUriToPropValue: Record<string, number> = {}
   for (const node of nodelist) {
     const ordern: rdf.Literal | null = store.any(node, property, null) as rdf.Literal
-    if (!ordern) nodeUriToPropValue[node.uri] = 0
+    if (!ordern) {
+      nodeUriToPropValue[node.uri] = 0
+      continue
+    }
     const asnum = rdfLitAsNumber(ordern)
     nodeUriToPropValue[node.uri] = asnum == null ? 0 : asnum
   }
   // TODO: untested
-  return [...nodelist].sort((a: rdf.NamedNode, b: rdf.NamedNode) => {
+  const res = [...nodelist].sort((a: rdf.NamedNode, b: rdf.NamedNode) => {
     return nodeUriToPropValue[a.uri] - nodeUriToPropValue[b.uri]
   })
+  return res
 }
 
 export class PropertyShape extends RDFResourceWithLabel {

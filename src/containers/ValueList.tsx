@@ -404,6 +404,7 @@ const ValueList: FC<{
 
     // reinitializing the property values atom if it hasn't been initialized yet
     const vals: Array<Value> | null = subject.getUnitializedValues(property)
+    debug("got uninitialized values for property ", property, vals)
     if (vals && vals.length) {
       if (property.minCount && vals.length < property.minCount) {
         const setListAsync = async () => {
@@ -418,6 +419,7 @@ const ValueList: FC<{
         setListAsync()
       } else {
         //debug("setNoH:1b",subject,owner,topEntity)
+        debug("set list on atom")
         setList(vals)
       }
     } else if (

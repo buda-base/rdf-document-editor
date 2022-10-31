@@ -921,14 +921,17 @@ var sortByPropValue = (nodelist, property, store) => {
   const nodeUriToPropValue = {};
   for (const node of nodelist) {
     const ordern = store.any(node, property, null);
-    if (!ordern)
+    if (!ordern) {
       nodeUriToPropValue[node.uri] = 0;
+      continue;
+    }
     const asnum = rdfLitAsNumber(ordern);
     nodeUriToPropValue[node.uri] = asnum == null ? 0 : asnum;
   }
-  return [...nodelist].sort((a, b) => {
+  const res = [...nodelist].sort((a, b) => {
     return nodeUriToPropValue[a.uri] - nodeUriToPropValue[b.uri];
   });
+  return res;
 };
 var _PropertyShape = class extends RDFResourceWithLabel {
   constructor(node, graph3) {
@@ -2275,6 +2278,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
         firstValueIsEmptyField = false;
     }
     const vals = subject.getUnitializedValues(property);
+    debug7("got uninitialized values for property ", property, vals);
     if (vals && vals.length) {
       if (property.minCount && vals.length < property.minCount) {
         const setListAsync = async () => {
@@ -2289,6 +2293,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
         };
         setListAsync();
       } else {
+        debug7("set list on atom");
         setList(vals);
       }
     } else if (property.objectType != 2 /* ResInList */ && property.objectType != 5 /* LitInList */ && property.objectType != 1 /* Internal */ && (!property.displayPriority || property.displayPriority === 0 || property.displayPriority === 1 && (list.length || force)) && (property.minCount && list.length < property.minCount || !list.length || !firstValueIsEmptyField) && (!property.maxCount || property.maxCount >= list.length)) {
