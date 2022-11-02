@@ -4506,7 +4506,6 @@ function EntityCreationContainer(props) {
   const index = params.index;
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
-  const [RIDprefix, setRIDprefix] = (0, import_recoil8.useRecoilState)(RIDprefixState);
   const location = (0, import_react_router_dom4.useLocation)();
   const unmounting = { val: false };
   (0, import_react7.useEffect)(() => {
@@ -4514,10 +4513,6 @@ function EntityCreationContainer(props) {
       unmounting.val = true;
     };
   }, []);
-  if (RIDprefix == "")
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom4.Navigate, {
-      to: "/new"
-    });
   const shapeNode = rdf7.sym(config.prefixMap.uriFromQname(shapeQname));
   const entityNode = rdf7.sym(config.prefixMap.uriFromQname(entityQname));
   const { entityLoadingState, entity } = unmounting.val ? { entityLoadingState: { status: "idle", error: void 0 }, entity: null } : config.entityCreator(shapeNode, entityNode, unmounting);

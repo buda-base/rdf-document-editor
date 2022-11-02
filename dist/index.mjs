@@ -4477,7 +4477,6 @@ function EntityCreationContainer(props) {
   const index = params.index;
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
-  const [RIDprefix, setRIDprefix] = useRecoilState6(RIDprefixState);
   const location = useLocation2();
   const unmounting = { val: false };
   useEffect5(() => {
@@ -4485,10 +4484,6 @@ function EntityCreationContainer(props) {
       unmounting.val = true;
     };
   }, []);
-  if (RIDprefix == "")
-    return /* @__PURE__ */ jsx6(Navigate3, {
-      to: "/new"
-    });
   const shapeNode = rdf7.sym(config.prefixMap.uriFromQname(shapeQname));
   const entityNode = rdf7.sym(config.prefixMap.uriFromQname(entityQname));
   const { entityLoadingState, entity } = unmounting.val ? { entityLoadingState: { status: "idle", error: void 0 }, entity: null } : config.entityCreator(shapeNode, entityNode, unmounting);
@@ -4748,7 +4743,16 @@ import { TextField as TextField4, MenuItem as MenuItem4 } from "@mui/material";
 import i18n8 from "i18next";
 import { useNavigate as useNavigate3, Link as Link4 } from "react-router-dom";
 import * as rdf8 from "rdflib";
-import { Launch as LaunchIcon, Info as InfoIcon, InfoOutlined as InfoOutlinedIcon, Search as LookupIcon, ContentPaste as ContentPasteIcon, Error as ErrorIcon3, Close as CloseIcon2, Edit as EditIcon2 } from "@mui/icons-material";
+import {
+  Launch as LaunchIcon,
+  Info as InfoIcon,
+  InfoOutlined as InfoOutlinedIcon,
+  Search as LookupIcon,
+  ContentPaste as ContentPasteIcon,
+  Error as ErrorIcon3,
+  Close as CloseIcon2,
+  Edit as EditIcon2
+} from "@mui/icons-material";
 import { debug as debugfactory13 } from "debug";
 import { Fragment as Fragment7, jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
 import { createElement } from "react";

@@ -27,10 +27,9 @@ export function EntityCreationContainer(props: RDEProps) {
   // - if an entity with the same qname is already open in the editor, just redirect to it
   // - else call EntityCreator
   const entityQname = params.entityQname || ""
-  const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
-
+    
   const location = useLocation()
-
+  
   const unmounting = { val: false }
   useEffect(() => {
     return () => {
@@ -38,8 +37,10 @@ export function EntityCreationContainer(props: RDEProps) {
       unmounting.val = true
     }
   }, [])
-
-  if (RIDprefix == "") return <Navigate to="/new" />
+  
+  // TODO: move to BLMP
+  //const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
+  //if (RIDprefix == "") return <Navigate to="/new" />
 
   const shapeNode = rdf.sym(config.prefixMap.uriFromQname(shapeQname))
   const entityNode = rdf.sym(config.prefixMap.uriFromQname(entityQname))
