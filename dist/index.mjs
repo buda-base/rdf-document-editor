@@ -1945,7 +1945,18 @@ import React, { useEffect as useEffect2, useState as useState2, useRef, useLayou
 import * as rdf5 from "rdflib";
 import { useRecoilState as useRecoilState2, useRecoilValue } from "recoil";
 import { TextField, MenuItem, Tooltip } from "@mui/material";
-import { AddCircleOutline as AddCircleOutlineIcon, RemoveCircleOutline as RemoveCircleOutlineIcon, Error as ErrorIcon, Close as CloseIcon, Visibility as VisibilityIcon, FormatBold as MDIcon, More as Label, Edit as EditIcon, Keyboard as KeyboardIcon, Help as HelpIcon } from "@mui/icons-material";
+import {
+  AddCircleOutline as AddCircleOutlineIcon,
+  RemoveCircleOutline as RemoveCircleOutlineIcon,
+  Error as ErrorIcon,
+  Close as CloseIcon,
+  Visibility as VisibilityIcon,
+  FormatBold as MDIcon,
+  More as Label,
+  Edit as EditIcon,
+  Keyboard as KeyboardIcon,
+  Help as HelpIcon
+} from "@mui/icons-material";
 import i18n2 from "i18next";
 
 // src/helpers/lang.ts
@@ -2210,8 +2221,25 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     [list]
   );
   let firstValueIsEmptyField = true;
+  const setListAsync = useCallback(async (pre = false, vals = [], solo = false) => {
+    const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
+    if (topEntity)
+      topEntity.noHisto();
+    else if (owner)
+      owner.noHisto();
+    else
+      subject.noHisto();
+    if (solo)
+      setList(Array.isArray(res) ? res : [res]);
+    else if (vals)
+      setList(vals.concat(Array.isArray(res) ? res : [res]));
+    else if (pre)
+      setList((oldList) => (Array.isArray(res) ? res : [res]).concat(oldList));
+    else
+      setList((oldList = []) => oldList.concat(Array.isArray(res) ? res : [res]));
+  }, [property, subject, RIDprefix, idToken, newVal, config, topEntity, owner, setList]);
   useEffect2(() => {
-    if (list.length) {
+    if (list.length && (!property.maxCount || property.maxCount > list.length)) {
       const first = list[0];
       if (first instanceof ExtRDFResourceWithLabel && first.uri !== "tmp:uri" && first.uri !== "tmp:none")
         firstValueIsEmptyField = false;
@@ -2219,73 +2247,23 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     const vals = subject.getUnitializedValues(property);
     debug7("got uninitialized values for property ", property, vals);
     if (vals && vals.length) {
-      if (property.minCount && vals.length < property.minCount) {
-        const setListAsync = async () => {
-          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
-          if (topEntity)
-            topEntity.noHisto();
-          else if (owner)
-            owner.noHisto();
-          else
-            subject.noHisto();
-          setList(vals.concat(Array.isArray(res) ? res : [res]));
-        };
-        setListAsync();
+      if (property.minCount && vals.length < property.minCount && (!property.maxCount || property.maxCount > list.length)) {
+        setListAsync(void 0, vals);
       } else {
         debug7("set list on atom");
         setList(vals);
       }
-    } else if (property.objectType != 2 /* ResInList */ && property.objectType != 5 /* LitInList */ && property.objectType != 1 /* Internal */ && (!property.displayPriority || property.displayPriority === 0 || property.displayPriority === 1 && (list.length || force)) && (property.minCount && list.length < property.minCount || !list.length || !firstValueIsEmptyField) && (!property.maxCount || property.maxCount >= list.length)) {
+    } else if (property.objectType != 2 /* ResInList */ && property.objectType != 5 /* LitInList */ && property.objectType != 1 /* Internal */ && (!property.displayPriority || property.displayPriority === 0 || property.displayPriority === 1 && (list.length || force)) && (property.minCount && list.length < property.minCount || !list.length || !firstValueIsEmptyField) && (!property.maxCount || property.maxCount > list.length)) {
       if (!firstValueIsEmptyField) {
-        const setListAsync = async () => {
-          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
-          if (topEntity)
-            topEntity.noHisto();
-          else if (owner)
-            owner.noHisto();
-          else
-            subject.noHisto();
-          setList((oldList) => (Array.isArray(res) ? res : [res]).concat(oldList));
-        };
-        setListAsync();
+        setListAsync(true);
       } else {
-        const setListAsync = async () => {
-          const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
-          if (topEntity)
-            topEntity.noHisto();
-          else if (owner)
-            owner.noHisto();
-          else
-            subject.noHisto();
-          setList((oldList) => oldList.concat(Array.isArray(res) ? res : [res]));
-        };
-        setListAsync();
+        setListAsync(false);
       }
-    } else if (property.objectType == 1 /* Internal */ && property.minCount && list.length < property.minCount) {
-      const setListAsync = async () => {
-        const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
-        if (topEntity)
-          topEntity.noHisto();
-        else if (owner)
-          owner.noHisto();
-        else
-          subject.noHisto();
-        setList((oldList) => (Array.isArray(res) ? res : [res]).concat(oldList));
-      };
-      setListAsync();
+    } else if (property.objectType == 1 /* Internal */ && property.minCount && list.length < property.minCount && (!property.maxCount || property.maxCount > list.length)) {
+      setListAsync(true);
     } else if (property.objectType != 2 /* ResInList */ && property.objectType != 5 /* LitInList */ && property.displayPriority && property.displayPriority === 1 && list.length === 1 && !force) {
     } else if (!list.length && (property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */)) {
-      const setListAsync = async () => {
-        const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config);
-        if (topEntity)
-          topEntity.noHisto();
-        else if (owner)
-          owner.noHisto();
-        else
-          subject.noHisto();
-        setList(Array.isArray(res) ? res : [res]);
-      };
-      setListAsync();
+      setListAsync(false, void 0, true);
     }
   }, [subject, list, force]);
   let addBtn = property.objectType === 1 /* Internal */;
@@ -2477,7 +2455,9 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
   var _a, _b;
   if (property.path == null)
     throw "can't find path of " + property.qname;
-  let [list, setList] = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
+  const recoilArray = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
+  let list = recoilArray[0];
+  const setList = recoilArray[1];
   if (list === void 0)
     list = [];
   let collecNode = null;
