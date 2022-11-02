@@ -109,6 +109,7 @@ function EntityShapeChooserContainer(props: RDEProps) {
           <div>
             <b>Choose a shape:</b>
             <TextField
+              variant="standard"
               select
               helperText={"List of all possible shapes"}
               id="shapeSelec"

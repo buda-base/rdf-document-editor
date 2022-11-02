@@ -170,6 +170,7 @@ export const BlockAddButton: FC<{
       </button>
       {count > 1 && (
         <TextField
+          variant="standard"
           label={<>{i18n.t("general.add_nb", { val: label })}</>}
           style={{ width: 200 }}
           value={n}
@@ -1180,7 +1181,7 @@ const EditLangString: FC<{
       />
       {preview && ( // TODO see if fromWylie & MD can both be used ('escape' some chars?)
         <div className="preview-ewts">
-          <TextField disabled value={preview} />
+          <TextField disabled value={preview} variant="standard" />
           {/*editMD && <MDEditor.Markdown source={fromWylie(lit.value)} /> // not really working  */}
         </div>
       )}
@@ -1208,6 +1209,7 @@ export const LangSelect: FC<{
   return (
     <div style={{ position: "relative" }}>
       <TextField
+        variant="standard"
         select
         InputLabelProps={{ shrink: true }}
         className={"ml-2"}
@@ -1353,6 +1355,7 @@ const EditBool: FC<{
   }
   return (
     <TextField
+      variant="standard"
       select
       style={{ padding: "1px", minWidth: "250px" }}
       label={label}
@@ -1451,6 +1454,7 @@ const EditInt: FC<{
 
   return (
     <TextField
+      variant="standard"
       label={label}
       style={{ width: 240 }}
       value={value}
@@ -2002,6 +2006,7 @@ const SelectComponent: FC<{
       <>
         <div className="resSelect" style={{ display: "inline-flex", alignItems: "flex-end" }}>
           <TextField
+            variant="standard"
             select
             className={"selector mr-2"}
             value={val?.id}

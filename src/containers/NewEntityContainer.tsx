@@ -29,6 +29,7 @@ function NewEntityContainer(props: RDEProps) {
         <b>New entity:</b>
         <span>
           <TextField
+            variant="standard"
             {...(disabled ? { disabled: true } : {})}
             select
             //label="Choose a shape"
@@ -59,6 +60,7 @@ function NewEntityContainer(props: RDEProps) {
         </div>
         <div>
           <TextField
+            variant="standard"
             style={{ width: "100%" }}
             value={RID}
             InputLabelProps={{ shrink: true }}

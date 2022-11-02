@@ -2102,6 +2102,7 @@ var BlockAddButton = ({ add, label, count = 1 }) => {
           ]
         }),
         count > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
+          variant: "standard",
           label: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
             children: import_i18next2.default.t("general.add_nb", { val: label })
           }),
@@ -2190,7 +2191,6 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     })
   );
   let list = unsortedList;
-  debug7("list", list);
   if (orderedList.length)
     list = orderedList;
   if (list === void 0)
@@ -2830,7 +2830,8 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
         className: "preview-ewts",
         children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
           disabled: true,
-          value: preview
+          value: preview,
+          variant: "standard"
         })
       })
     ]
@@ -2844,6 +2845,7 @@ var LangSelect = ({ onChange, value, property, disabled, error, editable, config
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
     style: { position: "relative" },
     children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_material.TextField, {
+      variant: "standard",
       select: true,
       InputLabelProps: { shrink: true },
       className: "ml-2",
@@ -2967,6 +2969,7 @@ var EditBool = ({ property, lit, onChange, label, editable }) => {
     onChange(lit.copyWithUpdatedValue(val2 == "false" ? "0" : "1"));
   };
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
+    variant: "standard",
     select: true,
     style: { padding: "1px", minWidth: "250px" },
     label,
@@ -3039,6 +3042,7 @@ var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, ha
     value = value.replace(/^(-?)0+/, "$1");
   }
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
+    variant: "standard",
     label,
     style: { width: 240 },
     value,
@@ -3506,6 +3510,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
         style: { display: "inline-flex", alignItems: "flex-end" },
         children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_material.TextField, {
+            variant: "standard",
             select: true,
             className: "selector mr-2",
             value: val == null ? void 0 : val.id,
@@ -4315,6 +4320,7 @@ function NewEntityContainer(props) {
           /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("span", {
             children: [
               /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_material2.TextField, {
+                variant: "standard",
                 ...disabled ? { disabled: true } : {},
                 select: true,
                 helperText: "List of all possible shapes",
@@ -4361,6 +4367,7 @@ function NewEntityContainer(props) {
           }),
           /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
             children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_material2.TextField, {
+              variant: "standard",
               style: { width: "100%" },
               value: RID,
               InputLabelProps: { shrink: true },
@@ -4723,6 +4730,7 @@ function EntityShapeChooserContainer(props) {
               children: "Choose a shape:"
             }),
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_material4.TextField, {
+              variant: "standard",
               select: true,
               helperText: "List of all possible shapes",
               id: "shapeSelec",
@@ -5108,10 +5116,12 @@ var BUDAResourceSelector = ({
                   className: "preview-ewts",
                   children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material5.TextField, {
                     disabled: true,
-                    value: preview
+                    value: preview,
+                    variant: "standard"
                   })
                 }),
                 /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material5.TextField, {
+                  variant: "standard",
                   onKeyPress: (e) => {
                     if (e.key === "Enter")
                       onClickKB(e);
@@ -5158,6 +5168,7 @@ var BUDAResourceSelector = ({
                   config
                 }),
                 ((_b = property.expectedObjectTypes) == null ? void 0 : _b.length) > 1 && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material5.TextField, {
+                  variant: "standard",
                   select: true,
                   style: { width: 100, flexShrink: 0 },
                   value: type,

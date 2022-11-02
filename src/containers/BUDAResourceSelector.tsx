@@ -26,7 +26,9 @@ import {
   LiteralWithId,
 } from "../helpers/rdf/types"
 import { PropertyShape, NodeShape } from "../helpers/rdf/shapes"
-import { Launch as LaunchIcon, Info as InfoIcon, InfoOutlined as InfoOutlinedIcon, Search as LookupIcon, ContentPaste as ContentPasteIcon, Error as ErrorIcon, Close as CloseIcon, Visibility as VisibilityIcon, FormatBold as MDIcon, More as Label, Edit as EditIcon, Keyboard as KeyboardIcon, Help as HelpIcon  } from '@mui/icons-material';
+import { Launch as LaunchIcon, Info as InfoIcon, InfoOutlined as InfoOutlinedIcon, Search as LookupIcon, 
+    ContentPaste as ContentPasteIcon, Error as ErrorIcon, Close as CloseIcon, Visibility as VisibilityIcon, 
+    FormatBold as MDIcon, More as Label, Edit as EditIcon, Keyboard as KeyboardIcon, Help as HelpIcon  } from '@mui/icons-material';
 import { LangSelect } from "./ValueList"
 import * as ns from "../helpers/rdf/ns"
 import { Theme } from '@mui/material/styles';
@@ -478,10 +480,11 @@ const BUDAResourceSelector: FC<{
             <React.Fragment>
               {preview && (
                 <div className="preview-ewts">
-                  <TextField disabled value={preview} />
+                  <TextField disabled value={preview} variant="standard" />
                 </div>
               )}
               <TextField
+                variant="standard"
                 onKeyPress={(e) => {
                   if (e.key === "Enter") onClickKB(e)
                 }}
@@ -526,6 +529,7 @@ const BUDAResourceSelector: FC<{
               />
               {property.expectedObjectTypes?.length > 1 && (
                 <TextField
+                  variant="standard"
                   select
                   style={{ width: 100, flexShrink: 0 }}
                   value={type}
