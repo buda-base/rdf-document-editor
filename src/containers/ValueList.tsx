@@ -17,7 +17,9 @@ import * as ns from "../helpers/rdf/ns"
 // import { generateSubnode, reserveLname } from "../../../helpers/rdf/construct"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { TextField, MenuItem, Tooltip } from "@mui/material"
-import { AddCircleOutline as AddCircleOutlineIcon, RemoveCircleOutline as RemoveCircleOutlineIcon, Error as ErrorIcon, Close as CloseIcon, Visibility as VisibilityIcon, FormatBold as MDIcon, More as Label, Edit as EditIcon, Keyboard as KeyboardIcon, Help as HelpIcon  } from '@mui/icons-material';
+import { AddCircleOutline as AddCircleOutlineIcon, RemoveCircleOutline as RemoveCircleOutlineIcon, Error as ErrorIcon, 
+  Close as CloseIcon, Visibility as VisibilityIcon, FormatBold as MDIcon, More as Label, 
+  Edit as EditIcon, Keyboard as KeyboardIcon, Help as HelpIcon  } from '@mui/icons-material';
 import i18n from "i18next"
 import { ValueByLangToStrPrefLang, langsWithDefault } from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
@@ -757,7 +759,9 @@ type CreateComponentType = FC<{
  */
 const Create: CreateComponentType = ({ subject, property, embedded, disable, newVal, shape, config }) => {
   if (property.path == null) throw "can't find path of " + property.qname
-  let [list, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
+  const recoilArray = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
+  let list = recoilArray[0]
+  const setList = recoilArray[1] 
   if (list === undefined)
     list = []
   let collecNode: rdf.Collection | null = null
