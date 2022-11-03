@@ -1064,7 +1064,7 @@ const EditLangString: FC<{
               else updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id)
               onChange(lit.copyWithUpdatedValue(e.target.value))
             }}
-            {...(error ? { error: true, helperText: error } : {})}
+            {...(error ? errorData:{})}
             {...(!editable ? { disabled: true } : {})}
             onFocus={() => {
               const { value, error } = config.previewLiteral(lit, uiLang)

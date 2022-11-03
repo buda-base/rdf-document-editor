@@ -2668,7 +2668,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
                 updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
               onChange(lit.copyWithUpdatedValue(e.target.value));
             },
-            ...error ? { error: true, helperText: error } : {},
+            ...error ? errorData : {},
             ...!editable ? { disabled: true } : {},
             onFocus: () => {
               const { value, error: error2 } = config.previewLiteral(lit, uiLang);
