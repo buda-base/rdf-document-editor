@@ -250,9 +250,9 @@ export class EntityGraphValues {
     (subjectUri: string, pathString: string) =>
     ({ setSelf, onSet }: setSelfOnSet) => {
       onSet((newValues: Array<Value> | DefaultValue): void => {
-        debug("set",newValues)
+        //debug("set",newValues)
         if (!(newValues instanceof DefaultValue)) {
-          debug("updating:",subjectUri, pathString, newValues)
+          //debug("updating:",subjectUri, pathString, newValues)
           this.onUpdateValues(subjectUri, pathString, newValues)
         }
       })
@@ -262,12 +262,12 @@ export class EntityGraphValues {
     return subjectUri + pathString
   })
   getAtomForSubjectProperty(pathString: string, subjectUri: string) {
-    debug("gAtomfSprop", pathString, subjectUri)
+    //debug("gAtomfSprop", pathString, subjectUri)
     return atom<Array<Value>>({
       key: this.idHash + subjectUri + pathString,
       default: [],
       // effects_UNSTABLE no more, see https://github.com/facebookexperimental/Recoil/blob/main/CHANGELOG-recoil.md#breaking-changes-1
-      effects: [debugAtomEffect, this.propsUpdateEffect(subjectUri, pathString)],
+      effects: [ /*debugAtomEffect,*/ this.propsUpdateEffect(subjectUri, pathString)],
       // disable immutability in production
       dangerouslyAllowMutability: true,
     })

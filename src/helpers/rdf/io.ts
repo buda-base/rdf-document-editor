@@ -390,7 +390,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       ? { entityLoadingState, entity, reset }
       : { entityLoadingState: { status: "loading", error: undefined }, entity: Subject.createEmpty(), reset }
 
-  debug("ret:",retVal)
+  //debug("ret:",retVal)
 
   return retVal
 }

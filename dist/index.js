@@ -413,14 +413,6 @@ var Path = class {
     }
   }
 };
-var debugAtomEffect = ({ setSelf, onSet }) => {
-  onSet((newValues) => {
-    debug2("onSet", newValues);
-  });
-  setSelf((newValues) => {
-    debug2("setSelf", newValues);
-  });
-};
 var EntityGraphValues = class {
   oldSubjectProps = {};
   newSubjectProps = {};
@@ -513,19 +505,16 @@ var EntityGraphValues = class {
   }
   propsUpdateEffect = (subjectUri, pathString) => ({ setSelf, onSet }) => {
     onSet((newValues) => {
-      debug2("set", newValues);
       if (!(newValues instanceof import_recoil.DefaultValue)) {
-        debug2("updating:", subjectUri, pathString, newValues);
         this.onUpdateValues(subjectUri, pathString, newValues);
       }
     });
   };
   getAtomForSubjectProperty(pathString, subjectUri) {
-    debug2("gAtomfSprop", pathString, subjectUri);
     return (0, import_recoil.atom)({
       key: this.idHash + subjectUri + pathString,
       default: [],
-      effects: [debugAtomEffect, this.propsUpdateEffect(subjectUri, pathString)],
+      effects: [this.propsUpdateEffect(subjectUri, pathString)],
       dangerouslyAllowMutability: true
     });
   }
@@ -1969,7 +1958,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     }
   }, [config, entities, entityQname, entity, current, shapeQname, idToken, profileId, reloadEntity]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
-  debug5("ret:", retVal);
   return retVal;
 }
 
@@ -4514,9 +4502,8 @@ function EntityCreationContainer(props) {
     };
   }, []);
   const shapeNode = rdf7.sym(config.prefixMap.uriFromQname(shapeQname));
-  const entityNode = rdf7.sym(config.prefixMap.uriFromQname(entityQname));
+  const entityNode = entityQname ? rdf7.sym(config.prefixMap.uriFromQname(entityQname)) : null;
   const { entityLoadingState, entity } = unmounting.val ? { entityLoadingState: { status: "idle", error: void 0 }, entity: null } : config.entityCreator(shapeNode, entityNode, unmounting);
-  debug11("new:", entityLoadingState, entity, entityQname, entity == null ? void 0 : entity.qname, shapeQname);
   if (entityLoadingState.error === "422" && entity) {
     const editUrl = subjectQname && propertyQname && index != void 0 ? "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "") : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname;
     const newUrl = location.pathname.replace(/\/named\/.*/, "") + location.search;

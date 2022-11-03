@@ -43,13 +43,13 @@ export function EntityCreationContainer(props: RDEProps) {
   //if (RIDprefix == "") return <Navigate to="/new" />
 
   const shapeNode = rdf.sym(config.prefixMap.uriFromQname(shapeQname))
-  const entityNode = rdf.sym(config.prefixMap.uriFromQname(entityQname))
+  const entityNode = entityQname ? rdf.sym(config.prefixMap.uriFromQname(entityQname)) : null
 
   const { entityLoadingState, entity } = unmounting.val
     ? { entityLoadingState: { status: "idle", error: undefined }, entity: null }
     : config.entityCreator(shapeNode, entityNode, unmounting)
 
-  debug("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname)
+  //debug("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname)
 
   // TODO: if EntityCreator throws a 422 exception (the entity already exists),
   // we must give a choice to the user:
