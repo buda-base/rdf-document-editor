@@ -334,7 +334,7 @@ var updateHistory = (entity, qname, prop, val, noHisto = true) => {
     [qname]: { [prop]: val },
     ...entity != qname ? { "tmp:parentPath": getParentPath(entity, qname) } : {}
   };
-  if (val.length === 1 && !(val[0] instanceof LiteralWithId) && val[0].uri === "tmp:uri" || val[0].value === "")
+  if ((val == null ? void 0 : val.length) === 1 && !(val[0] instanceof LiteralWithId) && (val[0].uri === "tmp:uri" || val[0].value === ""))
     return;
   if (noHisto === -1) {
     const first = history[entity].findIndex((h) => h["tmp:allValuesLoaded"]);
