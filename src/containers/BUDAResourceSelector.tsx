@@ -120,7 +120,7 @@ const BUDAResourceSelector: FC<{
 
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i)
 
-  //debug("lit:",value.value,value.id,value)
+  debug("BrS:",config,value.value,value.id,value)
 
   /// DONE: handle bdsCopyObjectsOfProperty
   const [toCopy, setProp] = useRecoilState(

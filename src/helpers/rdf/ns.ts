@@ -53,6 +53,7 @@ export class PrefixMap {
   }
 
   qnameFromUri = (uri = ""): string => {
+    debug("qn:",this,uri)
     if (uri.match(/^[^:/#]+:[^:/#]+$/)) return uri
     
     let j = uri.indexOf("#")

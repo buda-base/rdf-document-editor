@@ -354,8 +354,8 @@ const ValueList: FC<{
     property.displayPriority && property.displayPriority > 1
       ? false
       : property.objectType != ObjectType.ResExt && property.maxCount
-      ? list.length < property.maxCount
-      : true
+        ? list.length < property.maxCount
+        : true
 
   const canDel = (!property.minCount || property.minCount < list.length) && !property.readOnly && editable
 
@@ -397,7 +397,7 @@ const ValueList: FC<{
     else subject.noHisto()
     //debug("setNoH:1a",subject,owner,topEntity)
     if(solo) setList(Array.isArray(res) ? res : [res])
-    else if(vals) setList(vals.concat(Array.isArray(res) ? res : [res]))
+    else if(vals.length) setList(vals.concat(Array.isArray(res) ? res : [res]))
     else if(pre) setList((oldList) => (Array.isArray(res) ? res : [res]).concat(oldList));
     else setList((oldList = []) => oldList.concat(Array.isArray(res) ? res : [res]));
   }, [property, subject, RIDprefix, idToken, newVal, config, topEntity, owner, setList])

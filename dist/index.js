@@ -191,6 +191,7 @@ var PrefixMap = class {
     }
   };
   qnameFromUri = (uri = "") => {
+    debug("qn:", this, uri);
     if (uri.match(/^[^:/#]+:[^:/#]+$/))
       return uri;
     let j = uri.indexOf("#");
@@ -2248,7 +2249,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
       subject.noHisto();
     if (solo)
       setList(Array.isArray(res) ? res : [res]);
-    else if (vals)
+    else if (vals.length)
       setList(vals.concat(Array.isArray(res) ? res : [res]));
     else if (pre)
       setList((oldList) => (Array.isArray(res) ? res : [res]).concat(oldList));
@@ -2256,6 +2257,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
       setList((oldList = []) => oldList.concat(Array.isArray(res) ? res : [res]));
   }, [property, subject, RIDprefix, idToken, newVal, config, topEntity, owner, setList]);
   (0, import_react2.useEffect)(() => {
+    debug7("vL/effect:", subject.qname, property.qname, list);
     if (list.length && (!property.maxCount || property.maxCount > list.length)) {
       const first = list[0];
       if (first instanceof ExtRDFResourceWithLabel && first.uri !== "tmp:uri" && first.uri !== "tmp:none")
@@ -4802,6 +4804,7 @@ var BUDAResourceSelector = ({
   const iframeRef = (0, import_react9.useRef)(null);
   const [canCopy, setCanCopy] = (0, import_react9.useState)([]);
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i);
+  debug13("BrS:", config, value.value, value.id, value);
   const [toCopy, setProp] = (0, import_recoil10.useRecoilState)(
     toCopySelector({
       list: (_a = property.copyObjectsOfProperty) == null ? void 0 : _a.map((p) => ({
