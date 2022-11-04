@@ -55,7 +55,7 @@ __export(src_exports, {
   Subject: () => Subject,
   ValueByLangToStrPrefLang: () => ValueByLangToStrPrefLang,
   fetchTtl: () => fetchTtl,
-  generateSubnode: () => generateSubnode,
+  generateSubnodes: () => generateSubnodes,
   ns: () => ns_exports,
   shapes: () => shapes_exports
 });
@@ -307,7 +307,7 @@ __export(shapes_exports, {
   NodeShape: () => NodeShape,
   PropertyGroup: () => PropertyGroup,
   PropertyShape: () => PropertyShape,
-  generateSubnode: () => generateSubnode,
+  generateSubnodes: () => generateSubnodes,
   sortByPropValue: () => sortByPropValue
 });
 var rdf3 = __toESM(require("rdflib"));
@@ -1329,18 +1329,19 @@ __decorateClass([
   (0, import_typescript_memoize2.Memoize)()
 ], NodeShape.prototype, "groups", 1);
 var nanoidCustom = (0, import_nanoid2.customAlphabet)("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
-var generateSubnode = async (subshape, parent) => {
-  const prefix = subshape.getPropStringValue(rdeIdentifierPrefix);
-  if (prefix == null)
-    throw "cannot find entity prefix for " + subshape.qname;
-  let namespace = subshape.getPropStringValue(shNamespace);
-  if (namespace == null)
+var generateSubnodes = async (subshape, parent, n) => {
+  const prefix = subshape ? subshape.getPropStringValue(rdeIdentifierPrefix) : "";
+  let namespace = subshape == null ? void 0 : subshape.getPropStringValue(shNamespace);
+  if (!namespace)
     namespace = parent.namespace;
-  let uri = namespace + prefix + parent.lname + nanoidCustom();
-  while (parent.graph.hasSubject(uri)) {
-    uri = namespace + prefix + nanoidCustom();
+  const res = [];
+  for (let i = 0; i < n; i++) {
+    let uri = namespace + prefix + parent.lname + nanoidCustom();
+    while (parent.graph.hasSubject(uri)) {
+      uri = namespace + prefix + nanoidCustom();
+    }
+    res.push(new Subject(new rdf3.NamedNode(uri), parent.graph));
   }
-  const res = new Subject(new rdf3.NamedNode(uri), parent.graph);
   return Promise.resolve(res);
 };
 
@@ -2508,6 +2509,11 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
   }
   let waitForNoHisto = false;
   const addItem = async (event, n) => {
+    if (n > 1) {
+      const subjects = await config.generateSubnodes(property.targetShape, subject, n);
+      setList([...listOrCollec, ...subjects]);
+      return;
+    }
     if (waitForNoHisto)
       return;
     if (property.objectType === 1 /* Internal */) {
@@ -5431,7 +5437,7 @@ import_i18next9.default.use(import_react_i18next2.initReactI18next).init({
   Subject,
   ValueByLangToStrPrefLang,
   fetchTtl,
-  generateSubnode,
+  generateSubnodes,
   ns,
   shapes
 });

@@ -415,7 +415,7 @@ declare class NodeShape extends RDFResourceWithLabel {
     get independentIdentifiers(): boolean;
     get groups(): Array<PropertyGroup>;
 }
-declare const generateSubnode$1: (subshape: NodeShape, parent: RDFResource) => Promise<Subject>;
+declare const generateSubnodes$1: (subshape: NodeShape | null, parent: RDFResource, n: number) => Promise<Subject[]>;
 
 declare const shapes_sortByPropValue: typeof sortByPropValue;
 type shapes_PropertyShape = PropertyShape;
@@ -430,7 +430,7 @@ declare namespace shapes {
     shapes_PropertyShape as PropertyShape,
     shapes_PropertyGroup as PropertyGroup,
     shapes_NodeShape as NodeShape,
-    generateSubnode$1 as generateSubnode,
+    generateSubnodes$1 as generateSubnodes,
   };
 }
 
@@ -462,8 +462,8 @@ interface IFetchState {
     status: string;
     error?: string;
 }
-interface generateSubnode {
-    (subshape: NodeShape, parent: RDFResource): Promise<Subject>;
+interface generateSubnodes {
+    (subshape: NodeShape | null, parent: RDFResource, n: number): Promise<Subject[]>;
 }
 interface valueByLangToStrPrefLang {
     (vbl: Record<string, string> | null, prefLang: string | Array<string>): string;
@@ -549,7 +549,7 @@ declare type ResourceSelector = FC<{
     config: RDEConfig;
 }>;
 interface RDEConfig {
-    readonly generateSubnode: generateSubnode;
+    readonly generateSubnodes: generateSubnodes;
     readonly valueByLangToStrPrefLang: valueByLangToStrPrefLang;
     readonly possibleLiteralLangs: Array<Lang>;
     readonly labelProperties: Array<rdf.NamedNode>;
@@ -629,4 +629,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntityShapeChooserContainer, ExtRDFResourceWithLabel, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDFResource, Subject, ValueByLangToStrPrefLang, fetchTtl, generateSubnode$1 as generateSubnode, ns, shapes };
+export { BUDAResourceSelector, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntityShapeChooserContainer, ExtRDFResourceWithLabel, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDFResource, Subject, ValueByLangToStrPrefLang, fetchTtl, generateSubnodes$1 as generateSubnodes, ns, shapes };

@@ -11,8 +11,8 @@ export interface IFetchState {
   error?: string
 }
 
-interface generateSubnode {
-  (subshape: NodeShape, parent: RDFResource): Promise<Subject>
+interface generateSubnodes {
+  (subshape: NodeShape | null, parent: RDFResource, n: number): Promise<Subject[]>
 }
 
 interface valueByLangToStrPrefLang {
@@ -128,7 +128,7 @@ type ResourceSelector = FC<{
 }>
 
 export default interface RDEConfig {
-  readonly generateSubnode: generateSubnode
+  readonly generateSubnodes: generateSubnodes
   readonly valueByLangToStrPrefLang: valueByLangToStrPrefLang
   readonly possibleLiteralLangs: Array<Lang>
   readonly labelProperties: Array<rdf.NamedNode>

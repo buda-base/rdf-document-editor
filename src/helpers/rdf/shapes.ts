@@ -417,15 +417,17 @@ export class NodeShape extends RDFResourceWithLabel {
 // default implementation, can be overridden through config
 const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8) // eslint-disable-line no-magic-numbers
 
-export const generateSubnode = async (subshape: NodeShape, parent: RDFResource): Promise<Subject> => {
-  const prefix = subshape.getPropStringValue(ns.rdeIdentifierPrefix)
-  if (prefix == null) throw "cannot find entity prefix for " + subshape.qname
-  let namespace = subshape.getPropStringValue(ns.shNamespace)
-  if (namespace == null) namespace = parent.namespace
-  let uri = namespace + prefix + parent.lname + nanoidCustom()
-  while (parent.graph.hasSubject(uri)) {
-    uri = namespace + prefix + nanoidCustom()
+export const generateSubnodes = async (subshape: NodeShape | null, parent: RDFResource, n: number): Promise<Subject[]> => {
+  const prefix = subshape ? subshape.getPropStringValue(ns.rdeIdentifierPrefix) : ""
+  let namespace = subshape?.getPropStringValue(ns.shNamespace)
+  if (!namespace) namespace = parent.namespace
+  const res: Subject[] = []
+  for (let i = 0 ; i < n ; i++) {
+    let uri = namespace + prefix + parent.lname + nanoidCustom()
+    while (parent.graph.hasSubject(uri)) {
+      uri = namespace + prefix + nanoidCustom()
+    }
+    res.push(new Subject(new rdf.NamedNode(uri), parent.graph))
   }
-  const res = new Subject(new rdf.NamedNode(uri), parent.graph)
   return Promise.resolve(res)
 }

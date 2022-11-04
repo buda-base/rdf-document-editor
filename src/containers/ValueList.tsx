@@ -12,9 +12,8 @@ import {
   noneSelected,
   getHistoryStatus,
 } from "../helpers/rdf/types"
-import { generateSubnode, NodeShape, PropertyShape } from "../helpers/rdf/shapes"
+import { generateSubnodes, NodeShape, PropertyShape } from "../helpers/rdf/shapes"
 import * as ns from "../helpers/rdf/ns"
-// import { generateSubnode, reserveLname } from "../../../helpers/rdf/construct"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { TextField, MenuItem, Tooltip } from "@mui/material"
 import { AddCircleOutline as AddCircleOutlineIcon, RemoveCircleOutline as RemoveCircleOutlineIcon, Error as ErrorIcon, 
@@ -771,80 +770,14 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
   let waitForNoHisto = false
 
   const addItem = async (event: React.MouseEvent<HTMLButtonElement>, n: number) => {
-    /* // refactoring needed
 
     if (n > 1) {
-      let store = new rdf.Store()
-      ns.setDefaultPrefixes(store)
-      subject.graph.addNewValuestoStore(store)
-
-      const defaultRef = new rdf.NamedNode(rdf.Store.defaultGraphURI)
-      rdf.serialize(defaultRef, store, undefined, "text/turtle", async function (err, str) {
-        if (!str) {
-          debug(err)
-          throw "empty ttl serialization"
-        }
-        let prefix = property.targetShape.getPropStringValue(shapes.bdsIdentifierPrefix)
-        if (prefix == null) throw "cannot find entity prefix for " + property.targetShape.qname
-        else prefix += RIDprefix
-        let reservedId = await reserveLname(prefix, null, idToken, n)
-        if (reservedId) reservedId = reservedId.split(/[ \n]+/).map((id) => "bdr:" + id)
-        else throw "error reserving ids"
-        if (str.match(/bdo:instanceHasVolume/))
-          str = str.replace(/(bdo:instanceHasVolume([\n\r]|[^;.])+)([;.])/m, "$1," + reservedId.join(",") + "$3")
-        else
-          str = str.replace(/(a bdo:ImageInstance)([;.])/m, "$1; bdo:instanceHasVolume " + reservedId.join(",") + " $2")
-        str = str.replace(
-          new RegExp("(" + subject.qname + "[\n\r +]*a )"),
-          reservedId
-            .map((id) => id + " a bdo:ImageGroup ; bdo:volumeNumber " + nextVal++ + " ; bdo:volumePagesTbrcIntro 0 .")
-            .join("\n") + "\n$1"
-        )
-
-        debug("ttl:", newVal, str, err)
-
-        store = rdf.graph()
-        rdf.parse(str, store, rdf.Store.defaultGraphURI, "text/turtle")
-
-        const url = config.API_BASEURL + subject.qname + "/focusgraph"
-        try {
-          let alreadySaved = false
-          let loadRes
-          if (!demo) {
-            const idTokenF = await getIdTokenClaims()
-            loadRes = await putTtl(
-              url,
-              store,
-              idTokenF.__raw,
-              entities[entity]?.alreadySaved ? "POST" : "PUT",
-              '"batch add volumes"@en',
-              entities[entity]?.alreadySaved
-            )
-          } else loadRes = true
-          alreadySaved = loadRes
-
-          const newEntities = [...entities]
-          newEntities[entity] = {
-            ...newEntities[entity],
-            state: EditedEntityState.Saved,
-            alreadySaved,
-            subject: undefined,
-            loadedUnsavedFromLocalStorage: false,
-          }
-
-          delete history[entities[entity]?.subject?.uri]
-
-          setEntities(newEntities)
-
-          setTimeout(() => setReloadEntity(subject.qname), 300) //eslint-disable-line no-magic-numbers
-        } catch (e) {
-          debug("error add batch:", e)
-        }
-      })
-
+      const subjects = await config.generateSubnodes(property.targetShape, subject, n)
+      // stop rendering?
+      setList([...listOrCollec, ...subjects])
+      // render again?
       return
     }
-    */
 
     if (waitForNoHisto) return
 

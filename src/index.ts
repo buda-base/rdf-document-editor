@@ -63,7 +63,7 @@ export { default as EntityCreationContainer, EntityCreationContainerRoute } from
 export { default as EntityShapeChooserContainer } from "./containers/EntityShapeChooserContainer"
 export type { IdTypeParams } from "./helpers/editor_props"
 
-export { NodeShape, generateSubnode } from "./helpers/rdf/shapes"
+export { NodeShape, generateSubnodes } from "./helpers/rdf/shapes"
 
 export type { default as RDEConfig, LocalEntityInfo, IFetchState } from "./helpers/rde_config"
 
