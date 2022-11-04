@@ -220,7 +220,7 @@ const generateDefault = async (
       break
     case ObjectType.Internal:
       if (property.targetShape == null) throw "no target shape for " + property.uri
-      return generateSubnode(property.targetShape, parent) //, RIDprefix, idToken) //, n)
+      return generateSubnodes(property.targetShape, parent) //, RIDprefix, idToken) //, n)
       break
     case ObjectType.ResInList:
       // DONE: fix save (default value for select like bdo:material)

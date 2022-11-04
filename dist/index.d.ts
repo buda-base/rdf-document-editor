@@ -415,7 +415,7 @@ declare class NodeShape extends RDFResourceWithLabel {
     get independentIdentifiers(): boolean;
     get groups(): Array<PropertyGroup>;
 }
-declare const generateSubnodes$1: (subshape: NodeShape | null, parent: RDFResource, n: number) => Promise<Subject[]>;
+declare const generateSubnodes$1: (subshape: NodeShape | null, parent: RDFResource, n?: number) => Promise<Subject[]>;
 
 declare const shapes_sortByPropValue: typeof sortByPropValue;
 type shapes_PropertyShape = PropertyShape;

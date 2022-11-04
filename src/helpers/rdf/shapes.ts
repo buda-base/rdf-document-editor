@@ -417,7 +417,7 @@ export class NodeShape extends RDFResourceWithLabel {
 // default implementation, can be overridden through config
 const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8) // eslint-disable-line no-magic-numbers
 
-export const generateSubnodes = async (subshape: NodeShape | null, parent: RDFResource, n: number): Promise<Subject[]> => {
+export const generateSubnodes = async (subshape: NodeShape | null, parent: RDFResource, n = 1): Promise<Subject[]> => {
   const prefix = subshape ? subshape.getPropStringValue(ns.rdeIdentifierPrefix) : ""
   let namespace = subshape?.getPropStringValue(ns.shNamespace)
   if (!namespace) namespace = parent.namespace

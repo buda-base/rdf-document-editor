@@ -36,16 +36,8 @@ function a11yProps(index: number) {
   }
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    backgroundColor: theme.palette.background.paper,
-  },
-}))
-
 export function EntitySelector(props: RDEProps) {
   const config = props.config
-  const classes = useStyles()
   const [entities, setEntities] = useRecoilState(entitiesAtom)
   const [sessionLoaded, setSessionLoaded] = useRecoilState(sessionLoadedState)
   const [uiLang] = useRecoilState(uiLangState)
