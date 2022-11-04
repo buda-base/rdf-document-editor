@@ -22,7 +22,7 @@ export type { default as RDEConfig, LocalEntityInfo, IFetchState } from "./helpe
 
 export { fetchTtl } from "./helpers/rdf/io"
 
-export { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel, getHistoryStatus, updateHistory } from "./helpers/rdf/types"
+export { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel, getHistoryStatus, updateHistory, history } from "./helpers/rdf/types"
 
 export type { Entity } from "./atoms/common"
 

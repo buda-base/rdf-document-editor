@@ -1323,6 +1323,7 @@ __export(common_exports, {
   reloadEntityState: () => reloadEntityState,
   reloadProfileState: () => reloadProfileState,
   sameUndo: () => sameUndo,
+  sameUndoSub: () => sameUndoSub,
   savePopupState: () => savePopupState,
   sessionLoadedState: () => sessionLoadedState,
   toCopySelector: () => toCopySelector,
@@ -5895,6 +5896,7 @@ export {
   fetchTtl,
   generateSubnodes,
   getHistoryStatus,
+  history,
   ns_exports as ns,
   shapes_exports as shapes,
   updateHistory

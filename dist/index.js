@@ -61,6 +61,7 @@ __export(src_exports, {
   fetchTtl: () => fetchTtl,
   generateSubnodes: () => generateSubnodes,
   getHistoryStatus: () => getHistoryStatus,
+  history: () => history,
   ns: () => ns_exports,
   shapes: () => shapes_exports,
   updateHistory: () => updateHistory
@@ -1371,6 +1372,7 @@ __export(common_exports, {
   reloadEntityState: () => reloadEntityState,
   reloadProfileState: () => reloadProfileState,
   sameUndo: () => sameUndo,
+  sameUndoSub: () => sameUndoSub,
   savePopupState: () => savePopupState,
   sessionLoadedState: () => sessionLoadedState,
   toCopySelector: () => toCopySelector,
@@ -5919,6 +5921,7 @@ var BUDAResourceSelector_default = BUDAResourceSelector;
   fetchTtl,
   generateSubnodes,
   getHistoryStatus,
+  history,
   ns,
   shapes,
   updateHistory

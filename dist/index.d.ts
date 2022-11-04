@@ -256,6 +256,7 @@ declare namespace ns {
   };
 }
 
+declare const history: Record<string, Array<Record<string, any>>>;
 declare enum ObjectType {
     Literal = 0,
     Internal = 1,
@@ -479,13 +480,12 @@ declare type undoState = {
     propertyPath: string;
     parentPath: Array<string>;
 };
-declare const sameUndo: (undo1: {
+declare type undoPN = {
     prev: undoState;
     next: undoState;
-}, undo2: {
-    prev: undoState;
-    next: undoState;
-}) => boolean;
+};
+declare const sameUndoSub: (undo1: undoState, undo2: undoState) => boolean;
+declare const sameUndo: (undo1: undoPN | null, undo2: undoPN | null) => boolean | null;
 declare const noUndo: {
     enabled: boolean;
     subjectUri: string;
@@ -506,7 +506,7 @@ declare const noUndoRedo: {
         parentPath: never[];
     };
 };
-declare const uiUndosState: RecoilState<Record<string, Record<string, undoState>>>;
+declare const uiUndosState: RecoilState<Record<string, undoPN>>;
 declare const uiNavState: RecoilState<string>;
 declare const sessionLoadedState: RecoilState<boolean>;
 declare const profileIdState: RecoilState<string>;
@@ -592,6 +592,8 @@ declare const common_uiEditState: typeof uiEditState;
 declare const common_uiGroupState: typeof uiGroupState;
 declare const common_uiHistoryState: typeof uiHistoryState;
 type common_undoState = undoState;
+type common_undoPN = undoPN;
+declare const common_sameUndoSub: typeof sameUndoSub;
 declare const common_sameUndo: typeof sameUndo;
 declare const common_noUndo: typeof noUndo;
 declare const common_noUndoRedo: typeof noUndoRedo;
@@ -638,6 +640,8 @@ declare namespace common {
     common_uiGroupState as uiGroupState,
     common_uiHistoryState as uiHistoryState,
     common_undoState as undoState,
+    common_undoPN as undoPN,
+    common_sameUndoSub as sameUndoSub,
     common_sameUndo as sameUndo,
     common_noUndo as noUndo,
     common_noUndoRedo as noUndoRedo,
@@ -928,4 +932,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, Subject, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, ns, shapes, updateHistory };
+export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, Subject, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, shapes, updateHistory };
