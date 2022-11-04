@@ -179,7 +179,7 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
       }, 1150) // eslint-disable-line no-magic-numbers
     }
 
-    const newObject = new ExtRDFResourceWithLabel(props.config.prefixMap.uriFromQname(props.objectQname), {}, {}, props.config.prefixMap)
+    const newObject = new ExtRDFResourceWithLabel(props.config.prefixMap.uriFromQname(props.objectQname), {}, {}, null, props.config.prefixMap)
     // DONE: must also give set index in url
     const newList = replaceItemAtIndex(list as [], props.index, newObject)
     setList(newList)

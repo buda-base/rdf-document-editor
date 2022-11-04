@@ -191,7 +191,6 @@ var PrefixMap = class {
     }
   };
   qnameFromUri = (uri = "") => {
-    debug("qn:", this, uri);
     if (uri.match(/^[^:/#]+:[^:/#]+$/))
       return uri;
     let j = uri.indexOf("#");
@@ -2111,7 +2110,7 @@ var generateDefault = async (property, parent, RIDprefix, idToken, val = "", con
   var _a, _b;
   switch (property.objectType) {
     case 3 /* ResExt */:
-      return new ExtRDFResourceWithLabel("tmp:uri", {}, {}, config);
+      return new ExtRDFResourceWithLabel("tmp:uri", {}, {}, null, config.prefixMap);
       break;
     case 1 /* Internal */:
       if (property.targetShape == null)
@@ -2120,7 +2119,7 @@ var generateDefault = async (property, parent, RIDprefix, idToken, val = "", con
       break;
     case 2 /* ResInList */:
       if (property.defaultValue)
-        return new ExtRDFResourceWithLabel(property.defaultValue.value, {}, {}, config);
+        return new ExtRDFResourceWithLabel(property.defaultValue.value, {}, {}, null, config.prefixMap);
       if (!property.minCount)
         return noneSelected;
       const propIn = property.in;
@@ -2257,7 +2256,6 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
       setList((oldList = []) => oldList.concat(Array.isArray(res) ? res : [res]));
   }, [property, subject, RIDprefix, idToken, newVal, config, topEntity, owner, setList]);
   (0, import_react2.useEffect)(() => {
-    debug7("vL/effect:", subject.qname, property.qname, list);
     if (list.length && (!property.maxCount || property.maxCount > list.length)) {
       const first = list[0];
       if (first instanceof ExtRDFResourceWithLabel && first.uri !== "tmp:uri" && first.uri !== "tmp:none")
@@ -2333,87 +2331,84 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
       propertyPath: property.path.sparqlString
     })
   );
-  const renderListElem = (0, import_react2.useMemo)(
-    () => (val, i, nbvalues) => {
-      if (val instanceof RDFResourceWithLabel || property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */) {
-        if (property.objectType == 3 /* ResExt */)
-          return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExtEntityComponent, {
-            subject,
-            property,
-            extRes: val,
-            canDel: canDel && (i > 0 || !(val instanceof LiteralWithId) && val.uri !== "tmp:uri"),
-            onChange,
-            idx: i,
-            exists,
-            editable,
-            ...owner ? { owner } : {},
-            title: titleCase(propLabel),
-            updateEntityState,
-            shape,
-            config
-          }, val.id + ":" + i);
-        else if (val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
-          addBtn = false;
-          const canSelectNone = i == 0 && !property.minCount || i > 0 && i == nbvalues - 1;
-          return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectComponent, {
-            canSelectNone,
-            subject,
-            property,
-            res: val,
-            selectIdx: i,
-            canDel: canDel && val != noneSelected,
-            editable,
-            create: canAdd ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Create, {
-              subject,
-              property,
-              embedded,
-              newVal: Number(newVal),
-              shape,
-              config
-            }) : void 0,
-            updateEntityState
-          }, "select_" + val.id + "_" + i);
-        }
-      } else if (val instanceof Subject) {
-        addBtn = true;
-        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FacetComponent, {
+  const renderListElem = (val, i, nbvalues) => {
+    if (val instanceof RDFResourceWithLabel || property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */) {
+      if (property.objectType == 3 /* ResExt */)
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExtEntityComponent, {
           subject,
           property,
-          subNode: val,
-          canDel: canDel && editable,
-          ...force ? { force } : {},
+          extRes: val,
+          canDel: canDel && (i > 0 || !(val instanceof LiteralWithId) && val.uri !== "tmp:uri"),
+          onChange,
+          idx: i,
+          exists,
           editable,
-          ...topEntity ? { topEntity } : { topEntity: subject },
+          ...owner ? { owner } : {},
+          title: titleCase(propLabel),
           updateEntityState,
           shape,
           config
-        }, val.id);
-      } else if (val instanceof LiteralWithId) {
+        }, val.id + ":" + i);
+      else if (val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
         addBtn = false;
-        const isUniqueLang = list.filter((l) => l instanceof LiteralWithId && l.language === val.language).length === 1;
-        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LiteralComponent, {
+        const canSelectNone = i == 0 && !property.minCount || i > 0 && i == nbvalues - 1;
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectComponent, {
+          canSelectNone,
           subject,
           property,
-          lit: val,
-          ...{ canDel, isUniqueLang, isUniqueValueAmongSiblings },
-          create: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Create, {
-            disable: !canAdd || !(val && val.value !== ""),
+          res: val,
+          selectIdx: i,
+          canDel: canDel && val != noneSelected,
+          editable,
+          create: canAdd ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Create, {
             subject,
             property,
             embedded,
             newVal: Number(newVal),
             shape,
             config
-          }),
-          editable,
-          topEntity,
-          updateEntityState,
-          config
-        }, val.id);
+          }) : void 0,
+          updateEntityState
+        }, "select_" + val.id + "_" + i);
       }
-    },
-    void 0
-  );
+    } else if (val instanceof Subject) {
+      addBtn = true;
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FacetComponent, {
+        subject,
+        property,
+        subNode: val,
+        canDel: canDel && editable,
+        ...force ? { force } : {},
+        editable,
+        ...topEntity ? { topEntity } : { topEntity: subject },
+        updateEntityState,
+        shape,
+        config
+      }, val.id);
+    } else if (val instanceof LiteralWithId) {
+      addBtn = false;
+      const isUniqueLang = list.filter((l) => l instanceof LiteralWithId && l.language === val.language).length === 1;
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LiteralComponent, {
+        subject,
+        property,
+        lit: val,
+        ...{ canDel, isUniqueLang, isUniqueValueAmongSiblings },
+        create: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Create, {
+          disable: !canAdd || !(val && val.value !== ""),
+          subject,
+          property,
+          embedded,
+          newVal: Number(newVal),
+          shape,
+          config
+        }),
+        editable,
+        topEntity,
+        updateEntityState,
+        config
+      }, val.id);
+    }
+  };
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, {
     children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -3969,7 +3964,7 @@ function EntityEditContainerDoUpdate(props) {
         }
       }, 1150);
     }
-    const newObject = new ExtRDFResourceWithLabel(props.config.prefixMap.uriFromQname(props.objectQname), {}, {}, props.config.prefixMap);
+    const newObject = new ExtRDFResourceWithLabel(props.config.prefixMap.uriFromQname(props.objectQname), {}, {}, null, props.config.prefixMap);
     const newList = replaceItemAtIndex2(list, props.index, newObject);
     setList(newList);
   }, []);
@@ -4804,7 +4799,6 @@ var BUDAResourceSelector = ({
   const iframeRef = (0, import_react9.useRef)(null);
   const [canCopy, setCanCopy] = (0, import_react9.useState)([]);
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i);
-  debug13("BrS:", config, value.value, value.id, value);
   const [toCopy, setProp] = (0, import_recoil10.useRecoilState)(
     toCopySelector({
       list: (_a = property.copyObjectsOfProperty) == null ? void 0 : _a.map((p) => ({
@@ -4851,57 +4845,59 @@ var BUDAResourceSelector = ({
         setLibraryURL("");
     }
   };
+  const updateRes = (0, import_react9.useCallback)((data) => {
+    let isTypeOk = false;
+    let actual;
+    if (property.expectedObjectTypes) {
+      const allow = property.expectedObjectTypes.map((t) => t.qname);
+      actual = data["tmp:otherData"]["tmp:type"];
+      if (!Array.isArray(actual))
+        actual = [actual];
+      actual = actual.map((a) => a.replace(/Product/, "Collection"));
+      if (actual.filter((t) => allow.includes(t)).length)
+        isTypeOk = true;
+      const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
+      if (!isTypeOk) {
+        setError("" + import_i18next8.default.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+        if (libraryURL)
+          setLibraryURL("");
+      }
+    }
+    if (isTypeOk) {
+      if (data["@id"] && !exists(data["@id"])) {
+        const newRes = new ExtRDFResourceWithLabel(
+          data["@id"].replace(/bdr:/, BDR_uri),
+          {
+            ...data["skos:prefLabel"] ? {
+              ...data["skos:prefLabel"].reduce(
+                (acc, l) => ({ ...acc, [l["@language"]]: l["@value"] }),
+                {}
+              )
+            } : {}
+          },
+          {
+            "tmp:keyword": { ...data["tmp:keyword"] },
+            ...data["tmp:otherData"],
+            ...data["skos:prefLabel"] ? { "skos:prefLabel": data["skos:prefLabel"] } : {},
+            ...data["skos:altLabel"] ? { "skos:altLabel": data["skos:altLabel"] } : {}
+          },
+          null,
+          config.prefixMap
+        );
+        onChange(newRes, idx, false);
+      } else if (isTypeOk) {
+        if (data["@id"])
+          setError(data["@id"] + " already selected");
+        else
+          throw "no '@id' field in data";
+        setLibraryURL("");
+      } else {
+        setLibraryURL("");
+      }
+    }
+  }, [exists, idx, libraryURL, onChange, property.expectedObjectTypes]);
   let msgHandler = null;
   (0, import_react9.useEffect)(() => {
-    const updateRes = (data) => {
-      let isTypeOk = false;
-      let actual;
-      if (property.expectedObjectTypes) {
-        const allow = property.expectedObjectTypes.map((t) => t.qname);
-        actual = data["tmp:otherData"]["tmp:type"];
-        if (!Array.isArray(actual))
-          actual = [actual];
-        actual = actual.map((a) => a.replace(/Product/, "Collection"));
-        if (actual.filter((t) => allow.includes(t)).length)
-          isTypeOk = true;
-        const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
-        if (!isTypeOk) {
-          setError("" + import_i18next8.default.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
-          if (libraryURL)
-            setLibraryURL("");
-        }
-      }
-      if (isTypeOk) {
-        if (data["@id"] && !exists(data["@id"])) {
-          const newRes = new ExtRDFResourceWithLabel(
-            data["@id"].replace(/bdr:/, BDR_uri),
-            {
-              ...data["skos:prefLabel"] ? {
-                ...data["skos:prefLabel"].reduce(
-                  (acc, l) => ({ ...acc, [l["@language"]]: l["@value"] }),
-                  {}
-                )
-              } : {}
-            },
-            {
-              "tmp:keyword": { ...data["tmp:keyword"] },
-              ...data["tmp:otherData"],
-              ...data["skos:prefLabel"] ? { "skos:prefLabel": data["skos:prefLabel"] } : {},
-              ...data["skos:altLabel"] ? { "skos:altLabel": data["skos:altLabel"] } : {}
-            }
-          );
-          onChange(newRes, idx, false);
-        } else if (isTypeOk) {
-          if (data["@id"])
-            setError(data["@id"] + " already selected");
-          else
-            throw "no '@id' field in data";
-          setLibraryURL("");
-        } else {
-          setLibraryURL("");
-        }
-      }
-    };
     if (msgHandler)
       window.removeEventListener("message", msgHandler, true);
     msgHandler = (ev) => {
@@ -5037,7 +5033,7 @@ var BUDAResourceSelector = ({
   );
   const chooseEntity = (ent, prefLabels) => () => {
     togglePopup();
-    const newRes = new ExtRDFResourceWithLabel(ent.subjectQname, prefLabels, {});
+    const newRes = new ExtRDFResourceWithLabel(ent.subjectQname, prefLabels, {}, null, config.prefixMap);
     onChange(newRes, idx, false);
   };
   const togglePopup = () => {

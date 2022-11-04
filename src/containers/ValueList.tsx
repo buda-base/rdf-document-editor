@@ -217,7 +217,7 @@ const generateDefault = async (
   switch (property.objectType) {
     case ObjectType.ResExt:
       // TODO might be a better way but "" isn't authorized
-      return new ExtRDFResourceWithLabel("tmp:uri", {}, {}, config)
+      return new ExtRDFResourceWithLabel("tmp:uri", {}, {}, null, config.prefixMap)
       break
     case ObjectType.Internal:
       if (property.targetShape == null) throw "no target shape for " + property.uri
@@ -225,7 +225,7 @@ const generateDefault = async (
       break
     case ObjectType.ResInList:
       // DONE: fix save (default value for select like bdo:material)
-      if (property.defaultValue) return new ExtRDFResourceWithLabel(property.defaultValue.value, {}, {}, config)
+      if (property.defaultValue) return new ExtRDFResourceWithLabel(property.defaultValue.value, {}, {}, null, config.prefixMap)
       // if a select property is not required, we don't select anything by default
       if (!property.minCount) return noneSelected
       // else we select the first one automatically
@@ -542,9 +542,8 @@ const ValueList: FC<{
   )
 
   // see https://stackoverflow.com/questions/55026139/whats-the-difference-between-usecallback-with-an-empty-array-as-inputs-and-u
-  const renderListElem = useMemo(
-    () => (val: Value, i: number, nbvalues: number) => {
-      //debug("render:", property.qname, isUniqueValueAmongSiblings, property, val, i)
+  const renderListElem = (val: Value, i: number, nbvalues: number) => {
+      //debug("render:", property.qname, isUniqueValueAmongSiblings, property, val, i, Object.keys(config?.prefixMap?.prefixToURI))
 
       if (
         val instanceof RDFResourceWithLabel ||
@@ -646,9 +645,7 @@ const ValueList: FC<{
           />
         )
       }
-    },
-    undefined
-  )
+    }
 
   return (
     <React.Fragment>

@@ -633,6 +633,7 @@ export class ExtRDFResourceWithLabel extends RDFResourceWithLabel {
   }
 
   public addOtherData(key: string, value: any): ExtRDFResourceWithLabel {
+    // TODO: will need actual config.prefixMap here as well
     return new ExtRDFResourceWithLabel(this.uri, this._prefLabels, { ...this._otherData, [key]: value })
   }
 }

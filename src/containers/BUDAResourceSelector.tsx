@@ -120,7 +120,7 @@ const BUDAResourceSelector: FC<{
 
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i)
 
-  debug("BrS:",config,value.value,value.id,value)
+  //debug("BrS:",Object.keys(config?.prefixMap?.prefixToURI),value.value,value.id,value)
 
   /// DONE: handle bdsCopyObjectsOfProperty
   const [toCopy, setProp] = useRecoilState(
@@ -177,66 +177,69 @@ const BUDAResourceSelector: FC<{
 
   //debug("ext:", value.qname)
 
-  let msgHandler: null | ((ev: MessageEvent) => void) = null
-  useEffect(() => {
-    //debug("url:", libraryURL)
-
-    const updateRes = (data: messagePayload) => {
-      let isTypeOk = false
-      let actual
-      if (property.expectedObjectTypes) {
-        const allow = property.expectedObjectTypes.map((t) => t.qname)
-        //if (!Array.isArray(allow)) allow = [allow]
-        actual = data["tmp:otherData"]["tmp:type"]
-        if (!Array.isArray(actual)) actual = [actual]
-        actual = actual.map((a) => a.replace(/Product/, "Collection"))
-        if (actual.filter((t) => allow.includes(t)).length) isTypeOk = true
-        //debug("typeOk",isTypeOk,actual,allow)
-        const displayTypes = (t: string[]) =>
-          t
-            .filter((a) => a)
-            .map((a) => a.replace(/^bdo:/, ""))
-            .join(", ") // TODO: translation (ontology?)
-        if (!isTypeOk) {
-          setError(""+i18n.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }))
-          if (libraryURL) setLibraryURL("")
-        }
-      }
-
-      if (isTypeOk) {
-        if (data["@id"] && !exists(data["@id"])) {
-          const newRes = new ExtRDFResourceWithLabel(
-            data["@id"].replace(/bdr:/, BDR_uri),
-            {
-              ...data["skos:prefLabel"]
-                ? {
-                    ...data["skos:prefLabel"].reduce(
-                      (acc: Record<string, string>, l: valueLang) => ({ ...acc, [l["@language"]]: l["@value"] }),
-                      {}
-                    ),
-                  }
-                : {},
-            },
-            {
-              "tmp:keyword": { ...data["tmp:keyword"] },
-              ...data["tmp:otherData"],
-              ...data["skos:prefLabel"] ? { "skos:prefLabel": data["skos:prefLabel"] } : {},
-              ...data["skos:altLabel"] ? { "skos:altLabel": data["skos:altLabel"] } : {},
-            }
-          )
-          onChange(newRes, idx, false)
-          //debug("url?",libraryURL)
-        } else if (isTypeOk) {
-          // TODO translation with i18n
-          if (data["@id"]) setError(data["@id"] + " already selected")
-          else throw "no '@id' field in data"
-          setLibraryURL("")
-        } else {
-          setLibraryURL("")
-        }
+  const updateRes = useCallback((data: messagePayload) => {
+    let isTypeOk = false
+    let actual
+    if (property.expectedObjectTypes) {
+      const allow = property.expectedObjectTypes.map((t) => t.qname)
+      //if (!Array.isArray(allow)) allow = [allow]
+      actual = data["tmp:otherData"]["tmp:type"]
+      if (!Array.isArray(actual)) actual = [actual]
+      actual = actual.map((a) => a.replace(/Product/, "Collection"))
+      if (actual.filter((t) => allow.includes(t)).length) isTypeOk = true
+      //debug("typeOk",isTypeOk,actual,allow)
+      const displayTypes = (t: string[]) =>
+        t
+          .filter((a) => a)
+          .map((a) => a.replace(/^bdo:/, ""))
+          .join(", ") // TODO: translation (ontology?)
+      if (!isTypeOk) {
+        setError(""+i18n.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }))
+        if (libraryURL) setLibraryURL("")
       }
     }
 
+    if (isTypeOk) {
+      if (data["@id"] && !exists(data["@id"])) {
+        const newRes = new ExtRDFResourceWithLabel(
+          data["@id"].replace(/bdr:/, BDR_uri),
+          {
+            ...data["skos:prefLabel"]
+              ? {
+                  ...data["skos:prefLabel"].reduce(
+                    (acc: Record<string, string>, l: valueLang) => ({ ...acc, [l["@language"]]: l["@value"] }),
+                    {}
+                  ),
+                }
+              : {},
+          },
+          {
+            "tmp:keyword": { ...data["tmp:keyword"] },
+            ...data["tmp:otherData"],
+            ...data["skos:prefLabel"] ? { "skos:prefLabel": data["skos:prefLabel"] } : {},
+            ...data["skos:altLabel"] ? { "skos:altLabel": data["skos:altLabel"] } : {},
+          },
+          null,
+          config.prefixMap
+        )
+        onChange(newRes, idx, false)
+        //debug("url?",libraryURL)
+      } else if (isTypeOk) {
+        // TODO translation with i18n
+        if (data["@id"]) setError(data["@id"] + " already selected")
+        else throw "no '@id' field in data"
+        setLibraryURL("")
+      } else {
+        setLibraryURL("")
+      }
+    }
+  }, [exists, idx, libraryURL, onChange, property.expectedObjectTypes])
+
+
+  let msgHandler: null | ((ev: MessageEvent) => void) = null
+  useEffect(() => {
+    //debug("url:", libraryURL)
+    
     if (msgHandler) window.removeEventListener("message", msgHandler, true)
 
     msgHandler = (ev: MessageEvent) => {
@@ -409,7 +412,7 @@ const BUDAResourceSelector: FC<{
   const chooseEntity = (ent: Entity, prefLabels: Record<string, string>) => () => {
     //debug("choose",ent)
     togglePopup()
-    const newRes = new ExtRDFResourceWithLabel(ent.subjectQname, prefLabels, {})
+    const newRes = new ExtRDFResourceWithLabel(ent.subjectQname, prefLabels, {}, null, config.prefixMap)
     onChange(newRes, idx, false)
   }
 
