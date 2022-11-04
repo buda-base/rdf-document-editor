@@ -603,6 +603,8 @@ declare function EntityCreationContainerRoute(props: RDEProps): JSX.Element;
 
 declare function EntityShapeChooserContainer(props: RDEProps): JSX.Element;
 
+declare function EntitySelector(props: RDEProps): JSX.Element;
+
 interface StoreWithEtag {
     store: rdf.Store;
     etag: string | null;
@@ -629,4 +631,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntityShapeChooserContainer, ExtRDFResourceWithLabel, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDFResource, Subject, ValueByLangToStrPrefLang, fetchTtl, generateSubnodes$1 as generateSubnodes, ns, shapes };
+export { BUDAResourceSelector, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDFResource, Subject, ValueByLangToStrPrefLang, fetchTtl, generateSubnodes$1 as generateSubnodes, ns, shapes };

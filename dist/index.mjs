@@ -20,7 +20,7 @@ var __publicField = (obj, key, value) => {
 };
 
 // src/index.ts
-import i18n9 from "i18next";
+import i18n10 from "i18next";
 import { initReactI18next } from "react-i18next";
 
 // src/helpers/rdf/ns.ts
@@ -4724,13 +4724,299 @@ function EntityShapeChooserContainer(props) {
 }
 var EntityShapeChooserContainer_default = EntityShapeChooserContainer;
 
-// src/containers/BUDAResourceSelector.tsx
-import React8, { useEffect as useEffect7, useState as useState8, useRef as useRef4, useLayoutEffect as useLayoutEffect2, useCallback as useCallback3 } from "react";
-import { useRecoilState as useRecoilState8 } from "recoil";
-import { makeStyles } from "@mui/styles";
-import { TextField as TextField4, MenuItem as MenuItem4 } from "@mui/material";
+// src/containers/EntitySelectorContainer.tsx
+import { useEffect as useEffect7 } from "react";
+import { Close as CloseIcon3 } from "@mui/icons-material";
 import i18n8 from "i18next";
-import { useNavigate as useNavigate3, Link as Link4 } from "react-router-dom";
+import { useRecoilState as useRecoilState9 } from "recoil";
+import { Link as Link5, useNavigate as useNavigate4, useLocation as useLocation3 } from "react-router-dom";
+import { makeStyles } from "@mui/styles";
+import { Tabs, Tab as Tab2 } from "@mui/material";
+
+// src/containers/EntityInEntitySelectorContainer.tsx
+import { useRecoilState as useRecoilState8 } from "recoil";
+import { Link as Link4, useNavigate as useNavigate3 } from "react-router-dom";
+import Tab from "@mui/material/Tab";
+import { Close as CloseIcon2 } from "@mui/icons-material";
+import { debug as debugfactory13 } from "debug";
+import { Fragment as Fragment7, jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
+var debug13 = debugfactory13("rde:entity:selector");
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`
+  };
+}
+var EntityInEntitySelectorContainer = ({
+  entity,
+  index,
+  config
+}) => {
+  var _a, _b, _c;
+  const [uiLitLang] = useRecoilState8(uiLitLangState);
+  const [labelValues] = useRecoilState8(!entity.preloadedLabel ? entity.subjectLabelState : defaultEntityLabelAtom);
+  const [tab, setTab] = useRecoilState8(uiTabState);
+  const [entities, setEntities] = useRecoilState8(entitiesAtom);
+  const [disabled, setDisabled] = useRecoilState8(uiDisabledTabsState);
+  const [userId, setUserId] = useRecoilState8(userIdState);
+  const [popupOn, setPopupOn] = useRecoilState8(savePopupState);
+  const navigate = useNavigate3();
+  const prefLabels = labelValues ? RDFResource.valuesByLang(labelValues) : null;
+  const label = !entity.preloadedLabel ? ValueByLangToStrPrefLang(prefLabels, uiLitLang) : entity.preloadedLabel;
+  const icon = config.iconFromEntity(entity);
+  const shapeQname = entity.shapeQname ? entity.shapeQname : entities[index] && entities[index].shapeQname ? entities[index].shapeQname : null;
+  const link = icon && icon.startsWith("user") ? "/profile" : "/edit/" + entity.subjectQname + (shapeQname ? "/" + shapeQname : "");
+  const allLoaded = entities.reduce((acc, e) => acc && e.state !== 3 /* Loading */, true);
+  const handleClick = (event, newTab) => {
+    if (newTab !== tab) {
+      setDisabled(true);
+      setTab(newTab);
+      setPopupOn(false);
+    }
+  };
+  const closeEntity = async (ev) => {
+    var _a2, _b2;
+    ev.persist();
+    if (entity.state === 2 /* NeedsSaving */ || entity.state === 0 /* Error */) {
+      const go = window.confirm("unsaved data will be lost");
+      if (!go)
+        return;
+    }
+    config.setUserMenuState(
+      entity.subjectQname,
+      shapeQname,
+      !entity.preloadedLabel ? label && ((_a2 = entity.subject) == null ? void 0 : _a2.lname) ? (_b2 = entity.subject) == null ? void 0 : _b2.lname : label : entity.preloadedLabel,
+      true,
+      null
+    );
+    await config.setUserLocalEntity(entity.subjectQname, shapeQname, "", true, userId, entity.etag, false);
+    if (history) {
+      const uri = config.prefixMap.uriFromQname(entity.subjectQname);
+      if (history[uri])
+        delete history[uri];
+    }
+    ev.preventDefault();
+    ev.stopPropagation();
+    const newList = [...entities.filter((e, i) => i !== index)];
+    setEntities(newList);
+    if (index === tab) {
+      setTab(-1);
+      navigate("/");
+    } else if (tab <= newList.length && tab !== -1) {
+      const newIndex = newList.findIndex((e) => e.subjectQname === entities[index].subjectQname);
+      setTab(newIndex);
+    } else {
+      setTab(-1);
+    }
+    return false;
+  };
+  config.setUserMenuState(
+    entity.subjectQname,
+    shapeQname,
+    !entity.preloadedLabel ? ((_a = entity.subject) == null ? void 0 : _a.lname) ? (_b = entity.subject) == null ? void 0 : _b.lname : label : entity.preloadedLabel,
+    false,
+    entity.etag
+  );
+  return /* @__PURE__ */ jsx8(Fragment7, {
+    children: /* @__PURE__ */ jsx8(Tab, {
+      ...a11yProps(index),
+      className: index === tab ? "Mui-selected" : "",
+      onClick: (e) => handleClick(e, index),
+      ...disabled ? { disabled: true } : {},
+      label: /* @__PURE__ */ jsxs8(Fragment7, {
+        children: [
+          /* @__PURE__ */ jsxs8(Link4, {
+            to: link,
+            children: [
+              icon && /* @__PURE__ */ jsx8("img", {
+                className: "entity-type",
+                src: "/icons/" + icon.toLowerCase() + (index === tab ? "_" : "") + (icon && icon.startsWith("User") ? ".png" : ".svg")
+              }),
+              /* @__PURE__ */ jsxs8("span", {
+                style: { marginLeft: 30, marginRight: "auto", textAlign: "left" },
+                children: [
+                  /* @__PURE__ */ jsx8("span", {
+                    children: label && label != "..." ? label : ((_c = entity.subject) == null ? void 0 : _c.lname) ? entity.subject.lname : label
+                  }),
+                  /* @__PURE__ */ jsx8("br", {}),
+                  /* @__PURE__ */ jsx8("span", {
+                    className: "RID",
+                    children: entity.subjectQname
+                  })
+                ]
+              })
+            ]
+          }),
+          /* @__PURE__ */ jsx8("span", {
+            className: "state state-" + entity.state
+          }),
+          /* @__PURE__ */ jsx8(CloseIcon2, {
+            className: "close-facet-btn",
+            onClick: closeEntity
+          })
+        ]
+      })
+    }, entity.subjectQname)
+  });
+};
+
+// src/containers/EntitySelectorContainer.tsx
+import { debug as debugfactory14 } from "debug";
+import { jsx as jsx9, jsxs as jsxs9 } from "react/jsx-runtime";
+var debug14 = debugfactory14("rde:entity:selector");
+function a11yProps2(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`
+  };
+}
+var useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.paper
+  }
+}));
+function EntitySelector(props) {
+  const config = props.config;
+  const classes = useStyles();
+  const [entities, setEntities] = useRecoilState9(entitiesAtom);
+  const [sessionLoaded, setSessionLoaded] = useRecoilState9(sessionLoadedState);
+  const [uiLang] = useRecoilState9(uiLangState);
+  const [tab, setTab] = useRecoilState9(uiTabState);
+  const handleChange = (event, newTab) => {
+    setTab(newTab);
+  };
+  const [edit, setEdit] = useRecoilState9(uiEditState);
+  const [groupEd, setGroupEd] = useRecoilState9(uiGroupState);
+  const [disabled, setDisabled] = useRecoilState9(uiDisabledTabsState);
+  const [userId, setUserId] = useRecoilState9(userIdState);
+  const navigate = useNavigate4();
+  const location = useLocation3();
+  useEffect7(() => {
+    const session = config.getUserMenuState();
+    session.then((entities2) => {
+      if (!entities2)
+        return;
+      const newEntities = [];
+      for (const k of Object.keys(entities2)) {
+        newEntities.push({
+          subjectQname: k,
+          subject: null,
+          shapeQname: entities2[k].shapeQname,
+          subjectLabelState: defaultEntityLabelAtom,
+          state: 4 /* NotLoaded */,
+          preloadedLabel: entities2[k].preloadedLabel,
+          etag: entities2[k].etag,
+          loadedUnsavedFromLocalStorage: true
+        });
+      }
+      if (newEntities.length) {
+        setEntities(newEntities);
+      }
+      if (!sessionLoaded)
+        setSessionLoaded(true);
+      if ((location == null ? void 0 : location.pathname) == "/new")
+        setTab(newEntities.length);
+      if (location == null ? void 0 : location.pathname.startsWith("/edit/")) {
+        const id = location.pathname.split("/")[2];
+        let found = false;
+        newEntities.map((e, i) => {
+          if (e.subjectQname === id) {
+            found = true;
+            setTab(i);
+          }
+        });
+        if (!found)
+          setTab(newEntities.length);
+      }
+    });
+  }, [config, location]);
+  const closeEntities = async (ev) => {
+    let warn = false;
+    for (const entity of entities) {
+      if (entity.state === 2 /* NeedsSaving */ || entity.state === 0 /* Error */) {
+        warn = true;
+        break;
+      }
+    }
+    if (warn) {
+      const go = window.confirm("unsaved data will be lost");
+      if (!go)
+        return;
+    }
+    for (const entity of entities) {
+      const shapeQname = entity.shapeQname;
+      await config.setUserMenuState(entity.subjectQname, shapeQname, "", true, null);
+      await config.setUserLocalEntity(entity.subjectQname, shapeQname, "", true, userId, entity.etag, false);
+      if (history) {
+        const uri = config.prefixMap.uriFromQname(entity.subjectQname);
+        if (history[uri])
+          delete history[uri];
+      }
+    }
+    setEntities([]);
+    setTab(-1);
+    navigate("/");
+    return false;
+  };
+  return /* @__PURE__ */ jsxs9("div", {
+    className: "tabs-select",
+    onClick: () => {
+      setEdit("");
+      setGroupEd("");
+    },
+    children: [
+      /* @__PURE__ */ jsx9("h3", {
+        children: "Edition"
+      }),
+      /* @__PURE__ */ jsxs9("h4", {
+        children: [
+          "Open entities",
+          /* @__PURE__ */ jsx9("span", {
+            title: i18n8.t("general.close"),
+            children: /* @__PURE__ */ jsx9(CloseIcon3, {
+              className: "close-facet-btn",
+              onClick: closeEntities
+            })
+          })
+        ]
+      }),
+      /* @__PURE__ */ jsxs9(Tabs, {
+        value: tab === -1 ? false : tab,
+        onChange: handleChange,
+        "aria-label": "entities",
+        children: [
+          entities.map((entity, index) => {
+            return /* @__PURE__ */ jsx9(EntityInEntitySelectorContainer, {
+              entity,
+              index,
+              config
+            }, index);
+          }),
+          /* @__PURE__ */ jsx9(Tab2, {
+            ...a11yProps2(entities.length),
+            id: "new-load",
+            label: /* @__PURE__ */ jsx9(Link5, {
+              to: "/new",
+              className: "btn-rouge",
+              onClick: () => setDisabled(false),
+              children: "NEW / LOAD"
+            })
+          }, "new")
+        ]
+      })
+    ]
+  });
+}
+var EntitySelectorContainer_default = EntitySelector;
+
+// src/containers/BUDAResourceSelector.tsx
+import React9, { useEffect as useEffect8, useState as useState8, useRef as useRef4, useLayoutEffect as useLayoutEffect2, useCallback as useCallback3 } from "react";
+import { useRecoilState as useRecoilState10 } from "recoil";
+import { makeStyles as makeStyles2 } from "@mui/styles";
+import { TextField as TextField4, MenuItem as MenuItem4 } from "@mui/material";
+import i18n9 from "i18next";
+import { useNavigate as useNavigate5, Link as Link6 } from "react-router-dom";
 import * as rdf8 from "rdflib";
 import {
   Launch as LaunchIcon,
@@ -4739,14 +5025,14 @@ import {
   Search as LookupIcon,
   ContentPaste as ContentPasteIcon,
   Error as ErrorIcon3,
-  Close as CloseIcon2,
+  Close as CloseIcon4,
   Edit as EditIcon2
 } from "@mui/icons-material";
-import { debug as debugfactory13 } from "debug";
-import { Fragment as Fragment7, jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
+import { debug as debugfactory15 } from "debug";
+import { Fragment as Fragment8, jsx as jsx10, jsxs as jsxs10 } from "react/jsx-runtime";
 import { createElement } from "react";
-var debug13 = debugfactory13("rde:atom:event:RS");
-var useStyles = makeStyles((theme) => ({
+var debug15 = debugfactory15("rde:atom:event:RS");
+var useStyles2 = makeStyles2((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
@@ -4774,17 +5060,17 @@ var BUDAResourceSelector = ({
   const [language, setLanguage] = useState8("bo-x-ewts");
   const [type, setType] = useState8(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
   const [libraryURL, setLibraryURL] = useState8("");
-  const [uiLang, setUiLang] = useRecoilState8(uiLangState);
-  const [uiLitLang, setUiLitLang] = useRecoilState8(uiLitLangState);
+  const [uiLang, setUiLang] = useRecoilState10(uiLangState);
+  const [uiLitLang, setUiLitLang] = useRecoilState10(uiLitLangState);
   const [error, setError] = useState8();
-  const [entities, setEntities] = useRecoilState8(entitiesAtom);
-  const navigate = useNavigate3();
+  const [entities, setEntities] = useRecoilState10(entitiesAtom);
+  const navigate = useNavigate5();
   const msgId = subject.qname + property.qname + idx;
   const [popupNew, setPopupNew] = useState8(false);
   const iframeRef = useRef4(null);
   const [canCopy, setCanCopy] = useState8([]);
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i);
-  const [toCopy, setProp] = useRecoilState8(
+  const [toCopy, setProp] = useRecoilState10(
     toCopySelector({
       list: (_a = property.copyObjectsOfProperty) == null ? void 0 : _a.map((p) => ({
         property: config.prefixMap.qnameFromUri(p.value),
@@ -4792,7 +5078,7 @@ var BUDAResourceSelector = ({
       }))
     })
   );
-  useEffect7(() => {
+  useEffect8(() => {
     var _a2, _b2;
     if ((_a2 = property.copyObjectsOfProperty) == null ? void 0 : _a2.length) {
       const copy = [];
@@ -4809,18 +5095,18 @@ var BUDAResourceSelector = ({
       setCanCopy(copy);
     }
   }, []);
-  useEffect7(() => {
+  useEffect8(() => {
     if (globalError && !error)
       setError(globalError);
   }, [globalError]);
   if (!property.expectedObjectTypes) {
-    debug13(property);
+    debug15(property);
     throw "can't get the types for property " + property.qname;
   }
   const closeFrame = () => {
-    debug13("close?", value, isRid, libraryURL);
+    debug15("close?", value, isRid, libraryURL);
     if (iframeRef.current && isRid) {
-      debug13("if:", iframeRef.current);
+      debug15("if:", iframeRef.current);
       iframeRef.current.click();
       const wn = iframeRef.current.contentWindow;
       if (wn)
@@ -4843,7 +5129,7 @@ var BUDAResourceSelector = ({
         isTypeOk = true;
       const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
       if (!isTypeOk) {
-        setError("" + i18n8.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+        setError("" + i18n9.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
         if (libraryURL)
           setLibraryURL("");
       }
@@ -4882,7 +5168,7 @@ var BUDAResourceSelector = ({
     }
   }, [exists, idx, libraryURL, onChange, property.expectedObjectTypes]);
   let msgHandler = null;
-  useEffect7(() => {
+  useEffect8(() => {
     if (msgHandler)
       window.removeEventListener("message", msgHandler, true);
     msgHandler = (ev) => {
@@ -4890,18 +5176,18 @@ var BUDAResourceSelector = ({
         if (!window.location.href.includes(ev.origin)) {
           const data = JSON.parse(ev.data);
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
-            debug13("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug15("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
-            setError("" + i18n8.t("error.notF", { RID: data["@id"] }));
+            setError("" + i18n9.t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
-            debug13("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug15("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
           } else {
             setLibraryURL("");
           }
         }
       } catch (err) {
-        debug13("error: %o", err);
+        debug15("error: %o", err);
       }
     };
     window.addEventListener("message", msgHandler, true);
@@ -4910,14 +5196,14 @@ var BUDAResourceSelector = ({
         window.removeEventListener("message", msgHandler, true);
     };
   }, [libraryURL]);
-  useEffect7(() => {
+  useEffect8(() => {
     if (value.otherData["tmp:keyword"]) {
       setKeyword(value.otherData["tmp:keyword"]["@value"]);
       setLanguage(value.otherData["tmp:keyword"]["@language"]);
     }
   }, []);
   const updateLibrary = (ev, newlang, newtype) => {
-    debug13("updLib: %o", msgId);
+    debug15("updLib: %o", msgId);
     if (ev && libraryURL) {
       setLibraryURL("");
     } else if (msgId) {
@@ -5043,19 +5329,19 @@ var BUDAResourceSelector = ({
   const onClickKB = (e) => {
     updateLibrary(e);
   };
-  let name = /* @__PURE__ */ jsx8("div", {
+  let name = /* @__PURE__ */ jsx10("div", {
     style: { fontSize: "16px" },
     children: ValueByLangToStrPrefLang(value.prefLabels, uiLitLang) + " " + dates
   });
   const entity = entities.filter((e) => e.subjectQname === value.qname);
   if (entity.length) {
-    name = /* @__PURE__ */ jsx8(LabelWithRID, {
+    name = /* @__PURE__ */ jsx10(LabelWithRID, {
       entity: entity[0]
     });
   }
-  useEffect7(() => {
+  useEffect8(() => {
     if (error) {
-      debug13("error:", error);
+      debug15("error:", error);
     }
   }, [error]);
   const inputRef = useRef4();
@@ -5067,26 +5353,26 @@ var BUDAResourceSelector = ({
       setPreview(previewVal.value);
     }
   });
-  return /* @__PURE__ */ jsxs8(React8.Fragment, {
+  return /* @__PURE__ */ jsxs10(React9.Fragment, {
     children: [
-      /* @__PURE__ */ jsxs8("div", {
+      /* @__PURE__ */ jsxs10("div", {
         className: "resSelect " + (error ? "error" : ""),
         style: { position: "relative", ...value.uri === "tmp:uri" ? { width: "100%" } : {} },
         children: [
-          value.uri === "tmp:uri" && /* @__PURE__ */ jsx8("div", {
+          value.uri === "tmp:uri" && /* @__PURE__ */ jsx10("div", {
             className: preview ? "withPreview" : "",
             style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
-            children: /* @__PURE__ */ jsxs8(React8.Fragment, {
+            children: /* @__PURE__ */ jsxs10(React9.Fragment, {
               children: [
-                preview && /* @__PURE__ */ jsx8("div", {
+                preview && /* @__PURE__ */ jsx10("div", {
                   className: "preview-ewts",
-                  children: /* @__PURE__ */ jsx8(TextField4, {
+                  children: /* @__PURE__ */ jsx10(TextField4, {
                     disabled: true,
                     value: preview,
                     variant: "standard"
                   })
                 }),
-                /* @__PURE__ */ jsx8(TextField4, {
+                /* @__PURE__ */ jsx10(TextField4, {
                   variant: "standard",
                   onKeyPress: (e) => {
                     if (e.key === "Enter")
@@ -5106,12 +5392,12 @@ var BUDAResourceSelector = ({
                   onChange: textOnChange,
                   placeholder: "Search name or RID for " + title,
                   ...error ? {
-                    helperText: /* @__PURE__ */ jsxs8(React8.Fragment, {
+                    helperText: /* @__PURE__ */ jsxs10(React9.Fragment, {
                       children: [
-                        /* @__PURE__ */ jsx8(ErrorIcon3, {
+                        /* @__PURE__ */ jsx10(ErrorIcon3, {
                           style: { fontSize: "20px", verticalAlign: "-7px" }
                         }),
-                        /* @__PURE__ */ jsx8("i", {
+                        /* @__PURE__ */ jsx10("i", {
                           children: error
                         })
                       ]
@@ -5120,11 +5406,11 @@ var BUDAResourceSelector = ({
                   } : {},
                   ...!editable ? { disabled: true } : {}
                 }),
-                /* @__PURE__ */ jsx8(LangSelect, {
+                /* @__PURE__ */ jsx10(LangSelect, {
                   value: language,
                   onChange: (lang) => {
                     setLanguage(lang);
-                    debug13(lang);
+                    debug15(lang);
                     if (libraryURL)
                       updateLibrary(void 0, lang);
                   },
@@ -5133,7 +5419,7 @@ var BUDAResourceSelector = ({
                   error: !!error,
                   config
                 }),
-                ((_b = property.expectedObjectTypes) == null ? void 0 : _b.length) > 1 && /* @__PURE__ */ jsx8(TextField4, {
+                ((_b = property.expectedObjectTypes) == null ? void 0 : _b.length) > 1 && /* @__PURE__ */ jsx10(TextField4, {
                   variant: "standard",
                   select: true,
                   style: { width: 100, flexShrink: 0 },
@@ -5144,49 +5430,49 @@ var BUDAResourceSelector = ({
                   ...isRid ? { disabled: true } : {},
                   ...!editable ? { disabled: true } : {},
                   ...error ? {
-                    helperText: /* @__PURE__ */ jsx8("br", {}),
+                    helperText: /* @__PURE__ */ jsx10("br", {}),
                     error: true
                   } : {},
                   children: (_c = property.expectedObjectTypes) == null ? void 0 : _c.map((r) => {
                     const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                    return /* @__PURE__ */ jsx8(MenuItem4, {
+                    return /* @__PURE__ */ jsx10(MenuItem4, {
                       value: r.qname,
                       children: label2
                     }, r.qname);
                   })
                 }),
-                /* @__PURE__ */ jsx8("button", {
+                /* @__PURE__ */ jsx10("button", {
                   ...!keyword || !isRid && (!language || !type) ? { disabled: true } : {},
                   className: "btn btn-sm btn-outline-primary ml-2 lookup btn-rouge",
                   style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
                   onClick,
                   ...!editable ? { disabled: true } : {},
-                  children: libraryURL ? /* @__PURE__ */ jsx8(CloseIcon2, {}) : /* @__PURE__ */ jsx8(LookupIcon, {})
+                  children: libraryURL ? /* @__PURE__ */ jsx10(CloseIcon4, {}) : /* @__PURE__ */ jsx10(LookupIcon, {})
                 }),
-                /* @__PURE__ */ jsx8("button", {
+                /* @__PURE__ */ jsx10("button", {
                   className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
                   style: { boxShadow: "none", alignSelf: "center" },
                   onClick: togglePopup,
                   ...!editable ? { disabled: true } : {},
-                  children: /* @__PURE__ */ jsx8(Fragment7, {
-                    children: i18n8.t("search.create")
+                  children: /* @__PURE__ */ jsx10(Fragment8, {
+                    children: i18n9.t("search.create")
                   })
                 })
               ]
             })
           }),
-          value.uri !== "tmp:uri" && /* @__PURE__ */ jsx8(React8.Fragment, {
-            children: /* @__PURE__ */ jsxs8("div", {
+          value.uri !== "tmp:uri" && /* @__PURE__ */ jsx10(React9.Fragment, {
+            children: /* @__PURE__ */ jsxs10("div", {
               className: "selected",
               children: [
                 name,
-                /* @__PURE__ */ jsxs8("div", {
+                /* @__PURE__ */ jsxs10("div", {
                   style: { fontSize: "12px", opacity: "0.5", display: "flex", alignItems: "center" },
                   children: [
                     value.qname,
                     "\xA0",
-                    /* @__PURE__ */ jsxs8("a", {
-                      title: i18n8.t("search.help.preview"),
+                    /* @__PURE__ */ jsxs10("a", {
+                      title: i18n9.t("search.help.preview"),
                       onClick: () => {
                         if (libraryURL)
                           setLibraryURL("");
@@ -5196,36 +5482,36 @@ var BUDAResourceSelector = ({
                           setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
                       },
                       children: [
-                        !libraryURL && /* @__PURE__ */ jsx8(InfoOutlinedIcon, {
+                        !libraryURL && /* @__PURE__ */ jsx10(InfoOutlinedIcon, {
                           style: { width: "18px", cursor: "pointer" }
                         }),
-                        libraryURL && /* @__PURE__ */ jsx8(InfoIcon, {
+                        libraryURL && /* @__PURE__ */ jsx10(InfoIcon, {
                           style: { width: "18px", cursor: "pointer" }
                         })
                       ]
                     }),
                     "\xA0",
-                    /* @__PURE__ */ jsx8("a", {
-                      title: i18n8.t("search.help.open"),
+                    /* @__PURE__ */ jsx10("a", {
+                      title: i18n9.t("search.help.open"),
                       href: config.libraryUrl + "/show/" + value.qname,
                       rel: "noopener noreferrer",
                       target: "_blank",
-                      children: /* @__PURE__ */ jsx8(LaunchIcon, {
+                      children: /* @__PURE__ */ jsx10(LaunchIcon, {
                         style: { width: "16px" }
                       })
                     }),
                     "\xA0",
-                    /* @__PURE__ */ jsx8(Link4, {
-                      title: i18n8.t("search.help.edit"),
+                    /* @__PURE__ */ jsx10(Link6, {
+                      title: i18n9.t("search.help.edit"),
                       to: "/edit/" + value.qname,
-                      children: /* @__PURE__ */ jsx8(EditIcon2, {
+                      children: /* @__PURE__ */ jsx10(EditIcon2, {
                         style: { width: "16px" }
                       })
                     }),
                     "\xA0",
-                    canCopy.length > 0 && /* @__PURE__ */ jsx8("span", {
-                      title: i18n8.t("general.import"),
-                      children: /* @__PURE__ */ jsx8(ContentPasteIcon, {
+                    canCopy.length > 0 && /* @__PURE__ */ jsx10("span", {
+                      title: i18n9.t("general.import"),
+                      children: /* @__PURE__ */ jsx10(ContentPasteIcon, {
                         style: { width: "17px", cursor: "pointer" },
                         onClick: () => {
                           setProp(canCopy);
@@ -5240,7 +5526,7 @@ var BUDAResourceSelector = ({
           })
         ]
       }),
-      libraryURL && /* @__PURE__ */ jsxs8("div", {
+      libraryURL && /* @__PURE__ */ jsxs10("div", {
         className: "row card px-3 py-3 iframe",
         style: {
           position: "absolute",
@@ -5255,22 +5541,22 @@ var BUDAResourceSelector = ({
           ...value.uri !== "tmp:uri" ? { left: "calc(1rem)", width: "calc(100%)", bottom: "calc(100% - 0.5rem)" } : {}
         },
         children: [
-          /* @__PURE__ */ jsx8("iframe", {
+          /* @__PURE__ */ jsx10("iframe", {
             style: { border: "none" },
             height: "400",
             src: libraryURL,
             ref: iframeRef
           }),
-          /* @__PURE__ */ jsx8("div", {
+          /* @__PURE__ */ jsx10("div", {
             className: "iframe-BG",
             onClick: closeFrame
           })
         ]
       }),
-      popupNew && /* @__PURE__ */ jsxs8("div", {
+      popupNew && /* @__PURE__ */ jsxs10("div", {
         className: "card popup-new",
         children: [
-          /* @__PURE__ */ jsxs8("div", {
+          /* @__PURE__ */ jsxs10("div", {
             className: "front",
             children: [
               entities.map((e, i) => {
@@ -5281,16 +5567,16 @@ var BUDAResourceSelector = ({
                     return (_a3 = e.shapeQname) == null ? void 0 : _a3.startsWith(t.qname.replace(/^bdo:/, "bds:"));
                   }
                 ))) {
-                  return /* @__PURE__ */ jsx8(MenuItem4, {
+                  return /* @__PURE__ */ jsx10(MenuItem4, {
                     className: "px-0 py-0",
-                    children: /* @__PURE__ */ jsx8(LabelWithRID, {
+                    children: /* @__PURE__ */ jsx10(LabelWithRID, {
                       choose: chooseEntity,
                       entity: e
                     })
                   }, i + 1);
                 }
               }),
-              /* @__PURE__ */ jsx8("hr", {
+              /* @__PURE__ */ jsx10("hr", {
                 className: "my-1"
               }),
               (_d = property.expectedObjectTypes) == null ? void 0 : _d.map((r) => {
@@ -5303,11 +5589,11 @@ var BUDAResourceSelector = ({
                     const url = await createAndUpdate(r);
                     navigate(url);
                   }
-                }, i18n8.t("search.new", { type: label2 }));
+                }, i18n9.t("search.new", { type: label2 }));
               })
             ]
           }),
-          /* @__PURE__ */ jsx8("div", {
+          /* @__PURE__ */ jsx10("div", {
             className: "popup-new-BG",
             onClick: togglePopup
           })
@@ -5321,30 +5607,30 @@ var LabelWithRID = ({
   choose
 }) => {
   var _a;
-  const [uiLang] = useRecoilState8(uiLangState);
-  const [uiLitLang] = useRecoilState8(uiLitLangState);
-  const [labelValues] = useRecoilState8(entity.subjectLabelState);
+  const [uiLang] = useRecoilState10(uiLangState);
+  const [uiLitLang] = useRecoilState10(uiLitLangState);
+  const [labelValues] = useRecoilState10(entity.subjectLabelState);
   const prefLabels = RDFResource.valuesByLang(labelValues);
   const label = ValueByLangToStrPrefLang(prefLabels, uiLitLang);
   let name = label && label != "..." ? label : ((_a = entity.subject) == null ? void 0 : _a.lname) ? entity.subject.lname : entity.subjectQname.split(":")[1];
   if (!name)
     name = label;
   if (!choose)
-    return /* @__PURE__ */ jsx8("span", {
+    return /* @__PURE__ */ jsx10("span", {
       style: { fontSize: "16px" },
       children: name
     });
   else
-    return /* @__PURE__ */ jsxs8("div", {
+    return /* @__PURE__ */ jsxs10("div", {
       className: "px-3 py-1",
       style: { width: "100%" },
       onClick: choose(entity, prefLabels),
       children: [
-        /* @__PURE__ */ jsx8("div", {
+        /* @__PURE__ */ jsx10("div", {
           className: "label",
           children: name
         }),
-        /* @__PURE__ */ jsx8("div", {
+        /* @__PURE__ */ jsx10("div", {
           className: "RID",
           children: entity.subjectQname
         })
@@ -5376,7 +5662,7 @@ var numtobo = function(cstr) {
   }
   return res;
 };
-i18n9.use(initReactI18next).init({
+i18n10.use(initReactI18next).init({
   resources: {
     en: {
       translation: en_default
@@ -5406,6 +5692,7 @@ export {
   EntityEditContainer_default as EntityEditContainer,
   EntityEditContainerMayUpdate,
   EntityGraph,
+  EntitySelectorContainer_default as EntitySelectorContainer,
   EntityShapeChooserContainer_default as EntityShapeChooserContainer,
   ExtRDFResourceWithLabel,
   LiteralWithId,
