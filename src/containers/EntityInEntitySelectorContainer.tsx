@@ -10,7 +10,7 @@ import {
   uiTabState,
   savePopupState,
 } from "../atoms/common"
-import Tab from "@mui/material/Tab"
+import { Tab } from "@mui/material"
 import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
 import { Entity, EditedEntityState, entitiesAtom, defaultEntityLabelAtom } from "../atoms/common"

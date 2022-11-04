@@ -1289,7 +1289,7 @@ __decorateClass([
   Memoize2()
 ], NodeShape.prototype, "groups", 1);
 var nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
-var generateSubnodes = async (subshape, parent, n) => {
+var generateSubnodes = async (subshape, parent, n = 1) => {
   const prefix = subshape ? subshape.getPropStringValue(rdeIdentifierPrefix) : "";
   let namespace = subshape == null ? void 0 : subshape.getPropStringValue(shNamespace);
   if (!namespace)
@@ -4711,13 +4711,12 @@ import { Close as CloseIcon3 } from "@mui/icons-material";
 import i18n8 from "i18next";
 import { useRecoilState as useRecoilState9 } from "recoil";
 import { Link as Link5, useNavigate as useNavigate4, useLocation as useLocation3 } from "react-router-dom";
-import { makeStyles } from "@mui/styles";
 import { Tabs, Tab as Tab2 } from "@mui/material";
 
 // src/containers/EntityInEntitySelectorContainer.tsx
 import { useRecoilState as useRecoilState8 } from "recoil";
 import { Link as Link4, useNavigate as useNavigate3 } from "react-router-dom";
-import Tab from "@mui/material/Tab";
+import { Tab } from "@mui/material";
 import { Close as CloseIcon2 } from "@mui/icons-material";
 import { debug as debugfactory13 } from "debug";
 import { Fragment as Fragment7, jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
@@ -4850,15 +4849,8 @@ function a11yProps2(index) {
     "aria-controls": `simple-tabpanel-${index}`
   };
 }
-var useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    backgroundColor: theme.palette.background.paper
-  }
-}));
 function EntitySelector(props) {
   const config = props.config;
-  const classes = useStyles();
   const [entities, setEntities] = useRecoilState9(entitiesAtom);
   const [sessionLoaded, setSessionLoaded] = useRecoilState9(sessionLoadedState);
   const [uiLang] = useRecoilState9(uiLangState);
@@ -5212,7 +5204,7 @@ function BottomBarContainer(props) {
 // src/containers/BUDAResourceSelector.tsx
 import React10, { useEffect as useEffect9, useState as useState9, useRef as useRef4, useLayoutEffect as useLayoutEffect2, useCallback as useCallback3 } from "react";
 import { useRecoilState as useRecoilState11 } from "recoil";
-import { makeStyles as makeStyles2 } from "@mui/styles";
+import { makeStyles } from "@mui/styles";
 import { TextField as TextField5, MenuItem as MenuItem5 } from "@mui/material";
 import i18n10 from "i18next";
 import { useNavigate as useNavigate5, Link as Link6 } from "react-router-dom";
@@ -5231,7 +5223,7 @@ import { debug as debugfactory16 } from "debug";
 import { Fragment as Fragment9, jsx as jsx11, jsxs as jsxs11 } from "react/jsx-runtime";
 import { createElement } from "react";
 var debug16 = debugfactory16("rde:atom:event:RS");
-var useStyles2 = makeStyles2((theme) => ({
+var useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main

@@ -1331,7 +1331,7 @@ __decorateClass([
   (0, import_typescript_memoize2.Memoize)()
 ], NodeShape.prototype, "groups", 1);
 var nanoidCustom = (0, import_nanoid2.customAlphabet)("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
-var generateSubnodes = async (subshape, parent, n) => {
+var generateSubnodes = async (subshape, parent, n = 1) => {
   const prefix = subshape ? subshape.getPropStringValue(rdeIdentifierPrefix) : "";
   let namespace = subshape == null ? void 0 : subshape.getPropStringValue(shNamespace);
   if (!namespace)
@@ -4742,13 +4742,12 @@ var import_icons_material6 = require("@mui/icons-material");
 var import_i18next8 = __toESM(require("i18next"));
 var import_recoil11 = require("recoil");
 var import_react_router_dom7 = require("react-router-dom");
-var import_styles = require("@mui/styles");
-var import_material5 = require("@mui/material");
+var import_material6 = require("@mui/material");
 
 // src/containers/EntityInEntitySelectorContainer.tsx
 var import_recoil10 = require("recoil");
 var import_react_router_dom6 = require("react-router-dom");
-var import_Tab = __toESM(require("@mui/material/Tab"));
+var import_material5 = require("@mui/material");
 var import_icons_material5 = require("@mui/icons-material");
 var import_debug13 = require("debug");
 var import_jsx_runtime8 = require("react/jsx-runtime");
@@ -4829,7 +4828,7 @@ var EntityInEntitySelectorContainer = ({
     entity.etag
   );
   return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_Tab.default, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material5.Tab, {
       ...a11yProps(index),
       className: index === tab ? "Mui-selected" : "",
       onClick: (e) => handleClick(e, index),
@@ -4881,15 +4880,8 @@ function a11yProps2(index) {
     "aria-controls": `simple-tabpanel-${index}`
   };
 }
-var useStyles = (0, import_styles.makeStyles)((theme) => ({
-  root: {
-    flexGrow: 1,
-    backgroundColor: theme.palette.background.paper
-  }
-}));
 function EntitySelector(props) {
   const config = props.config;
-  const classes = useStyles();
   const [entities, setEntities] = (0, import_recoil11.useRecoilState)(entitiesAtom);
   const [sessionLoaded, setSessionLoaded] = (0, import_recoil11.useRecoilState)(sessionLoadedState);
   const [uiLang] = (0, import_recoil11.useRecoilState)(uiLangState);
@@ -4991,7 +4983,7 @@ function EntitySelector(props) {
           })
         ]
       }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_material5.Tabs, {
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_material6.Tabs, {
         value: tab === -1 ? false : tab,
         onChange: handleChange,
         "aria-label": "entities",
@@ -5003,7 +4995,7 @@ function EntitySelector(props) {
               config
             }, index);
           }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_material5.Tab, {
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_material6.Tab, {
             ...a11yProps2(entities.length),
             id: "new-load",
             label: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_react_router_dom7.Link, {
@@ -5022,7 +5014,7 @@ var EntitySelectorContainer_default = EntitySelector;
 
 // src/containers/BottomBarContainer.tsx
 var import_react10 = __toESM(require("react"));
-var import_material6 = require("@mui/material");
+var import_material7 = require("@mui/material");
 var import_i18next9 = __toESM(require("i18next"));
 var import_recoil12 = require("recoil");
 var rdf8 = __toESM(require("rdflib"));
@@ -5167,7 +5159,7 @@ function BottomBarContainer(props) {
         children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", {
           children: saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, {
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material6.TextField, {
+              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.TextField, {
                 label: "commit message",
                 value: message,
                 onChange: onMessageChangeHandler,
@@ -5185,7 +5177,7 @@ function BottomBarContainer(props) {
                         children: error
                       }),
                       "\xA0\xA0",
-                      errorCode === 412 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material6.Button, {
+                      errorCode === 412 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
                         className: "btn-blanc",
                         onClick: handleReload,
                         children: import_i18next9.default.t("general.reload")
@@ -5195,13 +5187,13 @@ function BottomBarContainer(props) {
                   error: true
                 } : {}
               }),
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material6.TextField, {
+              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.TextField, {
                 select: true,
                 value: lang,
                 onChange: onLangChangeHandler,
                 InputLabelProps: { shrink: true },
                 style: { minWidth: 100, marginTop: "16px", marginLeft: "15px", marginRight: "15px" },
-                children: props.config.possibleLiteralLangs.map((option) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material6.MenuItem, {
+                children: props.config.possibleLiteralLangs.map((option) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.MenuItem, {
                   value: option.value,
                   children: option.value
                 }, option.value))
@@ -5213,17 +5205,17 @@ function BottomBarContainer(props) {
       /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", {
         className: "buttons",
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material6.Button, {
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
             variant: "outlined",
             onClick: save,
             className: "btn-rouge",
             ...spinner || message === "" && saving || saved || errorCode ? { disabled: true } : {},
-            children: spinner ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material6.CircularProgress, {
+            children: spinner ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.CircularProgress, {
               size: "14px",
               color: "primary"
             }) : saving ? import_i18next9.default.t("general.ok") : import_i18next9.default.t("general.save")
           }),
-          saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material6.Button, {
+          saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
             variant: "outlined",
             onClick: closePopupHandler,
             className: "btn-blanc ml-2",
@@ -5238,8 +5230,8 @@ function BottomBarContainer(props) {
 // src/containers/BUDAResourceSelector.tsx
 var import_react11 = __toESM(require("react"));
 var import_recoil13 = require("recoil");
-var import_styles2 = require("@mui/styles");
-var import_material7 = require("@mui/material");
+var import_styles = require("@mui/styles");
+var import_material8 = require("@mui/material");
 var import_i18next10 = __toESM(require("i18next"));
 var import_react_router_dom8 = require("react-router-dom");
 var rdf9 = __toESM(require("rdflib"));
@@ -5248,7 +5240,7 @@ var import_debug16 = require("debug");
 var import_jsx_runtime11 = require("react/jsx-runtime");
 var import_react12 = require("react");
 var debug16 = (0, import_debug16.debug)("rde:atom:event:RS");
-var useStyles2 = (0, import_styles2.makeStyles)((theme) => ({
+var useStyles = (0, import_styles.makeStyles)((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main
@@ -5582,13 +5574,13 @@ var BUDAResourceSelector = ({
               children: [
                 preview && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", {
                   className: "preview-ewts",
-                  children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material7.TextField, {
+                  children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.TextField, {
                     disabled: true,
                     value: preview,
                     variant: "standard"
                   })
                 }),
-                /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material7.TextField, {
+                /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.TextField, {
                   variant: "standard",
                   onKeyPress: (e) => {
                     if (e.key === "Enter")
@@ -5635,7 +5627,7 @@ var BUDAResourceSelector = ({
                   error: !!error,
                   config
                 }),
-                ((_b = property.expectedObjectTypes) == null ? void 0 : _b.length) > 1 && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material7.TextField, {
+                ((_b = property.expectedObjectTypes) == null ? void 0 : _b.length) > 1 && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.TextField, {
                   variant: "standard",
                   select: true,
                   style: { width: 100, flexShrink: 0 },
@@ -5651,7 +5643,7 @@ var BUDAResourceSelector = ({
                   } : {},
                   children: (_c = property.expectedObjectTypes) == null ? void 0 : _c.map((r) => {
                     const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                    return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material7.MenuItem, {
+                    return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.MenuItem, {
                       value: r.qname,
                       children: label2
                     }, r.qname);
@@ -5783,7 +5775,7 @@ var BUDAResourceSelector = ({
                     return (_a3 = e.shapeQname) == null ? void 0 : _a3.startsWith(t.qname.replace(/^bdo:/, "bds:"));
                   }
                 ))) {
-                  return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material7.MenuItem, {
+                  return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.MenuItem, {
                     className: "px-0 py-0",
                     children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(LabelWithRID, {
                       choose: chooseEntity,
@@ -5797,7 +5789,7 @@ var BUDAResourceSelector = ({
               }),
               (_d = property.expectedObjectTypes) == null ? void 0 : _d.map((r) => {
                 const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                return /* @__PURE__ */ (0, import_react12.createElement)(import_material7.MenuItem, {
+                return /* @__PURE__ */ (0, import_react12.createElement)(import_material8.MenuItem, {
                   ...r.qname === "bdo:EtextInstance" ? { disabled: true } : {},
                   key: r.qname,
                   value: r.qname,
