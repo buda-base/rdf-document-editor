@@ -56,14 +56,16 @@ __export(src_exports, {
   RDFResource: () => RDFResource,
   Subject: () => Subject,
   ValueByLangToStrPrefLang: () => ValueByLangToStrPrefLang,
+  atoms: () => common_exports,
+  enTranslations: () => en_default,
   fetchTtl: () => fetchTtl,
   generateSubnodes: () => generateSubnodes,
+  getHistoryStatus: () => getHistoryStatus,
   ns: () => ns_exports,
-  shapes: () => shapes_exports
+  shapes: () => shapes_exports,
+  updateHistory: () => updateHistory
 });
 module.exports = __toCommonJS(src_exports);
-var import_i18next11 = __toESM(require("i18next"));
-var import_react_i18next = require("react-i18next");
 
 // src/helpers/rdf/ns.ts
 var ns_exports = {};
@@ -1347,89 +1349,55 @@ var generateSubnodes = async (subshape, parent, n = 1) => {
   return Promise.resolve(res);
 };
 
-// src/translations/en.js
-var enTranslations = {
-  home: {
-    title: "RDF Document Editor",
-    uilang: "UI Language",
-    nav: "navigation"
-  },
-  types: {
-    loading: "Loading...",
-    creating: "Creating...",
-    redirect: "Redirecting...",
-    boolean: "Boolean",
-    true: "True",
-    false: "False",
-    unset: "-"
-  },
-  search: {
-    help: {
-      preview: "Preview resource",
-      open: "Open in Library",
-      replace: "Replace",
-      edit: "Edit resource"
-    },
-    lookup: "lookup",
-    cancel: "cancel",
-    change: "change",
-    create: "...",
-    new: "new {{type}}",
-    open: "open"
-  },
-  error: {
-    inferiorTo: "must be inferior to {{val}}",
-    superiorTo: "must be superior to {{val}}",
-    inferiorToStrict: "must be inferior and not equal to {{val}}",
-    superiorToStrict: "must be superior and not equal to {{val}}",
-    empty: "should not be empty",
-    unique: "duplicate language",
-    uniqueV: "duplicate value",
-    exist: "Entity {{id}} does not exist",
-    shape: "Cannot find any appropriate shape for entity {{id}}",
-    redirect: "Create new or load another entity",
-    minC: "at least {{count}} value must be provided",
-    maxC: "at most {{count}} value can be provided",
-    prefix: "RID prefix must be set in <res>user profile</res>",
-    notF: "Resource {{RID}} not found",
-    type: "{{id}} is a {{actual}}; but a {{allow}} is required here",
-    preview: "This entity has not been saved yet",
-    force: "Errors are detected and will be likely rejected by the server.\nTry anyway?",
-    modified: "Entity must be reloaded first (modified by someone else?)",
-    unauthorized: "not authorized to modify {{url}}",
-    year: "Year must be between {{min}} and {{max}}",
-    select: "'{{val}}' is not in list of allowed values"
-  },
-  general: {
-    add_another: "Add {{val}}",
-    add_another_plural: "Add N {{val}}",
-    toggle: "{{show}} empty secondary properties",
-    show: "Show",
-    hide: "Hide",
-    add_nb: "Number of {{val}} to add",
-    close: "Close all open entities",
-    import: "Import labels",
-    save: "Save",
-    ok: "Ok",
-    cancel: "Cancel"
-  }
-};
-var en_default = enTranslations;
-
-// src/containers/EntityEditContainer.tsx
-var import_react4 = __toESM(require("react"));
-
-// src/helpers/rdf/io.ts
-var rdf4 = __toESM(require("rdflib"));
-var import_i18next = __toESM(require("i18next"));
-var import_react = require("react");
-var import_recoil3 = require("recoil");
-
 // src/atoms/common.ts
+var common_exports = {};
+__export(common_exports, {
+  ESfromRecoilSelector: () => ESfromRecoilSelector,
+  EditedEntityState: () => EditedEntityState,
+  defaultEntityLabelAtom: () => defaultEntityLabelAtom,
+  entitiesAtom: () => entitiesAtom,
+  initListAtom: () => initListAtom,
+  initMapAtom: () => initMapAtom,
+  initStringAtom: () => initStringAtom,
+  initkvAtom: () => initkvAtom,
+  isUniqueTestSelector: () => isUniqueTestSelector,
+  noUndo: () => noUndo,
+  noUndoRedo: () => noUndoRedo,
+  orderedByPropSelector: () => orderedByPropSelector,
+  orderedNewValSelector: () => orderedNewValSelector,
+  personNamesLabelsSelector: () => personNamesLabelsSelector,
+  possiblePrefLabelsSelector: () => possiblePrefLabelsSelector,
+  profileIdState: () => profileIdState,
+  reloadEntityState: () => reloadEntityState,
+  reloadProfileState: () => reloadProfileState,
+  sameUndo: () => sameUndo,
+  savePopupState: () => savePopupState,
+  sessionLoadedState: () => sessionLoadedState,
+  toCopySelector: () => toCopySelector,
+  uiDisabledTabsState: () => uiDisabledTabsState,
+  uiEditState: () => uiEditState,
+  uiGroupState: () => uiGroupState,
+  uiHistoryState: () => uiHistoryState,
+  uiLangState: () => uiLangState,
+  uiLitLangState: () => uiLitLangState,
+  uiNavState: () => uiNavState,
+  uiRIDState: () => uiRIDState,
+  uiReadyState: () => uiReadyState,
+  uiTabState: () => uiTabState,
+  uiUndosState: () => uiUndosState
+});
 var import_recoil2 = require("recoil");
 var import_lodash = __toESM(require("lodash"));
 var import_debug4 = require("debug");
 var debug4 = (0, import_debug4.debug)("rde:common");
+var EditedEntityState = /* @__PURE__ */ ((EditedEntityState3) => {
+  EditedEntityState3[EditedEntityState3["Error"] = 0] = "Error";
+  EditedEntityState3[EditedEntityState3["Saved"] = 1] = "Saved";
+  EditedEntityState3[EditedEntityState3["NeedsSaving"] = 2] = "NeedsSaving";
+  EditedEntityState3[EditedEntityState3["Loading"] = 3] = "Loading";
+  EditedEntityState3[EditedEntityState3["NotLoaded"] = 4] = "NotLoaded";
+  return EditedEntityState3;
+})(EditedEntityState || {});
 var entitiesAtom = (0, import_recoil2.atom)({
   key: "entities",
   default: []
@@ -1470,6 +1438,13 @@ var uiHistoryState = (0, import_recoil2.atom)({
   key: "uiHistoryState",
   default: {}
 });
+var sameUndoSub = (undo1, undo2) => {
+  const ret = undo1.enabled === undo2.enabled && undo1.subjectUri === undo2.subjectUri && undo1.propertyPath === undo2.propertyPath && undo1.parentPath.length === undo2.parentPath.length && undo1.parentPath.filter((u, i) => u === undo2.parentPath[i]).length === undo1.parentPath.length;
+  return ret;
+};
+var sameUndo = (undo1, undo2) => {
+  return !undo1 && !undo2 || undo1 && undo2 && sameUndoSub(undo1.prev, undo2.prev) && sameUndoSub(undo1.next, undo2.next);
+};
 var noUndo = { enabled: false, subjectUri: "", propertyPath: "", parentPath: [] };
 var noUndoRedo = { prev: noUndo, next: noUndo };
 var uiUndosState = (0, import_recoil2.atom)({
@@ -1700,7 +1675,83 @@ var isUniqueTestSelector = (0, import_recoil2.selectorFamily)({
   }
 });
 
+// src/translations/en.js
+var enTranslations = {
+  home: {
+    title: "RDF Document Editor",
+    uilang: "UI Language",
+    nav: "navigation"
+  },
+  types: {
+    loading: "Loading...",
+    creating: "Creating...",
+    redirect: "Redirecting...",
+    boolean: "Boolean",
+    true: "True",
+    false: "False",
+    unset: "-"
+  },
+  search: {
+    help: {
+      preview: "Preview resource",
+      open: "Open in Library",
+      replace: "Replace",
+      edit: "Edit resource"
+    },
+    lookup: "lookup",
+    cancel: "cancel",
+    change: "change",
+    create: "...",
+    new: "new {{type}}",
+    open: "open"
+  },
+  error: {
+    inferiorTo: "must be inferior to {{val}}",
+    superiorTo: "must be superior to {{val}}",
+    inferiorToStrict: "must be inferior and not equal to {{val}}",
+    superiorToStrict: "must be superior and not equal to {{val}}",
+    empty: "should not be empty",
+    unique: "duplicate language",
+    uniqueV: "duplicate value",
+    exist: "Entity {{id}} does not exist",
+    shape: "Cannot find any appropriate shape for entity {{id}}",
+    redirect: "Create new or load another entity",
+    minC: "at least {{count}} value must be provided",
+    maxC: "at most {{count}} value can be provided",
+    prefix: "RID prefix must be set in <res>user profile</res>",
+    notF: "Resource {{RID}} not found",
+    type: "{{id}} is a {{actual}}; but a {{allow}} is required here",
+    preview: "This entity has not been saved yet",
+    force: "Errors are detected and will be likely rejected by the server.\nTry anyway?",
+    modified: "Entity must be reloaded first (modified by someone else?)",
+    unauthorized: "not authorized to modify {{url}}",
+    year: "Year must be between {{min}} and {{max}}",
+    select: "'{{val}}' is not in list of allowed values"
+  },
+  general: {
+    add_another: "Add {{val}}",
+    add_another_plural: "Add N {{val}}",
+    toggle: "{{show}} empty secondary properties",
+    show: "Show",
+    hide: "Hide",
+    add_nb: "Number of {{val}} to add",
+    close: "Close all open entities",
+    import: "Import labels",
+    save: "Save",
+    ok: "Ok",
+    cancel: "Cancel"
+  }
+};
+var en_default = enTranslations;
+
+// src/containers/EntityEditContainer.tsx
+var import_react4 = __toESM(require("react"));
+
 // src/helpers/rdf/io.ts
+var rdf4 = __toESM(require("rdflib"));
+var import_i18next = __toESM(require("i18next"));
+var import_react = require("react");
+var import_recoil3 = require("recoil");
 var import_debug5 = require("debug");
 var debug5 = (0, import_debug5.debug)("rde:rdf:io");
 var defaultFetchTtlHeaders = new Headers();
@@ -2171,7 +2222,6 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
   const [unsortedList, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
   const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
   const [idToken, setIdToken] = (0, import_react2.useState)(localStorage.getItem("BLMPidToken"));
-  const [RIDprefix, setRIDprefix] = (0, import_recoil4.useRecoilState)(RIDprefixState);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
   const [undos, setUndos] = (0, import_recoil4.useRecoilState)(uiUndosState);
@@ -5846,53 +5896,6 @@ var LabelWithRID = ({
     });
 };
 var BUDAResourceSelector_default = BUDAResourceSelector;
-
-// src/index.ts
-var numtobodic = {
-  "0": "\u0F20",
-  "1": "\u0F21",
-  "2": "\u0F22",
-  "3": "\u0F23",
-  "4": "\u0F24",
-  "5": "\u0F25",
-  "6": "\u0F26",
-  "7": "\u0F27",
-  "8": "\u0F28",
-  "9": "\u0F29"
-};
-var numtobo = function(cstr) {
-  let res = "";
-  for (const ch of cstr) {
-    if (numtobodic[ch])
-      res += numtobodic[ch];
-    else
-      res += ch;
-  }
-  return res;
-};
-import_i18next11.default.use(import_react_i18next.initReactI18next).init({
-  resources: {
-    en: {
-      translation: en_default
-    }
-  },
-  lng: "en",
-  fallbackLng: "en",
-  interpolation: {
-    escapeValue: false,
-    format: function(value, format, lng) {
-      if (format === "counttobo") {
-        return numtobo("" + value);
-      } else if (format === "counttozh" && value) {
-        return value.toLocaleString("zh-u-nu-hanidec");
-      } else if (format === "lowercase")
-        return value.toLowerCase();
-      else if (format === "uppercase")
-        return value.toUpperCase();
-      return value;
-    }
-  }
-});
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   BUDAResourceSelector,
@@ -5911,8 +5914,12 @@ import_i18next11.default.use(import_react_i18next.initReactI18next).init({
   RDFResource,
   Subject,
   ValueByLangToStrPrefLang,
+  atoms,
+  enTranslations,
   fetchTtl,
   generateSubnodes,
+  getHistoryStatus,
   ns,
-  shapes
+  shapes,
+  updateHistory
 });

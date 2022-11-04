@@ -1,6 +1,7 @@
 import * as rdflib_lib_tf_types from 'rdflib/lib/tf-types';
 import * as rdf from 'rdflib';
-import { RecoilState, AtomEffect } from 'recoil';
+import * as recoil from 'recoil';
+import { RecoilState, AtomEffect, RecoilValue } from 'recoil';
 import { FC } from 'react';
 import { Theme } from '@mui/material/styles';
 
@@ -263,6 +264,13 @@ declare enum ObjectType {
     ResIgnore = 4,
     LitInList = 5
 }
+declare const updateHistory: (entity: string, qname: string, prop: string, val: Array<Value>, noHisto?: boolean | number) => void;
+declare type HistoryStatus = {
+    top?: number;
+    first?: number;
+    current?: number;
+};
+declare const getHistoryStatus: (entityUri: string) => HistoryStatus;
 declare class Path {
     sparqlString: string;
     directPathNode: rdf.NamedNode | null;
@@ -451,6 +459,293 @@ declare type Entity = {
     etag: string | null;
     loadedUnsavedFromLocalStorage: boolean;
 };
+declare const entitiesAtom: RecoilState<Entity[]>;
+declare const defaultEntityLabelAtom: RecoilState<Value[]>;
+declare const uiLangState: RecoilState<string[]>;
+declare const uiLitLangState: RecoilState<string[]>;
+declare const uiReadyState: RecoilState<boolean>;
+declare const uiTabState: RecoilState<number>;
+declare const uiRIDState: RecoilState<string[]>;
+declare const uiEditState: RecoilState<string>;
+declare const uiGroupState: RecoilState<string>;
+declare const uiHistoryState: RecoilState<Record<string, never> | FC<{
+    string: {
+        string: Array<Value>;
+    };
+}>>;
+declare type undoState = {
+    enabled: boolean;
+    subjectUri: string;
+    propertyPath: string;
+    parentPath: Array<string>;
+};
+declare const sameUndo: (undo1: {
+    prev: undoState;
+    next: undoState;
+}, undo2: {
+    prev: undoState;
+    next: undoState;
+}) => boolean;
+declare const noUndo: {
+    enabled: boolean;
+    subjectUri: string;
+    propertyPath: string;
+    parentPath: never[];
+};
+declare const noUndoRedo: {
+    prev: {
+        enabled: boolean;
+        subjectUri: string;
+        propertyPath: string;
+        parentPath: never[];
+    };
+    next: {
+        enabled: boolean;
+        subjectUri: string;
+        propertyPath: string;
+        parentPath: never[];
+    };
+};
+declare const uiUndosState: RecoilState<Record<string, Record<string, undoState>>>;
+declare const uiNavState: RecoilState<string>;
+declare const sessionLoadedState: RecoilState<boolean>;
+declare const profileIdState: RecoilState<string>;
+declare const uiDisabledTabsState: RecoilState<boolean>;
+declare const reloadProfileState: RecoilState<boolean>;
+declare const reloadEntityState: RecoilState<string>;
+declare type orderedByPropSelectorArgs = {
+    atom: RecoilValue<Array<Value>>;
+    propertyPath: string;
+    order: string;
+};
+declare const orderedByPropSelector: (param: orderedByPropSelectorArgs) => recoil.RecoilValueReadOnly<any>;
+declare type personNamesLabelsSelectorArgs = {
+    atom: RecoilValue<Array<Subject>>;
+};
+declare const personNamesLabelsSelector: (param: personNamesLabelsSelectorArgs) => recoil.RecoilValueReadOnly<any>;
+declare const initListAtom: RecoilState<Value[]>;
+declare const initStringAtom: RecoilState<string>;
+declare const initMapAtom: RecoilState<Record<string, Value[]>>;
+declare const initkvAtom: RecoilState<{
+    k: string;
+    val: Value[];
+}>;
+declare type canPushPrefLabelGroupType = {
+    props?: RecoilState<Value[]>[];
+    subprops?: Record<string, {
+        atom: RecoilState<Subject[]>;
+        allowPush: string[];
+    }>;
+};
+declare type canPushPrefLabelGroupsType = {
+    canPushPrefLabelGroups: Record<string, canPushPrefLabelGroupType>;
+};
+declare const possiblePrefLabelsSelector: (param: canPushPrefLabelGroupsType) => recoil.RecoilValueReadOnly<Record<string, Value[]>>;
+declare type orderedNewValSelectorType = {
+    atom: RecoilState<Subject[]> | null;
+    propertyPath: string;
+    order?: "asc" | "desc";
+};
+declare const orderedNewValSelector: (param: orderedNewValSelectorType) => recoil.RecoilValueReadOnly<string>;
+declare type toCopySelectorsType = Array<{
+    property: string;
+    atom: RecoilState<Value[]>;
+}>;
+declare type toCopySelectorType = {
+    list?: toCopySelectorsType;
+};
+declare const toCopySelector: (param: toCopySelectorType) => RecoilState<{
+    k: string;
+    val: Value[];
+}[]>;
+declare const savePopupState: RecoilState<boolean>;
+declare type ESfromRecoilSelectorType = {
+    property: PropertyShape;
+    subject: Subject;
+    entityQname: string;
+    undo: Record<string, undoState>;
+    hStatus: HistoryStatus;
+    status: EditedEntityState;
+    id: string;
+    removingFacet: boolean;
+    forceRemove: boolean;
+};
+declare const ESfromRecoilSelector: (param: any) => RecoilState<any>;
+declare type isUniqueTestSelectorType = {
+    checkUnique: boolean;
+    siblingsAtom: RecoilState<Subject[]>;
+    propertyPath: string;
+};
+declare const isUniqueTestSelector: (param: isUniqueTestSelectorType) => recoil.RecoilValueReadOnly<boolean>;
+
+type common_EditedEntityState = EditedEntityState;
+declare const common_EditedEntityState: typeof EditedEntityState;
+type common_Entity = Entity;
+declare const common_entitiesAtom: typeof entitiesAtom;
+declare const common_defaultEntityLabelAtom: typeof defaultEntityLabelAtom;
+declare const common_uiLangState: typeof uiLangState;
+declare const common_uiLitLangState: typeof uiLitLangState;
+declare const common_uiReadyState: typeof uiReadyState;
+declare const common_uiTabState: typeof uiTabState;
+declare const common_uiRIDState: typeof uiRIDState;
+declare const common_uiEditState: typeof uiEditState;
+declare const common_uiGroupState: typeof uiGroupState;
+declare const common_uiHistoryState: typeof uiHistoryState;
+type common_undoState = undoState;
+declare const common_sameUndo: typeof sameUndo;
+declare const common_noUndo: typeof noUndo;
+declare const common_noUndoRedo: typeof noUndoRedo;
+declare const common_uiUndosState: typeof uiUndosState;
+declare const common_uiNavState: typeof uiNavState;
+declare const common_sessionLoadedState: typeof sessionLoadedState;
+declare const common_profileIdState: typeof profileIdState;
+declare const common_uiDisabledTabsState: typeof uiDisabledTabsState;
+declare const common_reloadProfileState: typeof reloadProfileState;
+declare const common_reloadEntityState: typeof reloadEntityState;
+type common_orderedByPropSelectorArgs = orderedByPropSelectorArgs;
+declare const common_orderedByPropSelector: typeof orderedByPropSelector;
+type common_personNamesLabelsSelectorArgs = personNamesLabelsSelectorArgs;
+declare const common_personNamesLabelsSelector: typeof personNamesLabelsSelector;
+declare const common_initListAtom: typeof initListAtom;
+declare const common_initStringAtom: typeof initStringAtom;
+declare const common_initMapAtom: typeof initMapAtom;
+declare const common_initkvAtom: typeof initkvAtom;
+type common_canPushPrefLabelGroupType = canPushPrefLabelGroupType;
+type common_canPushPrefLabelGroupsType = canPushPrefLabelGroupsType;
+declare const common_possiblePrefLabelsSelector: typeof possiblePrefLabelsSelector;
+type common_orderedNewValSelectorType = orderedNewValSelectorType;
+declare const common_orderedNewValSelector: typeof orderedNewValSelector;
+type common_toCopySelectorsType = toCopySelectorsType;
+type common_toCopySelectorType = toCopySelectorType;
+declare const common_toCopySelector: typeof toCopySelector;
+declare const common_savePopupState: typeof savePopupState;
+type common_ESfromRecoilSelectorType = ESfromRecoilSelectorType;
+declare const common_ESfromRecoilSelector: typeof ESfromRecoilSelector;
+type common_isUniqueTestSelectorType = isUniqueTestSelectorType;
+declare const common_isUniqueTestSelector: typeof isUniqueTestSelector;
+declare namespace common {
+  export {
+    common_EditedEntityState as EditedEntityState,
+    common_Entity as Entity,
+    common_entitiesAtom as entitiesAtom,
+    common_defaultEntityLabelAtom as defaultEntityLabelAtom,
+    common_uiLangState as uiLangState,
+    common_uiLitLangState as uiLitLangState,
+    common_uiReadyState as uiReadyState,
+    common_uiTabState as uiTabState,
+    common_uiRIDState as uiRIDState,
+    common_uiEditState as uiEditState,
+    common_uiGroupState as uiGroupState,
+    common_uiHistoryState as uiHistoryState,
+    common_undoState as undoState,
+    common_sameUndo as sameUndo,
+    common_noUndo as noUndo,
+    common_noUndoRedo as noUndoRedo,
+    common_uiUndosState as uiUndosState,
+    common_uiNavState as uiNavState,
+    common_sessionLoadedState as sessionLoadedState,
+    common_profileIdState as profileIdState,
+    common_uiDisabledTabsState as uiDisabledTabsState,
+    common_reloadProfileState as reloadProfileState,
+    common_reloadEntityState as reloadEntityState,
+    common_orderedByPropSelectorArgs as orderedByPropSelectorArgs,
+    common_orderedByPropSelector as orderedByPropSelector,
+    common_personNamesLabelsSelectorArgs as personNamesLabelsSelectorArgs,
+    common_personNamesLabelsSelector as personNamesLabelsSelector,
+    common_initListAtom as initListAtom,
+    common_initStringAtom as initStringAtom,
+    common_initMapAtom as initMapAtom,
+    common_initkvAtom as initkvAtom,
+    common_canPushPrefLabelGroupType as canPushPrefLabelGroupType,
+    common_canPushPrefLabelGroupsType as canPushPrefLabelGroupsType,
+    common_possiblePrefLabelsSelector as possiblePrefLabelsSelector,
+    common_orderedNewValSelectorType as orderedNewValSelectorType,
+    common_orderedNewValSelector as orderedNewValSelector,
+    common_toCopySelectorsType as toCopySelectorsType,
+    common_toCopySelectorType as toCopySelectorType,
+    common_toCopySelector as toCopySelector,
+    common_savePopupState as savePopupState,
+    common_ESfromRecoilSelectorType as ESfromRecoilSelectorType,
+    common_ESfromRecoilSelector as ESfromRecoilSelector,
+    common_isUniqueTestSelectorType as isUniqueTestSelectorType,
+    common_isUniqueTestSelector as isUniqueTestSelector,
+  };
+}
+
+declare namespace enTranslations {
+    namespace home {
+        const title: string;
+        const uilang: string;
+        const nav: string;
+    }
+    namespace types {
+        export const loading: string;
+        export const creating: string;
+        export const redirect: string;
+        export const boolean: string;
+        const _true: string;
+        export { _true as true };
+        const _false: string;
+        export { _false as false };
+        export const unset: string;
+    }
+    namespace search {
+        export namespace help {
+            const preview: string;
+            const open: string;
+            const replace: string;
+            const edit: string;
+        }
+        export const lookup: string;
+        export const cancel: string;
+        export const change: string;
+        export const create: string;
+        const _new: string;
+        export { _new as new };
+        const open_1: string;
+        export { open_1 as open };
+    }
+    namespace error {
+        export const inferiorTo: string;
+        export const superiorTo: string;
+        export const inferiorToStrict: string;
+        export const superiorToStrict: string;
+        export const empty: string;
+        export const unique: string;
+        export const uniqueV: string;
+        export const exist: string;
+        export const shape: string;
+        const redirect_1: string;
+        export { redirect_1 as redirect };
+        export const minC: string;
+        export const maxC: string;
+        export const prefix: string;
+        export const notF: string;
+        export const type: string;
+        const preview_1: string;
+        export { preview_1 as preview };
+        export const force: string;
+        export const modified: string;
+        export const unauthorized: string;
+        export const year: string;
+        export const select: string;
+    }
+    namespace general {
+        export const add_another: string;
+        export const add_another_plural: string;
+        export const toggle: string;
+        export const show: string;
+        export const hide: string;
+        export const add_nb: string;
+        export const close: string;
+        const _import: string;
+        export { _import as import };
+        export const save: string;
+        export const ok: string;
+        const cancel_1: string;
+        export { cancel_1 as cancel };
+    }
+}
 
 declare type Lang = {
     value: string;
@@ -633,4 +928,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDFResource, Subject, ValueByLangToStrPrefLang, fetchTtl, generateSubnodes$1 as generateSubnodes, ns, shapes };
+export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, Subject, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, ns, shapes, updateHistory };

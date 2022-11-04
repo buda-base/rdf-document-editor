@@ -137,15 +137,6 @@ export const BlockAddButton: FC<{
   const [n, setN] = useState(1)
   const [disable, setDisable] = useState(false)
 
-  /* // TODO: disable batch operations in demo mode 
-  const [demo, setDemo] = useRecoilState(demoAtom)
-
-  // #36 disable batch add in demo mode
-  useEffect(() => {
-    if (count > 1 && demo && !disable) setDisable(true)
-  })
-  */
-
   return (
     <>
     <div
@@ -286,7 +277,6 @@ const ValueList: FC<{
   const [unsortedList, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
   const [uiLang] = useRecoilState(uiLangState)
   const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"))
-  const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang)
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang)
   const [undos, setUndos] = useRecoilState(uiUndosState)
