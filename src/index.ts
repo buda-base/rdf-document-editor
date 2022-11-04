@@ -62,6 +62,7 @@ export { default as NewEntityContainer } from "./containers/NewEntityContainer"
 export { default as EntityCreationContainer, EntityCreationContainerRoute } from "./containers/EntityCreationContainer"
 export { default as EntityShapeChooserContainer } from "./containers/EntityShapeChooserContainer"
 export { default as EntitySelectorContainer } from "./containers/EntitySelectorContainer"
+export { default as BottomBarContainer } from "./containers/BottomBarContainer"
 export type { IdTypeParams } from "./helpers/editor_props"
 
 export { NodeShape, generateSubnodes } from "./helpers/rdf/shapes"

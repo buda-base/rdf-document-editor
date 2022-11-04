@@ -28,6 +28,16 @@ const debug = debugfactory("rde:rdf:io")
 const defaultFetchTtlHeaders = new Headers()
 defaultFetchTtlHeaders.set("Accept", "text/turtle")
 
+export class HttpError extends Error {
+
+  public status: number
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
+
 export const fetchTtl = async (
   url: string,
   allow404 = false,
@@ -44,7 +54,7 @@ export const fetchTtl = async (
     }
     // eslint-disable-next-line no-magic-numbers
     if (response.status != 200) {
-      reject(new Error("cannot fetch " + url))
+      reject(new HttpError("cannot fetch " + url, response.status))
       return
     }
 
@@ -88,19 +98,19 @@ export const putTtl = async (
 
       // eslint-disable-next-line no-magic-numbers
       if (response.status == 403) {
-        reject(new Error(i18n.t("error.unauthorized", { url })))
+        reject(new HttpError(i18n.t("error.unauthorized", { url }), response.status))
         return
       }
 
       // eslint-disable-next-line no-magic-numbers
       if (response.status == 412) {
-        reject(new Error(i18n.t("error.modified")))
+        reject(new HttpError(i18n.t("error.modified"), response.status))
         return
       }
 
       // eslint-disable-next-line no-magic-numbers
       if (response.status > 400) {
-        reject(new Error("error " + response.status + " when saving " + url))
+        reject(new HttpError("error " + response.status + " when saving " + url, response.status))
         return
       }
 

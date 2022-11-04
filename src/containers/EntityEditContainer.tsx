@@ -15,7 +15,6 @@ import i18n from "i18next"
 import PropertyGroupContainer from "./PropertyGroupContainer"
 import {
   profileIdState,
-  userIdState,
   uiLangState,
   uiEditState,
   uiUndosState,
@@ -304,8 +303,6 @@ function EntityEditContainer(props: RDEProps) {
     }, delay)
   }, [entities, tab, profileId, entityQname])
 
-  const [userId, setUserId] = useRecoilState(userIdState)
-
   const save = useCallback(
     (obj: Entity[]) => {
       return new Promise(async (resolve) => {
@@ -329,7 +326,6 @@ function EntityEditContainer(props: RDEProps) {
               shape,
               str,
               false,
-              userId,
               obj[0].etag,
               obj[0].state === EditedEntityState.NeedsSaving
             )

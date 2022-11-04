@@ -12,7 +12,7 @@ import {
   noneSelected,
   getHistoryStatus,
 } from "../helpers/rdf/types"
-import { generateSubnodes, NodeShape, PropertyShape } from "../helpers/rdf/shapes"
+import { NodeShape, PropertyShape } from "../helpers/rdf/shapes"
 import * as ns from "../helpers/rdf/ns"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { TextField, MenuItem, Tooltip } from "@mui/material"
@@ -32,7 +32,6 @@ import {
   orderedByPropSelector,
   orderedByPropSelectorArgs,
   initListAtom,
-  RIDprefixState,
   orderedNewValSelector,
   ESfromRecoilSelector,
   isUniqueTestSelector,
@@ -207,8 +206,6 @@ export const OtherButton: FC<{ onClick: React.MouseEventHandler<HTMLButtonElemen
 const generateDefault = async (
   property: PropertyShape,
   parent: Subject,
-  RIDprefix: string | null,
-  idToken: string | null,
   val = "",
   config: RDEConfig
 ): Promise<Value | Value[]> => {
@@ -220,7 +217,7 @@ const generateDefault = async (
       break
     case ObjectType.Internal:
       if (property.targetShape == null) throw "no target shape for " + property.uri
-      return generateSubnode(property.targetShape, parent) //, RIDprefix, idToken) //, n)
+      return config.generateSubnodes(property.targetShape, parent, 1)
       break
     case ObjectType.ResInList:
       // DONE: fix save (default value for select like bdo:material)
@@ -389,7 +386,7 @@ const ValueList: FC<{
   let firstValueIsEmptyField = true
 
   const setListAsync = useCallback(async (pre = false, vals:Value[] = [], solo = false) => {
-    const res = await generateDefault(property, subject, RIDprefix, idToken, newVal.toString(), config)
+    const res = await generateDefault(property, subject, newVal.toString(), config)
     // dont store empty value autocreation
     if (topEntity) topEntity.noHisto()
     else if (owner) owner.noHisto()
@@ -399,7 +396,7 @@ const ValueList: FC<{
     else if(vals.length) setList(vals.concat(Array.isArray(res) ? res : [res]))
     else if(pre) setList((oldList) => (Array.isArray(res) ? res : [res]).concat(oldList));
     else setList((oldList = []) => oldList.concat(Array.isArray(res) ? res : [res]));
-  }, [property, subject, RIDprefix, idToken, newVal, config, topEntity, owner, setList])
+  }, [property, subject, newVal, config, topEntity, owner, setList])
 
   useEffect(() => {
     //debug("vL/effect:",subject.qname,property.qname,list)
@@ -744,8 +741,6 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
   const [uiTab] = useRecoilState(uiTabState)
   const entity = entities.findIndex((e, i) => i === uiTab)
   const [edit, setEdit] = useRecoilState(uiEditState)
-  const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"))
-  const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
 
   let nextVal = useRecoilValue(
     property.sortOnProperty
@@ -785,7 +780,7 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
       waitForNoHisto = true
       subject.noHisto(false, 1) // allow parent node in history but default empty subnodes before tmp:allValuesLoaded
     }
-    const item = await generateDefault(property, subject, RIDprefix, idToken, newVal?.toString(), config)
+    const item = await generateDefault(property, subject, newVal?.toString(), config)
     setList([...listOrCollec, item]) //(oldList) => [...oldList, item])
     if (property.objectType === ObjectType.Internal && item instanceof Subject) {
       //setEdit(property.qname+item.qname)  // won't work...

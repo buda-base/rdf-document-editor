@@ -8,7 +8,6 @@ import {
   uiLangState,
   uiLitLangState,
   uiTabState,
-  userIdState,
   savePopupState,
 } from "../atoms/common"
 import Tab from "@mui/material/Tab"
@@ -37,7 +36,6 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
   const [tab, setTab] = useRecoilState(uiTabState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
-  const [userId, setUserId] = useRecoilState(userIdState)
   const [popupOn, setPopupOn] = useRecoilState(savePopupState)
 
   const navigate = useNavigate()
@@ -81,7 +79,7 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
       null
     )
     // remove data in local storage
-    await config.setUserLocalEntity(entity.subjectQname, shapeQname, "", true, userId, entity.etag, false)
+    await config.setUserLocalEntity(entity.subjectQname, shapeQname, "", true, entity.etag, false)
     // remove history for entity
     if (undoHistory) {
       const uri = config.prefixMap.uriFromQname(entity.subjectQname)

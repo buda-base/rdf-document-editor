@@ -491,7 +491,7 @@ interface getShapesDocument {
     (entity: rdf.NamedNode): Promise<NodeShape>;
 }
 interface putDocument {
-    (entity: rdf.NamedNode, document: rdf.Store): Promise<string>;
+    (entity: rdf.NamedNode, document: rdf.Store, etag: string | null, message: string | undefined): Promise<string>;
 }
 interface getPreviewLink {
     (entity: rdf.NamedNode): string | null;
@@ -521,7 +521,7 @@ interface entityCreator {
     };
 }
 interface setUserLocalEntity {
-    (subjectQname: string, shapeQname: string | null, ttl: string | null, del: boolean, userId: string, etag: string | null, needsSaving: boolean): Promise<void>;
+    (subjectQname: string, shapeQname: string | null, ttl: string | undefined, del: boolean, etag: string | null, needsSaving: boolean): Promise<void>;
 }
 interface iconFromEntity {
     (entity: Entity | null): string;
@@ -605,6 +605,8 @@ declare function EntityShapeChooserContainer(props: RDEProps): JSX.Element;
 
 declare function EntitySelector(props: RDEProps): JSX.Element;
 
+declare function BottomBarContainer(props: RDEProps): JSX.Element;
+
 interface StoreWithEtag {
     store: rdf.Store;
     etag: string | null;
@@ -631,4 +633,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDFResource, Subject, ValueByLangToStrPrefLang, fetchTtl, generateSubnodes$1 as generateSubnodes, ns, shapes };
+export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDFResource, Subject, ValueByLangToStrPrefLang, fetchTtl, generateSubnodes$1 as generateSubnodes, ns, shapes };

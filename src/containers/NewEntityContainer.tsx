@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { RDFResourceWithLabel } from "../helpers/rdf/types"
-import { uiLangState, RIDprefixState, userIdState } from "../atoms/common"
+import { uiLangState } from "../atoms/common"
 import * as lang from "../helpers/lang"
 import { useRecoilState } from "recoil"
 import { RDEProps } from "../helpers/editor_props"
@@ -14,11 +14,8 @@ function NewEntityContainer(props: RDEProps) {
 
   const [uiLang] = useRecoilState(uiLangState)
   const [RID, setRID] = useState("")
-  const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
 
   const navigate = useNavigate()
-
-  const disabled = !RIDprefix
 
   // otherwise we want the user to select the appropriate shape
 
@@ -30,7 +27,6 @@ function NewEntityContainer(props: RDEProps) {
         <span>
           <TextField
             variant="standard"
-            {...(disabled ? { disabled: true } : {})}
             select
             //label="Choose a shape"
             helperText={"List of all possible shapes"}
@@ -47,11 +43,6 @@ function NewEntityContainer(props: RDEProps) {
               </MenuItem>
             ))}
           </TextField>
-          {disabled && RIDprefix === "" && (
-            <span className="pl-2" style={{ fontStyle: "italic", fontWeight: 500, color: "#d73449", fontSize: 14 }}>
-              <Trans i18nKey="error.prefix" components={{ res: <Link className="profile-link" to="/profile" /> }} />
-            </span>
-          )}
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "baseline" }}>

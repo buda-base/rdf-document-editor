@@ -130,11 +130,6 @@ export const uiDisabledTabsState = atom<boolean>({
   default: false,
 })
 
-export const userIdState = atom<string>({
-  key: "userIdState",
-  default: "",
-})
-
 export const reloadProfileState = atom<boolean>({
   key: "reloadProfileState",
   default: true,
@@ -143,11 +138,6 @@ export const reloadProfileState = atom<boolean>({
 export const reloadEntityState = atom<string>({
   key: "reloadEntityState",
   default: "",
-})
-
-export const RIDprefixState = atom<string | null>({
-  key: "RIDprefixState",
-  default: null,
 })
 
 export type orderedByPropSelectorArgs = {

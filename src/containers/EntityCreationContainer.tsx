@@ -1,5 +1,5 @@
 import { EntityFetcher } from "../helpers/rdf/io"
-import { userIdState, RIDprefixState, uiTabState, entitiesAtom } from "../atoms/common"
+import { uiTabState, entitiesAtom } from "../atoms/common"
 import { useRecoilState } from "recoil"
 import { Dialog422 } from "./Dialog"
 import { Navigate, useParams, useLocation } from "react-router-dom"
@@ -37,10 +37,6 @@ export function EntityCreationContainer(props: RDEProps) {
       unmounting.val = true
     }
   }, [])
-  
-  // TODO: move to BLMP
-  //const [RIDprefix, setRIDprefix] = useRecoilState(RIDprefixState)
-  //if (RIDprefix == "") return <Navigate to="/new" />
 
   const shapeNode = rdf.sym(config.prefixMap.uriFromQname(shapeQname))
   const entityNode = entityQname ? rdf.sym(config.prefixMap.uriFromQname(entityQname)) : null

@@ -13,7 +13,6 @@ import {
   profileIdState,
   uiGroupState,
   uiDisabledTabsState,
-  userIdState,
   entitiesAtom,
   defaultEntityLabelAtom,
   EditedEntityState,
@@ -57,7 +56,6 @@ export function EntitySelector(props: RDEProps) {
   const [edit, setEdit] = useRecoilState(uiEditState)
   const [groupEd, setGroupEd] = useRecoilState(uiGroupState)
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
-  const [userId, setUserId] = useRecoilState(userIdState)
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -120,7 +118,7 @@ export function EntitySelector(props: RDEProps) {
       await config.setUserMenuState(entity.subjectQname, shapeQname, "", true, null)
 
       // remove data in local storage
-      await config.setUserLocalEntity(entity.subjectQname, shapeQname, "", true, userId, entity.etag, false)
+      await config.setUserLocalEntity(entity.subjectQname, shapeQname, "", true, entity.etag, false)
 
       // remove history for entity
       if (undoHistory) {

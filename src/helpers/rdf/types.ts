@@ -7,7 +7,7 @@ import { debug as debugfactory } from "debug"
 
 const debug = debugfactory("rde:rdf:types")
 
-const defaultGraphNode = rdf.sym(rdf.Store.defaultGraphURI) as rdf.NamedNode
+export const defaultGraphNode = rdf.sym(rdf.Store.defaultGraphURI) as rdf.NamedNode
 
 export const errors: Record<string, Record<string, boolean>> = {}
 

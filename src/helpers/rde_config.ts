@@ -45,7 +45,7 @@ interface getShapesDocument {
 }
 
 interface putDocument {
-  (entity: rdf.NamedNode, document: rdf.Store): Promise<string>
+  (entity: rdf.NamedNode, document: rdf.Store, etag: string | null, message: string | undefined): Promise<string>
 }
 
 interface getPreviewLink {
@@ -89,9 +89,8 @@ interface setUserLocalEntity {
   (
     subjectQname: string,
     shapeQname: string | null,
-    ttl: string | null,
+    ttl: string | undefined,
     del: boolean,
-    userId: string,
     etag: string | null,
     needsSaving: boolean
   ): Promise<void>

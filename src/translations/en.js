@@ -59,6 +59,9 @@ const enTranslations = {
     add_nb: "Number of {{val}} to add",
     close: "Close all open entities",
     import: "Import labels",
+    save: "Save",
+    ok: "Ok",
+    cancel: "Cancel",
   },
 }
 
