@@ -400,11 +400,6 @@ function EntityEditContainer(props: RDEProps) {
     window.addEventListener("beforeunload", warning, true)
   }, [warning])
 
-  //debug("warning:",warning)
-
-  // refactoring needed
-  //if (entityQname === "tmp:user" && !auth0.isAuthenticated && userId != demoUserId) return <span>unauthorized</span>
-
   // TODO: update highlighted tab
 
   const { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config)

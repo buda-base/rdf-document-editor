@@ -1890,12 +1890,11 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
         etag = resInfo.etag;
         if (!res)
           res = await loadRes;
-        const actualQname = entityQname2, actualUri = entityUri;
-        let index2 = _entities.findIndex((e) => e.subjectQname === actualQname);
+        let index2 = _entities.findIndex((e) => e.subjectQname === entityQname2);
         const newEntities = [..._entities];
         if (index2 === -1) {
           newEntities.push({
-            subjectQname: actualQname,
+            subjectQname: entityQname2,
             state: 3 /* Loading */,
             shapeQname,
             subject: null,

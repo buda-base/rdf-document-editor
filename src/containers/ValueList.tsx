@@ -809,13 +809,6 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
       property.objectType == ObjectType.Literal ||
       property.objectType == ObjectType.ResInList ||
       property.objectType == ObjectType.LitInList)
-    /*
-      // TODO: refactor
-      property.path.sparqlString === ns.SKOS("prefLabel").value ||
-      property.path.sparqlString === ns.SKOS("altLabel").value ||
-      property.path.sparqlString === ns.BDO("catalogInfo").value ||
-      property.path.sparqlString === ns.RDFS("comment").value)
-    */
   )
     return (<MinimalAddButton disable={disable} add={addItem} className=" " />)
   else {

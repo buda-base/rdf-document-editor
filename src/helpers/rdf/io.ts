@@ -302,23 +302,12 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
         etag = resInfo.etag
         if (!res) res = await loadRes
 
-        const actualQname = entityQname,
-          actualUri = entityUri
-        /* TODO: refactor
-        if (entityQname === "tmp:user") {
-          // TODO: in several steps with tests to avoid crash
-          const keys = Object.keys(entityStore.subjectIndex)
-          actualQname = qnameFromUri(keys[0].replace(/(^<)|(>$)/g, ""))
-          actualUri = uriFromQname(actualQname)
-          if (!profileId) setProfileId(actualQname)
-        }*/
-
         // update state with loaded entity
-        let index = _entities.findIndex((e) => e.subjectQname === actualQname)
+        let index = _entities.findIndex((e) => e.subjectQname === entityQname)
         const newEntities = [..._entities]
         if (index === -1) {
           newEntities.push({
-            subjectQname: actualQname,
+            subjectQname: entityQname,
             state: EditedEntityState.Loading,
             shapeQname: shapeQname,
             subject: null,
