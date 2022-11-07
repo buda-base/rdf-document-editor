@@ -757,6 +757,8 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
   const addItem = async (event: React.MouseEvent<HTMLButtonElement>, n: number) => {
 
     if (n > 1) {
+      if (!property.targetShape)
+        throw new Error("no target shape on "+property.qname)
       const subjects = await config.generateSubnodes(property.targetShape, subject, n)
       // stop rendering?
       setList([...listOrCollec, ...subjects])
