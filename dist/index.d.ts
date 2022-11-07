@@ -733,6 +733,7 @@ declare namespace enTranslations {
         export const unauthorized: string;
         export const year: string;
         export const select: string;
+        export const local_load_fail: string;
     }
     namespace general {
         export const add_another: string;
@@ -748,6 +749,7 @@ declare namespace enTranslations {
         export const ok: string;
         const cancel_1: string;
         export { cancel_1 as cancel };
+        export const load_previous_q: string;
     }
 }
 
@@ -775,7 +777,7 @@ interface previewLiteral {
     (literal: rdf.Literal, uiLangs: string[]): previewResults;
 }
 interface generateConnectedID {
-    (old_resource: RDFResource, old_shape: NodeShape, new_shape: NodeShape): Promise<rdf.NamedNode>;
+    (old_resource: RDFResource, old_shape: NodeShape, type: RDFResource): Promise<rdf.NamedNode>;
 }
 interface getDocument {
     (entity: rdf.NamedNode): Promise<{

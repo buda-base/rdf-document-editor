@@ -1679,7 +1679,8 @@ var enTranslations = {
     modified: "Entity must be reloaded first (modified by someone else?)",
     unauthorized: "not authorized to modify {{url}}",
     year: "Year must be between {{min}} and {{max}}",
-    select: "'{{val}}' is not in list of allowed values"
+    select: "'{{val}}' is not in list of allowed values",
+    local_load_fail: "could not load local data, fetching remote version"
   },
   general: {
     add_another: "Add {{val}}",
@@ -1692,7 +1693,8 @@ var enTranslations = {
     import: "Import labels",
     save: "Save",
     ok: "Ok",
-    cancel: "Cancel"
+    cancel: "Cancel",
+    load_previous_q: "found previous local edits for this resource, load them?"
   }
 };
 var en_default = enTranslations;
@@ -1720,7 +1722,7 @@ var fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, a
   return new Promise(async (resolve, reject) => {
     const response = await fetch(url, { headers });
     if (allow404 && response.status == 404) {
-      resolve({ store: rdf4.graph(), etag: null });
+      resolve({ store: new rdf4.Store(), etag: null });
       return;
     }
     if (response.status != 200) {
@@ -1733,7 +1735,7 @@ var fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, a
       return;
     }
     const body = await response.text();
-    const store = rdf4.graph();
+    const store = new rdf4.Store();
     try {
       rdf4.parse(body, store, rdf4.Store.defaultGraphURI, "text/turtle");
     } catch {
@@ -1834,11 +1836,15 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       return;
     async function fetchResource(entityQname2) {
       setEntityLoadingState({ status: "fetching", error: void 0 });
+      const entityUri = config.prefixMap.uriFromQname(entityQname2);
+      const entityNode = rdf4.sym(entityUri);
       debug5("fetching", entity, shapeQname, entityQname2, entities);
-      let loadRes, loadLabels, localRes, useLocal, notFound, etag, res, needsSaving;
+      let loadRes, loadLabels, localRes, useLocal, notFound, needsSaving;
+      let res = null;
+      let etag = null;
       const localEntities = await config.getUserLocalEntities();
       if (reloadEntity !== entityQname2 && shapeQname && localEntities[entityQname2] !== void 0) {
-        useLocal = window.confirm("found previous local edits for this resource, load them?");
+        useLocal = window.confirm(i18n.t("load_previous_q"));
         const store = rdf4.graph();
         if (useLocal) {
           try {
@@ -1849,27 +1855,23 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
           } catch (e) {
             debug5(e);
             debug5(localEntities[entityQname2]);
-            window.alert("could not load local data, fetching remote version");
+            window.alert(i18n.t("local_load_fail"));
             useLocal = false;
             delete localEntities[entityQname2];
           }
         } else {
           rdf4.parse("", store, rdf4.Store.defaultGraphURI, "text/turtle");
         }
-        res = { store, etag };
+        const subject = new Subject(entityNode, new EntityGraph(store, entityUri, config.prefixMap));
+        res = { subject, etag };
       }
-      const entityUri = config.prefixMap.uriFromQname(entityQname2);
-      const entityNode = rdf4.sym(entityUri);
       try {
         if (!useLocal) {
           res = await config.getDocument(entityNode);
           needsSaving = false;
         }
       } catch (e) {
-        if (localRes)
-          res = { store: localRes, etag };
-        else
-          notFound = true;
+        notFound = true;
       }
       let _entities = entities;
       if (!sessionLoaded) {
@@ -1896,8 +1898,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
         const resInfo = await config.getDocument(entityNode);
         const subject = resInfo.subject;
         etag = resInfo.etag;
-        if (!res)
-          res = await loadRes;
         let index2 = _entities.findIndex((e) => e.subjectQname === entityQname2);
         const newEntities = [..._entities];
         if (index2 === -1) {
@@ -5511,7 +5511,7 @@ var BUDAResourceSelector = ({
       let url = "";
       url = "/new/" + config.possibleShapeRefsForType(type2.node)[0].qname + "/" + ((owner == null ? void 0 : owner.qname) && owner.qname !== subject.qname ? owner.qname : subject.qname) + "/" + config.prefixMap.qnameFromUri((_a2 = property == null ? void 0 : property.path) == null ? void 0 : _a2.sparqlString) + "/" + idx + ((owner == null ? void 0 : owner.qname) && owner.qname !== subject.qname ? "/" + subject.qname : "");
       if (property.connectIDs) {
-        const newNode = await config.generateConnectedID(subject, shape, property.targetShape);
+        const newNode = await config.generateConnectedID(subject, shape, type2);
         const newQname = config.prefixMap.qnameFromUri(newNode.uri);
         if (!exists(newQname))
           url += "/named/" + (named ? named : newQname);

@@ -2,7 +2,7 @@ import * as rdf from "rdflib"
 import i18n from "i18next"
 import { useState, useEffect } from "react"
 import { useRecoilState } from "recoil"
-import { Subject } from "./types"
+import { Subject, EntityGraph } from "./types"
 import { NodeShape } from "./shapes"
 import {
   profileIdState,
@@ -49,7 +49,7 @@ export const fetchTtl = async (
 
     // eslint-disable-next-line no-magic-numbers
     if (allow404 && response.status == 404) {
-      resolve({ store: rdf.graph(), etag: null })
+      resolve({ store: new rdf.Store(), etag: null })
       return
     }
     // eslint-disable-next-line no-magic-numbers
@@ -65,7 +65,7 @@ export const fetchTtl = async (
     }
 
     const body = await response.text()
-    const store: rdf.Store = rdf.graph()
+    const store: rdf.Store = new rdf.Store()
     try {
       rdf.parse(body, store, rdf.Store.defaultGraphURI, "text/turtle")
     } catch {
@@ -235,16 +235,21 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
     async function fetchResource(entityQname: string) {
       setEntityLoadingState({ status: "fetching", error: undefined })
 
+      const entityUri = config.prefixMap.uriFromQname(entityQname)
+      const entityNode = rdf.sym(entityUri)
+
       debug("fetching", entity, shapeQname, entityQname, entities) //, isAuthenticated, idToken)
 
       // TODO: UI "save draft" / "publish"
 
-      let loadRes, loadLabels, localRes, useLocal, notFound, etag, res, needsSaving
+      let loadRes, loadLabels, localRes, useLocal, notFound, needsSaving
+      let res: { subject: Subject; etag: string | null } | null = null
+      let etag: string | null = null
       const localEntities = await config.getUserLocalEntities()
       // 1 - check if entity has local edits (once shape is defined)
       //debug("local?", shapeQname, reloadEntity,entityQname, localEntities[entityQname])
       if (reloadEntity !== entityQname && shapeQname && localEntities[entityQname] !== undefined) {
-        useLocal = window.confirm("found previous local edits for this resource, load them?")
+        useLocal = window.confirm(i18n.t("load_previous_q"))
         const store: rdf.Store = rdf.graph()
         if (useLocal) {
           try {
@@ -255,20 +260,18 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
           } catch (e) {
             debug(e)
             debug(localEntities[entityQname])
-            window.alert("could not load local data, fetching remote version")
+            window.alert(i18n.t("local_load_fail"))
             useLocal = false
             delete localEntities[entityQname]
           }
         } else {
           rdf.parse("", store, rdf.Store.defaultGraphURI, "text/turtle")
         }
-        res = { store, etag }
+        const subject = new Subject(entityNode, new EntityGraph(store, entityUri, config.prefixMap))
+        res = { subject, etag }
       }
 
       // 2 - try to load data from server if not or if user wants to
-
-      const entityUri = config.prefixMap.uriFromQname(entityQname)
-      const entityNode = rdf.sym(entityUri)
 
       try {
         if (!useLocal) {
@@ -277,8 +280,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
         }
       } catch (e) {
         // 3 - case when entity is not on server and user does not want to use local edits that already exist
-        if (localRes) res = { store: localRes, etag }
-        else notFound = true
+        notFound = true
       }
 
       // load session before updating entities
@@ -310,7 +312,6 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
         const resInfo = await config.getDocument(entityNode)
         const subject = resInfo.subject
         etag = resInfo.etag
-        if (!res) res = await loadRes
 
         // update state with loaded entity
         let index = _entities.findIndex((e) => e.subjectQname === entityQname)

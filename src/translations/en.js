@@ -49,6 +49,7 @@ const enTranslations = {
     unauthorized: "not authorized to modify {{url}}",
     year: "Year must be between {{min}} and {{max}}",
     select: "'{{val}}' is not in list of allowed values",
+    local_load_fail: "could not load local data, fetching remote version"
   },
   general: {
     add_another: "Add {{val}}",
@@ -62,6 +63,8 @@ const enTranslations = {
     save: "Save",
     ok: "Ok",
     cancel: "Cancel",
+    load_previous_q: "found previous local edits for this resource, load them?",
+
   },
 }
 
