@@ -94,6 +94,9 @@ declare const rdfLangString: rdf.NamedNode;
 declare const skosDefinition: rdf.NamedNode;
 declare const rdfsComment: rdf.NamedNode;
 declare const shDescription: rdf.NamedNode;
+declare const rdfFirst: rdf.NamedNode;
+declare const rdfRest: rdf.NamedNode;
+declare const rdfNil: rdf.NamedNode;
 declare const defaultLabelProperties: rdf.NamedNode[];
 declare const defaultDescriptionProperties: rdf.NamedNode[];
 declare const defaultPrefixMap: PrefixMap;
@@ -172,6 +175,9 @@ declare const ns_rdfLangString: typeof rdfLangString;
 declare const ns_skosDefinition: typeof skosDefinition;
 declare const ns_rdfsComment: typeof rdfsComment;
 declare const ns_shDescription: typeof shDescription;
+declare const ns_rdfFirst: typeof rdfFirst;
+declare const ns_rdfRest: typeof rdfRest;
+declare const ns_rdfNil: typeof rdfNil;
 declare const ns_defaultLabelProperties: typeof defaultLabelProperties;
 declare const ns_defaultDescriptionProperties: typeof defaultDescriptionProperties;
 declare const ns_defaultPrefixMap: typeof defaultPrefixMap;
@@ -250,6 +256,9 @@ declare namespace ns {
     ns_skosDefinition as skosDefinition,
     ns_rdfsComment as rdfsComment,
     ns_shDescription as shDescription,
+    ns_rdfFirst as rdfFirst,
+    ns_rdfRest as rdfRest,
+    ns_rdfNil as rdfNil,
     ns_defaultLabelProperties as defaultLabelProperties,
     ns_defaultDescriptionProperties as defaultDescriptionProperties,
     ns_defaultPrefixMap as defaultPrefixMap,
@@ -330,6 +339,7 @@ declare class RDFResource {
     getPropValueOrNullByLang(p: rdf.NamedNode): Record<string, string> | null;
     getPropLitValues(p: rdf.NamedNode): Array<rdf.Literal>;
     getPropResValues(p: rdf.NamedNode): Array<rdf.NamedNode>;
+    fillElements(s: rdf.NamedNode | rdf.BlankNode | null, current: Array<rdf.Node | null>): void;
     getPropResValuesFromList(p: rdf.NamedNode): Array<rdf.NamedNode> | null;
     getPropLitValuesFromList(p: rdf.NamedNode): Array<rdf.Literal> | null;
     getPropIntValue(p: rdf.NamedNode): number | null;

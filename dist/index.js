@@ -118,7 +118,10 @@ __export(ns_exports, {
   rdeSortOnProperty: () => rdeSortOnProperty,
   rdeSpecialPattern: () => rdeSpecialPattern,
   rdeUniqueValueAmongSiblings: () => rdeUniqueValueAmongSiblings,
+  rdfFirst: () => rdfFirst,
   rdfLangString: () => rdfLangString,
+  rdfNil: () => rdfNil,
+  rdfRest: () => rdfRest,
   rdfType: () => rdfType,
   rdfsComment: () => rdfsComment,
   rdfsLabel: () => rdfsLabel,
@@ -303,6 +306,9 @@ var rdfLangString = RDF("langString");
 var skosDefinition = SKOS("definition");
 var rdfsComment = RDFS("comment");
 var shDescription = SH("description");
+var rdfFirst = RDF("first");
+var rdfRest = RDF("rest");
+var rdfNil = RDF("nil");
 var defaultLabelProperties = [prefLabel, rdfsLabel, shName];
 var defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription];
 var defaultPrefixMap = new PrefixMap({});
@@ -729,12 +735,25 @@ var RDFResource = class {
       return [];
     return this.graph.store.each(this.node, p, null);
   }
+  fillElements(s, current) {
+    if (!s || s instanceof rdf2.NamedNode && s.uri == rdfNil.uri)
+      return;
+    const first = this.graph.store.any(s, rdfFirst, null);
+    current.push(first);
+    this.fillElements(this.graph.store.any(s, rdfRest, null), current);
+  }
   getPropResValuesFromList(p) {
     if (this.node instanceof rdf2.Collection)
       return null;
     const colls = this.graph.store.each(this.node, p, null);
+    debug2("p:", p, this.node, colls, this);
     for (const coll of colls) {
-      return coll.elements;
+      if (coll instanceof rdf2.Collection) {
+        return coll.elements;
+      }
+      const res = [];
+      this.fillElements(coll, res);
+      return res;
     }
     return null;
   }
@@ -743,7 +762,12 @@ var RDFResource = class {
       return null;
     const colls = this.graph.store.each(this.node, p, null);
     for (const coll of colls) {
-      return coll.elements;
+      if (coll instanceof rdf2.Collection) {
+        return coll.elements;
+      }
+      const res = [];
+      this.fillElements(coll, res);
+      return res;
     }
     return null;
   }
@@ -1067,6 +1091,7 @@ var _PropertyShape = class extends RDFResourceWithLabel {
     return true;
   }
   get in() {
+    debug3("in:", this.id, this.hasListAsObject, this.datatype);
     if (this.hasListAsObject) {
       const propNodes = this.graph.store.each(
         this.node,
@@ -1094,6 +1119,7 @@ var _PropertyShape = class extends RDFResourceWithLabel {
         return EntityGraph.addIdToLitList(nodes);
     } else {
       const nodes = this.getPropResValuesFromList(shIn);
+      debug3("nodes:", nodes);
       if (nodes)
         return _PropertyShape.resourcizeWithInit(nodes, this.graph);
     }
@@ -2562,6 +2588,8 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
   let waitForNoHisto = false;
   const addItem = async (event, n) => {
     if (n > 1) {
+      if (!property.targetShape)
+        throw new Error("no target shape on " + property.qname);
       const subjects = await config.generateSubnodes(property.targetShape, subject, n);
       setList([...listOrCollec, ...subjects]);
       return;
@@ -3489,6 +3517,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
   const entity = entities.findIndex((e, i) => i === uiTab);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLitLang);
+  debug7("select:", res, property.in, property);
   let possibleValues = property.in;
   if (possibleValues == null)
     throw "can't find possible list for " + property.uri;
