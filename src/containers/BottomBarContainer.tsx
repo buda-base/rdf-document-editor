@@ -103,7 +103,6 @@ export default function BottomBarContainer (props: RDEProps) {
       )
     })
 
-    let alreadySaved = false
     let etag:string|null = null
     if (entitySubj) {
       try {

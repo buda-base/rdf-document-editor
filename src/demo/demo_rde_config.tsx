@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import * as rdf from "rdflib"
 import {
   NodeShape,
-  generateSubnode,
+  generateSubnodes,
   RDEConfig,
   LocalEntityInfo,
   fetchTtl,
@@ -15,15 +15,15 @@ import {
   BUDAResourceSelector,
   ValueByLangToStrPrefLang,
   ns,
-} from "rdf-document-editor"
+} from "../index" //"rdf-document-editor" in prod
 
 import { customAlphabet } from "nanoid"
 import edtf, { parse } from "edtf" // see https://github.com/inukshuk/edtf.js/issues/36#issuecomment-1073778277
 
 import i18n from "i18next"
-import { debug as debugfactory } from "debug"
+import { debug as debugFactory } from "debug"
 
-const debug = debugfactory("rde:entity:container:demo")
+const debug = debugFactory("rde:entity:container:demo")
 
 const langs = [
   {
@@ -35,12 +35,12 @@ const langs = [
   },
 ]
 
-const generateConnectedID = async (old_resource: RDFResource, old_shape: NodeShape, new_shape: NodeShape) => {
+const generateConnectedID = async (old_resource: RDFResource, old_shape: NodeShape, new_shape: RDFResource) => {
   // just for the demo:
   return Promise.resolve(rdf.sym(old_resource.uri + "_CONNECTED"))
 }
 
-const demoShape = rdf.sym("http://purl.bdrc.io/ontology/shapes/core/PersonUIShapes")
+const demoShape = rdf.sym("http://purl.bdrc.io/ontology/shapes/core/PersonShape")
 
 const BDR_uri = "http://purl.bdrc.io/resource/"
 
@@ -49,9 +49,11 @@ const prefixMap = new ns.PrefixMap({
   rdf: ns.RDF_uri,
   skos: ns.SKOS_uri,
   bdr: BDR_uri,
-  "": "http://purl.bdrc.io/ontology/core/",
+  bdo: "http://purl.bdrc.io/ontology/core/",
   adm: "http://purl.bdrc.io/ontology/admin/",
   bda: "http://purl.bdrc.io/admindata/",
+  bds: "http://purl.bdrc.io/ontology/shapes/core/",
+  bdsa: "http://purl.bdrc.io/ontology/shapes/adm/",
 })
 
 const getShapesDocument = async (entity: rdf.NamedNode) => {
@@ -63,7 +65,7 @@ const getShapesDocument = async (entity: rdf.NamedNode) => {
 }
 
 const getDocumentGraph = async (entity: rdf.NamedNode) => {
-  if (entity == rdf.sym("http://purl.bdrc.io/resource/P1583")) {
+  if (entity?.value == "http://purl.bdrc.io/resource/P1583") {
     const loadRes = fetchTtl("/examples/P1583.ttl")
     const { store, etag } = await loadRes
     return Promise.resolve(store)
@@ -72,7 +74,7 @@ const getDocumentGraph = async (entity: rdf.NamedNode) => {
 }
 
 const getConnexGraph = async (entity: rdf.NamedNode) => {
-  if (entity == rdf.sym("http://purl.bdrc.io/resource/P1583")) {
+  if (entity?.value == "http://purl.bdrc.io/resource/P1583") {
     const loadRes = fetchTtl("/examples/P1583-connexGraph.ttl")
     const { store, etag } = await loadRes
     return Promise.resolve(store)
@@ -84,6 +86,7 @@ const getDocument = async (entity: rdf.NamedNode) => {
   const documentGraph: rdf.Store = await getDocumentGraph(entity)
   const connexGraph: rdf.Store = await getConnexGraph(entity)
   const res = new Subject(entity, new EntityGraph(documentGraph, entity.uri, prefixMap, connexGraph))
+  debug("res:",res)
   return Promise.resolve({ subject: res, etag: "" })
 }
 
@@ -125,7 +128,7 @@ export function EntityCreator(shapeNode: rdf.NamedNode, entityNode: rdf.NamedNod
       }
       if (!unmounting.val) setEntityLoadingState({ status: "creating", error: undefined })
       if (!entityNode) entityNode = await generateNode()
-      const graph = new EntityGraph(rdf.graph(), entityNode.uri)
+      const graph = new EntityGraph(rdf.graph(), entityNode.uri, prefixMap)
       const newSubject = new Subject(entityNode, graph)
       if (!unmounting.val) setEntity(newSubject)
       if (!unmounting.val) setEntityLoadingState({ status: "created", error: undefined })
@@ -187,7 +190,6 @@ export const setUserLocalEntity = async (
   shapeQname: string | null,
   ttl: string | undefined,
   del: boolean,
-  userId: string,
   etag: string | null,
   needsSaving: boolean
 ): Promise<void> => {
@@ -199,7 +201,7 @@ export const setUserLocalEntity = async (
   localStorage.setItem("rde_entities", dataNewStr)
 }
 
-const personShapeRef = new ExtRDFResourceWithLabel(demoShape.uri, { en: "Person" })
+const personShapeRef = new ExtRDFResourceWithLabel(demoShape.uri, { en: "Person" }, undefined, undefined, prefixMap)
 
 const possibleShapeRefs = [personShapeRef]
 
@@ -260,7 +262,7 @@ export const humanizeEDTF = (obj: Record<string, any>, str = "", locale = "en-US
 const locales: Record<string, string> = { en: "en-US", "zh-hans": "zh-Hans-CN", bo: "bo-CN" }
 
 const previewLiteral = (lit: rdf.Literal, uiLangs: string[]) => {
-  if (lit.datatype == EDTF_DT) {
+  if (lit.datatype.value == EDTF_DT.value) {
     try {
       const obj = parse(lit.value)
       const edtfObj = edtf(lit.value)
@@ -296,7 +298,7 @@ const putDocument = async (entity: rdf.NamedNode, document: rdf.Store) => {
 }
 
 export const demoConfig: RDEConfig = {
-  generateSubnode: generateSubnode,
+  generateSubnodes: generateSubnodes,
   valueByLangToStrPrefLang: ValueByLangToStrPrefLang,
   possibleLiteralLangs: langs,
   labelProperties: ns.defaultLabelProperties,
@@ -315,7 +317,7 @@ export const demoConfig: RDEConfig = {
   possibleShapeRefs: possibleShapeRefs,
   possibleShapeRefsForEntity: possibleShapeRefsForEntity,
   possibleShapeRefsForType: possibleShapeRefsForEntity,
-  libraryUrl: "https://library.bdrc.io/",
+  libraryUrl: "https://library.bdrc.io",
   resourceSelector: BUDAResourceSelector,
   previewLiteral: previewLiteral,
   putDocument: putDocument,
