@@ -5102,7 +5102,6 @@ function BottomBarContainer(props) {
         entities[entity].state === 2 /* NeedsSaving */
       );
     });
-    let alreadySaved = false;
     let etag = null;
     if (entitySubj) {
       try {
