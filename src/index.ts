@@ -24,6 +24,8 @@ export type { HistoryStatus } from "./helpers/rdf/types"
 
 export { fetchTtl } from "./helpers/rdf/io"
 
+export type { HttpError } from "./helpers/rdf/io"
+
 export { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel, RDFResourceWithLabel, getHistoryStatus, updateHistory, history } from "./helpers/rdf/types"
 
 export type { Entity } from "./atoms/common"

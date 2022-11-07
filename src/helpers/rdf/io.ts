@@ -76,54 +76,6 @@ export const fetchTtl = async (
   })
 }
 
-const defaultPutTtlHeaders = new Headers()
-defaultPutTtlHeaders.set("Content-Type", "text/turtle")
-
-export const putTtl = async (
-  url: string,
-  s: rdf.Store,
-  method = "PUT",
-  headers = defaultPutTtlHeaders,
-  allowEmptyEtag = true
-): Promise<string | null> => {
-  return new Promise(async (resolve, reject) => {
-    const defaultRef = new rdf.NamedNode(rdf.Store.defaultGraphURI)
-    rdf.serialize(defaultRef, s, undefined, "text/turtle", async function (err, str) {
-      if (err) {
-        reject(err)
-        return
-      }
-      const response = await fetch(url, { headers, method, body: str })
-      const etag = response.headers.get("etag")
-
-      // eslint-disable-next-line no-magic-numbers
-      if (response.status == 403) {
-        reject(new HttpError(i18n.t("error.unauthorized", { url }), response.status))
-        return
-      }
-
-      // eslint-disable-next-line no-magic-numbers
-      if (response.status == 412) {
-        reject(new HttpError(i18n.t("error.modified"), response.status))
-        return
-      }
-
-      // eslint-disable-next-line no-magic-numbers
-      if (response.status > 400) {
-        reject(new HttpError("error " + response.status + " when saving " + url, response.status))
-        return
-      }
-
-      if (!etag && !allowEmptyEtag) {
-        reject(new Error("no etag returned from " + url))
-        return
-      }
-
-      resolve(etag)
-    })
-  })
-}
-
 // maps of the shapes and entities that have been downloaded so far, with no gc
 export const shapesMap: Record<string, NodeShape> = {}
 

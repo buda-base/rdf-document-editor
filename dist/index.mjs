@@ -1745,8 +1745,6 @@ var fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, a
     resolve({ store, etag });
   });
 };
-var defaultPutTtlHeaders = new Headers();
-defaultPutTtlHeaders.set("Content-Type", "text/turtle");
 var shapesMap = {};
 function ShapeFetcher(shapeQname, entityQname, config) {
   const [loadingState, setLoadingState] = useState({ status: "idle", error: void 0 });
