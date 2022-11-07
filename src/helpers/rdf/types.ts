@@ -63,7 +63,7 @@ export type HistoryStatus = {
 
 // get info from history (values modified? values undone?)
 export const getHistoryStatus = (entityUri: string): HistoryStatus => {
-  if (!history[entityUri]) return { top: -1, current: -1, first: -1}
+  if (!history[entityUri]) return { top: -1, current: -1, first: -1 }
 
   // DONE: optimizing a bit (1 for instead of 2 .findIndex + 1 .some)
   const top = history[entityUri].length - 1
@@ -510,6 +510,7 @@ export class RDFResource {
   public getPropResValuesFromList(p: rdf.NamedNode): Array<rdf.NamedNode> | null {
     if (this.node instanceof rdf.Collection) return null
     const colls = this.graph.store.each(this.node, p, null) as Array<rdf.Collection>
+    debug("p:",p,this.node,colls,this)
     for (const coll of colls) {
       return coll.elements as Array<rdf.NamedNode>
     }
