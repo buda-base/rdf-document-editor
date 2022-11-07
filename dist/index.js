@@ -54,6 +54,7 @@ __export(src_exports, {
   NewEntityContainer: () => NewEntityContainer_default,
   NodeShape: () => NodeShape,
   RDFResource: () => RDFResource,
+  RDFResourceWithLabel: () => RDFResourceWithLabel,
   Subject: () => Subject,
   ValueByLangToStrPrefLang: () => ValueByLangToStrPrefLang,
   atoms: () => common_exports,
@@ -352,7 +353,7 @@ var updateHistory = (entity, qname, prop, val, noHisto = true) => {
 };
 var getHistoryStatus = (entityUri) => {
   if (!history[entityUri])
-    return {};
+    return { top: -1, current: -1, first: -1 };
   const top = history[entityUri].length - 1;
   let first = -1, current = -1;
   for (const [i, h] of history[entityUri].entries()) {
@@ -5914,6 +5915,7 @@ var BUDAResourceSelector_default = BUDAResourceSelector;
   NewEntityContainer,
   NodeShape,
   RDFResource,
+  RDFResourceWithLabel,
   Subject,
   ValueByLangToStrPrefLang,
   atoms,

@@ -303,7 +303,7 @@ var updateHistory = (entity, qname, prop, val, noHisto = true) => {
 };
 var getHistoryStatus = (entityUri) => {
   if (!history[entityUri])
-    return {};
+    return { top: -1, current: -1, first: -1 };
   const top = history[entityUri].length - 1;
   let first = -1, current = -1;
   for (const [i, h] of history[entityUri].entries()) {
@@ -5889,6 +5889,7 @@ export {
   NewEntityContainer_default as NewEntityContainer,
   NodeShape,
   RDFResource,
+  RDFResourceWithLabel,
   Subject,
   ValueByLangToStrPrefLang,
   common_exports as atoms,

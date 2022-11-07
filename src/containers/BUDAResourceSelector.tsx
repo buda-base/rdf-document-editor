@@ -377,7 +377,7 @@ const BUDAResourceSelector: FC<{
         (owner?.qname && owner.qname !== subject.qname ? "/" + subject.qname : "")
 
       if (property.connectIDs) {
-        const newNode = await config.generateConnectedID(subject, shape, property.targetShape as shapes.NodeShape)
+        const newNode = await config.generateConnectedID(subject, shape, type)
         const newQname = config.prefixMap.qnameFromUri(newNode.uri)
         //debug("nId:",newId,exists(newId),exists)
 

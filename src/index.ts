@@ -20,9 +20,11 @@ export { NodeShape, generateSubnodes } from "./helpers/rdf/shapes"
 
 export type { default as RDEConfig, LocalEntityInfo, IFetchState } from "./helpers/rde_config"
 
+export type { HistoryStatus } from "./helpers/rdf/types"
+
 export { fetchTtl } from "./helpers/rdf/io"
 
-export { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel, getHistoryStatus, updateHistory, history } from "./helpers/rdf/types"
+export { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel, RDFResourceWithLabel, getHistoryStatus, updateHistory, history } from "./helpers/rdf/types"
 
 export type { Entity } from "./atoms/common"
 

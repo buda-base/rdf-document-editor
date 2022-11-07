@@ -56,14 +56,14 @@ export const updateHistory = (
 }
 
 export type HistoryStatus = {
-  top?: number
-  first?: number
-  current?: number
+  top: number
+  first: number
+  current: number
 }
 
 // get info from history (values modified? values undone?)
 export const getHistoryStatus = (entityUri: string): HistoryStatus => {
-  if (!history[entityUri]) return {}
+  if (!history[entityUri]) return { top: -1, current: -1, first: -1}
 
   // DONE: optimizing a bit (1 for instead of 2 .findIndex + 1 .some)
   const top = history[entityUri].length - 1

@@ -29,7 +29,7 @@ interface previewLiteral {
 }
 
 interface generateConnectedID {
-  (old_resource: RDFResource, old_shape: NodeShape, new_shape: NodeShape): Promise<rdf.NamedNode>
+  (old_resource: RDFResource, old_shape: NodeShape, type: RDFResource): Promise<rdf.NamedNode>
 }
 
 interface getDocument {
