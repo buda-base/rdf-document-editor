@@ -12,7 +12,7 @@ export interface IFetchState {
 }
 
 interface generateSubnodes {
-  (subshape: NodeShape | null, parent: RDFResource, n: number): Promise<Subject[]>
+  (subshape: NodeShape, parent: RDFResource, n: number): Promise<Subject[]>
 }
 
 interface valueByLangToStrPrefLang {
@@ -33,7 +33,7 @@ interface generateConnectedID {
 }
 
 interface getDocument {
-  (entity: rdf.NamedNode): Promise<{ subject: Subject; etag: string }>
+  (entity: rdf.NamedNode): Promise<{ subject: Subject; etag: string | null }>
 }
 
 interface getConnexGraph {
