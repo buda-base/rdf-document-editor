@@ -949,9 +949,10 @@ const EditLangString: FC<{
         <span className="canPushPrefLabel">
           <span onClick={pushAsPrefLabel}>
             <Tooltip key={lit.id} title={<>Use as the main name or title for this language</>}>
-              <span className="img"></span>
+              <div className="img">
+                <Label style={{ position: "relative", color: "white", left: "-9px", fontSize: "18px" }}/>
+              </div>
             </Tooltip>
-            <Label/>
           </span>
         </span>
       )}

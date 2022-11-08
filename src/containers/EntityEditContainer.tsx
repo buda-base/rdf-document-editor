@@ -268,8 +268,8 @@ function EntityEditContainer(props: RDEProps) {
   if (!altLabelAtom) altLabelAtom = initListAtom
   const altLabels = useRecoilValue(altLabelAtom)
 
-  //debug("EntityEditContainer:", JSON.stringify(props), entityQname, isAuthenticated, profileId)
-
+  debug("EntityEditContainer:", entityQname, shapeQname, history, shape, loadingState)
+  
   useEffect(() => {
     entities.map((e, i) => {
       if (e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user") {
@@ -402,8 +402,8 @@ function EntityEditContainer(props: RDEProps) {
   }, [warning])
 
   // TODO: update highlighted tab
-
-  const { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config)
+  const { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config, undefined, 
+    loadingState.status === "fetched" ?true:false)
 
   // TODO: check that shape can be properly applied to entity
 
