@@ -37,9 +37,9 @@ export const defaultEntityLabelAtom = atom<Array<Value>>({
   default: [new LiteralWithId("...", "en")], // TODO: use the i18n stuff
 })
 
-export const uiLangState = atom<Array<string>>({
+export const uiLangState = atom<string>({
   key: "uiLangState",
-  default: ["en"],
+  default: "en",
 })
 
 export const uiLitLangState = atom<Array<string>>({

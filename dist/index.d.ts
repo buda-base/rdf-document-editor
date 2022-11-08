@@ -472,7 +472,7 @@ declare type Entity = {
 };
 declare const entitiesAtom: RecoilState<Entity[]>;
 declare const defaultEntityLabelAtom: RecoilState<Value[]>;
-declare const uiLangState: RecoilState<string[]>;
+declare const uiLangState: RecoilState<string>;
 declare const uiLitLangState: RecoilState<string[]>;
 declare const uiReadyState: RecoilState<boolean>;
 declare const uiTabState: RecoilState<number>;
