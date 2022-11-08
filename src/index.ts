@@ -1,4 +1,4 @@
-import "./public/app.css"
+import "./app.css"
 
 import * as ns from "./helpers/rdf/ns"
 import * as shapes from "./helpers/rdf/shapes"

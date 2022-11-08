@@ -518,7 +518,7 @@ export class RDFResource {
   public getPropResValuesFromList(p: rdf.NamedNode): Array<rdf.NamedNode> | null {
     if (this.node instanceof rdf.Collection) return null
     const colls = this.graph.store.each(this.node, p, null) as Array<rdf.NamedNode | rdf.BlankNode | rdf.Collection>
-    debug("p:",p,this.node,colls,this)
+    //debug("p:",p,this.node,colls,this)
     for (const coll of colls) {
       if (coll instanceof rdf.Collection) {
         return coll.elements as Array<rdf.NamedNode>

@@ -201,7 +201,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       // 1 - check if entity has local edits (once shape is defined)
       //debug("local?", shapeQname, reloadEntity,entityQname, localEntities[entityQname])
       if (reloadEntity !== entityQname && shapeQname && localEntities[entityQname] !== undefined) {
-        useLocal = window.confirm(i18n.t("load_previous_q"))
+        useLocal = window.confirm(i18n.t("general.load_previous_q"))
         const store: rdf.Store = rdf.graph()
         if (useLocal) {
           try {
