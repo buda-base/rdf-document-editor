@@ -521,7 +521,6 @@ declare const uiNavState: RecoilState<string>;
 declare const sessionLoadedState: RecoilState<boolean>;
 declare const profileIdState: RecoilState<string>;
 declare const uiDisabledTabsState: RecoilState<boolean>;
-declare const reloadProfileState: RecoilState<boolean>;
 declare const reloadEntityState: RecoilState<string>;
 declare type orderedByPropSelectorArgs = {
     atom: RecoilValue<Array<Value>>;
@@ -612,7 +611,6 @@ declare const common_uiNavState: typeof uiNavState;
 declare const common_sessionLoadedState: typeof sessionLoadedState;
 declare const common_profileIdState: typeof profileIdState;
 declare const common_uiDisabledTabsState: typeof uiDisabledTabsState;
-declare const common_reloadProfileState: typeof reloadProfileState;
 declare const common_reloadEntityState: typeof reloadEntityState;
 type common_orderedByPropSelectorArgs = orderedByPropSelectorArgs;
 declare const common_orderedByPropSelector: typeof orderedByPropSelector;
@@ -660,7 +658,6 @@ declare namespace common {
     common_sessionLoadedState as sessionLoadedState,
     common_profileIdState as profileIdState,
     common_uiDisabledTabsState as uiDisabledTabsState,
-    common_reloadProfileState as reloadProfileState,
     common_reloadEntityState as reloadEntityState,
     common_orderedByPropSelectorArgs as orderedByPropSelectorArgs,
     common_orderedByPropSelector as orderedByPropSelector,
@@ -948,4 +945,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, HistoryStatus, HttpError, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, RDFResourceWithLabel, Subject, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, shapes, updateHistory };
+export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, HistoryStatus, HttpError, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, RDFResourceWithLabel, Subject, Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, shapes, updateHistory };

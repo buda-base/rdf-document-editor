@@ -1344,7 +1344,6 @@ __export(common_exports, {
   possiblePrefLabelsSelector: () => possiblePrefLabelsSelector,
   profileIdState: () => profileIdState,
   reloadEntityState: () => reloadEntityState,
-  reloadProfileState: () => reloadProfileState,
   sameUndo: () => sameUndo,
   sameUndoSub: () => sameUndoSub,
   savePopupState: () => savePopupState,
@@ -1442,10 +1441,6 @@ var profileIdState = atom2({
 var uiDisabledTabsState = atom2({
   key: "uiDisabledTabsState",
   default: false
-});
-var reloadProfileState = atom2({
-  key: "reloadProfileState",
-  default: true
 });
 var reloadEntityState = atom2({
   key: "reloadEntityState",

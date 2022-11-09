@@ -1394,7 +1394,6 @@ __export(common_exports, {
   possiblePrefLabelsSelector: () => possiblePrefLabelsSelector,
   profileIdState: () => profileIdState,
   reloadEntityState: () => reloadEntityState,
-  reloadProfileState: () => reloadProfileState,
   sameUndo: () => sameUndo,
   sameUndoSub: () => sameUndoSub,
   savePopupState: () => savePopupState,
@@ -1492,10 +1491,6 @@ var profileIdState = (0, import_recoil2.atom)({
 var uiDisabledTabsState = (0, import_recoil2.atom)({
   key: "uiDisabledTabsState",
   default: false
-});
-var reloadProfileState = (0, import_recoil2.atom)({
-  key: "reloadProfileState",
-  default: true
 });
 var reloadEntityState = (0, import_recoil2.atom)({
   key: "reloadEntityState",

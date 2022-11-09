@@ -135,11 +135,6 @@ export const uiDisabledTabsState = atom<boolean>({
   default: false,
 })
 
-export const reloadProfileState = atom<boolean>({
-  key: "reloadProfileState",
-  default: true,
-})
-
 export const reloadEntityState = atom<string>({
   key: "reloadEntityState",
   default: "",
