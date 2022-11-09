@@ -463,7 +463,7 @@ const BUDAResourceSelector: FC<{
   const [preview, setPreview] = useState<string | null>(null)
   useLayoutEffect(() => {
     if (document.activeElement === inputRef.current && !isRid && keyword) {
-      const previewVal = config.previewLiteral(new rdf.Literal(keyword, language), [uiLang])
+      const previewVal = config.previewLiteral(new rdf.Literal(keyword, language), uiLang)
       setPreview(previewVal.value)
       setPreview(previewVal.value)
     }
@@ -493,7 +493,7 @@ const BUDAResourceSelector: FC<{
                 }}
                 onFocus={() => {
                   if (!keyword || isRid) setPreview(null)
-                  const { value, error } = config.previewLiteral(new rdf.Literal(keyword, language), [uiLang])
+                  const { value, error } = config.previewLiteral(new rdf.Literal(keyword, language), uiLang)
                   setPreview(value)
                 }}
                 onBlur={() => setPreview(null)}
