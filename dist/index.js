@@ -50,6 +50,7 @@ __export(src_exports, {
   EntitySelectorContainer: () => EntitySelectorContainer_default,
   EntityShapeChooserContainer: () => EntityShapeChooserContainer_default,
   ExtRDFResourceWithLabel: () => ExtRDFResourceWithLabel,
+  HttpError: () => HttpError,
   LiteralWithId: () => LiteralWithId,
   NewEntityContainer: () => NewEntityContainer_default,
   NodeShape: () => NodeShape,
@@ -5639,7 +5640,7 @@ var BUDAResourceSelector = ({
   const [preview, setPreview] = (0, import_react11.useState)(null);
   (0, import_react11.useLayoutEffect)(() => {
     if (document.activeElement === inputRef.current && !isRid && keyword) {
-      const previewVal = config.previewLiteral(new rdf9.Literal(keyword, language), [uiLang]);
+      const previewVal = config.previewLiteral(new rdf9.Literal(keyword, language), uiLang);
       setPreview(previewVal.value);
       setPreview(previewVal.value);
     }
@@ -5672,7 +5673,7 @@ var BUDAResourceSelector = ({
                   onFocus: () => {
                     if (!keyword || isRid)
                       setPreview(null);
-                    const { value: value2, error: error2 } = config.previewLiteral(new rdf9.Literal(keyword, language), [uiLang]);
+                    const { value: value2, error: error2 } = config.previewLiteral(new rdf9.Literal(keyword, language), uiLang);
                     setPreview(value2);
                   },
                   onBlur: () => setPreview(null),
@@ -5940,6 +5941,7 @@ var BUDAResourceSelector_default = BUDAResourceSelector;
   EntitySelectorContainer,
   EntityShapeChooserContainer,
   ExtRDFResourceWithLabel,
+  HttpError,
   LiteralWithId,
   NewEntityContainer,
   NodeShape,

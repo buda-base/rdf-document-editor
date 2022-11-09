@@ -781,7 +781,7 @@ declare type previewResults = {
     error: React.ReactNode | null;
 };
 interface previewLiteral {
-    (literal: rdf.Literal, uiLangs: string[]): previewResults;
+    (literal: rdf.Literal, uiLang: string): previewResults;
 }
 interface generateConnectedID {
     (old_resource: RDFResource, old_shape: NodeShape, type: RDFResource): Promise<rdf.NamedNode>;
