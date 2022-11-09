@@ -165,6 +165,9 @@ export const rdfLangString = RDF("langString") as rdf.NamedNode
 export const skosDefinition = SKOS("definition") as rdf.NamedNode
 export const rdfsComment = RDFS("comment") as rdf.NamedNode
 export const shDescription = SH("description") as rdf.NamedNode
+export const rdfFirst = RDF("first") as rdf.NamedNode
+export const rdfRest = RDF("rest") as rdf.NamedNode
+export const rdfNil = RDF("nil") as rdf.NamedNode
 
 export const defaultLabelProperties = [prefLabel, rdfsLabel, shName]
 export const defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription]

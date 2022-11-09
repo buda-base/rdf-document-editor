@@ -118,7 +118,10 @@ __export(ns_exports, {
   rdeSortOnProperty: () => rdeSortOnProperty,
   rdeSpecialPattern: () => rdeSpecialPattern,
   rdeUniqueValueAmongSiblings: () => rdeUniqueValueAmongSiblings,
+  rdfFirst: () => rdfFirst,
   rdfLangString: () => rdfLangString,
+  rdfNil: () => rdfNil,
+  rdfRest: () => rdfRest,
   rdfType: () => rdfType,
   rdfsComment: () => rdfsComment,
   rdfsLabel: () => rdfsLabel,
@@ -303,6 +306,9 @@ var rdfLangString = RDF("langString");
 var skosDefinition = SKOS("definition");
 var rdfsComment = RDFS("comment");
 var shDescription = SH("description");
+var rdfFirst = RDF("first");
+var rdfRest = RDF("rest");
+var rdfNil = RDF("nil");
 var defaultLabelProperties = [prefLabel, rdfsLabel, shName];
 var defaultDescriptionProperties = [skosDefinition, rdfsComment, shDescription];
 var defaultPrefixMap = new PrefixMap({});
@@ -729,12 +735,24 @@ var RDFResource = class {
       return [];
     return this.graph.store.each(this.node, p, null);
   }
+  fillElements(s, current) {
+    if (!s || s instanceof rdf2.NamedNode && s.uri == rdfNil.uri)
+      return;
+    const first = this.graph.store.any(s, rdfFirst, null);
+    current.push(first);
+    this.fillElements(this.graph.store.any(s, rdfRest, null), current);
+  }
   getPropResValuesFromList(p) {
     if (this.node instanceof rdf2.Collection)
       return null;
     const colls = this.graph.store.each(this.node, p, null);
     for (const coll of colls) {
-      return coll.elements;
+      if (coll instanceof rdf2.Collection) {
+        return coll.elements;
+      }
+      const res = [];
+      this.fillElements(coll, res);
+      return res;
     }
     return null;
   }
@@ -743,7 +761,12 @@ var RDFResource = class {
       return null;
     const colls = this.graph.store.each(this.node, p, null);
     for (const coll of colls) {
-      return coll.elements;
+      if (coll instanceof rdf2.Collection) {
+        return coll.elements;
+      }
+      const res = [];
+      this.fillElements(coll, res);
+      return res;
     }
     return null;
   }
@@ -1371,7 +1394,6 @@ __export(common_exports, {
   possiblePrefLabelsSelector: () => possiblePrefLabelsSelector,
   profileIdState: () => profileIdState,
   reloadEntityState: () => reloadEntityState,
-  reloadProfileState: () => reloadProfileState,
   sameUndo: () => sameUndo,
   sameUndoSub: () => sameUndoSub,
   savePopupState: () => savePopupState,
@@ -1411,7 +1433,7 @@ var defaultEntityLabelAtom = (0, import_recoil2.atom)({
 });
 var uiLangState = (0, import_recoil2.atom)({
   key: "uiLangState",
-  default: ["en"]
+  default: "en"
 });
 var uiLitLangState = (0, import_recoil2.atom)({
   key: "uiLitLangState",
@@ -1469,10 +1491,6 @@ var profileIdState = (0, import_recoil2.atom)({
 var uiDisabledTabsState = (0, import_recoil2.atom)({
   key: "uiDisabledTabsState",
   default: false
-});
-var reloadProfileState = (0, import_recoil2.atom)({
-  key: "reloadProfileState",
-  default: true
 });
 var reloadEntityState = (0, import_recoil2.atom)({
   key: "reloadEntityState",
@@ -1796,6 +1814,7 @@ var fetchTtl = async (url, allow404 = false, headers = defaultFetchTtlHeaders, a
   });
 };
 var shapesMap = {};
+var loading = {};
 function ShapeFetcher(shapeQname, entityQname, config) {
   const [loadingState, setLoadingState] = (0, import_react.useState)({ status: "idle", error: void 0 });
   const [shape, setShape] = (0, import_react.useState)();
@@ -1812,15 +1831,19 @@ function ShapeFetcher(shapeQname, entityQname, config) {
     setLoadingState({ status: "idle", error: void 0 });
   };
   (0, import_react.useEffect)(() => {
-    if (shape && shapeQname === current && loadingState.status === "fetched") {
-      return;
-    }
     if (shapeQname in shapesMap) {
       setLoadingState({ status: "fetched", error: void 0 });
       setShape(shapesMap[shapeQname]);
       return;
     }
+    if (shapeQname === current && loading[shapeQname] && !shape) {
+      return;
+    }
+    if (shape && shapeQname === current && ["fetched", "fetching"].includes(loadingState.status)) {
+      return;
+    }
     async function fetchResource(shapeQname2) {
+      loading[shapeQname2] = true;
       setLoadingState({ status: "fetching", error: void 0 });
       const shapeNode = rdf4.sym(config.prefixMap.uriFromQname(shapeQname2));
       const loadShape = config.getShapesDocument(shapeNode);
@@ -1844,6 +1867,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
         debug5("shape error:", e);
         setLoadingState({ status: "error", error: "error fetching shape or ontology" });
       }
+      loading[shapeQname2] = false;
     }
     if (current === shapeQname)
       fetchResource(shapeQname);
@@ -1851,7 +1875,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
   const retVal = shapeQname === current && shape && shapeQname == shape.qname ? { loadingState, shape, reset } : { loadingState: { status: "loading", error: void 0 }, shape: void 0, reset };
   return retVal;
 }
-function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: false }) {
+function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: false }, shapeLoaded = false) {
   const [entityLoadingState, setEntityLoadingState] = (0, import_react.useState)({ status: "idle", error: void 0 });
   const [entity, setEntity] = (0, import_react.useState)(Subject.createEmpty());
   const [uiReady, setUiReady] = (0, import_recoil3.useRecoilState)(uiReadyState);
@@ -1892,7 +1916,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       let etag = null;
       const localEntities = await config.getUserLocalEntities();
       if (reloadEntity !== entityQname2 && shapeQname && localEntities[entityQname2] !== void 0) {
-        useLocal = window.confirm(import_i18next.default.t("load_previous_q"));
+        useLocal = window.confirm(import_i18next.default.t("general.load_previous_q"));
         const store = rdf4.graph();
         if (useLocal) {
           try {
@@ -1994,7 +2018,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     const index = entities.findIndex(
       (e) => e.subjectQname === entityQname || entityQname == "tmp:user" && e.subjectQname === profileId
     );
-    if (reloadEntity === entityQname && !entities[index].subject || current === entityQname && (index === -1 || entities[index] && !entities[index].subject)) {
+    if (shapeLoaded && (reloadEntity === entityQname && !entities[index].subject || current === entityQname && (index === -1 || entities[index] && !entities[index].subject))) {
       if (entityQname != "tmp:user" || idToken)
         fetchResource(entityQname);
     } else {
@@ -2012,7 +2036,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       else
         setUiReady(true);
     }
-  }, [config, entities, entityQname, entity, current, shapeQname, idToken, profileId, reloadEntity]);
+  }, [config, entities, entityQname, entity, current, shapeQname, idToken, profileId, reloadEntity, shapeLoaded]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
   return retVal;
 }
@@ -2562,6 +2586,8 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
   let waitForNoHisto = false;
   const addItem = async (event, n) => {
     if (n > 1) {
+      if (!property.targetShape)
+        throw new Error("no target shape on " + property.qname);
       const subjects = await config.generateSubnodes(property.targetShape, subject, n);
       setList([...listOrCollec, ...subjects]);
       return;
@@ -2573,7 +2599,7 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
       subject.noHisto(false, 1);
     }
     const item = await generateDefault(property, subject, newVal == null ? void 0 : newVal.toString(), config);
-    setList([...listOrCollec, item]);
+    setList([...listOrCollec, ...Array.isArray(item) ? item : [item]]);
     if (property.objectType === 1 /* Internal */ && item instanceof Subject) {
       setImmediate(() => {
         setEdit(subject.qname + " " + property.qname + " " + item.qname);
@@ -2716,19 +2742,19 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
     children: [
       canPushPrefLabel && !error && !globalError && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
         className: "canPushPrefLabel",
-        children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
           onClick: pushAsPrefLabel,
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
-              title: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-                children: "Use as the main name or title for this language"
-              }),
-              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-                className: "img"
+          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
+            title: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
+              children: "Use as the main name or title for this language"
+            }),
+            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+              className: "img",
+              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.More, {
+                style: { position: "relative", color: "white", left: "-9px", fontSize: "18px" }
               })
-            }, lit.id),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.More, {})
-          ]
+            })
+          }, lit.id)
         })
       }),
       (property.singleLine || !editMD) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -4050,7 +4076,7 @@ function EntityEditContainer(props) {
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config);
   const canPushPrefLabelGroups = shape == null ? void 0 : shape.groups.reduce(
     (acc, group) => {
-      const props2 = group.properties.filter((p) => p.allowPushToTopLevelLabel).map((p) => {
+      const _props = group.properties.filter((p) => p.allowPushToTopLevelLabel).map((p) => {
         if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
           return entityObj[0].subject.getAtomForProperty(p.path.sparqlString);
       }).filter((a) => a != void 0);
@@ -4070,8 +4096,8 @@ function EntityEditContainer(props) {
         },
         {}
       );
-      if ((props2 == null ? void 0 : props2.length) || Object.keys(subprops).length)
-        return { ...acc, [group.qname]: { props: props2, subprops } };
+      if ((_props == null ? void 0 : _props.length) || Object.keys(subprops).length)
+        return { ...acc, [group.qname]: { props: _props, subprops } };
       return { ...acc };
     },
     {}
@@ -4087,6 +4113,7 @@ function EntityEditContainer(props) {
   if (!altLabelAtom)
     altLabelAtom = initListAtom;
   const altLabels = (0, import_recoil6.useRecoilValue)(altLabelAtom);
+  debug9("EntityEditContainer:", entityQname, shapeQname, history, shape, loadingState);
   (0, import_react4.useEffect)(() => {
     entities.map((e, i) => {
       if (e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user") {
@@ -4123,12 +4150,12 @@ function EntityEditContainer(props) {
   const save = (0, import_react4.useCallback)(
     (obj) => {
       return new Promise(async (resolve) => {
-        var _a2, _b2;
-        if ([2 /* NeedsSaving */, 0 /* Error */].includes(obj[0].state)) {
+        var _a2, _b2, _c2;
+        if ([2 /* NeedsSaving */, 0 /* Error */].includes((_a2 = obj[0]) == null ? void 0 : _a2.state)) {
           const defaultRef = new rdf6.NamedNode(rdf6.Store.defaultGraphURI);
           const store = new rdf6.Store();
           props.config.prefixMap.setDefaultPrefixes(store);
-          (_b2 = (_a2 = obj[0]) == null ? void 0 : _a2.subject) == null ? void 0 : _b2.graph.addNewValuestoStore(store);
+          (_c2 = (_b2 = obj[0]) == null ? void 0 : _b2.subject) == null ? void 0 : _c2.graph.addNewValuestoStore(store);
           rdf6.serialize(defaultRef, store, void 0, "text/turtle", async function(err, str) {
             var _a3;
             if (err || !str) {
@@ -4198,7 +4225,13 @@ function EntityEditContainer(props) {
   (0, import_react4.useEffect)(() => {
     window.addEventListener("beforeunload", warning, true);
   }, [warning]);
-  const { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config);
+  const { entityLoadingState, entity } = EntityFetcher(
+    entityQname,
+    shapeQname,
+    config,
+    void 0,
+    loadingState.status === "fetched" ? true : false
+  );
   if (loadingState.status === "error" || entityLoadingState.status === "error") {
     return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("p", {
       className: "text-center text-muted",
@@ -5606,7 +5639,7 @@ var BUDAResourceSelector = ({
   const [preview, setPreview] = (0, import_react11.useState)(null);
   (0, import_react11.useLayoutEffect)(() => {
     if (document.activeElement === inputRef.current && !isRid && keyword) {
-      const previewVal = config.previewLiteral(new rdf9.Literal(keyword, language), uiLang);
+      const previewVal = config.previewLiteral(new rdf9.Literal(keyword, language), [uiLang]);
       setPreview(previewVal.value);
       setPreview(previewVal.value);
     }
@@ -5639,7 +5672,7 @@ var BUDAResourceSelector = ({
                   onFocus: () => {
                     if (!keyword || isRid)
                       setPreview(null);
-                    const { value: value2, error: error2 } = config.previewLiteral(new rdf9.Literal(keyword, language), uiLang);
+                    const { value: value2, error: error2 } = config.previewLiteral(new rdf9.Literal(keyword, language), [uiLang]);
                     setPreview(value2);
                   },
                   onBlur: () => setPreview(null),
@@ -5865,7 +5898,6 @@ var LabelWithRID = ({
   choose
 }) => {
   var _a;
-  const [uiLang] = (0, import_recoil13.useRecoilState)(uiLangState);
   const [uiLitLang] = (0, import_recoil13.useRecoilState)(uiLitLangState);
   const [labelValues] = (0, import_recoil13.useRecoilState)(entity.subjectLabelState);
   const prefLabels = RDFResource.valuesByLang(labelValues);

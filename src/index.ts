@@ -1,4 +1,4 @@
-import "../public/app.css"
+import "./app.css"
 
 import * as ns from "./helpers/rdf/ns"
 import * as shapes from "./helpers/rdf/shapes"
@@ -20,13 +20,14 @@ export { NodeShape, generateSubnodes } from "./helpers/rdf/shapes"
 
 export type { default as RDEConfig, LocalEntityInfo, IFetchState } from "./helpers/rde_config"
 
-export type { HistoryStatus } from "./helpers/rdf/types"
+export type { HistoryStatus, Value } from "./helpers/rdf/types"
 
 export { fetchTtl } from "./helpers/rdf/io"
 
 export type { HttpError } from "./helpers/rdf/io"
 
-export { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel, RDFResourceWithLabel, getHistoryStatus, updateHistory, history } from "./helpers/rdf/types"
+export { RDFResource, Subject, LiteralWithId, EntityGraph, ExtRDFResourceWithLabel,
+  RDFResourceWithLabel, getHistoryStatus, updateHistory, history } from "./helpers/rdf/types"
 
 export type { Entity } from "./atoms/common"
 

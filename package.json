@@ -1,7 +1,6 @@
 {
   "name": "rdf-document-editor",
   "version": "0.1.0",
-  "homepage": "https://github.com/buda-base/rdf-document-editor/",
   "description": "RDF Document Editor",
   "author": "Nicolas Berger and Elie Roux",
   "license": "MIT",
@@ -12,6 +11,7 @@
     "@mui/material": "^5.10.11",
     "@mui/styles": "^5.10.10",
     "@uiw/react-md-editor": "^3.19.1",
+    "assert": "^2.0.0",
     "debug": "^4.3.4",
     "i18next": "^22.0.3",
     "leaflet": "^1.9.2",
@@ -33,12 +33,15 @@
     "typescript-memoize": "^1.1.1"
   },
   "scripts": {
+    "start": "react-scripts start",
     "build-css": "yarn run sass src/stylesheets/app.scss:public/app.css -s compressed --update",
     "analyze": "source-map-explorer 'dist/static/js/*.js'",
     "predeploy": "npm run build",
     "lint": "eslint --ignore-path .gitignore src/ && dpdm --exit-code circular:1 src/index.ts",
     "rollup": "./node_modules/rollup/dist/bin/rollup -c rollup.config.js --bundleConfigAsCjs",
-    "build": "yarn run build-css && tsup src/index.ts --format cjs,esm --dts --clean"
+    "build": "yarn run build-css && tsup src/index.ts --format cjs,esm --dts --clean",
+    "postinstall": "yarn run demo-patch-start",
+    "demo-patch-start": "sed -r 's/(app(IndexJs|Html):.+?)(src|public)(\\/demo)*/\\1src\\/demo/g' -i node_modules/react-scripts/config/paths.js && sed -r 's/(resolve: \\{).*/\\1 symlinks:false,/' -i node_modules/react-scripts/config/webpack.config.js"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,css,tsx,ts}": [
@@ -60,10 +63,9 @@
     "@typescript-eslint/eslint-plugin": "^5.41.0",
     "@typescript-eslint/parser": "^5.41.0",
     "dpdm": "^3.10.0",
+    "edtf": "https://github.com/buda-base/edtf.js#rde",
     "esbuild": "^0.15.12",
     "eslint": "^8.26.0",
-    "typescript": "^4.8.4",
-    "sass": "^1.55.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-prettier": "^4.2.1",
@@ -77,8 +79,11 @@
     "postcss-url": "^10.1.3",
     "prettier": "^2.7.1",
     "preval.macro": "^5.0.0",
+    "react-scripts": "^5.0.1",
+    "sass": "^1.55.0",
     "tsup": "^6.3.0",
-    "type-fest": "^3.1.0"
+    "type-fest": "^3.1.0",
+    "typescript": "^4.8.4"
   },
   "browserslist": [
     ">0.2%",

@@ -94,6 +94,9 @@ declare const rdfLangString: rdf.NamedNode;
 declare const skosDefinition: rdf.NamedNode;
 declare const rdfsComment: rdf.NamedNode;
 declare const shDescription: rdf.NamedNode;
+declare const rdfFirst: rdf.NamedNode;
+declare const rdfRest: rdf.NamedNode;
+declare const rdfNil: rdf.NamedNode;
 declare const defaultLabelProperties: rdf.NamedNode[];
 declare const defaultDescriptionProperties: rdf.NamedNode[];
 declare const defaultPrefixMap: PrefixMap;
@@ -172,6 +175,9 @@ declare const ns_rdfLangString: typeof rdfLangString;
 declare const ns_skosDefinition: typeof skosDefinition;
 declare const ns_rdfsComment: typeof rdfsComment;
 declare const ns_shDescription: typeof shDescription;
+declare const ns_rdfFirst: typeof rdfFirst;
+declare const ns_rdfRest: typeof rdfRest;
+declare const ns_rdfNil: typeof rdfNil;
 declare const ns_defaultLabelProperties: typeof defaultLabelProperties;
 declare const ns_defaultDescriptionProperties: typeof defaultDescriptionProperties;
 declare const ns_defaultPrefixMap: typeof defaultPrefixMap;
@@ -250,6 +256,9 @@ declare namespace ns {
     ns_skosDefinition as skosDefinition,
     ns_rdfsComment as rdfsComment,
     ns_shDescription as shDescription,
+    ns_rdfFirst as rdfFirst,
+    ns_rdfRest as rdfRest,
+    ns_rdfNil as rdfNil,
     ns_defaultLabelProperties as defaultLabelProperties,
     ns_defaultDescriptionProperties as defaultDescriptionProperties,
     ns_defaultPrefixMap as defaultPrefixMap,
@@ -330,6 +339,7 @@ declare class RDFResource {
     getPropValueOrNullByLang(p: rdf.NamedNode): Record<string, string> | null;
     getPropLitValues(p: rdf.NamedNode): Array<rdf.Literal>;
     getPropResValues(p: rdf.NamedNode): Array<rdf.NamedNode>;
+    fillElements(s: rdf.NamedNode | rdf.BlankNode | null, current: Array<rdf.Node | null>): void;
     getPropResValuesFromList(p: rdf.NamedNode): Array<rdf.NamedNode> | null;
     getPropLitValuesFromList(p: rdf.NamedNode): Array<rdf.Literal> | null;
     getPropIntValue(p: rdf.NamedNode): number | null;
@@ -462,7 +472,7 @@ declare type Entity = {
 };
 declare const entitiesAtom: RecoilState<Entity[]>;
 declare const defaultEntityLabelAtom: RecoilState<Value[]>;
-declare const uiLangState: RecoilState<string[]>;
+declare const uiLangState: RecoilState<string>;
 declare const uiLitLangState: RecoilState<string[]>;
 declare const uiReadyState: RecoilState<boolean>;
 declare const uiTabState: RecoilState<number>;
@@ -511,7 +521,6 @@ declare const uiNavState: RecoilState<string>;
 declare const sessionLoadedState: RecoilState<boolean>;
 declare const profileIdState: RecoilState<string>;
 declare const uiDisabledTabsState: RecoilState<boolean>;
-declare const reloadProfileState: RecoilState<boolean>;
 declare const reloadEntityState: RecoilState<string>;
 declare type orderedByPropSelectorArgs = {
     atom: RecoilValue<Array<Value>>;
@@ -602,7 +611,6 @@ declare const common_uiNavState: typeof uiNavState;
 declare const common_sessionLoadedState: typeof sessionLoadedState;
 declare const common_profileIdState: typeof profileIdState;
 declare const common_uiDisabledTabsState: typeof uiDisabledTabsState;
-declare const common_reloadProfileState: typeof reloadProfileState;
 declare const common_reloadEntityState: typeof reloadEntityState;
 type common_orderedByPropSelectorArgs = orderedByPropSelectorArgs;
 declare const common_orderedByPropSelector: typeof orderedByPropSelector;
@@ -650,7 +658,6 @@ declare namespace common {
     common_sessionLoadedState as sessionLoadedState,
     common_profileIdState as profileIdState,
     common_uiDisabledTabsState as uiDisabledTabsState,
-    common_reloadProfileState as reloadProfileState,
     common_reloadEntityState as reloadEntityState,
     common_orderedByPropSelectorArgs as orderedByPropSelectorArgs,
     common_orderedByPropSelector as orderedByPropSelector,
@@ -938,4 +945,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, HistoryStatus, HttpError, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, RDFResourceWithLabel, Subject, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, shapes, updateHistory };
+export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, HistoryStatus, HttpError, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, RDFResourceWithLabel, Subject, Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, shapes, updateHistory };

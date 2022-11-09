@@ -63,7 +63,7 @@ export type HistoryStatus = {
 
 // get info from history (values modified? values undone?)
 export const getHistoryStatus = (entityUri: string): HistoryStatus => {
-  if (!history[entityUri]) return { top: -1, current: -1, first: -1}
+  if (!history[entityUri]) return { top: -1, current: -1, first: -1 }
 
   // DONE: optimizing a bit (1 for instead of 2 .findIndex + 1 .some)
   const top = history[entityUri].length - 1
@@ -507,20 +507,39 @@ export class RDFResource {
     return this.graph.store.each(this.node, p, null) as Array<rdf.NamedNode>
   }
 
+  fillElements(s: rdf.NamedNode | rdf.BlankNode | null, current: Array<rdf.Node | null>): void {
+    if (!s || (s instanceof rdf.NamedNode && s.uri == ns.rdfNil.uri))
+      return
+    const first = this.graph.store.any(s, ns.rdfFirst, null)
+    current.push(first)
+    this.fillElements(this.graph.store.any(s, ns.rdfRest, null) as rdf.NamedNode | rdf.BlankNode | null, current)
+  }
+
   public getPropResValuesFromList(p: rdf.NamedNode): Array<rdf.NamedNode> | null {
     if (this.node instanceof rdf.Collection) return null
-    const colls = this.graph.store.each(this.node, p, null) as Array<rdf.Collection>
+    const colls = this.graph.store.each(this.node, p, null) as Array<rdf.NamedNode | rdf.BlankNode | rdf.Collection>
+    //debug("p:",p,this.node,colls,this)
     for (const coll of colls) {
-      return coll.elements as Array<rdf.NamedNode>
+      if (coll instanceof rdf.Collection) {
+        return coll.elements as Array<rdf.NamedNode>
+      }
+      const res: Array<rdf.Node | null> = []
+      this.fillElements(coll, res)
+      return res as Array<rdf.NamedNode>
     }
     return null
   }
 
   public getPropLitValuesFromList(p: rdf.NamedNode): Array<rdf.Literal> | null {
     if (this.node instanceof rdf.Collection) return null
-    const colls = this.graph.store.each(this.node, p, null) as Array<rdf.Collection>
+    const colls = this.graph.store.each(this.node, p, null) as Array<rdf.NamedNode | rdf.BlankNode | rdf.Collection>
     for (const coll of colls) {
-      return coll.elements as Array<rdf.Literal>
+      if (coll instanceof rdf.Collection) {
+        return coll.elements as Array<rdf.Literal>
+      }
+      const res: Array<rdf.Node | null> = []
+      this.fillElements(coll, res)
+      return res as Array<rdf.Literal>
     }
     return null
   }

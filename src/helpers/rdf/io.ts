@@ -79,13 +79,16 @@ export const fetchTtl = async (
 // maps of the shapes and entities that have been downloaded so far, with no gc
 export const shapesMap: Record<string, NodeShape> = {}
 
+// need something faster than useState....
+const loading:Record<string,boolean> = {}
+
 export function ShapeFetcher(shapeQname: string, entityQname: string, config: RDEConfig) {
   const [loadingState, setLoadingState] = useState<IFetchState>({ status: "idle", error: undefined })
   const [shape, setShape] = useState<NodeShape>()
   const [current, setCurrent] = useState(shapeQname)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
 
-  //debug("fetcher: shape ", shapeQname, current, shape)
+  //debug("fetcher: shape ", shapeQname, current, shape, loading[shapeQname])
 
   useEffect(() => {
     if (current != shapeQname) {
@@ -100,16 +103,21 @@ export function ShapeFetcher(shapeQname: string, entityQname: string, config: RD
   }
 
   useEffect(() => {
-    //debug("shM:", shapeQname, shapesMap, current)
-    if (shape && shapeQname === current && loadingState.status === "fetched") {
-      return
-    }
+    //debug("shM:", shapeQname, shapesMap, current, loadingState.status, loading[shapeQname], shape)
     if (shapeQname in shapesMap) {
       setLoadingState({ status: "fetched", error: undefined })
       setShape(shapesMap[shapeQname])
       return
     }
+    if( shapeQname === current  && loading[shapeQname] && !shape) {
+      return
+    }
+    if (shape && shapeQname === current && ["fetched","fetching"].includes(loadingState.status)) {
+      return
+    }
     async function fetchResource(shapeQname: string) {
+      //debug("fetch?shape")
+      loading[shapeQname] = true
       setLoadingState({ status: "fetching", error: undefined })
       const shapeNode = rdf.sym(config.prefixMap.uriFromQname(shapeQname))
       const loadShape = config.getShapesDocument(shapeNode)
@@ -136,6 +144,7 @@ export function ShapeFetcher(shapeQname: string, entityQname: string, config: RD
         debug("shape error:", e)
         setLoadingState({ status: "error", error: "error fetching shape or ontology" })
       }
+      loading[shapeQname] = false
     }
     if (current === shapeQname) fetchResource(shapeQname)
   }, [config, entityQname, shape, shapeQname, current, entities])
@@ -148,7 +157,7 @@ export function ShapeFetcher(shapeQname: string, entityQname: string, config: RD
   return retVal //{ loadingState, shape, reset }
 }
 
-export function EntityFetcher(entityQname: string, shapeQname: string, config: RDEConfig, unmounting = { val: false }) {
+export function EntityFetcher(entityQname: string, shapeQname: string, config: RDEConfig, unmounting = { val: false }, shapeLoaded = false) {
   const [entityLoadingState, setEntityLoadingState] = useState<IFetchState>({ status: "idle", error: undefined })
   const [entity, setEntity] = useState<Subject>(Subject.createEmpty())
   const [uiReady, setUiReady] = useRecoilState(uiReadyState)
@@ -201,7 +210,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       // 1 - check if entity has local edits (once shape is defined)
       //debug("local?", shapeQname, reloadEntity,entityQname, localEntities[entityQname])
       if (reloadEntity !== entityQname && shapeQname && localEntities[entityQname] !== undefined) {
-        useLocal = window.confirm(i18n.t("load_previous_q"))
+        useLocal = window.confirm(i18n.t("general.load_previous_q"))
         const store: rdf.Store = rdf.graph()
         if (useLocal) {
           try {
@@ -319,8 +328,10 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
     )
 
     if (
-      reloadEntity === entityQname && !entities[index].subject ||
-      current === entityQname && (index === -1 || entities[index] && !entities[index].subject)
+      shapeLoaded && (
+        reloadEntity === entityQname && !entities[index].subject ||
+        current === entityQname && (index === -1 || entities[index] && !entities[index].subject)
+      )
     ) {
       if (entityQname != "tmp:user" || idToken) fetchResource(entityQname)
     } else {
@@ -335,7 +346,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       if (unmounting.val) return
       else setUiReady(true)
     }
-  }, [config, entities, entityQname, entity, current, shapeQname, idToken, profileId, reloadEntity])
+  }, [config, entities, entityQname, entity, current, shapeQname, idToken, profileId, reloadEntity, shapeLoaded])
 
   const retVal =
     entityQname === current

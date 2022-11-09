@@ -1,4 +1,4 @@
-import { EntityFetcher } from "../helpers/rdf/io"
+
 import { uiTabState, entitiesAtom } from "../atoms/common"
 import { useRecoilState } from "recoil"
 import { Dialog422 } from "./Dialog"

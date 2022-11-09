@@ -185,7 +185,7 @@ export const getUserLocalEntities = async (): Promise<Record<string, LocalEntity
 export const setUserLocalEntity = async (
   subjectQname: string,
   shapeQname: string | null,
-  ttl: string | null,
+  ttl: string | undefined,
   del: boolean,
   userId: string,
   etag: string | null,

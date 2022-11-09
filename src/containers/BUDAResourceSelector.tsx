@@ -703,7 +703,6 @@ const LabelWithRID: FC<{ entity: Entity; choose?: (e: Entity, labels: Record<str
   entity,
   choose,
 }) => {
-  const [uiLang] = useRecoilState(uiLangState)
   const [uiLitLang] = useRecoilState(uiLitLangState)
   const [labelValues] = useRecoilState(entity.subjectLabelState)
   const prefLabels = RDFResource.valuesByLang(labelValues)

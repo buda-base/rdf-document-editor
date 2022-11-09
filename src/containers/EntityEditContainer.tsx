@@ -220,7 +220,7 @@ function EntityEditContainer(props: RDEProps) {
       acc: Record<string, canPushPrefLabelGroupType>,
       group: PropertyGroup
     ): Record<string, canPushPrefLabelGroupType> => {
-      const props: Array<RecoilState<Value[]> | undefined> = group.properties
+      const _props: Array<RecoilState<Value[]> | undefined> = group.properties
         .filter((p: PropertyShape) => p.allowPushToTopLevelLabel)
         .map((p: PropertyShape) => {
           if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
@@ -242,8 +242,11 @@ function EntityEditContainer(props: RDEProps) {
         },
         {}
       )
-      if (props?.length || Object.keys(subprops).length)
-        return { ...acc, [group.qname]: { props, subprops } } as Record<string, canPushPrefLabelGroupType>
+
+      //debug("ps:",group, group.qname, group.properties,_props,subprops)
+
+      if (_props?.length || Object.keys(subprops).length)
+        return { ...acc, [group.qname]: { props:_props, subprops } } as Record<string, canPushPrefLabelGroupType>
       return { ...acc }
     },
     {} as Record<string, canPushPrefLabelGroupType>
@@ -255,6 +258,8 @@ function EntityEditContainer(props: RDEProps) {
       : initMapAtom
   )
 
+  //debug("pPl:",possiblePrefLabels,canPushPrefLabelGroups)
+
   let prefLabelAtom = entityObj[0]?.subject?.getAtomForProperty(ns.SKOS("prefLabel").value)
   if (!prefLabelAtom) prefLabelAtom = initListAtom
   const [prefLabels, setPrefLabels] = useRecoilState(prefLabelAtom)
@@ -263,8 +268,8 @@ function EntityEditContainer(props: RDEProps) {
   if (!altLabelAtom) altLabelAtom = initListAtom
   const altLabels = useRecoilValue(altLabelAtom)
 
-  //debug("EntityEditContainer:", JSON.stringify(props), entityQname, isAuthenticated, profileId)
-
+  debug("EntityEditContainer:", entityQname, shapeQname, history, shape, loadingState)
+  
   useEffect(() => {
     entities.map((e, i) => {
       if (e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user") {
@@ -307,7 +312,7 @@ function EntityEditContainer(props: RDEProps) {
     (obj: Entity[]) => {
       return new Promise(async (resolve) => {
         //debug("saving?",obj[0]?.subjectQname,obj[0]?.state,obj[0].alreadySaved)
-        if ([EditedEntityState.NeedsSaving, EditedEntityState.Error].includes(obj[0].state)) {
+        if ([EditedEntityState.NeedsSaving, EditedEntityState.Error].includes(obj[0]?.state)) {
           // save to localStorage
           const defaultRef = new rdf.NamedNode(rdf.Store.defaultGraphURI)
           const store = new rdf.Store()
@@ -397,8 +402,8 @@ function EntityEditContainer(props: RDEProps) {
   }, [warning])
 
   // TODO: update highlighted tab
-
-  const { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config)
+  const { entityLoadingState, entity } = EntityFetcher(entityQname, shapeQname, config, undefined, 
+    loadingState.status === "fetched" ?true:false)
 
   // TODO: check that shape can be properly applied to entity
 
@@ -441,9 +446,13 @@ function EntityEditContainer(props: RDEProps) {
   const shapeLabel = lang.ValueByLangToStrPrefLang(shape.targetClassPrefLabels, uiLang)
 
   const checkPushNameAsPrefLabel = (e: React.MouseEvent, currentGroupName: string) => {
-    //debug("closing: ", currentGroupName, possiblePrefLabels[currentGroupName])
+    
+    //debug("closing: ", currentGroupName, possiblePrefLabels, possiblePrefLabels[currentGroupName])
+
     if (possiblePrefLabels && possiblePrefLabels[currentGroupName]?.length) {
-      //debug("names:",personNamesLabels,prefLabels)
+      
+      //debug("names:",prefLabels)
+
       const newLabels = [...prefLabels]
       for (const n of possiblePrefLabels[currentGroupName]) {
         if (

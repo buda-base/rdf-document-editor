@@ -250,6 +250,7 @@ export class PropertyShape extends RDFResourceWithLabel {
 
   @Memoize()
   public get in(): Array<RDFResourceWithLabel | LiteralWithId> | null {
+    //debug("in:",this.id,this.hasListAsObject,this.datatype)
     if (this.hasListAsObject) {
       // if no direct in, let's look at the sh:property objects (quite counter intuitive, but it follows the shacl examples)
       const propNodes: Array<rdf.NamedNode | rdf.BlankNode> = this.graph.store.each(
@@ -275,6 +276,7 @@ export class PropertyShape extends RDFResourceWithLabel {
     } else {
       // if no datatype, then it's res
       const nodes = this.getPropResValuesFromList(ns.shIn)
+      //debug("nodes:",nodes)
       if (nodes) return PropertyShape.resourcizeWithInit(nodes, this.graph)
     }
     return null

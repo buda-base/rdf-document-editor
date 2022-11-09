@@ -753,10 +753,11 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
     //debug("create:",shape,nextVal,newVal,property.qname,property) //,subject.getAtomForProperty(property.path.sparqlString))
   }
   let waitForNoHisto = false
-
-  const addItem = async (event: React.MouseEvent<HTMLButtonElement>, n: number) => {
-
+  
+  const addItem = async (event: React.MouseEvent<HTMLButtonElement>, n: number) => {  
     if (n > 1) {
+      if (!property.targetShape)
+        throw new Error("no target shape on "+property.qname)
       const subjects = await config.generateSubnodes(property.targetShape, subject, n)
       // stop rendering?
       setList([...listOrCollec, ...subjects])
@@ -771,7 +772,7 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
       subject.noHisto(false, 1) // allow parent node in history but default empty subnodes before tmp:allValuesLoaded
     }
     const item = await generateDefault(property, subject, newVal?.toString(), config)
-    setList([...listOrCollec, item]) //(oldList) => [...oldList, item])
+    setList([...listOrCollec, ...Array.isArray(item)?item:[item] ]) //(oldList) => [...oldList, item])
     if (property.objectType === ObjectType.Internal && item instanceof Subject) {
       //setEdit(property.qname+item.qname)  // won't work...
       setImmediate(() => {
@@ -786,7 +787,7 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
     }
   }
 
-  //debug("path/type:", property.objectType, property.path.sparqlString, disable)
+  //debug("path/type:", property.objectType, property?.path?.sparqlString, disable)
 
   if (
     property.objectType !== ObjectType.Internal &&
@@ -948,9 +949,10 @@ const EditLangString: FC<{
         <span className="canPushPrefLabel">
           <span onClick={pushAsPrefLabel}>
             <Tooltip key={lit.id} title={<>Use as the main name or title for this language</>}>
-              <span className="img"></span>
+              <div className="img">
+                <Label style={{ position: "relative", color: "white", left: "-9px", fontSize: "18px" }}/>
+              </div>
             </Tooltip>
-            <Label/>
           </span>
         </span>
       )}
@@ -1842,6 +1844,8 @@ const SelectComponent: FC<{
 
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang)
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLitLang)
+
+  //debug("select:",res,property.in,property)
 
   let possibleValues = property.in
   if (possibleValues == null) throw "can't find possible list for " + property.uri
