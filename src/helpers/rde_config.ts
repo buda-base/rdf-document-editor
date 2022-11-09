@@ -25,7 +25,7 @@ export type previewResults = {
 }
 
 interface previewLiteral {
-  (literal: rdf.Literal, uiLangs: string[]): previewResults
+  (literal: rdf.Literal, uiLang: string): previewResults
 }
 
 interface generateConnectedID {
