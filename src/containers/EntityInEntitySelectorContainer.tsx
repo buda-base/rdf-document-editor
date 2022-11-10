@@ -9,11 +9,11 @@ import {
   uiLitLangState,
   uiTabState,
   savePopupState,
+  Entity, EditedEntityState, entitiesAtom, defaultEntityLabelAtom
 } from "../atoms/common"
 import { Tab } from "@mui/material"
 import * as lang from "../helpers/lang"
 import RDEConfig from "../helpers/rde_config"
-import { Entity, EditedEntityState, entitiesAtom, defaultEntityLabelAtom } from "../atoms/common"
 import { Close as CloseIcon } from "@mui/icons-material"
 import { debug as debugfactory } from "debug"
 

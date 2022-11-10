@@ -519,7 +519,6 @@ declare const noUndoRedo: {
 declare const uiUndosState: RecoilState<Record<string, undoPN>>;
 declare const uiNavState: RecoilState<string>;
 declare const sessionLoadedState: RecoilState<boolean>;
-declare const profileIdState: RecoilState<string>;
 declare const uiDisabledTabsState: RecoilState<boolean>;
 declare const reloadEntityState: RecoilState<string>;
 declare type orderedByPropSelectorArgs = {
@@ -609,7 +608,6 @@ declare const common_noUndoRedo: typeof noUndoRedo;
 declare const common_uiUndosState: typeof uiUndosState;
 declare const common_uiNavState: typeof uiNavState;
 declare const common_sessionLoadedState: typeof sessionLoadedState;
-declare const common_profileIdState: typeof profileIdState;
 declare const common_uiDisabledTabsState: typeof uiDisabledTabsState;
 declare const common_reloadEntityState: typeof reloadEntityState;
 type common_orderedByPropSelectorArgs = orderedByPropSelectorArgs;
@@ -656,7 +654,6 @@ declare namespace common {
     common_uiUndosState as uiUndosState,
     common_uiNavState as uiNavState,
     common_sessionLoadedState as sessionLoadedState,
-    common_profileIdState as profileIdState,
     common_uiDisabledTabsState as uiDisabledTabsState,
     common_reloadEntityState as reloadEntityState,
     common_orderedByPropSelectorArgs as orderedByPropSelectorArgs,

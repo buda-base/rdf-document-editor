@@ -28,52 +28,52 @@ export type Entity = {
 }
 
 export const entitiesAtom = atom<Array<Entity>>({
-  key: "entities",
+  key: "rde_entities",
   default: [],
 })
 
 export const defaultEntityLabelAtom = atom<Array<Value>>({
-  key: "defaultEntityLabelAtom",
+  key: "rde_defaultEntityLabelAtom",
   default: [new LiteralWithId("...", "en")], // TODO: use the i18n stuff
 })
 
 export const uiLangState = atom<string>({
-  key: "uiLangState",
+  key: "rde_uiLangState",
   default: "en",
 })
 
 export const uiLitLangState = atom<Array<string>>({
-  key: "uiLitLangState",
+  key: "rde_uiLitLangState",
   default: ["en"],
 })
 
 export const uiReadyState = atom<boolean>({
-  key: "uiReadyState",
+  key: "rde_uiReadyState",
   default: false,
 })
 
 export const uiTabState = atom<number>({
-  key: "uiTabState",
+  key: "rde_uiTabState",
   default: -1,
 })
 
 export const uiRIDState = atom<string[]>({
-  key: "uiRIDState",
+  key: "rde_uiRIDState",
   default: [],
 })
 
 export const uiEditState = atom<string>({
-  key: "uiEditState",
+  key: "rde_uiEditState",
   default: "",
 })
 
 export const uiGroupState = atom<string>({
-  key: "uiGroupState",
+  key: "rde_uiGroupState",
   default: "",
 })
 
 export const uiHistoryState = atom<Record<string, never> | FC<{ string: { string: Array<Value> } }>>({
-  key: "uiHistoryState",
+  key: "rde_uiHistoryState",
   default: {},
 })
 
@@ -111,32 +111,27 @@ export const noUndo = { enabled: false, subjectUri: "", propertyPath: "", parent
 export const noUndoRedo = { prev: noUndo, next: noUndo }
 
 export const uiUndosState = atom<Record<string, undoPN>>({
-  key: "uiUndosState",
+  key: "rde_uiUndosState",
   default: {},
 })
 
 export const uiNavState = atom<string>({
-  key: "uiNavState",
+  key: "rde_uiNavState",
   default: "",
 })
 
 export const sessionLoadedState = atom<boolean>({
-  key: "sessionLoadedState",
+  key: "rde_sessionLoadedState",
   default: false,
 })
 
-export const profileIdState = atom<string>({
-  key: "profileIdState",
-  default: "",
-})
-
 export const uiDisabledTabsState = atom<boolean>({
-  key: "uiDisabledTabsState",
+  key: "rde_uiDisabledTabsState",
   default: false,
 })
 
 export const reloadEntityState = atom<string>({
-  key: "reloadEntityState",
+  key: "rde_reloadEntityState",
   default: "",
 })
 
@@ -152,7 +147,7 @@ export type orderedByPropSelectorArgs = {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const orderedByPropSelector = selectorFamily<any, orderedByPropSelectorArgs>({
-  key: "orderedByPropSelector",
+  key: "rde_orderedByPropSelector",
   get:
     (args: orderedByPropSelectorArgs) =>
     ({ get }) => {
@@ -190,7 +185,7 @@ export type personNamesLabelsSelectorArgs = {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const personNamesLabelsSelector = selectorFamily<any, personNamesLabelsSelectorArgs>({
-  key: "personNamesLabelsSelector",
+  key: "rde_personNamesLabelsSelector",
   get:
     (args: personNamesLabelsSelectorArgs) =>
     ({ get }) => {
@@ -209,15 +204,15 @@ export const personNamesLabelsSelector = selectorFamily<any, personNamesLabelsSe
     },
 })
 
-export const initListAtom = atom<Array<Value>>({ key: "initListAtom", default: [] })
+export const initListAtom = atom<Array<Value>>({ key: "rde_initListAtom", default: [] })
 
-export const initStringAtom = atom<string>({ key: "initStringAtom", default: "" })
+export const initStringAtom = atom<string>({ key: "rde_initStringAtom", default: "" })
 
-export const initMapAtom = atom<Record<string, Value[]>>({ key: "initMapAtom", default: {} })
+export const initMapAtom = atom<Record<string, Value[]>>({ key: "rde_initMapAtom", default: {} })
 
 // TODO: the as is not great...
 export const initkvAtom = atom<{ k: string; val: Value[] }>({
-  key: "initkvAtom",
+  key: "rde_initkvAtom",
   default: {} as { k: string; val: Value[] },
 })
 
@@ -233,7 +228,7 @@ export type canPushPrefLabelGroupsType = {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const possiblePrefLabelsSelector = selectorFamily<Record<string, Value[]>, canPushPrefLabelGroupsType>({
-  key: "possiblePrefLabelsSelector",
+  key: "rde_possiblePrefLabelsSelector",
   get:
     (args: canPushPrefLabelGroupsType) =>
     ({ get }) => {
@@ -277,7 +272,7 @@ export type orderedNewValSelectorType = {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const orderedNewValSelector = selectorFamily<string, orderedNewValSelectorType>({
-  key: "orderedNewValSelector",
+  key: "rde_orderedNewValSelector",
   get:
     (args: orderedNewValSelectorType) =>
     ({ get }) => {
@@ -316,7 +311,7 @@ export type toCopySelectorType = {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const toCopySelector = selectorFamily<{ k: string; val: Value[] }[], toCopySelectorType>({
-  key: "toCopySelector",
+  key: "rde_toCopySelector",
   get:
     (args: toCopySelectorType) =>
     ({ get }) => {
@@ -339,7 +334,7 @@ export const toCopySelector = selectorFamily<{ k: string; val: Value[] }[], toCo
 })
 
 export const savePopupState = atom<boolean>({
-  key: "savePopupState",
+  key: "rde_savePopupState",
   default: false,
 })
 
@@ -356,7 +351,7 @@ export type ESfromRecoilSelectorType = {
 }
 
 export const ESfromRecoilSelector = selectorFamily<any, any>({
-  key: "ESfromRecoilSelector",
+  key: "rde_ESfromRecoilSelector",
   get:
     ({}) =>
     ({ get }) => {
@@ -431,7 +426,7 @@ export type isUniqueTestSelectorType = {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export const isUniqueTestSelector = selectorFamily<boolean, isUniqueTestSelectorType>({
-  key: "isUniqueTestSelector",
+  key: "rde_isUniqueTestSelector",
   get:
     (args: isUniqueTestSelectorType) =>
     ({ get }) => {

@@ -14,7 +14,6 @@ import { BrokenImage as NotFoundIcon } from "@mui/icons-material"
 import i18n from "i18next"
 import PropertyGroupContainer from "./PropertyGroupContainer"
 import {
-  profileIdState,
   uiLangState,
   uiEditState,
   uiUndosState,
@@ -205,11 +204,10 @@ function EntityEditContainer(props: RDEProps) {
 
   //const [nav, setNav] = useRecoilState(uiNavState)
 
-  const [profileId, setProfileId] = useRecoilState(profileIdState)
   const [tab, setTab] = useRecoilState(uiTabState)
 
   const entityObj = entities.filter(
-    (e) => e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user"
+    (e) => e.subjectQname === entityQname
   )
   const icon = config.iconFromEntity(entityObj.length ? entityObj[0] : null)
 
@@ -272,22 +270,20 @@ function EntityEditContainer(props: RDEProps) {
   
   useEffect(() => {
     entities.map((e, i) => {
-      if (e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user") {
+      if (e.subjectQname === entityQname) {
         if (tab != i) {
           setTab(i)
           return
         }
       }
     })
-  }, [entities, profileId])
+  }, [entities])
 
   let init = 0
   useEffect(() => {
-    if (entityQname === "tmp:user" && !profileId) return
-
     const delay = 350
     let n = -1 // is this used at all??
-    const entityUri = props.config.prefixMap.uriFromQname(entityQname === "tmp:user" ? profileId : entityQname)
+    const entityUri = props.config.prefixMap.uriFromQname(entityQname)
 
     // wait for all data to be loaded then add flag in history
     if (init) clearInterval(init)
@@ -306,7 +302,7 @@ function EntityEditContainer(props: RDEProps) {
         }
       }
     }, delay)
-  }, [entities, tab, profileId, entityQname])
+  }, [entities, tab, entityQname])
 
   const save = useCallback(
     (obj: Entity[]) => {

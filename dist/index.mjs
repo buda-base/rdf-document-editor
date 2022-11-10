@@ -1342,7 +1342,6 @@ __export(common_exports, {
   orderedNewValSelector: () => orderedNewValSelector,
   personNamesLabelsSelector: () => personNamesLabelsSelector,
   possiblePrefLabelsSelector: () => possiblePrefLabelsSelector,
-  profileIdState: () => profileIdState,
   reloadEntityState: () => reloadEntityState,
   sameUndo: () => sameUndo,
   sameUndoSub: () => sameUndoSub,
@@ -1374,43 +1373,43 @@ var EditedEntityState = /* @__PURE__ */ ((EditedEntityState3) => {
   return EditedEntityState3;
 })(EditedEntityState || {});
 var entitiesAtom = atom2({
-  key: "entities",
+  key: "rde_entities",
   default: []
 });
 var defaultEntityLabelAtom = atom2({
-  key: "defaultEntityLabelAtom",
+  key: "rde_defaultEntityLabelAtom",
   default: [new LiteralWithId("...", "en")]
 });
 var uiLangState = atom2({
-  key: "uiLangState",
+  key: "rde_uiLangState",
   default: "en"
 });
 var uiLitLangState = atom2({
-  key: "uiLitLangState",
+  key: "rde_uiLitLangState",
   default: ["en"]
 });
 var uiReadyState = atom2({
-  key: "uiReadyState",
+  key: "rde_uiReadyState",
   default: false
 });
 var uiTabState = atom2({
-  key: "uiTabState",
+  key: "rde_uiTabState",
   default: -1
 });
 var uiRIDState = atom2({
-  key: "uiRIDState",
+  key: "rde_uiRIDState",
   default: []
 });
 var uiEditState = atom2({
-  key: "uiEditState",
+  key: "rde_uiEditState",
   default: ""
 });
 var uiGroupState = atom2({
-  key: "uiGroupState",
+  key: "rde_uiGroupState",
   default: ""
 });
 var uiHistoryState = atom2({
-  key: "uiHistoryState",
+  key: "rde_uiHistoryState",
   default: {}
 });
 var sameUndoSub = (undo1, undo2) => {
@@ -1423,31 +1422,27 @@ var sameUndo = (undo1, undo2) => {
 var noUndo = { enabled: false, subjectUri: "", propertyPath: "", parentPath: [] };
 var noUndoRedo = { prev: noUndo, next: noUndo };
 var uiUndosState = atom2({
-  key: "uiUndosState",
+  key: "rde_uiUndosState",
   default: {}
 });
 var uiNavState = atom2({
-  key: "uiNavState",
+  key: "rde_uiNavState",
   default: ""
 });
 var sessionLoadedState = atom2({
-  key: "sessionLoadedState",
+  key: "rde_sessionLoadedState",
   default: false
 });
-var profileIdState = atom2({
-  key: "profileIdState",
-  default: ""
-});
 var uiDisabledTabsState = atom2({
-  key: "uiDisabledTabsState",
+  key: "rde_uiDisabledTabsState",
   default: false
 });
 var reloadEntityState = atom2({
-  key: "reloadEntityState",
+  key: "rde_reloadEntityState",
   default: ""
 });
 var orderedByPropSelector = selectorFamily({
-  key: "orderedByPropSelector",
+  key: "rde_orderedByPropSelector",
   get: (args) => ({ get }) => {
     let { atom: atom3, propertyPath, order } = args;
     if (propertyPath) {
@@ -1479,7 +1474,7 @@ var orderedByPropSelector = selectorFamily({
   }
 });
 var personNamesLabelsSelector = selectorFamily({
-  key: "personNamesLabelsSelector",
+  key: "rde_personNamesLabelsSelector",
   get: (args) => ({ get }) => {
     const { atom: atom3 } = args;
     if (atom3) {
@@ -1494,15 +1489,15 @@ var personNamesLabelsSelector = selectorFamily({
     return [];
   }
 });
-var initListAtom = atom2({ key: "initListAtom", default: [] });
-var initStringAtom = atom2({ key: "initStringAtom", default: "" });
-var initMapAtom = atom2({ key: "initMapAtom", default: {} });
+var initListAtom = atom2({ key: "rde_initListAtom", default: [] });
+var initStringAtom = atom2({ key: "rde_initStringAtom", default: "" });
+var initMapAtom = atom2({ key: "rde_initMapAtom", default: {} });
 var initkvAtom = atom2({
-  key: "initkvAtom",
+  key: "rde_initkvAtom",
   default: {}
 });
 var possiblePrefLabelsSelector = selectorFamily({
-  key: "possiblePrefLabelsSelector",
+  key: "rde_possiblePrefLabelsSelector",
   get: (args) => ({ get }) => {
     const res = {};
     for (const g of Object.keys(args.canPushPrefLabelGroups)) {
@@ -1535,7 +1530,7 @@ var possiblePrefLabelsSelector = selectorFamily({
   }
 });
 var orderedNewValSelector = selectorFamily({
-  key: "orderedNewValSelector",
+  key: "rde_orderedNewValSelector",
   get: (args) => ({ get }) => {
     let newVal = -1;
     if (args.atom) {
@@ -1560,7 +1555,7 @@ var orderedNewValSelector = selectorFamily({
   }
 });
 var toCopySelector = selectorFamily({
-  key: "toCopySelector",
+  key: "rde_toCopySelector",
   get: (args) => ({ get }) => {
     var _a;
     const res = [];
@@ -1579,11 +1574,11 @@ var toCopySelector = selectorFamily({
   }
 });
 var savePopupState = atom2({
-  key: "savePopupState",
+  key: "rde_savePopupState",
   default: false
 });
 var ESfromRecoilSelector = selectorFamily({
-  key: "ESfromRecoilSelector",
+  key: "rde_ESfromRecoilSelector",
   get: ({}) => ({ get }) => {
     return true;
   },
@@ -1628,7 +1623,7 @@ var ESfromRecoilSelector = selectorFamily({
   }
 });
 var isUniqueTestSelector = selectorFamily({
-  key: "isUniqueTestSelector",
+  key: "rde_isUniqueTestSelector",
   get: (args) => ({ get }) => {
     if (!args.checkUnique)
       return true;
@@ -1832,7 +1827,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   const [entities, setEntities] = useRecoilState(entitiesAtom);
   const [sessionLoaded, setSessionLoaded] = useRecoilState(sessionLoadedState);
   const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"));
-  const [profileId, setProfileId] = useRecoilState(profileIdState);
   const [current, setCurrent] = useState(entityQname);
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState);
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState);
@@ -1966,10 +1960,10 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
         setSessionLoaded(true);
     }
     const index = entities.findIndex(
-      (e) => e.subjectQname === entityQname || entityQname == "tmp:user" && e.subjectQname === profileId
+      (e) => e.subjectQname === entityQname
     );
     if (shapeLoaded && (reloadEntity === entityQname && !entities[index].subject || current === entityQname && (index === -1 || entities[index] && !entities[index].subject))) {
-      if (entityQname != "tmp:user" || idToken)
+      if (idToken)
         fetchResource(entityQname);
     } else {
       if (unmounting.val)
@@ -1986,7 +1980,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       else
         setUiReady(true);
     }
-  }, [config, entities, entityQname, entity, current, shapeQname, idToken, profileId, reloadEntity, shapeLoaded]);
+  }, [config, entities, entityQname, entity, current, shapeQname, idToken, reloadEntity, shapeLoaded]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
   return retVal;
 }
@@ -4028,10 +4022,9 @@ function EntityEditContainer(props) {
   const [edit, setEdit] = useRecoilState4(uiEditState);
   const [groupEd, setGroupEd] = useRecoilState4(uiGroupState);
   const [undos, setUndos] = useRecoilState4(uiUndosState);
-  const [profileId, setProfileId] = useRecoilState4(profileIdState);
   const [tab, setTab] = useRecoilState4(uiTabState);
   const entityObj = entities.filter(
-    (e) => e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user"
+    (e) => e.subjectQname === entityQname
   );
   const icon = config.iconFromEntity(entityObj.length ? entityObj[0] : null);
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config);
@@ -4077,21 +4070,19 @@ function EntityEditContainer(props) {
   debug9("EntityEditContainer:", entityQname, shapeQname, history, shape, loadingState);
   useEffect4(() => {
     entities.map((e, i) => {
-      if (e.subjectQname === entityQname || e.subjectQname === profileId && entityQname === "tmp:user") {
+      if (e.subjectQname === entityQname) {
         if (tab != i) {
           setTab(i);
           return;
         }
       }
     });
-  }, [entities, profileId]);
+  }, [entities]);
   let init = 0;
   useEffect4(() => {
-    if (entityQname === "tmp:user" && !profileId)
-      return;
     const delay = 350;
     let n = -1;
-    const entityUri = props.config.prefixMap.uriFromQname(entityQname === "tmp:user" ? profileId : entityQname);
+    const entityUri = props.config.prefixMap.uriFromQname(entityQname);
     if (init)
       clearInterval(init);
     init = window.setInterval(() => {
@@ -4107,7 +4098,7 @@ function EntityEditContainer(props) {
         }
       }
     }, delay);
-  }, [entities, tab, profileId, entityQname]);
+  }, [entities, tab, entityQname]);
   const save = useCallback2(
     (obj) => {
       return new Promise(async (resolve) => {

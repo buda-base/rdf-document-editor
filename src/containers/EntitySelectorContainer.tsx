@@ -10,7 +10,7 @@ import {
   uiLangState,
   uiTabState,
   uiEditState,
-  profileIdState,
+  sessionLoadedState,
   uiGroupState,
   uiDisabledTabsState,
   entitiesAtom,
@@ -23,7 +23,6 @@ import { Tabs, Tab } from "@mui/material"
 import * as lang from "../helpers/lang"
 import * as ns from "../helpers/rdf/ns"
 import { EntityInEntitySelectorContainer } from "./EntityInEntitySelectorContainer"
-import { sessionLoadedState } from "../atoms/common"
 import { debug as debugfactory } from "debug"
 
 const debug = debugfactory("rde:entity:selector")

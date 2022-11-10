@@ -5,12 +5,11 @@ import { useRecoilState } from "recoil"
 import { Subject, EntityGraph } from "./types"
 import { NodeShape } from "./shapes"
 import {
-  profileIdState,
   uiReadyState,
-  sessionLoadedState,
   reloadEntityState,
   uiDisabledTabsState,
   entitiesAtom,
+  sessionLoadedState,
   EditedEntityState,
   defaultEntityLabelAtom,
 } from "../../atoms/common"
@@ -164,7 +163,6 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
   const [entities, setEntities] = useRecoilState(entitiesAtom)
   const [sessionLoaded, setSessionLoaded] = useRecoilState(sessionLoadedState)
   const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"))
-  const [profileId, setProfileId] = useRecoilState(profileIdState)
   const [current, setCurrent] = useState(entityQname)
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState)
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
@@ -324,7 +322,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       if (!sessionLoaded) setSessionLoaded(true)
     }
     const index = entities.findIndex(
-      (e) => e.subjectQname === entityQname || entityQname == "tmp:user" && e.subjectQname === profileId
+      (e) => e.subjectQname === entityQname
     )
 
     if (
@@ -333,7 +331,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
         current === entityQname && (index === -1 || entities[index] && !entities[index].subject)
       )
     ) {
-      if (entityQname != "tmp:user" || idToken) fetchResource(entityQname)
+      if (idToken) fetchResource(entityQname)
     } else {
       if (unmounting.val) return
       else setEntityLoadingState({ status: "fetched", error: undefined })
@@ -346,7 +344,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       if (unmounting.val) return
       else setUiReady(true)
     }
-  }, [config, entities, entityQname, entity, current, shapeQname, idToken, profileId, reloadEntity, shapeLoaded])
+  }, [config, entities, entityQname, entity, current, shapeQname, idToken, reloadEntity, shapeLoaded])
 
   const retVal =
     entityQname === current
