@@ -4811,7 +4811,7 @@ var EntityInEntitySelectorContainer = ({
   const label = !entity.preloadedLabel ? ValueByLangToStrPrefLang(prefLabels, uiLitLang) : entity.preloadedLabel;
   const icon = config.iconFromEntity(entity);
   const shapeQname = entity.shapeQname ? entity.shapeQname : entities[index] && entities[index].shapeQname ? entities[index].shapeQname : null;
-  const link = icon && icon.startsWith("user") ? "/profile" : "/edit/" + entity.subjectQname + (shapeQname ? "/" + shapeQname : "");
+  const link = "/edit/" + entity.subjectQname + (shapeQname ? "/" + shapeQname : "");
   const allLoaded = entities.reduce((acc, e) => acc && e.state !== 3 /* Loading */, true);
   const handleClick = (event, newTab) => {
     if (newTab !== tab) {
@@ -4876,7 +4876,7 @@ var EntityInEntitySelectorContainer = ({
             children: [
               icon && /* @__PURE__ */ jsx8("img", {
                 className: "entity-type",
-                src: "/icons/" + icon.toLowerCase() + (index === tab ? "_" : "") + (icon && icon.startsWith("User") ? ".png" : ".svg")
+                src: icon
               }),
               /* @__PURE__ */ jsxs8("span", {
                 style: { marginLeft: 30, marginRight: "auto", textAlign: "left" },
