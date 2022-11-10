@@ -51,8 +51,7 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
 
   //debug("sQn:", icon) //, index, tab, shapeQname, entity.shapeRef?.qname, entity.shapeRef, entity.subjectQname)
 
-  const link =
-    icon && icon.startsWith("user") ? "/profile" : "/edit/" + entity.subjectQname + (shapeQname ? "/" + shapeQname : "")
+  const link = "/edit/" + entity.subjectQname + (shapeQname ? "/" + shapeQname : "")
 
   const allLoaded = entities.reduce((acc, e) => acc && e.state !== EditedEntityState.Loading, true)
 
@@ -133,12 +132,7 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
               {icon && (
                 <img
                   className="entity-type"
-                  src={
-                    "/icons/" +
-                    icon.toLowerCase() +
-                    (index === tab ? "_" : "") +
-                    (icon && icon.startsWith("User") ? ".png" : ".svg")
-                  }
+                  src={icon}
                 />
               )}
               <span style={{ marginLeft: 30, marginRight: "auto", textAlign: "left" }}>
