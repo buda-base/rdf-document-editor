@@ -7,7 +7,11 @@ import { RDEProps } from "../helpers/editor_props"
 import { Link, useNavigate } from "react-router-dom"
 import i18n from "i18next"
 import { Trans } from "react-i18next"
+import { useTranslation } from 'react-i18next';
 import { TextField, MenuItem } from "@mui/material"
+import debugFactory from "debug"
+
+const debug = debugFactory("rde:rdf:new")
 
 function NewEntityContainer(props: RDEProps) {
   const config = props.config || {}
@@ -18,6 +22,9 @@ function NewEntityContainer(props: RDEProps) {
   const navigate = useNavigate()
 
   // otherwise we want the user to select the appropriate shape
+
+  // fix for i18n.t not returning anything from blmp (see https://github.com/i18next/react-i18next/issues/1074#issuecomment-621411866)
+  const { t } = useTranslation()
 
   // "here is a list of all possible shapes" "to choose from in order to create a new entity":
   return (
@@ -68,7 +75,7 @@ function NewEntityContainer(props: RDEProps) {
             className={"btn btn-sm btn-outline-primary py-3 ml-2 lookup btn-rouge " + (!RID ? "disabled" : "")}
             style={{ boxShadow: "none", alignSelf: "center", marginBottom: "15px" }}
           >
-            <>{i18n.t("search.open")}</>
+            <>{t("search.open")}</>
           </Link>
         </div>
       </div>
