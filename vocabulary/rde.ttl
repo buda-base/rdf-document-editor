@@ -12,11 +12,11 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rde: <https://github.com/buda-base/rdf-document-editor/> .
 
-rde:pushToTopLevelProperty
+rde:allowPushToTopLevelLabel
   a owl:ObjectProperty ;
-  rdfs:label "push objects to top level property"@en ;
+  rdfs:label "allow UI to push objects of this property to top level label"@en ;
   rdfs:domain sh:PropertyShape ;
-  skos:definition "Indicates that the editor should allow the user to copy the object of this property as the object of the property that is the object of this property, with the subject being the main entity of the document. As an example, if we have ex:sh1 rde:allowPushToTopLevelProperty skos:prefLabel, then the editor can have a button reading 'copy as main label'."@en ;
+  skos:definition "Indicates that the editor should allow the user to copy the object of this property as the label of the top level entity. Implementation is not specified further."@en ;
 .
 
 rde:uniqueValueAmongSiblings
@@ -135,6 +135,14 @@ rde:propertyShapeType
   rdfs:label "node shape type"@en ;
   rdfs:domain sh:PropertyShape ;
   rdfs:range rde:ShapeType ;
+.
+
+rde:increment
+  a owl:DatatypeProperty ;
+  rdfs:label "increment by"@en ;
+  rdfs:domain sh:PropertyShape ;
+  rdfs:range xsd:integer ;
+  skos:definition "an amount to increment the value of the sh:path property by"@en ;
 .
 
 rde:ExternalShape
