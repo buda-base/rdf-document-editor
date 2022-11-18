@@ -30,6 +30,7 @@ import { debug as debugfactory } from "debug"
 import RDEConfig from "../helpers/rde_config"
 import { RDEProps } from "../helpers/editor_props"
 import { Error as ErrorIcon  } from '@mui/icons-material'
+import { useTranslation } from "react-i18next"
 
 const debug = debugfactory("rde:BottomBarContainer")
 
@@ -50,6 +51,8 @@ export default function BottomBarContainer (props: RDEProps) {
   const [error, setError] = useState<React.ReactNode>(null)
   const [errorCode, setErrorCode] = useState<number|undefined>(undefined)
   const [spinner, setSpinner] = useState(false)
+
+  const { t } = useTranslation()
 
   const delay = 300
   const closePopup = (delay1 = delay, delay2 = delay) => {
@@ -73,7 +76,7 @@ export default function BottomBarContainer (props: RDEProps) {
   const save = async (event: React.MouseEvent): Promise<undefined> => {
 
     if (entities[entity].state === EditedEntityState.Error && !saving) {
-      if (!window.confirm(i18n.t("error.force"))) return
+      if (!window.confirm(t("error.force"))) return
     }
 
     if (!saving) {
@@ -126,9 +129,9 @@ export default function BottomBarContainer (props: RDEProps) {
           setErrorCode(error.status)
           setError(
             <React.Fragment>
-              {i18n.t("error.newer")}
+              {t("error.newer")}
               <br />
-              {i18n.t("error.lost")}
+              {t("error.lost")}
             </React.Fragment>
           )
         } else {
@@ -202,7 +205,7 @@ export default function BottomBarContainer (props: RDEProps) {
                           &nbsp;&nbsp;
                           {errorCode === 412 && (
                             <Button className="btn-blanc" onClick={handleReload}>
-                              {i18n.t("general.reload")}
+                              {t("general.reload")}
                             </Button>
                           )}
                         </span>
@@ -241,8 +244,8 @@ export default function BottomBarContainer (props: RDEProps) {
           {spinner ? (
             <CircularProgress size="14px" color="primary" />
           ) : (saving ? (
-            i18n.t("general.ok")
-          ) : ( i18n.t("general.save") ))}
+            t("general.ok")
+          ) : ( t("general.save") ))}
         </Button>
         {saving && (
           <Button
@@ -250,7 +253,7 @@ export default function BottomBarContainer (props: RDEProps) {
             onClick={closePopupHandler}
             className="btn-blanc ml-2"
           >
-            {i18n.t("general.cancel")}
+            {t("general.cancel")}
           </Button>
         )}
       </div>

@@ -4364,14 +4364,17 @@ var EntityEditContainer_default = EntityEditContainer;
 var import_react5 = require("react");
 var import_recoil7 = require("recoil");
 var import_react_router_dom2 = require("react-router-dom");
-var import_i18next5 = __toESM(require("i18next"));
+var import_react_i18next = require("react-i18next");
 var import_material2 = require("@mui/material");
+var import_debug10 = __toESM(require("debug"));
 var import_jsx_runtime4 = require("react/jsx-runtime");
+var debug10 = (0, import_debug10.default)("rde:rdf:new");
 function NewEntityContainer(props) {
   const config = props.config || {};
   const [uiLang] = (0, import_recoil7.useRecoilState)(uiLangState);
   const [RID, setRID] = (0, import_react5.useState)("");
   const navigate = (0, import_react_router_dom2.useNavigate)();
+  const { t } = (0, import_react_i18next.useTranslation)();
   return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", {
     className: "new-fix",
     children: [
@@ -4434,7 +4437,7 @@ function NewEntityContainer(props) {
               className: "btn btn-sm btn-outline-primary py-3 ml-2 lookup btn-rouge " + (!RID ? "disabled" : ""),
               style: { boxShadow: "none", alignSelf: "center", marginBottom: "15px" },
               children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_jsx_runtime4.Fragment, {
-                children: import_i18next5.default.t("search.open")
+                children: t("search.open")
               })
             })
           })
@@ -4452,16 +4455,16 @@ var import_recoil8 = require("recoil");
 var import_react6 = __toESM(require("react"));
 var import_react_router_dom3 = require("react-router-dom");
 var import_material3 = require("@mui/material");
-var import_debug10 = require("debug");
+var import_debug11 = require("debug");
 var import_jsx_runtime5 = require("react/jsx-runtime");
-var debug10 = (0, import_debug10.debug)("rde:entity:dialog");
+var debug11 = (0, import_debug11.debug)("rde:entity:dialog");
 function Dialog422(props) {
   var _a;
   const [open, setOpen] = import_react6.default.useState(props.open);
   const shape = (_a = props.shaped.split(":")[1]) == null ? void 0 : _a.replace(/Shape$/, "");
   const [createNew, setCreateNew] = (0, import_react6.useState)(false);
   const [loadNamed, setLoadNamed] = (0, import_react6.useState)(false);
-  debug10("422:", props);
+  debug11("422:", props);
   const handleLoad = () => {
     setLoadNamed(true);
     setOpen(false);
@@ -4540,12 +4543,12 @@ function Dialog422(props) {
 var import_react_router_dom4 = require("react-router-dom");
 var import_react7 = require("react");
 var import_icons_material4 = require("@mui/icons-material");
-var import_i18next6 = __toESM(require("i18next"));
+var import_i18next5 = __toESM(require("i18next"));
 var import_query_string2 = __toESM(require("query-string"));
 var rdf7 = __toESM(require("rdflib"));
-var import_debug11 = require("debug");
+var import_debug12 = require("debug");
 var import_jsx_runtime6 = require("react/jsx-runtime");
-var debug11 = (0, import_debug11.debug)("rde:entity:entitycreation");
+var debug12 = (0, import_debug12.debug)("rde:entity:entitycreation");
 function EntityCreationContainer(props) {
   const config = props.config;
   const params = (0, import_react_router_dom4.useParams)();
@@ -4600,7 +4603,7 @@ function EntityCreationContainer(props) {
     children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", {
       children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", {
         children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, {
-          children: import_i18next6.default.t("types.creating")
+          children: import_i18next5.default.t("types.creating")
         })
       })
     })
@@ -4632,7 +4635,7 @@ function EntityCreationContainerAlreadyOpen(props) {
     children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", {
       children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", {
         children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, {
-          children: import_i18next6.default.t("types.loading")
+          children: import_i18next5.default.t("types.loading")
         })
       })
     })
@@ -4660,14 +4663,15 @@ var EntityCreationContainer_default = EntityCreationContainer;
 
 // src/containers/EntityShapeChooserContainer.tsx
 var import_react8 = require("react");
-var import_i18next7 = __toESM(require("i18next"));
+var import_i18next6 = __toESM(require("i18next"));
 var import_recoil9 = require("recoil");
 var import_react_router_dom5 = require("react-router-dom");
 var import_material4 = require("@mui/material");
-var import_debug12 = require("debug");
+var import_debug13 = require("debug");
 var import_jsx_runtime7 = require("react/jsx-runtime");
-var debug12 = (0, import_debug12.debug)("rde:entity:shape");
+var debug13 = (0, import_debug13.debug)("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
+  var _a, _b, _c;
   const config = props.config;
   const params = (0, import_react_router_dom5.useParams)();
   const navigate = (0, import_react_router_dom5.useNavigate)();
@@ -4693,7 +4697,7 @@ function EntityShapeChooserContainer(props) {
     return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
       children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
         children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-          children: import_i18next7.default.t("types.redirect")
+          children: import_i18next6.default.t("types.redirect")
         })
       })
     });
@@ -4705,7 +4709,7 @@ function EntityShapeChooserContainer(props) {
       return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
         children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
           children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-            children: import_i18next7.default.t("types.loading")
+            children: import_i18next6.default.t("types.loading")
           })
         })
       });
@@ -4716,7 +4720,7 @@ function EntityShapeChooserContainer(props) {
           children: [
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", {
               children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next7.default.t("error.exist", { id: entityQname })
+                children: import_i18next6.default.t("error.exist", { id: entityQname })
               })
             }),
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
@@ -4724,21 +4728,21 @@ function EntityShapeChooserContainer(props) {
               style: { fontWeight: 700 },
               to: "/new",
               children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next7.default.t("error.redirect")
+                children: import_i18next6.default.t("error.redirect")
               })
             })
           ]
         })
       });
     } else if (!possibleShapes) {
-      debug12("cannot find", entity, entityLoadingState);
+      debug13("cannot find", entity, entityLoadingState);
       return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
         className: "error",
         children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", {
           children: [
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", {
               children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next7.default.t("error.shape", { id: entityQname })
+                children: import_i18next6.default.t("error.shape", { id: entityQname })
               })
             }),
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
@@ -4746,7 +4750,7 @@ function EntityShapeChooserContainer(props) {
               style: { fontWeight: 700 },
               to: "/new",
               children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next7.default.t("error.redirect")
+                children: import_i18next6.default.t("error.redirect")
               })
             })
           ]
@@ -4778,13 +4782,13 @@ function EntityShapeChooserContainer(props) {
               helperText: "List of all possible shapes",
               id: "shapeSelec",
               className: "shapeSelector",
-              value: config.possibleShapeRefs[0].qname,
+              value: (_a = config.possibleShapeRefs[0]) == null ? void 0 : _a.qname,
               style: { marginTop: "3px", marginLeft: "10px" },
               children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_material4.MenuItem, {
                 value: shape.qname,
                 style: { padding: 0 },
                 children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Link, {
-                  to: "/edit/" + entityQname + "/" + shape.qname,
+                  to: "/edit/" + entityQname + "/" + (shape == null ? void 0 : shape.qname),
                   className: "popLink",
                   onClick: (ev) => handleClick(ev, shape),
                   children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang)
@@ -4794,9 +4798,9 @@ function EntityShapeChooserContainer(props) {
           ]
         })
       });
-    } else {
+    } else if ((_b = possibleShapes[0]) == null ? void 0 : _b.qname) {
       return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Navigate, {
-        to: "/edit/" + entityQname + "/" + possibleShapes[0].qname
+        to: "/edit/" + entityQname + "/" + ((_c = possibleShapes[0]) == null ? void 0 : _c.qname)
       });
     }
   }
@@ -4804,7 +4808,7 @@ function EntityShapeChooserContainer(props) {
     children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
       children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
         children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-          children: import_i18next7.default.t("types.loading")
+          children: import_i18next6.default.t("types.loading")
         })
       })
     })
@@ -4815,7 +4819,7 @@ var EntityShapeChooserContainer_default = EntityShapeChooserContainer;
 // src/containers/EntitySelectorContainer.tsx
 var import_react9 = require("react");
 var import_icons_material6 = require("@mui/icons-material");
-var import_i18next8 = __toESM(require("i18next"));
+var import_i18next7 = __toESM(require("i18next"));
 var import_recoil11 = require("recoil");
 var import_react_router_dom7 = require("react-router-dom");
 var import_material6 = require("@mui/material");
@@ -4825,9 +4829,9 @@ var import_recoil10 = require("recoil");
 var import_react_router_dom6 = require("react-router-dom");
 var import_material5 = require("@mui/material");
 var import_icons_material5 = require("@mui/icons-material");
-var import_debug13 = require("debug");
+var import_debug14 = require("debug");
 var import_jsx_runtime8 = require("react/jsx-runtime");
-var debug13 = (0, import_debug13.debug)("rde:entity:selector");
+var debug14 = (0, import_debug14.debug)("rde:entity:selector");
 function a11yProps(index) {
   return {
     id: `simple-tab-${index}`,
@@ -4947,9 +4951,9 @@ var EntityInEntitySelectorContainer = ({
 };
 
 // src/containers/EntitySelectorContainer.tsx
-var import_debug14 = require("debug");
+var import_debug15 = require("debug");
 var import_jsx_runtime9 = require("react/jsx-runtime");
-var debug14 = (0, import_debug14.debug)("rde:entity:selector");
+var debug15 = (0, import_debug15.debug)("rde:entity:selector");
 function a11yProps2(index) {
   return {
     id: `simple-tab-${index}`,
@@ -5051,7 +5055,7 @@ function EntitySelector(props) {
         children: [
           "Open entities",
           /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", {
-            title: import_i18next8.default.t("general.close"),
+            title: import_i18next7.default.t("general.close"),
             children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_icons_material6.Close, {
               className: "close-facet-btn",
               onClick: closeEntities
@@ -5091,13 +5095,13 @@ var EntitySelectorContainer_default = EntitySelector;
 // src/containers/BottomBarContainer.tsx
 var import_react10 = __toESM(require("react"));
 var import_material7 = require("@mui/material");
-var import_i18next9 = __toESM(require("i18next"));
 var import_recoil12 = require("recoil");
 var rdf8 = __toESM(require("rdflib"));
-var import_debug15 = require("debug");
+var import_debug16 = require("debug");
 var import_icons_material7 = require("@mui/icons-material");
+var import_react_i18next2 = require("react-i18next");
 var import_jsx_runtime10 = require("react/jsx-runtime");
-var debug15 = (0, import_debug15.debug)("rde:BottomBarContainer");
+var debug16 = (0, import_debug16.debug)("rde:BottomBarContainer");
 function BottomBarContainer(props) {
   var _a, _b, _c, _d;
   const [entities, setEntities] = (0, import_recoil12.useRecoilState)(entitiesAtom);
@@ -5116,6 +5120,7 @@ function BottomBarContainer(props) {
   const [error, setError] = (0, import_react10.useState)(null);
   const [errorCode, setErrorCode] = (0, import_react10.useState)(void 0);
   const [spinner, setSpinner] = (0, import_react10.useState)(false);
+  const { t } = (0, import_react_i18next2.useTranslation)();
   const delay = 300;
   const closePopup = (delay1 = delay, delay2 = delay) => {
     setTimeout(() => {
@@ -5136,7 +5141,7 @@ function BottomBarContainer(props) {
   const save = async (event) => {
     var _a2, _b2;
     if (entities[entity].state === 0 /* Error */ && !saving) {
-      if (!window.confirm(import_i18next9.default.t("error.force")))
+      if (!window.confirm(t("error.force")))
         return;
     }
     if (!saving) {
@@ -5149,7 +5154,7 @@ function BottomBarContainer(props) {
     entitySubj == null ? void 0 : entitySubj.graph.addNewValuestoStore(store);
     rdf8.serialize(defaultGraphNode, store, void 0, "text/turtle", async function(err, str) {
       if (err) {
-        debug15(err, store);
+        debug16(err, store);
         throw "error when serializing";
       }
       props.config.setUserLocalEntity(
@@ -5177,15 +5182,15 @@ function BottomBarContainer(props) {
           props.config.setUserLocalEntity(entities[entity].subjectQname, shapeQname, str, false, etag, false);
         });
       } catch (error2) {
-        debug15("error:", error2);
+        debug16("error:", error2);
         if (error2.status === 412) {
           setErrorCode(error2.status);
           setError(
             /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_react10.default.Fragment, {
               children: [
-                import_i18next9.default.t("error.newer"),
+                t("error.newer"),
                 /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("br", {}),
-                import_i18next9.default.t("error.lost")
+                t("error.lost")
               ]
             })
           );
@@ -5255,7 +5260,7 @@ function BottomBarContainer(props) {
                       errorCode === 412 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
                         className: "btn-blanc",
                         onClick: handleReload,
-                        children: import_i18next9.default.t("general.reload")
+                        children: t("general.reload")
                       })
                     ]
                   }),
@@ -5288,13 +5293,13 @@ function BottomBarContainer(props) {
             children: spinner ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.CircularProgress, {
               size: "14px",
               color: "primary"
-            }) : saving ? import_i18next9.default.t("general.ok") : import_i18next9.default.t("general.save")
+            }) : saving ? t("general.ok") : t("general.save")
           }),
           saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
             variant: "outlined",
             onClick: closePopupHandler,
             className: "btn-blanc ml-2",
-            children: import_i18next9.default.t("general.cancel")
+            children: t("general.cancel")
           })
         ]
       })
@@ -5307,14 +5312,14 @@ var import_react11 = __toESM(require("react"));
 var import_recoil13 = require("recoil");
 var import_styles = require("@mui/styles");
 var import_material8 = require("@mui/material");
-var import_i18next10 = __toESM(require("i18next"));
+var import_i18next8 = __toESM(require("i18next"));
 var import_react_router_dom8 = require("react-router-dom");
 var rdf9 = __toESM(require("rdflib"));
 var import_icons_material8 = require("@mui/icons-material");
-var import_debug16 = require("debug");
+var import_debug17 = require("debug");
 var import_jsx_runtime11 = require("react/jsx-runtime");
 var import_react12 = require("react");
-var debug16 = (0, import_debug16.debug)("rde:atom:event:RS");
+var debug17 = (0, import_debug17.debug)("rde:atom:event:RS");
 var useStyles = (0, import_styles.makeStyles)((theme) => ({
   root: {
     "& .MuiFormHelperText-root": {
@@ -5383,13 +5388,13 @@ var BUDAResourceSelector = ({
       setError(globalError);
   }, [globalError]);
   if (!property.expectedObjectTypes) {
-    debug16(property);
+    debug17(property);
     throw "can't get the types for property " + property.qname;
   }
   const closeFrame = () => {
-    debug16("close?", value, isRid, libraryURL);
+    debug17("close?", value, isRid, libraryURL);
     if (iframeRef.current && isRid) {
-      debug16("if:", iframeRef.current);
+      debug17("if:", iframeRef.current);
       iframeRef.current.click();
       const wn = iframeRef.current.contentWindow;
       if (wn)
@@ -5412,7 +5417,7 @@ var BUDAResourceSelector = ({
         isTypeOk = true;
       const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
       if (!isTypeOk) {
-        setError("" + import_i18next10.default.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+        setError("" + import_i18next8.default.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
         if (libraryURL)
           setLibraryURL("");
       }
@@ -5459,18 +5464,18 @@ var BUDAResourceSelector = ({
         if (!window.location.href.includes(ev.origin)) {
           const data = JSON.parse(ev.data);
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
-            debug16("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug17("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
-            setError("" + import_i18next10.default.t("error.notF", { RID: data["@id"] }));
+            setError("" + import_i18next8.default.t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
-            debug16("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug17("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
           } else {
             setLibraryURL("");
           }
         }
       } catch (err) {
-        debug16("error: %o", err);
+        debug17("error: %o", err);
       }
     };
     window.addEventListener("message", msgHandler, true);
@@ -5486,7 +5491,7 @@ var BUDAResourceSelector = ({
     }
   }, []);
   const updateLibrary = (ev, newlang, newtype) => {
-    debug16("updLib: %o", msgId);
+    debug17("updLib: %o", msgId);
     if (ev && libraryURL) {
       setLibraryURL("");
     } else if (msgId) {
@@ -5624,7 +5629,7 @@ var BUDAResourceSelector = ({
   }
   (0, import_react11.useEffect)(() => {
     if (error) {
-      debug16("error:", error);
+      debug17("error:", error);
     }
   }, [error]);
   const inputRef = (0, import_react11.useRef)();
@@ -5693,7 +5698,7 @@ var BUDAResourceSelector = ({
                   value: language,
                   onChange: (lang) => {
                     setLanguage(lang);
-                    debug16(lang);
+                    debug17(lang);
                     if (libraryURL)
                       updateLibrary(void 0, lang);
                   },
@@ -5738,7 +5743,7 @@ var BUDAResourceSelector = ({
                   onClick: togglePopup,
                   ...!editable ? { disabled: true } : {},
                   children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_jsx_runtime11.Fragment, {
-                    children: import_i18next10.default.t("search.create")
+                    children: import_i18next8.default.t("search.create")
                   })
                 })
               ]
@@ -5755,7 +5760,7 @@ var BUDAResourceSelector = ({
                     value.qname,
                     "\xA0",
                     /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("a", {
-                      title: import_i18next10.default.t("search.help.preview"),
+                      title: import_i18next8.default.t("search.help.preview"),
                       onClick: () => {
                         if (libraryURL)
                           setLibraryURL("");
@@ -5775,7 +5780,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("a", {
-                      title: import_i18next10.default.t("search.help.open"),
+                      title: import_i18next8.default.t("search.help.open"),
                       href: config.libraryUrl + "/show/" + value.qname,
                       rel: "noopener noreferrer",
                       target: "_blank",
@@ -5785,7 +5790,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_react_router_dom8.Link, {
-                      title: import_i18next10.default.t("search.help.edit"),
+                      title: import_i18next8.default.t("search.help.edit"),
                       to: "/edit/" + value.qname,
                       children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Edit, {
                         style: { width: "16px" }
@@ -5793,7 +5798,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     canCopy.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", {
-                      title: import_i18next10.default.t("general.import"),
+                      title: import_i18next8.default.t("general.import"),
                       children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.ContentPaste, {
                         style: { width: "17px", cursor: "pointer" },
                         onClick: () => {
@@ -5872,7 +5877,7 @@ var BUDAResourceSelector = ({
                     const url = await createAndUpdate(r);
                     navigate(url);
                   }
-                }, import_i18next10.default.t("search.new", { type: label2 }));
+                }, import_i18next8.default.t("search.new", { type: label2 }));
               })
             ]
           }),

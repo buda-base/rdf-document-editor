@@ -114,13 +114,13 @@ function EntityShapeChooserContainer(props: RDEProps) {
               helperText={"List of all possible shapes"}
               id="shapeSelec"
               className="shapeSelector"
-              value={config.possibleShapeRefs[0].qname}
+              value={config.possibleShapeRefs[0]?.qname}
               style={{ marginTop: "3px", marginLeft: "10px" }}
             >
               {config.possibleShapeRefs.map((shape: RDFResourceWithLabel, index: number) => (
                 <MenuItem key={shape.qname} value={shape.qname} style={{ padding: 0 }}>
                   <Link
-                    to={"/edit/" + entityQname + "/" + shape.qname}
+                    to={"/edit/" + entityQname + "/" + shape?.qname}
                     className="popLink"
                     onClick={(ev) => handleClick(ev, shape)}
                   >
@@ -132,8 +132,8 @@ function EntityShapeChooserContainer(props: RDEProps) {
           </div>
         </div>
       )
-    } else {
-      return <Navigate to={"/edit/" + entityQname + "/" + possibleShapes[0].qname} />
+    } else if(possibleShapes[0]?.qname) {
+      return <Navigate to={"/edit/" + entityQname + "/" + possibleShapes[0]?.qname} />
     }
   }
 
