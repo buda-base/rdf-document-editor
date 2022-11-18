@@ -587,7 +587,7 @@ const BUDAResourceSelector: FC<{
                 {value.qname}
                 &nbsp;
                 <a
-                  title={i18n.t("search.help.preview")}
+                  title={i18n.t("search.help.preview") as string}
                   onClick={() => {
                     if (libraryURL) setLibraryURL("")
                     else if (value.otherData["tmp:externalUrl"]) setLibraryURL(value.otherData["tmp:externalUrl"])
@@ -599,7 +599,7 @@ const BUDAResourceSelector: FC<{
                 </a>
                 &nbsp;
                 <a
-                  title={i18n.t("search.help.open")}
+                  title={i18n.t("search.help.open") as string}
                   href={config.libraryUrl + "/show/" + value.qname}
                   rel="noopener noreferrer"
                   target="_blank"
@@ -607,12 +607,12 @@ const BUDAResourceSelector: FC<{
                   <LaunchIcon style={{ width: "16px" }} />
                 </a>
                 &nbsp;
-                <Link title={i18n.t("search.help.edit")} to={"/edit/" + value.qname}>
+                <Link title={i18n.t("search.help.edit") as string} to={"/edit/" + value.qname}>
                   <EditIcon style={{ width: "16px" }} />
                 </Link>
                 &nbsp;
                 {canCopy.length > 0 && (
-                  <span title={i18n.t("general.import")}>
+                  <span title={i18n.t("general.import") as string}>
                     <ContentPasteIcon
                       style={{ width: "17px", cursor: "pointer" }}
                       onClick={() => {

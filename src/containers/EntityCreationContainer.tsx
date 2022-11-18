@@ -10,13 +10,14 @@ import queryString from "query-string"
 import { RDEProps } from "../helpers/editor_props"
 import * as rdf from "rdflib"
 import { debug as debugfactory } from "debug"
+import { useTranslation } from "react-i18next"
 
 const debug = debugfactory("rde:entity:entitycreation")
 
 export function EntityCreationContainer(props: RDEProps) {
   const config = props.config
   const params = useParams()
-
+  
   const subjectQname = params.subjectQname
   const shapeQname = params.shapeQname || ""
   const propertyQname = params.propertyQname
@@ -27,8 +28,9 @@ export function EntityCreationContainer(props: RDEProps) {
   // - if an entity with the same qname is already open in the editor, just redirect to it
   // - else call EntityCreator
   const entityQname = params.entityQname || ""
-    
+  
   const location = useLocation()
+  const { t } = useTranslation()
   
   const unmounting = { val: false }
   useEffect(() => {
@@ -45,7 +47,7 @@ export function EntityCreationContainer(props: RDEProps) {
     ? { entityLoadingState: { status: "idle", error: undefined }, entity: null }
     : config.entityCreator(shapeNode, entityNode, unmounting)
 
-  //debug("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname)
+  debug("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname, shapeNode, entityNode)
 
   // TODO: if EntityCreator throws a 422 exception (the entity already exists),
   // we must give a choice to the user:
@@ -107,7 +109,7 @@ export function EntityCreationContainer(props: RDEProps) {
     <>
       <div>
         <div>
-          <>{i18n.t("types.creating")}</>
+          <>{t("types.creating")}</>
         </div>
       </div>
     </>

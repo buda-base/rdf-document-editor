@@ -486,7 +486,7 @@ function EntityEditContainer(props: RDEProps) {
                   className={"btn-rouge" + (!entityObj[0]?.etag ? " disabled" : "")}
                   target="_blank"
                   rel="noreferrer"
-                  {...(!entityObj[0]?.etag ? { title: i18n.t("error.preview") } : { href: previewLink })}
+                  {...(!entityObj[0]?.etag ? { title: i18n.t("error.preview") as string } : { href: previewLink })}
                 >
                   <>{i18n.t("general.preview")}</>
                 </a>

@@ -4507,6 +4507,7 @@ import i18n5 from "i18next";
 import queryString2 from "query-string";
 import * as rdf7 from "rdflib";
 import { debug as debugfactory11 } from "debug";
+import { useTranslation as useTranslation2 } from "react-i18next";
 import { Fragment as Fragment5, jsx as jsx6, jsxs as jsxs6 } from "react/jsx-runtime";
 var debug12 = debugfactory11("rde:entity:entitycreation");
 function EntityCreationContainer(props) {
@@ -4519,6 +4520,7 @@ function EntityCreationContainer(props) {
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
   const location = useLocation2();
+  const { t } = useTranslation2();
   const unmounting = { val: false };
   useEffect5(() => {
     return () => {
@@ -4528,6 +4530,7 @@ function EntityCreationContainer(props) {
   const shapeNode = rdf7.sym(config.prefixMap.uriFromQname(shapeQname));
   const entityNode = entityQname ? rdf7.sym(config.prefixMap.uriFromQname(entityQname)) : null;
   const { entityLoadingState, entity } = unmounting.val ? { entityLoadingState: { status: "idle", error: void 0 }, entity: null } : config.entityCreator(shapeNode, entityNode, unmounting);
+  debug12("new:", entityLoadingState, entity, entityQname, entity == null ? void 0 : entity.qname, shapeQname, shapeNode, entityNode);
   if (entityLoadingState.error === "422" && entity) {
     const editUrl = subjectQname && propertyQname && index != void 0 ? "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "") : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname;
     const newUrl = location.pathname.replace(/\/named\/.*/, "") + location.search;
@@ -4563,7 +4566,7 @@ function EntityCreationContainer(props) {
     children: /* @__PURE__ */ jsx6("div", {
       children: /* @__PURE__ */ jsx6("div", {
         children: /* @__PURE__ */ jsx6(Fragment5, {
-          children: i18n5.t("types.creating")
+          children: t("types.creating")
         })
       })
     })
@@ -4779,7 +4782,6 @@ var EntityShapeChooserContainer_default = EntityShapeChooserContainer;
 // src/containers/EntitySelectorContainer.tsx
 import { useEffect as useEffect7 } from "react";
 import { Close as CloseIcon3 } from "@mui/icons-material";
-import i18n7 from "i18next";
 import { useRecoilState as useRecoilState9 } from "recoil";
 import { Link as Link5, useNavigate as useNavigate4, useLocation as useLocation3 } from "react-router-dom";
 import { Tabs, Tab as Tab2 } from "@mui/material";
@@ -4912,6 +4914,7 @@ var EntityInEntitySelectorContainer = ({
 
 // src/containers/EntitySelectorContainer.tsx
 import { debug as debugfactory14 } from "debug";
+import { useTranslation as useTranslation3 } from "react-i18next";
 import { jsx as jsx9, jsxs as jsxs9 } from "react/jsx-runtime";
 var debug15 = debugfactory14("rde:entity:selector");
 function a11yProps2(index) {
@@ -4934,6 +4937,7 @@ function EntitySelector(props) {
   const [disabled, setDisabled] = useRecoilState9(uiDisabledTabsState);
   const navigate = useNavigate4();
   const location = useLocation3();
+  const { t } = useTranslation3();
   useEffect7(() => {
     const session = config.getUserMenuState();
     session.then((entities2) => {
@@ -4972,7 +4976,7 @@ function EntitySelector(props) {
           setTab(newEntities.length);
       }
     });
-  }, [config, location]);
+  }, []);
   const closeEntities = async (ev) => {
     let warn = false;
     for (const entity of entities) {
@@ -5015,7 +5019,7 @@ function EntitySelector(props) {
         children: [
           "Open entities",
           /* @__PURE__ */ jsx9("span", {
-            title: i18n7.t("general.close"),
+            title: t("general.close"),
             children: /* @__PURE__ */ jsx9(CloseIcon3, {
               className: "close-facet-btn",
               onClick: closeEntities
@@ -5064,7 +5068,7 @@ import { useRecoilState as useRecoilState10 } from "recoil";
 import * as rdf8 from "rdflib";
 import { debug as debugfactory15 } from "debug";
 import { Error as ErrorIcon3 } from "@mui/icons-material";
-import { useTranslation as useTranslation2 } from "react-i18next";
+import { useTranslation as useTranslation4 } from "react-i18next";
 import { Fragment as Fragment8, jsx as jsx10, jsxs as jsxs10 } from "react/jsx-runtime";
 var debug16 = debugfactory15("rde:BottomBarContainer");
 function BottomBarContainer(props) {
@@ -5085,7 +5089,7 @@ function BottomBarContainer(props) {
   const [error, setError] = useState8(null);
   const [errorCode, setErrorCode] = useState8(void 0);
   const [spinner, setSpinner] = useState8(false);
-  const { t } = useTranslation2();
+  const { t } = useTranslation4();
   const delay = 300;
   const closePopup = (delay1 = delay, delay2 = delay) => {
     setTimeout(() => {
@@ -5277,7 +5281,7 @@ import React10, { useEffect as useEffect9, useState as useState9, useRef as useR
 import { useRecoilState as useRecoilState11 } from "recoil";
 import { makeStyles } from "@mui/styles";
 import { TextField as TextField5, MenuItem as MenuItem5 } from "@mui/material";
-import i18n8 from "i18next";
+import i18n7 from "i18next";
 import { useNavigate as useNavigate5, Link as Link6 } from "react-router-dom";
 import * as rdf9 from "rdflib";
 import {
@@ -5391,7 +5395,7 @@ var BUDAResourceSelector = ({
         isTypeOk = true;
       const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
       if (!isTypeOk) {
-        setError("" + i18n8.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+        setError("" + i18n7.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
         if (libraryURL)
           setLibraryURL("");
       }
@@ -5440,7 +5444,7 @@ var BUDAResourceSelector = ({
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
             debug17("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
-            setError("" + i18n8.t("error.notF", { RID: data["@id"] }));
+            setError("" + i18n7.t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
             debug17("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
@@ -5717,7 +5721,7 @@ var BUDAResourceSelector = ({
                   onClick: togglePopup,
                   ...!editable ? { disabled: true } : {},
                   children: /* @__PURE__ */ jsx11(Fragment9, {
-                    children: i18n8.t("search.create")
+                    children: i18n7.t("search.create")
                   })
                 })
               ]
@@ -5734,7 +5738,7 @@ var BUDAResourceSelector = ({
                     value.qname,
                     "\xA0",
                     /* @__PURE__ */ jsxs11("a", {
-                      title: i18n8.t("search.help.preview"),
+                      title: i18n7.t("search.help.preview"),
                       onClick: () => {
                         if (libraryURL)
                           setLibraryURL("");
@@ -5754,7 +5758,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     /* @__PURE__ */ jsx11("a", {
-                      title: i18n8.t("search.help.open"),
+                      title: i18n7.t("search.help.open"),
                       href: config.libraryUrl + "/show/" + value.qname,
                       rel: "noopener noreferrer",
                       target: "_blank",
@@ -5764,7 +5768,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     /* @__PURE__ */ jsx11(Link6, {
-                      title: i18n8.t("search.help.edit"),
+                      title: i18n7.t("search.help.edit"),
                       to: "/edit/" + value.qname,
                       children: /* @__PURE__ */ jsx11(EditIcon2, {
                         style: { width: "16px" }
@@ -5772,7 +5776,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     canCopy.length > 0 && /* @__PURE__ */ jsx11("span", {
-                      title: i18n8.t("general.import"),
+                      title: i18n7.t("general.import"),
                       children: /* @__PURE__ */ jsx11(ContentPasteIcon, {
                         style: { width: "17px", cursor: "pointer" },
                         onClick: () => {
@@ -5851,7 +5855,7 @@ var BUDAResourceSelector = ({
                     const url = await createAndUpdate(r);
                     navigate(url);
                   }
-                }, i18n8.t("search.new", { type: label2 }));
+                }, i18n7.t("search.new", { type: label2 }));
               })
             ]
           }),

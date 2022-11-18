@@ -319,7 +319,7 @@ export const demoConfig: RDEConfig = {
   resourceSelector: BUDAResourceSelector,
   previewLiteral: previewLiteral,
   putDocument: putDocument,
-  getPreviewLink: (entity) => {
+  getPreviewLink: (entity: Entity) => {
     return null
   },
 }

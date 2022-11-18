@@ -76,7 +76,7 @@ export default function BottomBarContainer (props: RDEProps) {
   const save = async (event: React.MouseEvent): Promise<undefined> => {
 
     if (entities[entity].state === EditedEntityState.Error && !saving) {
-      if (!window.confirm(t("error.force"))) return
+      if (!window.confirm(t("error.force") as string)) return
     }
 
     if (!saving) {
