@@ -9,6 +9,7 @@ import { RDEProps } from "../helpers/editor_props"
 import { Link, Navigate, useParams, useNavigate } from "react-router-dom"
 import { TextField, MenuItem } from "@mui/material"
 import { debug as debugfactory } from "debug"
+import { useTranslation } from "react-i18next"
 
 const debug = debugfactory("rde:entity:shape")
 
@@ -20,6 +21,8 @@ function EntityShapeChooserContainer(props: RDEProps) {
   const [entityQname, setEntityQname] = useState(params.entityQname || "")
   const [uiLang] = useRecoilState(uiLangState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
+
+  const { t } = useTranslation()
 
   const unmounting = { val: false }
 
@@ -49,7 +52,7 @@ function EntityShapeChooserContainer(props: RDEProps) {
       </div>
     )
   }
-  const { entityLoadingState, entity } = EntityFetcher(entityQname, "", config, unmounting)
+  const { entityLoadingState, entity } = EntityFetcher(entityQname, "", config, unmounting, true)
 
   if (entity) {
     const possibleShapes = config.possibleShapeRefsForEntity(entity.node)
@@ -141,7 +144,7 @@ function EntityShapeChooserContainer(props: RDEProps) {
     <>
       <div>
         <div>
-          <>{i18n.t("types.loading")}</>
+          <>{t("types.loading")}</>
         </div>
       </div>
     </>

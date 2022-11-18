@@ -1881,6 +1881,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   const [current, setCurrent] = (0, import_react.useState)(entityQname);
   const [reloadEntity, setReloadEntity] = (0, import_recoil3.useRecoilState)(reloadEntityState);
   const [disabled, setDisabled] = (0, import_recoil3.useRecoilState)(uiDisabledTabsState);
+  debug5("reload?", reloadEntity, unmounting);
   (0, import_react.useEffect)(() => {
     return () => {
       unmounting.val = true;
@@ -2013,6 +2014,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     const index = entities.findIndex(
       (e) => e.subjectQname === entityQname
     );
+    debug5("eF:", shapeLoaded, reloadEntity, entityQname, entities, current);
     if (shapeLoaded && (reloadEntity === entityQname && !entities[index].subject || current === entityQname && (index === -1 || entities[index] && !entities[index].subject))) {
       if (idToken)
         fetchResource(entityQname);
@@ -2033,6 +2035,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     }
   }, [config, entities, entityQname, entity, current, shapeQname, idToken, reloadEntity, shapeLoaded]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
+  debug5("ret:", retVal);
   return retVal;
 }
 
@@ -4671,6 +4674,7 @@ var import_recoil9 = require("recoil");
 var import_react_router_dom5 = require("react-router-dom");
 var import_material4 = require("@mui/material");
 var import_debug13 = require("debug");
+var import_react_i18next3 = require("react-i18next");
 var import_jsx_runtime7 = require("react/jsx-runtime");
 var debug13 = (0, import_debug13.debug)("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
@@ -4681,6 +4685,7 @@ function EntityShapeChooserContainer(props) {
   const [entityQname, setEntityQname] = (0, import_react8.useState)(params.entityQname || "");
   const [uiLang] = (0, import_recoil9.useRecoilState)(uiLangState);
   const [entities, setEntities] = (0, import_recoil9.useRecoilState)(entitiesAtom);
+  const { t } = (0, import_react_i18next3.useTranslation)();
   const unmounting = { val: false };
   (0, import_react8.useEffect)(() => {
     return () => {
@@ -4705,7 +4710,7 @@ function EntityShapeChooserContainer(props) {
       })
     });
   }
-  const { entityLoadingState, entity } = EntityFetcher(entityQname, "", config, unmounting);
+  const { entityLoadingState, entity } = EntityFetcher(entityQname, "", config, unmounting, true);
   if (entity) {
     const possibleShapes = config.possibleShapeRefsForEntity(entity.node);
     if (entityLoadingState.status === "fetching") {
@@ -4811,7 +4816,7 @@ function EntityShapeChooserContainer(props) {
     children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
       children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
         children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-          children: import_i18next6.default.t("types.loading")
+          children: t("types.loading")
         })
       })
     })
@@ -4954,7 +4959,7 @@ var EntityInEntitySelectorContainer = ({
 
 // src/containers/EntitySelectorContainer.tsx
 var import_debug15 = require("debug");
-var import_react_i18next3 = require("react-i18next");
+var import_react_i18next4 = require("react-i18next");
 var import_jsx_runtime9 = require("react/jsx-runtime");
 var debug15 = (0, import_debug15.debug)("rde:entity:selector");
 function a11yProps2(index) {
@@ -4977,7 +4982,7 @@ function EntitySelector(props) {
   const [disabled, setDisabled] = (0, import_recoil11.useRecoilState)(uiDisabledTabsState);
   const navigate = (0, import_react_router_dom7.useNavigate)();
   const location = (0, import_react_router_dom7.useLocation)();
-  const { t } = (0, import_react_i18next3.useTranslation)();
+  const { t } = (0, import_react_i18next4.useTranslation)();
   (0, import_react9.useEffect)(() => {
     const session = config.getUserMenuState();
     session.then((entities2) => {
@@ -5103,7 +5108,7 @@ var import_recoil12 = require("recoil");
 var rdf8 = __toESM(require("rdflib"));
 var import_debug16 = require("debug");
 var import_icons_material7 = require("@mui/icons-material");
-var import_react_i18next4 = require("react-i18next");
+var import_react_i18next5 = require("react-i18next");
 var import_jsx_runtime10 = require("react/jsx-runtime");
 var debug16 = (0, import_debug16.debug)("rde:BottomBarContainer");
 function BottomBarContainer(props) {
@@ -5124,7 +5129,7 @@ function BottomBarContainer(props) {
   const [error, setError] = (0, import_react10.useState)(null);
   const [errorCode, setErrorCode] = (0, import_react10.useState)(void 0);
   const [spinner, setSpinner] = (0, import_react10.useState)(false);
-  const { t } = (0, import_react_i18next4.useTranslation)();
+  const { t } = (0, import_react_i18next5.useTranslation)();
   const delay = 300;
   const closePopup = (delay1 = delay, delay2 = delay) => {
     setTimeout(() => {

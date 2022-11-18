@@ -167,7 +167,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState)
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
 
-  //debug("reload?", reloadEntity, unmounting)
+  debug("reload?", reloadEntity, unmounting)
 
   useEffect(() => {
     return () => {
@@ -325,6 +325,8 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       (e) => e.subjectQname === entityQname
     )
 
+    debug("eF:", shapeLoaded, reloadEntity, entityQname, entities, current)
+
     if (
       shapeLoaded && (
         reloadEntity === entityQname && !entities[index].subject ||
@@ -351,7 +353,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       ? { entityLoadingState, entity, reset }
       : { entityLoadingState: { status: "loading", error: undefined }, entity: Subject.createEmpty(), reset }
 
-  //debug("ret:",retVal)
+  debug("ret:",retVal)
 
   return retVal
 }

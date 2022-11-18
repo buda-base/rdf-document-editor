@@ -1830,6 +1830,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   const [current, setCurrent] = useState(entityQname);
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState);
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState);
+  debug5("reload?", reloadEntity, unmounting);
   useEffect(() => {
     return () => {
       unmounting.val = true;
@@ -1962,6 +1963,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     const index = entities.findIndex(
       (e) => e.subjectQname === entityQname
     );
+    debug5("eF:", shapeLoaded, reloadEntity, entityQname, entities, current);
     if (shapeLoaded && (reloadEntity === entityQname && !entities[index].subject || current === entityQname && (index === -1 || entities[index] && !entities[index].subject))) {
       if (idToken)
         fetchResource(entityQname);
@@ -1982,6 +1984,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     }
   }, [config, entities, entityQname, entity, current, shapeQname, idToken, reloadEntity, shapeLoaded]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
+  debug5("ret:", retVal);
   return retVal;
 }
 
@@ -4631,6 +4634,7 @@ import { useRecoilState as useRecoilState7 } from "recoil";
 import { Link as Link3, Navigate as Navigate4, useParams as useParams3, useNavigate as useNavigate2 } from "react-router-dom";
 import { TextField as TextField3, MenuItem as MenuItem3 } from "@mui/material";
 import { debug as debugfactory12 } from "debug";
+import { useTranslation as useTranslation3 } from "react-i18next";
 import { Fragment as Fragment6, jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
 var debug13 = debugfactory12("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
@@ -4641,6 +4645,7 @@ function EntityShapeChooserContainer(props) {
   const [entityQname, setEntityQname] = useState7(params.entityQname || "");
   const [uiLang] = useRecoilState7(uiLangState);
   const [entities, setEntities] = useRecoilState7(entitiesAtom);
+  const { t } = useTranslation3();
   const unmounting = { val: false };
   useEffect6(() => {
     return () => {
@@ -4665,7 +4670,7 @@ function EntityShapeChooserContainer(props) {
       })
     });
   }
-  const { entityLoadingState, entity } = EntityFetcher(entityQname, "", config, unmounting);
+  const { entityLoadingState, entity } = EntityFetcher(entityQname, "", config, unmounting, true);
   if (entity) {
     const possibleShapes = config.possibleShapeRefsForEntity(entity.node);
     if (entityLoadingState.status === "fetching") {
@@ -4771,7 +4776,7 @@ function EntityShapeChooserContainer(props) {
     children: /* @__PURE__ */ jsx7("div", {
       children: /* @__PURE__ */ jsx7("div", {
         children: /* @__PURE__ */ jsx7(Fragment6, {
-          children: i18n6.t("types.loading")
+          children: t("types.loading")
         })
       })
     })
@@ -4914,7 +4919,7 @@ var EntityInEntitySelectorContainer = ({
 
 // src/containers/EntitySelectorContainer.tsx
 import { debug as debugfactory14 } from "debug";
-import { useTranslation as useTranslation3 } from "react-i18next";
+import { useTranslation as useTranslation4 } from "react-i18next";
 import { jsx as jsx9, jsxs as jsxs9 } from "react/jsx-runtime";
 var debug15 = debugfactory14("rde:entity:selector");
 function a11yProps2(index) {
@@ -4937,7 +4942,7 @@ function EntitySelector(props) {
   const [disabled, setDisabled] = useRecoilState9(uiDisabledTabsState);
   const navigate = useNavigate4();
   const location = useLocation3();
-  const { t } = useTranslation3();
+  const { t } = useTranslation4();
   useEffect7(() => {
     const session = config.getUserMenuState();
     session.then((entities2) => {
@@ -5068,7 +5073,7 @@ import { useRecoilState as useRecoilState10 } from "recoil";
 import * as rdf8 from "rdflib";
 import { debug as debugfactory15 } from "debug";
 import { Error as ErrorIcon3 } from "@mui/icons-material";
-import { useTranslation as useTranslation4 } from "react-i18next";
+import { useTranslation as useTranslation5 } from "react-i18next";
 import { Fragment as Fragment8, jsx as jsx10, jsxs as jsxs10 } from "react/jsx-runtime";
 var debug16 = debugfactory15("rde:BottomBarContainer");
 function BottomBarContainer(props) {
@@ -5089,7 +5094,7 @@ function BottomBarContainer(props) {
   const [error, setError] = useState8(null);
   const [errorCode, setErrorCode] = useState8(void 0);
   const [spinner, setSpinner] = useState8(false);
-  const { t } = useTranslation4();
+  const { t } = useTranslation5();
   const delay = 300;
   const closePopup = (delay1 = delay, delay2 = delay) => {
     setTimeout(() => {
