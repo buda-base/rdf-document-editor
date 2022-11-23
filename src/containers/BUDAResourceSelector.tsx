@@ -295,6 +295,10 @@ const BUDAResourceSelector: FC<{
         let lang = language
         if (newlang) lang = newlang
         else if (!lang) lang = "bo-x-ewts"
+
+        // #39
+        if(lang === "sa-x-iast") lang = "inc-x-ndia"
+        
         let key = encodeURIComponent(keyword)
         key = '"' + key + '"'
         if (lang.startsWith("bo")) key = key + "~1"
