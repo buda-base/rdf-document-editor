@@ -40,6 +40,7 @@ import { HashLink as Link } from "react-router-hash-link"
 import queryString from "query-string"
 import { useLocation, useParams } from "react-router"
 import { debug as debugfactory } from "debug"
+import { useTranslation } from "react-i18next"
 
 const debug = debugfactory("rde:entity:edit")
 
@@ -189,6 +190,7 @@ function EntityEditContainerDoUpdate(props: RDEPropsDoUpdate) {
 function EntityEditContainer(props: RDEProps) {
   const config = props.config
   const params = useParams()
+  const { t } = useTranslation()
 
   //const [shapeQname, setShapeQname] = useState(props.match.params.shapeQname)
   //const [entityQname, setEntityQname] = useState(props.match.params.entityQname)
@@ -419,7 +421,7 @@ function EntityEditContainer(props: RDEProps) {
       <>
         <div>
           <div>
-            <>{i18n.t("types.loading")}</>
+            <>{t("types.loading")}</>
           </div>
         </div>
       </>
@@ -431,7 +433,7 @@ function EntityEditContainer(props: RDEProps) {
       <>
         <div>
           <div>
-            <>{i18n.t("types.loading")}</>
+            <>{t("types.loading")}</>
           </div>
         </div>
       </>
@@ -486,9 +488,9 @@ function EntityEditContainer(props: RDEProps) {
                   className={"btn-rouge" + (!entityObj[0]?.etag ? " disabled" : "")}
                   target="_blank"
                   rel="noreferrer"
-                  {...(!entityObj[0]?.etag ? { title: i18n.t("error.preview") as string } : { href: previewLink })}
+                  {...(!entityObj[0]?.etag ? { title: t("error.preview") as string } : { href: previewLink })}
                 >
-                  <>{i18n.t("general.preview")}</>
+                  <>{t("general.preview")}</>
                 </a>
               </div>
             )}
@@ -497,7 +499,7 @@ function EntityEditContainer(props: RDEProps) {
       </div>
       <div role="navigation" className="innerNav">
         <p className="text-uppercase small my-2">
-          <>{i18n.t("home.nav")}</>
+          <>{t("home.nav")}</>
         </p>
         {shape.groups.map((group, index) => {
           const label = lang.ValueByLangToStrPrefLang(group.prefLabels, uiLang)

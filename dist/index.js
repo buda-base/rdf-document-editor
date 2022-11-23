@@ -1772,6 +1772,7 @@ var import_i18next = __toESM(require("i18next"));
 var import_react = require("react");
 var import_recoil3 = require("recoil");
 var import_debug5 = require("debug");
+var import_react_i18next = require("react-i18next");
 var debug5 = (0, import_debug5.debug)("rde:rdf:io");
 var defaultFetchTtlHeaders = new Headers();
 defaultFetchTtlHeaders.set("Accept", "text/turtle");
@@ -1899,6 +1900,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     setEntity(Subject.createEmpty());
     setEntityLoadingState({ status: "idle", error: void 0 });
   };
+  const { t } = (0, import_react_i18next.useTranslation)();
   (0, import_react.useEffect)(() => {
     if (unmounting.val)
       return;
@@ -1912,7 +1914,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       let etag = null;
       const localEntities = await config.getUserLocalEntities();
       if (reloadEntity !== entityQname2 && shapeQname && localEntities[entityQname2] !== void 0) {
-        useLocal = window.confirm(import_i18next.default.t("general.load_previous_q"));
+        useLocal = window.confirm(t("general.load_previous_q"));
         const store = rdf4.graph();
         if (useLocal) {
           try {
@@ -2041,7 +2043,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
 
 // src/containers/EntityEditContainer.tsx
 var import_icons_material3 = require("@mui/icons-material");
-var import_i18next4 = __toESM(require("i18next"));
 
 // src/containers/PropertyGroupContainer.tsx
 var import_react3 = require("react");
@@ -2052,7 +2053,6 @@ var rdf5 = __toESM(require("rdflib"));
 var import_recoil4 = require("recoil");
 var import_material = require("@mui/material");
 var import_icons_material = require("@mui/icons-material");
-var import_i18next2 = __toESM(require("i18next"));
 
 // src/helpers/lang.ts
 var import_debug6 = require("debug");
@@ -2088,6 +2088,7 @@ var langsWithDefault = (defaultLanguage, langs) => {
 // src/containers/ValueList.tsx
 var import_react_md_editor = __toESM(require("@uiw/react-md-editor"));
 var import_debug7 = require("debug");
+var import_react_i18next2 = require("react-i18next");
 var import_jsx_runtime = require("react/jsx-runtime");
 var debug7 = (0, import_debug7.debug)("rde:entity:container:ValueList");
 function replaceItemAtIndex(arr, index, newValue) {
@@ -2148,6 +2149,7 @@ var MinimalAddButton = ({ add, className, disable }) => {
 var BlockAddButton = ({ add, label, count = 1 }) => {
   const [n, setN] = (0, import_react2.useState)(1);
   const [disable, setDisable] = (0, import_react2.useState)(false);
+  const { t } = (0, import_react_i18next2.useTranslation)();
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
     children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
       className: "blockAdd text-center pb-1 mt-3",
@@ -2162,7 +2164,7 @@ var BlockAddButton = ({ add, label, count = 1 }) => {
           },
           onClick: (e) => add(e, n),
           children: [
-            import_i18next2.default.t("general.add_another", { val: label, count }),
+            t("general.add_another", { val: label, count }),
             "\xA0",
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.AddCircleOutline, {})
           ]
@@ -2170,7 +2172,7 @@ var BlockAddButton = ({ add, label, count = 1 }) => {
         count > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
           variant: "standard",
           label: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-            children: import_i18next2.default.t("general.add_nb", { val: label })
+            children: t("general.add_nb", { val: label })
           }),
           style: { width: 200 },
           value: n,
@@ -2629,10 +2631,11 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
   const [editMD, setEditMD] = (0, import_react2.useState)(false);
   const [keyboard, setKeyboard] = (0, import_react2.useState)(false);
   const canPushPrefLabel = property.allowPushToTopLevelLabel;
+  const { t } = (0, import_react_i18next2.useTranslation)();
   const getLangStringError = (val) => {
     let err = "";
     if (!val && property.minCount)
-      err = import_i18next2.default.t("error.empty");
+      err = t("error.empty");
     else if (globalError)
       err = globalError;
     return err;
@@ -2977,6 +2980,7 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
       onChange(lit.copyWithUpdatedValue(val));
     };
   });
+  const { t } = (0, import_react_i18next2.useTranslation)();
   const getEmptyStringError = (val) => {
     if (!val && property.minCount)
       return;
@@ -2988,7 +2992,7 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
         " ",
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {
           children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-            children: import_i18next2.default.t("error.empty")
+            children: t("error.empty")
           })
         })
       ]
@@ -3028,6 +3032,7 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
   });
 };
 var EditBool = ({ property, lit, onChange, label, editable }) => {
+  const { t } = (0, import_react_i18next2.useTranslation)();
   const dt = property.datatype;
   let val = !lit.value || lit.value == "false" || lit.value == "0" ? false : true;
   if (property.defaultValue === null && lit.value == "")
@@ -3049,11 +3054,12 @@ var EditBool = ({ property, lit, onChange, label, editable }) => {
     ...!editable ? { disabled: true } : {},
     children: ["true", "false"].concat(val === "unset" ? [val] : []).map((v) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, {
       value: v,
-      children: import_i18next2.default.t("types." + v)
+      children: t("types." + v)
     }, v))
   });
 };
 var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
+  const { t } = (0, import_react_i18next2.useTranslation)();
   const dt = property.datatype;
   const minInclusive = property.minInclusive;
   const maxInclusive = property.maxInclusive;
@@ -3064,17 +3070,17 @@ var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, ha
     if (globalError) {
       err = globalError;
     } else if (hasNoOtherValue && val === "") {
-      err = import_i18next2.default.t("error.empty");
+      err = t("error.empty");
     } else if (val !== void 0 && val !== "") {
       const valueInt = parseInt(val);
       if (minInclusive && minInclusive > valueInt) {
-        err = import_i18next2.default.t("error.superiorTo", { val: minInclusive });
+        err = t("error.superiorTo", { val: minInclusive });
       } else if (maxInclusive && maxInclusive < valueInt) {
-        err = import_i18next2.default.t("error.inferiorTo", { val: maxInclusive });
+        err = t("error.inferiorTo", { val: maxInclusive });
       } else if (minExclusive && minExclusive >= valueInt) {
-        err = import_i18next2.default.t("error.superiorToStrict", { val: minExclusive });
+        err = t("error.superiorToStrict", { val: minExclusive });
       } else if (maxExclusive && maxExclusive <= valueInt) {
-        err = import_i18next2.default.t("error.inferiorToStrict", { val: maxExclusive });
+        err = t("error.inferiorToStrict", { val: maxExclusive });
       }
     }
     return err;
@@ -3187,6 +3193,7 @@ var LiteralComponent = ({
       updateEntityState(1 /* Saved */, lit.id);
     }
   }, [undos]);
+  const { t: tr } = (0, import_react_i18next2.useTranslation)();
   const t = property.datatype;
   let edit, classN;
   if ((t == null ? void 0 : t.value) === rdflangString) {
@@ -3204,7 +3211,7 @@ var LiteralComponent = ({
           })
         }, lit.id) : null
       ],
-      ...property.uniqueLang && !isUniqueLang ? { globalError: import_i18next2.default.t("error.unique") } : {},
+      ...property.uniqueLang && !isUniqueLang ? { globalError: tr("error.unique") } : {},
       editable: editable && !property.readOnly,
       updateEntityState,
       entity: topEntity ? topEntity : subject,
@@ -3230,7 +3237,7 @@ var LiteralComponent = ({
       updateEntityState,
       hasNoOtherValue: property.minCount === 1 && list.length === 1,
       index,
-      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: import_i18next2.default.t("error.uniqueV") } : {}
+      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: tr("error.uniqueV") } : {}
     });
   } else if ((t == null ? void 0 : t.value) === xsdboolean) {
     edit = /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EditBool, {
@@ -3337,6 +3344,7 @@ var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity,
   if (edit === subject.qname + " " + property.qname + " " + subNode.qname || edit.startsWith(subNode.qname + " ") || edit.endsWith(" " + subject.qname)) {
     editClass = "edit";
   }
+  const { t } = (0, import_react_i18next2.useTranslation)();
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
     children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
       className: "facet " + editClass + " editable-" + editable + " force-" + force,
@@ -3389,7 +3397,7 @@ var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity,
             className: "toggle-btn btn btn-rouge mt-4",
             onClick: toggleExtra,
             children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-              children: import_i18next2.default.t("general.toggle", { show: force ? import_i18next2.default.t("general.hide") : import_i18next2.default.t("general.show") })
+              children: t("general.toggle", { show: force ? t("general.hide") : t("general.show") })
             })
           }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -3446,13 +3454,14 @@ var ExtEntityComponent = ({
     setList(newList);
   };
   const [error, setError] = (0, import_react2.useState)("");
+  const { t } = (0, import_react_i18next2.useTranslation)();
   (0, import_react2.useEffect)(() => {
     let newError;
     const nonEmptyList = list.filter((e) => e instanceof RDFResource && e.uri !== "tmp:uri");
     if (property.minCount && nonEmptyList.length < property.minCount) {
-      newError = import_i18next2.default.t("error.minC", { count: property.minCount });
+      newError = t("error.minC", { count: property.minCount });
     } else if (property.maxCount && nonEmptyList.length > property.maxCount) {
-      newError = import_i18next2.default.t("error.maxC", { count: property.maxCount });
+      newError = t("error.maxC", { count: property.maxCount });
     } else
       newError = "";
     setError(newError);
@@ -3551,12 +3560,13 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
   if (possibleValues.length == 1 && list.length == 0) {
     setList([possibleValues[0]]);
   }
+  const { t } = (0, import_react_i18next2.useTranslation)();
   const [error, setError] = (0, import_react2.useState)("");
   const valueNotInList = !possibleValues.some((pv) => pv.id === (val == null ? void 0 : val.id));
   (0, import_react2.useEffect)(() => {
     var _a, _b;
     if (valueNotInList) {
-      setError("" + import_i18next2.default.t("error.select", { val: val == null ? void 0 : val.value }));
+      setError("" + t("error.select", { val: val == null ? void 0 : val.value }));
       updateEntityState(0 /* Error */, ((_a = property.path) == null ? void 0 : _a.sparqlString) + "_" + selectIdx);
     } else {
       updateEntityState(1 /* Saved */, ((_b = property.path) == null ? void 0 : _b.sparqlString) + "_" + selectIdx);
@@ -3664,7 +3674,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
 // src/containers/PropertyGroupContainer.tsx
 var import_icons_material2 = require("@mui/icons-material");
 var import_recoil5 = require("recoil");
-var import_i18next3 = __toESM(require("i18next"));
+var import_i18next2 = __toESM(require("i18next"));
 var import_react_leaflet = require("react-leaflet");
 var import_react_leaflet_google_layer = __toESM(require("react-leaflet-google-layer"));
 var import_leaflet_geosearch = require("leaflet-geosearch");
@@ -3915,7 +3925,7 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
                     className: "toggle-btn  btn btn-rouge my-4",
                     onClick: toggleExtra,
                     children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {
-                      children: import_i18next3.default.t("general.toggle", { show: force ? import_i18next3.default.t("general.hide") : import_i18next3.default.t("general.show") })
+                      children: import_i18next2.default.t("general.toggle", { show: force ? import_i18next2.default.t("general.hide") : import_i18next2.default.t("general.show") })
                     })
                   })
                 ]
@@ -3937,6 +3947,7 @@ var import_react_router_hash_link = require("react-router-hash-link");
 var import_query_string = __toESM(require("query-string"));
 var import_react_router = require("react-router");
 var import_debug9 = require("debug");
+var import_react_i18next3 = require("react-i18next");
 var import_jsx_runtime3 = require("react/jsx-runtime");
 var debug9 = (0, import_debug9.debug)("rde:entity:edit");
 function replaceItemAtIndex2(arr, index, newValue) {
@@ -4058,6 +4069,7 @@ function EntityEditContainer(props) {
   var _a, _b, _c, _d, _e, _f;
   const config = props.config;
   const params = (0, import_react_router.useParams)();
+  const { t } = (0, import_react_i18next3.useTranslation)();
   const shapeQname = params.shapeQname || "";
   const entityQname = params.entityQname || "";
   const [entities, setEntities] = (0, import_recoil6.useRecoilState)(entitiesAtom);
@@ -4244,7 +4256,7 @@ function EntityEditContainer(props) {
       children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
         children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
           children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
-            children: import_i18next4.default.t("types.loading")
+            children: t("types.loading")
           })
         })
       })
@@ -4255,7 +4267,7 @@ function EntityEditContainer(props) {
       children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
         children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
           children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
-            children: import_i18next4.default.t("types.loading")
+            children: t("types.loading")
           })
         })
       })
@@ -4304,9 +4316,9 @@ function EntityEditContainer(props) {
                     className: "btn-rouge" + (!((_e = entityObj[0]) == null ? void 0 : _e.etag) ? " disabled" : ""),
                     target: "_blank",
                     rel: "noreferrer",
-                    ...!((_f = entityObj[0]) == null ? void 0 : _f.etag) ? { title: import_i18next4.default.t("error.preview") } : { href: previewLink },
+                    ...!((_f = entityObj[0]) == null ? void 0 : _f.etag) ? { title: t("error.preview") } : { href: previewLink },
                     children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
-                      children: import_i18next4.default.t("general.preview")
+                      children: t("general.preview")
                     })
                   })
                 })
@@ -4322,7 +4334,7 @@ function EntityEditContainer(props) {
           /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", {
             className: "text-uppercase small my-2",
             children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
-              children: import_i18next4.default.t("home.nav")
+              children: t("home.nav")
             })
           }),
           shape.groups.map((group, index) => {
@@ -4367,7 +4379,7 @@ var EntityEditContainer_default = EntityEditContainer;
 var import_react5 = require("react");
 var import_recoil7 = require("recoil");
 var import_react_router_dom2 = require("react-router-dom");
-var import_react_i18next = require("react-i18next");
+var import_react_i18next4 = require("react-i18next");
 var import_material2 = require("@mui/material");
 var import_debug10 = __toESM(require("debug"));
 var import_jsx_runtime4 = require("react/jsx-runtime");
@@ -4377,7 +4389,7 @@ function NewEntityContainer(props) {
   const [uiLang] = (0, import_recoil7.useRecoilState)(uiLangState);
   const [RID, setRID] = (0, import_react5.useState)("");
   const navigate = (0, import_react_router_dom2.useNavigate)();
-  const { t } = (0, import_react_i18next.useTranslation)();
+  const { t } = (0, import_react_i18next4.useTranslation)();
   return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", {
     className: "new-fix",
     children: [
@@ -4546,11 +4558,11 @@ function Dialog422(props) {
 var import_react_router_dom4 = require("react-router-dom");
 var import_react7 = require("react");
 var import_icons_material4 = require("@mui/icons-material");
-var import_i18next5 = __toESM(require("i18next"));
+var import_i18next3 = __toESM(require("i18next"));
 var import_query_string2 = __toESM(require("query-string"));
 var rdf7 = __toESM(require("rdflib"));
 var import_debug12 = require("debug");
-var import_react_i18next2 = require("react-i18next");
+var import_react_i18next5 = require("react-i18next");
 var import_jsx_runtime6 = require("react/jsx-runtime");
 var debug12 = (0, import_debug12.debug)("rde:entity:entitycreation");
 function EntityCreationContainer(props) {
@@ -4563,7 +4575,7 @@ function EntityCreationContainer(props) {
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
   const location = (0, import_react_router_dom4.useLocation)();
-  const { t } = (0, import_react_i18next2.useTranslation)();
+  const { t } = (0, import_react_i18next5.useTranslation)();
   const unmounting = { val: false };
   (0, import_react7.useEffect)(() => {
     return () => {
@@ -4641,7 +4653,7 @@ function EntityCreationContainerAlreadyOpen(props) {
     children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", {
       children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", {
         children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, {
-          children: import_i18next5.default.t("types.loading")
+          children: import_i18next3.default.t("types.loading")
         })
       })
     })
@@ -4669,12 +4681,12 @@ var EntityCreationContainer_default = EntityCreationContainer;
 
 // src/containers/EntityShapeChooserContainer.tsx
 var import_react8 = require("react");
-var import_i18next6 = __toESM(require("i18next"));
+var import_i18next4 = __toESM(require("i18next"));
 var import_recoil9 = require("recoil");
 var import_react_router_dom5 = require("react-router-dom");
 var import_material4 = require("@mui/material");
 var import_debug13 = require("debug");
-var import_react_i18next3 = require("react-i18next");
+var import_react_i18next6 = require("react-i18next");
 var import_jsx_runtime7 = require("react/jsx-runtime");
 var debug13 = (0, import_debug13.debug)("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
@@ -4685,7 +4697,7 @@ function EntityShapeChooserContainer(props) {
   const [entityQname, setEntityQname] = (0, import_react8.useState)(params.entityQname || "");
   const [uiLang] = (0, import_recoil9.useRecoilState)(uiLangState);
   const [entities, setEntities] = (0, import_recoil9.useRecoilState)(entitiesAtom);
-  const { t } = (0, import_react_i18next3.useTranslation)();
+  const { t } = (0, import_react_i18next6.useTranslation)();
   const unmounting = { val: false };
   (0, import_react8.useEffect)(() => {
     return () => {
@@ -4705,7 +4717,7 @@ function EntityShapeChooserContainer(props) {
     return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
       children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
         children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-          children: import_i18next6.default.t("types.redirect")
+          children: import_i18next4.default.t("types.redirect")
         })
       })
     });
@@ -4717,7 +4729,7 @@ function EntityShapeChooserContainer(props) {
       return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
         children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
           children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-            children: import_i18next6.default.t("types.loading")
+            children: import_i18next4.default.t("types.loading")
           })
         })
       });
@@ -4728,7 +4740,7 @@ function EntityShapeChooserContainer(props) {
           children: [
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", {
               children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next6.default.t("error.exist", { id: entityQname })
+                children: import_i18next4.default.t("error.exist", { id: entityQname })
               })
             }),
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
@@ -4736,7 +4748,7 @@ function EntityShapeChooserContainer(props) {
               style: { fontWeight: 700 },
               to: "/new",
               children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next6.default.t("error.redirect")
+                children: import_i18next4.default.t("error.redirect")
               })
             })
           ]
@@ -4750,7 +4762,7 @@ function EntityShapeChooserContainer(props) {
           children: [
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", {
               children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next6.default.t("error.shape", { id: entityQname })
+                children: import_i18next4.default.t("error.shape", { id: entityQname })
               })
             }),
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
@@ -4758,7 +4770,7 @@ function EntityShapeChooserContainer(props) {
               style: { fontWeight: 700 },
               to: "/new",
               children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next6.default.t("error.redirect")
+                children: import_i18next4.default.t("error.redirect")
               })
             })
           ]
@@ -4959,7 +4971,7 @@ var EntityInEntitySelectorContainer = ({
 
 // src/containers/EntitySelectorContainer.tsx
 var import_debug15 = require("debug");
-var import_react_i18next4 = require("react-i18next");
+var import_react_i18next7 = require("react-i18next");
 var import_jsx_runtime9 = require("react/jsx-runtime");
 var debug15 = (0, import_debug15.debug)("rde:entity:selector");
 function a11yProps2(index) {
@@ -4982,7 +4994,7 @@ function EntitySelector(props) {
   const [disabled, setDisabled] = (0, import_recoil11.useRecoilState)(uiDisabledTabsState);
   const navigate = (0, import_react_router_dom7.useNavigate)();
   const location = (0, import_react_router_dom7.useLocation)();
-  const { t } = (0, import_react_i18next4.useTranslation)();
+  const { t } = (0, import_react_i18next7.useTranslation)();
   (0, import_react9.useEffect)(() => {
     const session = config.getUserMenuState();
     session.then((entities2) => {
@@ -5108,7 +5120,7 @@ var import_recoil12 = require("recoil");
 var rdf8 = __toESM(require("rdflib"));
 var import_debug16 = require("debug");
 var import_icons_material7 = require("@mui/icons-material");
-var import_react_i18next5 = require("react-i18next");
+var import_react_i18next8 = require("react-i18next");
 var import_jsx_runtime10 = require("react/jsx-runtime");
 var debug16 = (0, import_debug16.debug)("rde:BottomBarContainer");
 function BottomBarContainer(props) {
@@ -5129,7 +5141,7 @@ function BottomBarContainer(props) {
   const [error, setError] = (0, import_react10.useState)(null);
   const [errorCode, setErrorCode] = (0, import_react10.useState)(void 0);
   const [spinner, setSpinner] = (0, import_react10.useState)(false);
-  const { t } = (0, import_react_i18next5.useTranslation)();
+  const { t } = (0, import_react_i18next8.useTranslation)();
   const delay = 300;
   const closePopup = (delay1 = delay, delay2 = delay) => {
     setTimeout(() => {
@@ -5321,7 +5333,7 @@ var import_react11 = __toESM(require("react"));
 var import_recoil13 = require("recoil");
 var import_styles = require("@mui/styles");
 var import_material8 = require("@mui/material");
-var import_i18next7 = __toESM(require("i18next"));
+var import_i18next5 = __toESM(require("i18next"));
 var import_react_router_dom8 = require("react-router-dom");
 var rdf9 = __toESM(require("rdflib"));
 var import_icons_material8 = require("@mui/icons-material");
@@ -5426,7 +5438,7 @@ var BUDAResourceSelector = ({
         isTypeOk = true;
       const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
       if (!isTypeOk) {
-        setError("" + import_i18next7.default.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+        setError("" + import_i18next5.default.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
         if (libraryURL)
           setLibraryURL("");
       }
@@ -5475,7 +5487,7 @@ var BUDAResourceSelector = ({
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
             debug17("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
-            setError("" + import_i18next7.default.t("error.notF", { RID: data["@id"] }));
+            setError("" + import_i18next5.default.t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
             debug17("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
@@ -5514,6 +5526,8 @@ var BUDAResourceSelector = ({
           lang = newlang;
         else if (!lang)
           lang = "bo-x-ewts";
+        if (lang === "sa-x-iast")
+          lang = "inc-x-ndia";
         let key = encodeURIComponent(keyword);
         key = '"' + key + '"';
         if (lang.startsWith("bo"))
@@ -5752,7 +5766,7 @@ var BUDAResourceSelector = ({
                   onClick: togglePopup,
                   ...!editable ? { disabled: true } : {},
                   children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_jsx_runtime11.Fragment, {
-                    children: import_i18next7.default.t("search.create")
+                    children: import_i18next5.default.t("search.create")
                   })
                 })
               ]
@@ -5769,7 +5783,7 @@ var BUDAResourceSelector = ({
                     value.qname,
                     "\xA0",
                     /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("a", {
-                      title: import_i18next7.default.t("search.help.preview"),
+                      title: import_i18next5.default.t("search.help.preview"),
                       onClick: () => {
                         if (libraryURL)
                           setLibraryURL("");
@@ -5789,7 +5803,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("a", {
-                      title: import_i18next7.default.t("search.help.open"),
+                      title: import_i18next5.default.t("search.help.open"),
                       href: config.libraryUrl + "/show/" + value.qname,
                       rel: "noopener noreferrer",
                       target: "_blank",
@@ -5799,7 +5813,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_react_router_dom8.Link, {
-                      title: import_i18next7.default.t("search.help.edit"),
+                      title: import_i18next5.default.t("search.help.edit"),
                       to: "/edit/" + value.qname,
                       children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Edit, {
                         style: { width: "16px" }
@@ -5807,7 +5821,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     canCopy.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", {
-                      title: import_i18next7.default.t("general.import"),
+                      title: import_i18next5.default.t("general.import"),
                       children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.ContentPaste, {
                         style: { width: "17px", cursor: "pointer" },
                         onClick: () => {
@@ -5886,7 +5900,7 @@ var BUDAResourceSelector = ({
                     const url = await createAndUpdate(r);
                     navigate(url);
                   }
-                }, import_i18next7.default.t("search.new", { type: label2 }));
+                }, import_i18next5.default.t("search.new", { type: label2 }));
               })
             ]
           }),

@@ -16,6 +16,7 @@ import {
 import RDEConfig, { IFetchState } from "../rde_config"
 import { prefLabel } from "./ns"
 import { debug as debugfactory } from "debug"
+import { useTranslation } from "react-i18next"
 
 interface StoreWithEtag {
   store: rdf.Store
@@ -189,6 +190,8 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
     setEntityLoadingState({ status: "idle", error: undefined })
   }
 
+  const { t } = useTranslation()
+  
   useEffect(() => {
     if (unmounting.val) return
     async function fetchResource(entityQname: string) {
@@ -208,7 +211,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       // 1 - check if entity has local edits (once shape is defined)
       //debug("local?", shapeQname, reloadEntity,entityQname, localEntities[entityQname])
       if (reloadEntity !== entityQname && shapeQname && localEntities[entityQname] !== undefined) {
-        useLocal = window.confirm(i18n.t("general.load_previous_q") as string)
+        useLocal = window.confirm(t("general.load_previous_q") as string)
         const store: rdf.Store = rdf.graph()
         if (useLocal) {
           try {

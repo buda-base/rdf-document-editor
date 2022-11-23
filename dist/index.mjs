@@ -1721,6 +1721,7 @@ import i18n from "i18next";
 import { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { debug as debugfactory5 } from "debug";
+import { useTranslation } from "react-i18next";
 var debug5 = debugfactory5("rde:rdf:io");
 var defaultFetchTtlHeaders = new Headers();
 defaultFetchTtlHeaders.set("Accept", "text/turtle");
@@ -1848,6 +1849,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     setEntity(Subject.createEmpty());
     setEntityLoadingState({ status: "idle", error: void 0 });
   };
+  const { t } = useTranslation();
   useEffect(() => {
     if (unmounting.val)
       return;
@@ -1861,7 +1863,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       let etag = null;
       const localEntities = await config.getUserLocalEntities();
       if (reloadEntity !== entityQname2 && shapeQname && localEntities[entityQname2] !== void 0) {
-        useLocal = window.confirm(i18n.t("general.load_previous_q"));
+        useLocal = window.confirm(t("general.load_previous_q"));
         const store = rdf4.graph();
         if (useLocal) {
           try {
@@ -1990,7 +1992,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
 
 // src/containers/EntityEditContainer.tsx
 import { BrokenImage as NotFoundIcon } from "@mui/icons-material";
-import i18n4 from "i18next";
 
 // src/containers/PropertyGroupContainer.tsx
 import { useState as useState3, useRef as useRef2, useMemo as useMemo2, useEffect as useEffect3 } from "react";
@@ -2012,7 +2013,6 @@ import {
   Keyboard as KeyboardIcon,
   Help as HelpIcon
 } from "@mui/icons-material";
-import i18n2 from "i18next";
 
 // src/helpers/lang.ts
 import { debug as debugfactory6 } from "debug";
@@ -2048,6 +2048,7 @@ var langsWithDefault = (defaultLanguage, langs) => {
 // src/containers/ValueList.tsx
 import MDEditor, { commands } from "@uiw/react-md-editor";
 import { debug as debugfactory7 } from "debug";
+import { useTranslation as useTranslation2 } from "react-i18next";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 var debug7 = debugfactory7("rde:entity:container:ValueList");
 function replaceItemAtIndex(arr, index, newValue) {
@@ -2108,6 +2109,7 @@ var MinimalAddButton = ({ add, className, disable }) => {
 var BlockAddButton = ({ add, label, count = 1 }) => {
   const [n, setN] = useState2(1);
   const [disable, setDisable] = useState2(false);
+  const { t } = useTranslation2();
   return /* @__PURE__ */ jsx(Fragment, {
     children: /* @__PURE__ */ jsxs("div", {
       className: "blockAdd text-center pb-1 mt-3",
@@ -2122,7 +2124,7 @@ var BlockAddButton = ({ add, label, count = 1 }) => {
           },
           onClick: (e) => add(e, n),
           children: [
-            i18n2.t("general.add_another", { val: label, count }),
+            t("general.add_another", { val: label, count }),
             "\xA0",
             /* @__PURE__ */ jsx(AddCircleOutlineIcon, {})
           ]
@@ -2130,7 +2132,7 @@ var BlockAddButton = ({ add, label, count = 1 }) => {
         count > 1 && /* @__PURE__ */ jsx(TextField, {
           variant: "standard",
           label: /* @__PURE__ */ jsx(Fragment, {
-            children: i18n2.t("general.add_nb", { val: label })
+            children: t("general.add_nb", { val: label })
           }),
           style: { width: 200 },
           value: n,
@@ -2589,10 +2591,11 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
   const [editMD, setEditMD] = useState2(false);
   const [keyboard, setKeyboard] = useState2(false);
   const canPushPrefLabel = property.allowPushToTopLevelLabel;
+  const { t } = useTranslation2();
   const getLangStringError = (val) => {
     let err = "";
     if (!val && property.minCount)
-      err = i18n2.t("error.empty");
+      err = t("error.empty");
     else if (globalError)
       err = globalError;
     return err;
@@ -2937,6 +2940,7 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
       onChange(lit.copyWithUpdatedValue(val));
     };
   });
+  const { t } = useTranslation2();
   const getEmptyStringError = (val) => {
     if (!val && property.minCount)
       return;
@@ -2948,7 +2952,7 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
         " ",
         /* @__PURE__ */ jsx("i", {
           children: /* @__PURE__ */ jsx(Fragment, {
-            children: i18n2.t("error.empty")
+            children: t("error.empty")
           })
         })
       ]
@@ -2988,6 +2992,7 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
   });
 };
 var EditBool = ({ property, lit, onChange, label, editable }) => {
+  const { t } = useTranslation2();
   const dt = property.datatype;
   let val = !lit.value || lit.value == "false" || lit.value == "0" ? false : true;
   if (property.defaultValue === null && lit.value == "")
@@ -3009,11 +3014,12 @@ var EditBool = ({ property, lit, onChange, label, editable }) => {
     ...!editable ? { disabled: true } : {},
     children: ["true", "false"].concat(val === "unset" ? [val] : []).map((v) => /* @__PURE__ */ jsx(MenuItem, {
       value: v,
-      children: i18n2.t("types." + v)
+      children: t("types." + v)
     }, v))
   });
 };
 var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
+  const { t } = useTranslation2();
   const dt = property.datatype;
   const minInclusive = property.minInclusive;
   const maxInclusive = property.maxInclusive;
@@ -3024,17 +3030,17 @@ var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, ha
     if (globalError) {
       err = globalError;
     } else if (hasNoOtherValue && val === "") {
-      err = i18n2.t("error.empty");
+      err = t("error.empty");
     } else if (val !== void 0 && val !== "") {
       const valueInt = parseInt(val);
       if (minInclusive && minInclusive > valueInt) {
-        err = i18n2.t("error.superiorTo", { val: minInclusive });
+        err = t("error.superiorTo", { val: minInclusive });
       } else if (maxInclusive && maxInclusive < valueInt) {
-        err = i18n2.t("error.inferiorTo", { val: maxInclusive });
+        err = t("error.inferiorTo", { val: maxInclusive });
       } else if (minExclusive && minExclusive >= valueInt) {
-        err = i18n2.t("error.superiorToStrict", { val: minExclusive });
+        err = t("error.superiorToStrict", { val: minExclusive });
       } else if (maxExclusive && maxExclusive <= valueInt) {
-        err = i18n2.t("error.inferiorToStrict", { val: maxExclusive });
+        err = t("error.inferiorToStrict", { val: maxExclusive });
       }
     }
     return err;
@@ -3147,6 +3153,7 @@ var LiteralComponent = ({
       updateEntityState(1 /* Saved */, lit.id);
     }
   }, [undos]);
+  const { t: tr } = useTranslation2();
   const t = property.datatype;
   let edit, classN;
   if ((t == null ? void 0 : t.value) === rdflangString) {
@@ -3164,7 +3171,7 @@ var LiteralComponent = ({
           })
         }, lit.id) : null
       ],
-      ...property.uniqueLang && !isUniqueLang ? { globalError: i18n2.t("error.unique") } : {},
+      ...property.uniqueLang && !isUniqueLang ? { globalError: tr("error.unique") } : {},
       editable: editable && !property.readOnly,
       updateEntityState,
       entity: topEntity ? topEntity : subject,
@@ -3190,7 +3197,7 @@ var LiteralComponent = ({
       updateEntityState,
       hasNoOtherValue: property.minCount === 1 && list.length === 1,
       index,
-      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: i18n2.t("error.uniqueV") } : {}
+      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: tr("error.uniqueV") } : {}
     });
   } else if ((t == null ? void 0 : t.value) === xsdboolean) {
     edit = /* @__PURE__ */ jsx(EditBool, {
@@ -3297,6 +3304,7 @@ var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity,
   if (edit === subject.qname + " " + property.qname + " " + subNode.qname || edit.startsWith(subNode.qname + " ") || edit.endsWith(" " + subject.qname)) {
     editClass = "edit";
   }
+  const { t } = useTranslation2();
   return /* @__PURE__ */ jsx(Fragment, {
     children: /* @__PURE__ */ jsx("div", {
       className: "facet " + editClass + " editable-" + editable + " force-" + force,
@@ -3349,7 +3357,7 @@ var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity,
             className: "toggle-btn btn btn-rouge mt-4",
             onClick: toggleExtra,
             children: /* @__PURE__ */ jsx(Fragment, {
-              children: i18n2.t("general.toggle", { show: force ? i18n2.t("general.hide") : i18n2.t("general.show") })
+              children: t("general.toggle", { show: force ? t("general.hide") : t("general.show") })
             })
           }),
           /* @__PURE__ */ jsxs("div", {
@@ -3406,13 +3414,14 @@ var ExtEntityComponent = ({
     setList(newList);
   };
   const [error, setError] = useState2("");
+  const { t } = useTranslation2();
   useEffect2(() => {
     let newError;
     const nonEmptyList = list.filter((e) => e instanceof RDFResource && e.uri !== "tmp:uri");
     if (property.minCount && nonEmptyList.length < property.minCount) {
-      newError = i18n2.t("error.minC", { count: property.minCount });
+      newError = t("error.minC", { count: property.minCount });
     } else if (property.maxCount && nonEmptyList.length > property.maxCount) {
-      newError = i18n2.t("error.maxC", { count: property.maxCount });
+      newError = t("error.maxC", { count: property.maxCount });
     } else
       newError = "";
     setError(newError);
@@ -3511,12 +3520,13 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
   if (possibleValues.length == 1 && list.length == 0) {
     setList([possibleValues[0]]);
   }
+  const { t } = useTranslation2();
   const [error, setError] = useState2("");
   const valueNotInList = !possibleValues.some((pv) => pv.id === (val == null ? void 0 : val.id));
   useEffect2(() => {
     var _a, _b;
     if (valueNotInList) {
-      setError("" + i18n2.t("error.select", { val: val == null ? void 0 : val.value }));
+      setError("" + t("error.select", { val: val == null ? void 0 : val.value }));
       updateEntityState(0 /* Error */, ((_a = property.path) == null ? void 0 : _a.sparqlString) + "_" + selectIdx);
     } else {
       updateEntityState(1 /* Saved */, ((_b = property.path) == null ? void 0 : _b.sparqlString) + "_" + selectIdx);
@@ -3624,7 +3634,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
 // src/containers/PropertyGroupContainer.tsx
 import { Error as ErrorIcon2 } from "@mui/icons-material";
 import { useRecoilState as useRecoilState3 } from "recoil";
-import i18n3 from "i18next";
+import i18n2 from "i18next";
 import { MapContainer, LayersControl, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import ReactLeafletGoogleLayer from "react-leaflet-google-layer";
 import { GeoSearchControl, OpenStreetMapProvider, GoogleProvider } from "leaflet-geosearch";
@@ -3875,7 +3885,7 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
                     className: "toggle-btn  btn btn-rouge my-4",
                     onClick: toggleExtra,
                     children: /* @__PURE__ */ jsx2(Fragment2, {
-                      children: i18n3.t("general.toggle", { show: force ? i18n3.t("general.hide") : i18n3.t("general.show") })
+                      children: i18n2.t("general.toggle", { show: force ? i18n2.t("general.hide") : i18n2.t("general.show") })
                     })
                   })
                 ]
@@ -3897,6 +3907,7 @@ import { HashLink as Link } from "react-router-hash-link";
 import queryString from "query-string";
 import { useLocation, useParams } from "react-router";
 import { debug as debugfactory9 } from "debug";
+import { useTranslation as useTranslation3 } from "react-i18next";
 import { Fragment as Fragment3, jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
 var debug9 = debugfactory9("rde:entity:edit");
 function replaceItemAtIndex2(arr, index, newValue) {
@@ -4018,6 +4029,7 @@ function EntityEditContainer(props) {
   var _a, _b, _c, _d, _e, _f;
   const config = props.config;
   const params = useParams();
+  const { t } = useTranslation3();
   const shapeQname = params.shapeQname || "";
   const entityQname = params.entityQname || "";
   const [entities, setEntities] = useRecoilState4(entitiesAtom);
@@ -4204,7 +4216,7 @@ function EntityEditContainer(props) {
       children: /* @__PURE__ */ jsx3("div", {
         children: /* @__PURE__ */ jsx3("div", {
           children: /* @__PURE__ */ jsx3(Fragment3, {
-            children: i18n4.t("types.loading")
+            children: t("types.loading")
           })
         })
       })
@@ -4215,7 +4227,7 @@ function EntityEditContainer(props) {
       children: /* @__PURE__ */ jsx3("div", {
         children: /* @__PURE__ */ jsx3("div", {
           children: /* @__PURE__ */ jsx3(Fragment3, {
-            children: i18n4.t("types.loading")
+            children: t("types.loading")
           })
         })
       })
@@ -4264,9 +4276,9 @@ function EntityEditContainer(props) {
                     className: "btn-rouge" + (!((_e = entityObj[0]) == null ? void 0 : _e.etag) ? " disabled" : ""),
                     target: "_blank",
                     rel: "noreferrer",
-                    ...!((_f = entityObj[0]) == null ? void 0 : _f.etag) ? { title: i18n4.t("error.preview") } : { href: previewLink },
+                    ...!((_f = entityObj[0]) == null ? void 0 : _f.etag) ? { title: t("error.preview") } : { href: previewLink },
                     children: /* @__PURE__ */ jsx3(Fragment3, {
-                      children: i18n4.t("general.preview")
+                      children: t("general.preview")
                     })
                   })
                 })
@@ -4282,7 +4294,7 @@ function EntityEditContainer(props) {
           /* @__PURE__ */ jsx3("p", {
             className: "text-uppercase small my-2",
             children: /* @__PURE__ */ jsx3(Fragment3, {
-              children: i18n4.t("home.nav")
+              children: t("home.nav")
             })
           }),
           shape.groups.map((group, index) => {
@@ -4327,7 +4339,7 @@ var EntityEditContainer_default = EntityEditContainer;
 import { useState as useState5 } from "react";
 import { useRecoilState as useRecoilState5 } from "recoil";
 import { Link as Link2, useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation as useTranslation4 } from "react-i18next";
 import { TextField as TextField2, MenuItem as MenuItem2 } from "@mui/material";
 import debugFactory from "debug";
 import { Fragment as Fragment4, jsx as jsx4, jsxs as jsxs4 } from "react/jsx-runtime";
@@ -4337,7 +4349,7 @@ function NewEntityContainer(props) {
   const [uiLang] = useRecoilState5(uiLangState);
   const [RID, setRID] = useState5("");
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t } = useTranslation4();
   return /* @__PURE__ */ jsxs4("div", {
     className: "new-fix",
     children: [
@@ -4506,11 +4518,11 @@ function Dialog422(props) {
 import { Navigate as Navigate3, useParams as useParams2, useLocation as useLocation2 } from "react-router-dom";
 import { useEffect as useEffect5 } from "react";
 import { BrokenImage as NotFoundIcon2 } from "@mui/icons-material";
-import i18n5 from "i18next";
+import i18n3 from "i18next";
 import queryString2 from "query-string";
 import * as rdf7 from "rdflib";
 import { debug as debugfactory11 } from "debug";
-import { useTranslation as useTranslation2 } from "react-i18next";
+import { useTranslation as useTranslation5 } from "react-i18next";
 import { Fragment as Fragment5, jsx as jsx6, jsxs as jsxs6 } from "react/jsx-runtime";
 var debug12 = debugfactory11("rde:entity:entitycreation");
 function EntityCreationContainer(props) {
@@ -4523,7 +4535,7 @@ function EntityCreationContainer(props) {
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
   const location = useLocation2();
-  const { t } = useTranslation2();
+  const { t } = useTranslation5();
   const unmounting = { val: false };
   useEffect5(() => {
     return () => {
@@ -4601,7 +4613,7 @@ function EntityCreationContainerAlreadyOpen(props) {
     children: /* @__PURE__ */ jsx6("div", {
       children: /* @__PURE__ */ jsx6("div", {
         children: /* @__PURE__ */ jsx6(Fragment5, {
-          children: i18n5.t("types.loading")
+          children: i18n3.t("types.loading")
         })
       })
     })
@@ -4629,12 +4641,12 @@ var EntityCreationContainer_default = EntityCreationContainer;
 
 // src/containers/EntityShapeChooserContainer.tsx
 import { useState as useState7, useEffect as useEffect6 } from "react";
-import i18n6 from "i18next";
+import i18n4 from "i18next";
 import { useRecoilState as useRecoilState7 } from "recoil";
 import { Link as Link3, Navigate as Navigate4, useParams as useParams3, useNavigate as useNavigate2 } from "react-router-dom";
 import { TextField as TextField3, MenuItem as MenuItem3 } from "@mui/material";
 import { debug as debugfactory12 } from "debug";
-import { useTranslation as useTranslation3 } from "react-i18next";
+import { useTranslation as useTranslation6 } from "react-i18next";
 import { Fragment as Fragment6, jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
 var debug13 = debugfactory12("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
@@ -4645,7 +4657,7 @@ function EntityShapeChooserContainer(props) {
   const [entityQname, setEntityQname] = useState7(params.entityQname || "");
   const [uiLang] = useRecoilState7(uiLangState);
   const [entities, setEntities] = useRecoilState7(entitiesAtom);
-  const { t } = useTranslation3();
+  const { t } = useTranslation6();
   const unmounting = { val: false };
   useEffect6(() => {
     return () => {
@@ -4665,7 +4677,7 @@ function EntityShapeChooserContainer(props) {
     return /* @__PURE__ */ jsx7("div", {
       children: /* @__PURE__ */ jsx7("div", {
         children: /* @__PURE__ */ jsx7(Fragment6, {
-          children: i18n6.t("types.redirect")
+          children: i18n4.t("types.redirect")
         })
       })
     });
@@ -4677,7 +4689,7 @@ function EntityShapeChooserContainer(props) {
       return /* @__PURE__ */ jsx7("div", {
         children: /* @__PURE__ */ jsx7("div", {
           children: /* @__PURE__ */ jsx7(Fragment6, {
-            children: i18n6.t("types.loading")
+            children: i18n4.t("types.loading")
           })
         })
       });
@@ -4688,7 +4700,7 @@ function EntityShapeChooserContainer(props) {
           children: [
             /* @__PURE__ */ jsx7("span", {
               children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n6.t("error.exist", { id: entityQname })
+                children: i18n4.t("error.exist", { id: entityQname })
               })
             }),
             /* @__PURE__ */ jsx7("br", {}),
@@ -4696,7 +4708,7 @@ function EntityShapeChooserContainer(props) {
               style: { fontWeight: 700 },
               to: "/new",
               children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n6.t("error.redirect")
+                children: i18n4.t("error.redirect")
               })
             })
           ]
@@ -4710,7 +4722,7 @@ function EntityShapeChooserContainer(props) {
           children: [
             /* @__PURE__ */ jsx7("span", {
               children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n6.t("error.shape", { id: entityQname })
+                children: i18n4.t("error.shape", { id: entityQname })
               })
             }),
             /* @__PURE__ */ jsx7("br", {}),
@@ -4718,7 +4730,7 @@ function EntityShapeChooserContainer(props) {
               style: { fontWeight: 700 },
               to: "/new",
               children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n6.t("error.redirect")
+                children: i18n4.t("error.redirect")
               })
             })
           ]
@@ -4919,7 +4931,7 @@ var EntityInEntitySelectorContainer = ({
 
 // src/containers/EntitySelectorContainer.tsx
 import { debug as debugfactory14 } from "debug";
-import { useTranslation as useTranslation4 } from "react-i18next";
+import { useTranslation as useTranslation7 } from "react-i18next";
 import { jsx as jsx9, jsxs as jsxs9 } from "react/jsx-runtime";
 var debug15 = debugfactory14("rde:entity:selector");
 function a11yProps2(index) {
@@ -4942,7 +4954,7 @@ function EntitySelector(props) {
   const [disabled, setDisabled] = useRecoilState9(uiDisabledTabsState);
   const navigate = useNavigate4();
   const location = useLocation3();
-  const { t } = useTranslation4();
+  const { t } = useTranslation7();
   useEffect7(() => {
     const session = config.getUserMenuState();
     session.then((entities2) => {
@@ -5073,7 +5085,7 @@ import { useRecoilState as useRecoilState10 } from "recoil";
 import * as rdf8 from "rdflib";
 import { debug as debugfactory15 } from "debug";
 import { Error as ErrorIcon3 } from "@mui/icons-material";
-import { useTranslation as useTranslation5 } from "react-i18next";
+import { useTranslation as useTranslation8 } from "react-i18next";
 import { Fragment as Fragment8, jsx as jsx10, jsxs as jsxs10 } from "react/jsx-runtime";
 var debug16 = debugfactory15("rde:BottomBarContainer");
 function BottomBarContainer(props) {
@@ -5094,7 +5106,7 @@ function BottomBarContainer(props) {
   const [error, setError] = useState8(null);
   const [errorCode, setErrorCode] = useState8(void 0);
   const [spinner, setSpinner] = useState8(false);
-  const { t } = useTranslation5();
+  const { t } = useTranslation8();
   const delay = 300;
   const closePopup = (delay1 = delay, delay2 = delay) => {
     setTimeout(() => {
@@ -5286,7 +5298,7 @@ import React10, { useEffect as useEffect9, useState as useState9, useRef as useR
 import { useRecoilState as useRecoilState11 } from "recoil";
 import { makeStyles } from "@mui/styles";
 import { TextField as TextField5, MenuItem as MenuItem5 } from "@mui/material";
-import i18n7 from "i18next";
+import i18n5 from "i18next";
 import { useNavigate as useNavigate5, Link as Link6 } from "react-router-dom";
 import * as rdf9 from "rdflib";
 import {
@@ -5400,7 +5412,7 @@ var BUDAResourceSelector = ({
         isTypeOk = true;
       const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
       if (!isTypeOk) {
-        setError("" + i18n7.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+        setError("" + i18n5.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
         if (libraryURL)
           setLibraryURL("");
       }
@@ -5449,7 +5461,7 @@ var BUDAResourceSelector = ({
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
             debug17("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
-            setError("" + i18n7.t("error.notF", { RID: data["@id"] }));
+            setError("" + i18n5.t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
             debug17("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
@@ -5488,6 +5500,8 @@ var BUDAResourceSelector = ({
           lang = newlang;
         else if (!lang)
           lang = "bo-x-ewts";
+        if (lang === "sa-x-iast")
+          lang = "inc-x-ndia";
         let key = encodeURIComponent(keyword);
         key = '"' + key + '"';
         if (lang.startsWith("bo"))
@@ -5726,7 +5740,7 @@ var BUDAResourceSelector = ({
                   onClick: togglePopup,
                   ...!editable ? { disabled: true } : {},
                   children: /* @__PURE__ */ jsx11(Fragment9, {
-                    children: i18n7.t("search.create")
+                    children: i18n5.t("search.create")
                   })
                 })
               ]
@@ -5743,7 +5757,7 @@ var BUDAResourceSelector = ({
                     value.qname,
                     "\xA0",
                     /* @__PURE__ */ jsxs11("a", {
-                      title: i18n7.t("search.help.preview"),
+                      title: i18n5.t("search.help.preview"),
                       onClick: () => {
                         if (libraryURL)
                           setLibraryURL("");
@@ -5763,7 +5777,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     /* @__PURE__ */ jsx11("a", {
-                      title: i18n7.t("search.help.open"),
+                      title: i18n5.t("search.help.open"),
                       href: config.libraryUrl + "/show/" + value.qname,
                       rel: "noopener noreferrer",
                       target: "_blank",
@@ -5773,7 +5787,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     /* @__PURE__ */ jsx11(Link6, {
-                      title: i18n7.t("search.help.edit"),
+                      title: i18n5.t("search.help.edit"),
                       to: "/edit/" + value.qname,
                       children: /* @__PURE__ */ jsx11(EditIcon2, {
                         style: { width: "16px" }
@@ -5781,7 +5795,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     canCopy.length > 0 && /* @__PURE__ */ jsx11("span", {
-                      title: i18n7.t("general.import"),
+                      title: i18n5.t("general.import"),
                       children: /* @__PURE__ */ jsx11(ContentPasteIcon, {
                         style: { width: "17px", cursor: "pointer" },
                         onClick: () => {
@@ -5860,7 +5874,7 @@ var BUDAResourceSelector = ({
                     const url = await createAndUpdate(r);
                     navigate(url);
                   }
-                }, i18n7.t("search.new", { type: label2 }));
+                }, i18n5.t("search.new", { type: label2 }));
               })
             ]
           }),
