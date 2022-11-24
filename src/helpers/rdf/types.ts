@@ -352,6 +352,7 @@ export class EntityGraph {
           perLang[lit.language] = lit.value
         }
       }
+      debug("connex:",res.uri,perLang)
       return new ExtRDFResourceWithLabel(res.uri, perLang, undefined, undefined, graph.prefixMap)
     })
   }
@@ -403,8 +404,12 @@ export class EntityGraph {
           throw "can't have non-direct path for property " + p.uri
         }
         const fromRDFResList: Array<rdf.NamedNode> = s.getPropResValues(p.path.directPathNode)
+        
         // TODO: p.graph should be the graph of the ontology instead
-        const fromRDFReswLabels = EntityGraph.addLabelsFromGraph(fromRDFResList, p.graph)
+        //const fromRDFReswLabels = EntityGraph.addLabelsFromGraph(fromRDFResList, p.graph)
+        
+        const fromRDFReswLabels = EntityGraph.addExtDataFromGraph(fromRDFResList, s.graph)
+
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFReswLabels)
         return fromRDFReswLabels
         break

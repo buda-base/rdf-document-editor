@@ -1968,7 +1968,7 @@ const SelectComponent: FC<{
             {...(!editable ? { disabled: true } : {})}
           >
             {possibleValues.map((v, k) => {
-              //debug("possible:",v,v.uri)
+              debug("possible:",v)
               if (v instanceof RDFResourceWithLabel) {
                 const r = v as RDFResourceWithLabel
                 const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang)

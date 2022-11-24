@@ -558,7 +558,7 @@ var _EntityGraph = class {
           throw "can't have non-direct path for property " + p.uri;
         }
         const fromRDFResList = s.getPropResValues(p.path.directPathNode);
-        const fromRDFReswLabels = _EntityGraph.addLabelsFromGraph(fromRDFResList, p.graph);
+        const fromRDFReswLabels = _EntityGraph.addExtDataFromGraph(fromRDFResList, s.graph);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFReswLabels);
         return fromRDFReswLabels;
         break;
@@ -607,6 +607,7 @@ __publicField(EntityGraph, "addExtDataFromGraph", (resList, graph3) => {
         perLang[lit.language] = lit.value;
       }
     }
+    debug2("connex:", res.uri, perLang);
     return new ExtRDFResourceWithLabel(res.uri, perLang, void 0, void 0, graph3.prefixMap);
   });
 });
@@ -3581,6 +3582,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
             ...!editable ? { disabled: true } : {},
             children: [
               possibleValues.map((v, k) => {
+                debug7("possible:", v);
                 if (v instanceof RDFResourceWithLabel) {
                   const r = v;
                   const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang);
