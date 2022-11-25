@@ -558,7 +558,7 @@ var _EntityGraph = class {
           throw "can't have non-direct path for property " + p.uri;
         }
         const fromRDFResList = s.getPropResValues(p.path.directPathNode);
-        const fromRDFReswLabels = _EntityGraph.addExtDataFromGraph(fromRDFResList, s.graph);
+        const fromRDFReswLabels = _EntityGraph.addLabelsFromGraph(fromRDFResList, p.graph);
         this.onGetInitialValues(s.uri, p.path.sparqlString, fromRDFReswLabels);
         return fromRDFReswLabels;
         break;
