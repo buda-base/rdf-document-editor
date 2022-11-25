@@ -168,7 +168,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState)
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
 
-  debug("reload?", reloadEntity, unmounting)
+  //debug("reload?", reloadEntity, unmounting)
 
   useEffect(() => {
     return () => {
@@ -229,7 +229,14 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
         } else {
           rdf.parse("", store, rdf.Store.defaultGraphURI, "text/turtle")
         }
-        const subject = new Subject(entityNode, new EntityGraph(store, entityUri, config.prefixMap))
+        const subject = new Subject(entityNode, new EntityGraph(
+          store, 
+          entityUri, 
+          config.prefixMap, 
+          undefined, 
+          undefined, 
+          config.descriptionProperties
+        ))
         res = { subject, etag }
       }
 
@@ -328,7 +335,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       (e) => e.subjectQname === entityQname
     )
 
-    debug("eF:", shapeLoaded, reloadEntity, entityQname, entities, current)
+    //debug("eF:", shapeLoaded, reloadEntity, entityQname, entities, current)
 
     if (
       shapeLoaded && (
@@ -356,7 +363,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       ? { entityLoadingState, entity, reset }
       : { entityLoadingState: { status: "loading", error: undefined }, entity: Subject.createEmpty(), reset }
 
-  debug("ret:",retVal)
+  //debug("ret:",retVal)
 
   return retVal
 }

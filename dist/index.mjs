@@ -1832,7 +1832,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   const [current, setCurrent] = useState(entityQname);
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState);
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState);
-  debug5("reload?", reloadEntity, unmounting);
   useEffect(() => {
     return () => {
       unmounting.val = true;
@@ -1882,7 +1881,14 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
         } else {
           rdf4.parse("", store, rdf4.Store.defaultGraphURI, "text/turtle");
         }
-        const subject = new Subject(entityNode, new EntityGraph(store, entityUri, config.prefixMap));
+        const subject = new Subject(entityNode, new EntityGraph(
+          store,
+          entityUri,
+          config.prefixMap,
+          void 0,
+          void 0,
+          config.descriptionProperties
+        ));
         res = { subject, etag };
       }
       try {
@@ -1966,7 +1972,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     const index = entities.findIndex(
       (e) => e.subjectQname === entityQname
     );
-    debug5("eF:", shapeLoaded, reloadEntity, entityQname, entities, current);
     if (shapeLoaded && (reloadEntity === entityQname && !entities[index].subject || current === entityQname && (index === -1 || entities[index] && !entities[index].subject))) {
       if (idToken)
         fetchResource(entityQname);
@@ -1987,7 +1992,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     }
   }, [config, entities, entityQname, entity, current, shapeQname, idToken, reloadEntity, shapeLoaded]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
-  debug5("ret:", retVal);
   return retVal;
 }
 
@@ -2581,6 +2585,7 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
     const targetShapeLabels = (_b = property.targetShape) == null ? void 0 : _b.targetClassPrefLabels;
     const labels = targetShapeLabels ? targetShapeLabels : property.prefLabels;
     const count = property.allowBatchManagement ? 2 : 1;
+    debug7("create:", targetShapeLabels, labels, property.targetShape);
     return /* @__PURE__ */ jsx(BlockAddButton, {
       add: addItem,
       label: ValueByLangToStrPrefLang(labels, uiLang),
@@ -3582,7 +3587,6 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
             ...!editable ? { disabled: true } : {},
             children: [
               possibleValues.map((v, k) => {
-                debug7("possible:", v);
                 if (v instanceof RDFResourceWithLabel) {
                   const r = v;
                   const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang);
@@ -3636,7 +3640,6 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
 // src/containers/PropertyGroupContainer.tsx
 import { Error as ErrorIcon2 } from "@mui/icons-material";
 import { useRecoilState as useRecoilState3 } from "recoil";
-import i18n2 from "i18next";
 import { MapContainer, LayersControl, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import ReactLeafletGoogleLayer from "react-leaflet-google-layer";
 import { GeoSearchControl, OpenStreetMapProvider, GoogleProvider } from "leaflet-geosearch";
@@ -3644,6 +3647,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-geosearch/dist/geosearch.css";
 import { debug as debugfactory8 } from "debug";
+import { useTranslation as useTranslation3 } from "react-i18next";
 import { Fragment as Fragment2, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
 var debug8 = debugfactory8("rde:entity:propertygroup");
 var redIcon = new L.Icon({
@@ -3722,6 +3726,7 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
   const [uiLang] = useRecoilState3(uiLangState);
   const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
   const [force, setForce] = useState3(false);
+  const { t } = useTranslation3();
   const withDisplayPriority = [], withoutDisplayPriority = [];
   const errorKeys = Object.keys(errors[subject.qname] ? errors[subject.qname] : {});
   let hasError = false;
@@ -3887,7 +3892,7 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
                     className: "toggle-btn  btn btn-rouge my-4",
                     onClick: toggleExtra,
                     children: /* @__PURE__ */ jsx2(Fragment2, {
-                      children: i18n2.t("general.toggle", { show: force ? i18n2.t("general.hide") : i18n2.t("general.show") })
+                      children: t("general.toggle", { show: force ? t("general.hide") : t("general.show") })
                     })
                   })
                 ]
@@ -3909,7 +3914,7 @@ import { HashLink as Link } from "react-router-hash-link";
 import queryString from "query-string";
 import { useLocation, useParams } from "react-router";
 import { debug as debugfactory9 } from "debug";
-import { useTranslation as useTranslation3 } from "react-i18next";
+import { useTranslation as useTranslation4 } from "react-i18next";
 import { Fragment as Fragment3, jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
 var debug9 = debugfactory9("rde:entity:edit");
 function replaceItemAtIndex2(arr, index, newValue) {
@@ -4031,7 +4036,7 @@ function EntityEditContainer(props) {
   var _a, _b, _c, _d, _e, _f;
   const config = props.config;
   const params = useParams();
-  const { t } = useTranslation3();
+  const { t } = useTranslation4();
   const shapeQname = params.shapeQname || "";
   const entityQname = params.entityQname || "";
   const [entities, setEntities] = useRecoilState4(entitiesAtom);
@@ -4341,7 +4346,7 @@ var EntityEditContainer_default = EntityEditContainer;
 import { useState as useState5 } from "react";
 import { useRecoilState as useRecoilState5 } from "recoil";
 import { Link as Link2, useNavigate } from "react-router-dom";
-import { useTranslation as useTranslation4 } from "react-i18next";
+import { useTranslation as useTranslation5 } from "react-i18next";
 import { TextField as TextField2, MenuItem as MenuItem2 } from "@mui/material";
 import debugFactory from "debug";
 import { Fragment as Fragment4, jsx as jsx4, jsxs as jsxs4 } from "react/jsx-runtime";
@@ -4351,7 +4356,7 @@ function NewEntityContainer(props) {
   const [uiLang] = useRecoilState5(uiLangState);
   const [RID, setRID] = useState5("");
   const navigate = useNavigate();
-  const { t } = useTranslation4();
+  const { t } = useTranslation5();
   return /* @__PURE__ */ jsxs4("div", {
     className: "new-fix",
     children: [
@@ -4520,11 +4525,11 @@ function Dialog422(props) {
 import { Navigate as Navigate3, useParams as useParams2, useLocation as useLocation2 } from "react-router-dom";
 import { useEffect as useEffect5 } from "react";
 import { BrokenImage as NotFoundIcon2 } from "@mui/icons-material";
-import i18n3 from "i18next";
+import i18n2 from "i18next";
 import queryString2 from "query-string";
 import * as rdf7 from "rdflib";
 import { debug as debugfactory11 } from "debug";
-import { useTranslation as useTranslation5 } from "react-i18next";
+import { useTranslation as useTranslation6 } from "react-i18next";
 import { Fragment as Fragment5, jsx as jsx6, jsxs as jsxs6 } from "react/jsx-runtime";
 var debug12 = debugfactory11("rde:entity:entitycreation");
 function EntityCreationContainer(props) {
@@ -4537,7 +4542,7 @@ function EntityCreationContainer(props) {
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
   const location = useLocation2();
-  const { t } = useTranslation5();
+  const { t } = useTranslation6();
   const unmounting = { val: false };
   useEffect5(() => {
     return () => {
@@ -4615,7 +4620,7 @@ function EntityCreationContainerAlreadyOpen(props) {
     children: /* @__PURE__ */ jsx6("div", {
       children: /* @__PURE__ */ jsx6("div", {
         children: /* @__PURE__ */ jsx6(Fragment5, {
-          children: i18n3.t("types.loading")
+          children: i18n2.t("types.loading")
         })
       })
     })
@@ -4643,12 +4648,12 @@ var EntityCreationContainer_default = EntityCreationContainer;
 
 // src/containers/EntityShapeChooserContainer.tsx
 import { useState as useState7, useEffect as useEffect6 } from "react";
-import i18n4 from "i18next";
+import i18n3 from "i18next";
 import { useRecoilState as useRecoilState7 } from "recoil";
 import { Link as Link3, Navigate as Navigate4, useParams as useParams3, useNavigate as useNavigate2 } from "react-router-dom";
 import { TextField as TextField3, MenuItem as MenuItem3 } from "@mui/material";
 import { debug as debugfactory12 } from "debug";
-import { useTranslation as useTranslation6 } from "react-i18next";
+import { useTranslation as useTranslation7 } from "react-i18next";
 import { Fragment as Fragment6, jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
 var debug13 = debugfactory12("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
@@ -4659,7 +4664,7 @@ function EntityShapeChooserContainer(props) {
   const [entityQname, setEntityQname] = useState7(params.entityQname || "");
   const [uiLang] = useRecoilState7(uiLangState);
   const [entities, setEntities] = useRecoilState7(entitiesAtom);
-  const { t } = useTranslation6();
+  const { t } = useTranslation7();
   const unmounting = { val: false };
   useEffect6(() => {
     return () => {
@@ -4679,7 +4684,7 @@ function EntityShapeChooserContainer(props) {
     return /* @__PURE__ */ jsx7("div", {
       children: /* @__PURE__ */ jsx7("div", {
         children: /* @__PURE__ */ jsx7(Fragment6, {
-          children: i18n4.t("types.redirect")
+          children: i18n3.t("types.redirect")
         })
       })
     });
@@ -4691,7 +4696,7 @@ function EntityShapeChooserContainer(props) {
       return /* @__PURE__ */ jsx7("div", {
         children: /* @__PURE__ */ jsx7("div", {
           children: /* @__PURE__ */ jsx7(Fragment6, {
-            children: i18n4.t("types.loading")
+            children: i18n3.t("types.loading")
           })
         })
       });
@@ -4702,7 +4707,7 @@ function EntityShapeChooserContainer(props) {
           children: [
             /* @__PURE__ */ jsx7("span", {
               children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n4.t("error.exist", { id: entityQname })
+                children: i18n3.t("error.exist", { id: entityQname })
               })
             }),
             /* @__PURE__ */ jsx7("br", {}),
@@ -4710,7 +4715,7 @@ function EntityShapeChooserContainer(props) {
               style: { fontWeight: 700 },
               to: "/new",
               children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n4.t("error.redirect")
+                children: i18n3.t("error.redirect")
               })
             })
           ]
@@ -4724,7 +4729,7 @@ function EntityShapeChooserContainer(props) {
           children: [
             /* @__PURE__ */ jsx7("span", {
               children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n4.t("error.shape", { id: entityQname })
+                children: i18n3.t("error.shape", { id: entityQname })
               })
             }),
             /* @__PURE__ */ jsx7("br", {}),
@@ -4732,7 +4737,7 @@ function EntityShapeChooserContainer(props) {
               style: { fontWeight: 700 },
               to: "/new",
               children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n4.t("error.redirect")
+                children: i18n3.t("error.redirect")
               })
             })
           ]
@@ -4933,7 +4938,7 @@ var EntityInEntitySelectorContainer = ({
 
 // src/containers/EntitySelectorContainer.tsx
 import { debug as debugfactory14 } from "debug";
-import { useTranslation as useTranslation7 } from "react-i18next";
+import { useTranslation as useTranslation8 } from "react-i18next";
 import { jsx as jsx9, jsxs as jsxs9 } from "react/jsx-runtime";
 var debug15 = debugfactory14("rde:entity:selector");
 function a11yProps2(index) {
@@ -4956,7 +4961,7 @@ function EntitySelector(props) {
   const [disabled, setDisabled] = useRecoilState9(uiDisabledTabsState);
   const navigate = useNavigate4();
   const location = useLocation3();
-  const { t } = useTranslation7();
+  const { t } = useTranslation8();
   useEffect7(() => {
     const session = config.getUserMenuState();
     session.then((entities2) => {
@@ -5087,7 +5092,7 @@ import { useRecoilState as useRecoilState10 } from "recoil";
 import * as rdf8 from "rdflib";
 import { debug as debugfactory15 } from "debug";
 import { Error as ErrorIcon3 } from "@mui/icons-material";
-import { useTranslation as useTranslation8 } from "react-i18next";
+import { useTranslation as useTranslation9 } from "react-i18next";
 import { Fragment as Fragment8, jsx as jsx10, jsxs as jsxs10 } from "react/jsx-runtime";
 var debug16 = debugfactory15("rde:BottomBarContainer");
 function BottomBarContainer(props) {
@@ -5108,7 +5113,7 @@ function BottomBarContainer(props) {
   const [error, setError] = useState8(null);
   const [errorCode, setErrorCode] = useState8(void 0);
   const [spinner, setSpinner] = useState8(false);
-  const { t } = useTranslation8();
+  const { t } = useTranslation9();
   const delay = 300;
   const closePopup = (delay1 = delay, delay2 = delay) => {
     setTimeout(() => {
@@ -5300,7 +5305,6 @@ import React10, { useEffect as useEffect9, useState as useState9, useRef as useR
 import { useRecoilState as useRecoilState11 } from "recoil";
 import { makeStyles } from "@mui/styles";
 import { TextField as TextField5, MenuItem as MenuItem5 } from "@mui/material";
-import i18n5 from "i18next";
 import { useNavigate as useNavigate5, Link as Link6 } from "react-router-dom";
 import * as rdf9 from "rdflib";
 import {
@@ -5314,6 +5318,7 @@ import {
   Edit as EditIcon2
 } from "@mui/icons-material";
 import { debug as debugfactory16 } from "debug";
+import { useTranslation as useTranslation10 } from "react-i18next";
 import { Fragment as Fragment9, jsx as jsx11, jsxs as jsxs11 } from "react/jsx-runtime";
 import { createElement } from "react";
 var debug17 = debugfactory16("rde:atom:event:RS");
@@ -5354,7 +5359,7 @@ var BUDAResourceSelector = ({
   const [popupNew, setPopupNew] = useState9(false);
   const iframeRef = useRef4(null);
   const [canCopy, setCanCopy] = useState9([]);
-  const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i);
+  const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i) ? true : false;
   const [toCopy, setProp] = useRecoilState11(
     toCopySelector({
       list: (_a = property.copyObjectsOfProperty) == null ? void 0 : _a.map((p) => ({
@@ -5401,20 +5406,21 @@ var BUDAResourceSelector = ({
         setLibraryURL("");
     }
   };
+  const { t } = useTranslation10();
   const updateRes = useCallback3((data) => {
     let isTypeOk = false;
     let actual;
     if (property.expectedObjectTypes) {
-      const allow = property.expectedObjectTypes.map((t) => t.qname);
+      const allow = property.expectedObjectTypes.map((t2) => t2.qname);
       actual = data["tmp:otherData"]["tmp:type"];
       if (!Array.isArray(actual))
         actual = [actual];
       actual = actual.map((a) => a.replace(/Product/, "Collection"));
-      if (actual.filter((t) => allow.includes(t)).length)
+      if (actual.filter((t2) => allow.includes(t2)).length)
         isTypeOk = true;
-      const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
+      const displayTypes = (t2) => t2.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
       if (!isTypeOk) {
-        setError("" + i18n5.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+        setError("" + t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
         if (libraryURL)
           setLibraryURL("");
       }
@@ -5463,7 +5469,7 @@ var BUDAResourceSelector = ({
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
             debug17("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
-            setError("" + i18n5.t("error.notF", { RID: data["@id"] }));
+            setError("" + t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
             debug17("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
@@ -5509,20 +5515,20 @@ var BUDAResourceSelector = ({
         if (lang.startsWith("bo"))
           key = key + "~1";
         lang = encodeURIComponent(lang);
-        let t = type;
+        let t2 = type;
         if (newtype)
-          t = newtype;
-        if (!t)
+          t2 = newtype;
+        if (!t2)
           throw "there should be a type here";
-        t = t.replace(/^bdo:/, "");
-        if (t.includes("ImageInstance"))
-          t = "Scan";
-        else if (t.includes("EtextInstance"))
-          t = "Etext";
-        else if (t.includes("Collection"))
-          t = "Product";
+        t2 = t2.replace(/^bdo:/, "");
+        if (t2.includes("ImageInstance"))
+          t2 = "Scan";
+        else if (t2.includes("EtextInstance"))
+          t2 = "Etext";
+        else if (t2.includes("Collection"))
+          t2 = "Product";
         setLibraryURL(
-          config.libraryUrl + "/simplesearch?q=" + key + "&lg=" + lang + "&t=" + t + "&for=" + msgId + "&f=provider,inc,bda:CP021"
+          config.libraryUrl + "/simplesearch?q=" + key + "&lg=" + lang + "&t=" + t2 + "&for=" + msgId + "&f=provider,inc,bda:CP021"
         );
       }
     }
@@ -5637,9 +5643,11 @@ var BUDAResourceSelector = ({
     if (document.activeElement === inputRef.current && !isRid && keyword) {
       const previewVal = config.previewLiteral(new rdf9.Literal(keyword, language), uiLang);
       setPreview(previewVal.value);
-      setPreview(previewVal.value);
+    } else {
+      setPreview(null);
     }
-  });
+  }, [config, isRid, keyword, language, uiLang]);
+  debug17("isRid:", isRid, keyword, preview);
   return /* @__PURE__ */ jsxs11(React10.Fragment, {
     children: [
       /* @__PURE__ */ jsxs11("div", {
@@ -5742,7 +5750,7 @@ var BUDAResourceSelector = ({
                   onClick: togglePopup,
                   ...!editable ? { disabled: true } : {},
                   children: /* @__PURE__ */ jsx11(Fragment9, {
-                    children: i18n5.t("search.create")
+                    children: t("search.create")
                   })
                 })
               ]
@@ -5759,7 +5767,7 @@ var BUDAResourceSelector = ({
                     value.qname,
                     "\xA0",
                     /* @__PURE__ */ jsxs11("a", {
-                      title: i18n5.t("search.help.preview"),
+                      title: t("search.help.preview"),
                       onClick: () => {
                         if (libraryURL)
                           setLibraryURL("");
@@ -5779,7 +5787,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     /* @__PURE__ */ jsx11("a", {
-                      title: i18n5.t("search.help.open"),
+                      title: t("search.help.open"),
                       href: config.libraryUrl + "/show/" + value.qname,
                       rel: "noopener noreferrer",
                       target: "_blank",
@@ -5789,7 +5797,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     /* @__PURE__ */ jsx11(Link6, {
-                      title: i18n5.t("search.help.edit"),
+                      title: t("search.help.edit"),
                       to: "/edit/" + value.qname,
                       children: /* @__PURE__ */ jsx11(EditIcon2, {
                         style: { width: "16px" }
@@ -5797,7 +5805,7 @@ var BUDAResourceSelector = ({
                     }),
                     "\xA0",
                     canCopy.length > 0 && /* @__PURE__ */ jsx11("span", {
-                      title: i18n5.t("general.import"),
+                      title: t("general.import"),
                       children: /* @__PURE__ */ jsx11(ContentPasteIcon, {
                         style: { width: "17px", cursor: "pointer" },
                         onClick: () => {
@@ -5849,9 +5857,9 @@ var BUDAResourceSelector = ({
               entities.map((e, i) => {
                 var _a2;
                 if (!exists(e == null ? void 0 : e.subjectQname) && (e == null ? void 0 : e.subjectQname) != subject.qname && (e == null ? void 0 : e.subjectQname) != (owner == null ? void 0 : owner.qname) && ((_a2 = property.expectedObjectTypes) == null ? void 0 : _a2.some(
-                  (t) => {
+                  (t2) => {
                     var _a3;
-                    return (_a3 = e.shapeQname) == null ? void 0 : _a3.startsWith(t.qname.replace(/^bdo:/, "bds:"));
+                    return (_a3 = e.shapeQname) == null ? void 0 : _a3.startsWith(t2.qname.replace(/^bdo:/, "bds:"));
                   }
                 ))) {
                   return /* @__PURE__ */ jsx11(MenuItem5, {
@@ -5876,7 +5884,7 @@ var BUDAResourceSelector = ({
                     const url = await createAndUpdate(r);
                     navigate(url);
                   }
-                }, i18n5.t("search.new", { type: label2 }));
+                }, t("search.new", { type: label2 }));
               })
             ]
           }),

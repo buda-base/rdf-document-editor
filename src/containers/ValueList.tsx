@@ -804,6 +804,9 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
     const targetShapeLabels = property.targetShape?.targetClassPrefLabels
     const labels = targetShapeLabels ? targetShapeLabels : property.prefLabels
     const count = property.allowBatchManagement ? 2 : 1
+
+    //debug("create:", targetShapeLabels, labels, property.targetShape)
+
     return (<BlockAddButton add={addItem} label={ValueByLangToStrPrefLang(labels, uiLang)} count={count} />)
   }
 }
@@ -1968,11 +1971,12 @@ const SelectComponent: FC<{
             {...(!editable ? { disabled: true } : {})}
           >
             {possibleValues.map((v, k) => {
-              debug("possible:",v)
+              //debug("possible:",v,)
               if (v instanceof RDFResourceWithLabel) {
                 const r = v as RDFResourceWithLabel
                 const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang)
                 const span = <span>{label ? label : r.lname}</span>
+                //debug("r:",r.uri,r.description,r)
                 return (
                   <MenuItem key={"menu-uri_" + selectIdx + r.id} value={r.id} className="withDescription">
                     {r.description ? (
