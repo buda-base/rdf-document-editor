@@ -65,6 +65,7 @@ __export(src_exports, {
   getHistoryStatus: () => getHistoryStatus,
   history: () => history,
   ns: () => ns_exports,
+  rdf: () => rdf10,
   shapes: () => shapes_exports,
   updateHistory: () => updateHistory
 });
@@ -1764,6 +1765,9 @@ var enTranslations = {
 };
 var en_default = enTranslations;
 
+// src/index.ts
+var rdf10 = __toESM(require("rdflib"));
+
 // src/containers/EntityEditContainer.tsx
 var import_react4 = __toESM(require("react"));
 
@@ -2625,7 +2629,6 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
     const targetShapeLabels = (_b = property.targetShape) == null ? void 0 : _b.targetClassPrefLabels;
     const labels = targetShapeLabels ? targetShapeLabels : property.prefLabels;
     const count = property.allowBatchManagement ? 2 : 1;
-    debug7("create:", targetShapeLabels, labels, property.targetShape);
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BlockAddButton, {
       add: addItem,
       label: ValueByLangToStrPrefLang(labels, uiLang),
@@ -4592,7 +4595,6 @@ function EntityCreationContainer(props) {
   const shapeNode = rdf7.sym(config.prefixMap.uriFromQname(shapeQname));
   const entityNode = entityQname ? rdf7.sym(config.prefixMap.uriFromQname(entityQname)) : null;
   const { entityLoadingState, entity } = unmounting.val ? { entityLoadingState: { status: "idle", error: void 0 }, entity: null } : config.entityCreator(shapeNode, entityNode, unmounting);
-  debug12("new:", entityLoadingState, entity, entityQname, entity == null ? void 0 : entity.qname, shapeQname, shapeNode, entityNode);
   if (entityLoadingState.error === "422" && entity) {
     const editUrl = subjectQname && propertyQname && index != void 0 ? "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "") : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname;
     const newUrl = location.pathname.replace(/\/named\/.*/, "") + location.search;
@@ -5673,7 +5675,6 @@ var BUDAResourceSelector = ({
       setPreview(null);
     }
   }, [config, isRid, keyword, language, uiLang]);
-  debug17("isRid:", isRid, keyword, preview);
   return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_react11.default.Fragment, {
     children: [
       /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", {
@@ -5985,6 +5986,7 @@ var BUDAResourceSelector_default = BUDAResourceSelector;
   getHistoryStatus,
   history,
   ns,
+  rdf,
   shapes,
   updateHistory
 });

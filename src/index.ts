@@ -6,7 +6,9 @@ import * as atoms from "./atoms/common"
 
 import enTranslations from "./translations/en"
 
-export { ns, shapes, atoms, enTranslations }
+import * as rdf from "rdflib"
+
+export { ns, shapes, atoms, enTranslations, rdf }
 
 export { default as EntityEditContainer, EntityEditContainerMayUpdate } from "./containers/EntityEditContainer"
 export { default as NewEntityContainer } from "./containers/NewEntityContainer"

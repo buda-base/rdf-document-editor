@@ -1713,6 +1713,9 @@ var enTranslations = {
 };
 var en_default = enTranslations;
 
+// src/index.ts
+import * as rdf10 from "rdflib";
+
 // src/containers/EntityEditContainer.tsx
 import React3, { useState as useState4, useEffect as useEffect4, useCallback as useCallback2, useRef as useRef3 } from "react";
 
@@ -2585,7 +2588,6 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
     const targetShapeLabels = (_b = property.targetShape) == null ? void 0 : _b.targetClassPrefLabels;
     const labels = targetShapeLabels ? targetShapeLabels : property.prefLabels;
     const count = property.allowBatchManagement ? 2 : 1;
-    debug7("create:", targetShapeLabels, labels, property.targetShape);
     return /* @__PURE__ */ jsx(BlockAddButton, {
       add: addItem,
       label: ValueByLangToStrPrefLang(labels, uiLang),
@@ -4552,7 +4554,6 @@ function EntityCreationContainer(props) {
   const shapeNode = rdf7.sym(config.prefixMap.uriFromQname(shapeQname));
   const entityNode = entityQname ? rdf7.sym(config.prefixMap.uriFromQname(entityQname)) : null;
   const { entityLoadingState, entity } = unmounting.val ? { entityLoadingState: { status: "idle", error: void 0 }, entity: null } : config.entityCreator(shapeNode, entityNode, unmounting);
-  debug12("new:", entityLoadingState, entity, entityQname, entity == null ? void 0 : entity.qname, shapeQname, shapeNode, entityNode);
   if (entityLoadingState.error === "422" && entity) {
     const editUrl = subjectQname && propertyQname && index != void 0 ? "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "") : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname;
     const newUrl = location.pathname.replace(/\/named\/.*/, "") + location.search;
@@ -5647,7 +5648,6 @@ var BUDAResourceSelector = ({
       setPreview(null);
     }
   }, [config, isRid, keyword, language, uiLang]);
-  debug17("isRid:", isRid, keyword, preview);
   return /* @__PURE__ */ jsxs11(React10.Fragment, {
     children: [
       /* @__PURE__ */ jsxs11("div", {
@@ -5958,6 +5958,7 @@ export {
   getHistoryStatus,
   history,
   ns_exports as ns,
+  rdf10 as rdf,
   shapes_exports as shapes,
   updateHistory
 };

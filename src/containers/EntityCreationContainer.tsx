@@ -47,7 +47,7 @@ export function EntityCreationContainer(props: RDEProps) {
     ? { entityLoadingState: { status: "idle", error: undefined }, entity: null }
     : config.entityCreator(shapeNode, entityNode, unmounting)
 
-  debug("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname, shapeNode, entityNode)
+  //debug("new:", entityLoadingState, entity, entityQname, entity?.qname, shapeQname, shapeNode, entityNode)
 
   // TODO: if EntityCreator throws a 422 exception (the entity already exists),
   // we must give a choice to the user:

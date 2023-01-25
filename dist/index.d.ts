@@ -1,5 +1,6 @@
 import * as rdflib_lib_tf_types from 'rdflib/lib/tf-types';
 import * as rdf from 'rdflib';
+export { rdf };
 import * as recoil from 'recoil';
 import { RecoilState, AtomEffect, RecoilValue } from 'recoil';
 import { FC } from 'react';
