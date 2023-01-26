@@ -194,8 +194,8 @@ function EntityEditContainer(props: RDEProps) {
 
   //const [shapeQname, setShapeQname] = useState(props.match.params.shapeQname)
   //const [entityQname, setEntityQname] = useState(props.match.params.entityQname)
-  const shapeQname = params.shapeQname || ""
-  const entityQname = params.entityQname || ""
+  const shapeQname = props.shapeQname || params.shapeQname || ""
+  const entityQname = props.entityQname || params.entityQname || ""
   const [entities, setEntities] = useRecoilState(entitiesAtom)
 
   const [uiLang] = useRecoilState(uiLangState)
@@ -268,7 +268,7 @@ function EntityEditContainer(props: RDEProps) {
   if (!altLabelAtom) altLabelAtom = initListAtom
   const altLabels = useRecoilValue(altLabelAtom)
 
-  debug("EntityEditContainer:", entityQname, shapeQname, history, shape, loadingState)
+  debug("EntityEditContainer:", props, params, entityQname, shapeQname, history, shape, loadingState)
   
   useEffect(() => {
     entities.map((e, i) => {

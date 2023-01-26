@@ -149,6 +149,8 @@ export function ShapeFetcher(shapeQname: string, entityQname: string, config: RD
     if (current === shapeQname) fetchResource(shapeQname)
   }, [config, entityQname, shape, shapeQname, current, entities])
 
+  debug("sF:", shapeQname === current, shape, shapeQname, shape?.qname)
+
   const retVal =
     shapeQname === current && shape && shapeQname == shape.qname
       ? { loadingState, shape, reset }
@@ -335,7 +337,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       (e) => e.subjectQname === entityQname
     )
 
-    //debug("eF:", shapeLoaded, reloadEntity, entityQname, entities, current)
+    debug("eF:", shapeLoaded, reloadEntity, entityQname, entities, current)
 
     if (
       shapeLoaded && (

@@ -185,6 +185,8 @@ var PrefixMap = class {
     return uri.slice(0, j + 1);
   };
   uriFromQname = (qname = "") => {
+    if (!qname)
+      return "";
     const j = qname.indexOf(":");
     if (j < 0)
       throw new Error("Cannot make uri out of <" + qname + ">");
@@ -1822,6 +1824,7 @@ function ShapeFetcher(shapeQname, entityQname, config) {
     if (current === shapeQname)
       fetchResource(shapeQname);
   }, [config, entityQname, shape, shapeQname, current, entities]);
+  debug5("sF:", shapeQname === current, shape, shapeQname, shape == null ? void 0 : shape.qname);
   const retVal = shapeQname === current && shape && shapeQname == shape.qname ? { loadingState, shape, reset } : { loadingState: { status: "loading", error: void 0 }, shape: void 0, reset };
   return retVal;
 }
@@ -1975,6 +1978,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     const index = entities.findIndex(
       (e) => e.subjectQname === entityQname
     );
+    debug5("eF:", shapeLoaded, reloadEntity, entityQname, entities, current);
     if (shapeLoaded && (reloadEntity === entityQname && !entities[index].subject || current === entityQname && (index === -1 || entities[index] && !entities[index].subject))) {
       if (idToken)
         fetchResource(entityQname);
@@ -3490,6 +3494,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
   const entity = entities.findIndex((e, i) => i === uiTab);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLitLang);
+  debug7("select:", res, property.in, property);
   let possibleValues = property.in;
   if (possibleValues == null)
     throw "can't find possible list for " + property.uri;
@@ -4039,8 +4044,8 @@ function EntityEditContainer(props) {
   const config = props.config;
   const params = useParams();
   const { t } = useTranslation4();
-  const shapeQname = params.shapeQname || "";
-  const entityQname = params.entityQname || "";
+  const shapeQname = props.shapeQname || params.shapeQname || "";
+  const entityQname = props.entityQname || params.entityQname || "";
   const [entities, setEntities] = useRecoilState4(entitiesAtom);
   const [uiLang] = useRecoilState4(uiLangState);
   const [edit, setEdit] = useRecoilState4(uiEditState);
@@ -4091,7 +4096,7 @@ function EntityEditContainer(props) {
   if (!altLabelAtom)
     altLabelAtom = initListAtom;
   const altLabels = useRecoilValue2(altLabelAtom);
-  debug9("EntityEditContainer:", entityQname, shapeQname, history, shape, loadingState);
+  debug9("EntityEditContainer:", props, params, entityQname, shapeQname, history, shape, loadingState);
   useEffect4(() => {
     entities.map((e, i) => {
       if (e.subjectQname === entityQname) {

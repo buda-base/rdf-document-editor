@@ -1867,7 +1867,7 @@ const SelectComponent: FC<{
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang)
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLitLang)
 
-  //debug("select:",res,property.in,property)
+  debug("select:",res,property.in,property)
 
   let possibleValues = property.in
   if (possibleValues == null) throw "can't find possible list for " + property.uri
