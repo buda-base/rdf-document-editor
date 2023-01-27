@@ -477,7 +477,7 @@ function EntityEditContainer(props: RDEProps) {
   return (
     <React.Fragment>
       <div role="main" className="pt-4" style={{ textAlign: "center" }}>
-        <div className={"header " + icon?.toLowerCase()} {...(!icon ? { "data-shape": shape.qname } : {})}>
+        <div className={"header " + icon?.toLowerCase().replace(/(.*?[/])?([^/]+)\.[^.]+/,"$2")} {...(!icon ? { "data-shape": shape.qname } : {})}>
           <div className="shape-icon"></div>
           <div>
             <h1>{shapeLabel}</h1>

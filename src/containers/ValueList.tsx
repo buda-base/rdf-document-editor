@@ -1867,7 +1867,7 @@ const SelectComponent: FC<{
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang)
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLitLang)
 
-  debug("select:",res,property.in,property)
+  //debug("select:",res,property.in,property)
 
   let possibleValues = property.in
   if (possibleValues == null) throw "can't find possible list for " + property.uri
@@ -1975,7 +1975,7 @@ const SelectComponent: FC<{
               if (v instanceof RDFResourceWithLabel) {
                 const r = v as RDFResourceWithLabel
                 const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang)
-                const span = <span>{label ? label : r.lname}</span>
+                const span = <span>{label ? label : r.qname}</span>
                 //debug("r:",r.uri,r.description,r)
                 return (
                   <MenuItem key={"menu-uri_" + selectIdx + r.id} value={r.id} className="withDescription">

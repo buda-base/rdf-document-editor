@@ -351,8 +351,8 @@ declare class RDFResource {
     getPropBooleanValue(p: rdf.NamedNode, dflt?: boolean): boolean;
 }
 declare class RDFResourceWithLabel extends RDFResource {
-    node: rdf.NamedNode;
-    constructor(node: rdf.NamedNode, graph: EntityGraph, labelProp?: rdf.NamedNode);
+    node: rdf.NamedNode | rdf.BlankNode;
+    constructor(node: rdf.NamedNode | rdf.BlankNode, graph: EntityGraph, labelProp?: rdf.NamedNode);
     get prefLabels(): Record<string, string>;
     get description(): Record<string, string> | null;
 }

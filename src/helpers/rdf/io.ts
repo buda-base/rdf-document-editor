@@ -149,7 +149,7 @@ export function ShapeFetcher(shapeQname: string, entityQname: string, config: RD
     if (current === shapeQname) fetchResource(shapeQname)
   }, [config, entityQname, shape, shapeQname, current, entities])
 
-  debug("sF:", shapeQname === current, shape, shapeQname, shape?.qname)
+  //debug("sF:", shapeQname === current, shape, shapeQname, shape?.qname)
 
   const retVal =
     shapeQname === current && shape && shapeQname == shape.qname
@@ -202,7 +202,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       const entityUri = config.prefixMap.uriFromQname(entityQname)
       const entityNode = rdf.sym(entityUri)
 
-      debug("fetching", entity, shapeQname, entityQname, entities) //, isAuthenticated, idToken)
+      //debug("fetching", entity, shapeQname, entityQname, entities) //, isAuthenticated, idToken)
 
       // TODO: UI "save draft" / "publish"
 
@@ -337,7 +337,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       (e) => e.subjectQname === entityQname
     )
 
-    debug("eF:", shapeLoaded, reloadEntity, entityQname, entities, current)
+    //debug("eF:", shapeLoaded, reloadEntity, entityQname, entities, current)
 
     if (
       shapeLoaded && (

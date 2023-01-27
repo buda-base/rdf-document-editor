@@ -374,7 +374,7 @@ const BUDAResourceSelector: FC<{
       url =
         "/new/" +
         // TODO: perhaps users might want to choose between different shapes?
-        config.possibleShapeRefsForType(type.node)[0].qname +
+        config.possibleShapeRefsForType(type.node as rdf.NamedNode)[0].qname +
         "/" +
         (owner?.qname && owner.qname !== subject.qname ? owner.qname : subject.qname) +
         "/" +

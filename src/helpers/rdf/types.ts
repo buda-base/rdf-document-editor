@@ -594,9 +594,9 @@ export class RDFResource {
 }
 
 export class RDFResourceWithLabel extends RDFResource {
-  node: rdf.NamedNode
+  node: rdf.NamedNode | rdf.BlankNode
 
-  constructor(node: rdf.NamedNode, graph: EntityGraph, labelProp?: rdf.NamedNode) {
+  constructor(node: rdf.NamedNode | rdf.BlankNode, graph: EntityGraph, labelProp?: rdf.NamedNode) {
     super(node, graph)
     this.node = node
   }
@@ -607,7 +607,7 @@ export class RDFResourceWithLabel extends RDFResource {
       const res = this.getPropValueOrNullByLang(p)
       if (res != null) return res
     }
-    return { en: this.node.uri }
+    return { en: this.node.value }
   }
 
   @Memoize()

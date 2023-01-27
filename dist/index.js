@@ -838,7 +838,7 @@ var RDFResourceWithLabel = class extends RDFResource {
       if (res != null)
         return res;
     }
-    return { en: this.node.uri };
+    return { en: this.node.value };
   }
   get description() {
     for (const p of this.graph.descriptionProperties) {
@@ -1079,13 +1079,12 @@ var _PropertyShape = class extends RDFResourceWithLabel {
   }
   static resourcizeWithInit(nodes, graph3) {
     const res = [];
-    for (const node of nodes)
-      if (node instanceof rdf3.NamedNode) {
-        const r = new RDFResourceWithLabel(node, graph3);
-        let justforinit = r.description;
-        justforinit = r.prefLabels;
-        res.push(r);
-      }
+    for (const node of nodes) {
+      const r = new RDFResourceWithLabel(node, graph3);
+      let justforinit = r.description;
+      justforinit = r.prefLabels;
+      res.push(r);
+    }
     return res;
   }
   get hasListAsObject() {
@@ -1876,7 +1875,6 @@ function ShapeFetcher(shapeQname, entityQname, config) {
     if (current === shapeQname)
       fetchResource(shapeQname);
   }, [config, entityQname, shape, shapeQname, current, entities]);
-  debug5("sF:", shapeQname === current, shape, shapeQname, shape == null ? void 0 : shape.qname);
   const retVal = shapeQname === current && shape && shapeQname == shape.qname ? { loadingState, shape, reset } : { loadingState: { status: "loading", error: void 0 }, shape: void 0, reset };
   return retVal;
 }
@@ -1915,7 +1913,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       setEntityLoadingState({ status: "fetching", error: void 0 });
       const entityUri = config.prefixMap.uriFromQname(entityQname2);
       const entityNode = rdf4.sym(entityUri);
-      debug5("fetching", entity, shapeQname, entityQname2, entities);
       let loadRes, loadLabels, localRes, useLocal, notFound, needsSaving;
       let res = null;
       let etag = null;
@@ -2030,7 +2027,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     const index = entities.findIndex(
       (e) => e.subjectQname === entityQname
     );
-    debug5("eF:", shapeLoaded, reloadEntity, entityQname, entities, current);
     if (shapeLoaded && (reloadEntity === entityQname && !entities[index].subject || current === entityQname && (index === -1 || entities[index] && !entities[index].subject))) {
       if (idToken)
         fetchResource(entityQname);
@@ -3535,7 +3531,6 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
   const entity = entities.findIndex((e, i) => i === uiTab);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLitLang);
-  debug7("select:", res, property.in, property);
   let possibleValues = property.in;
   if (possibleValues == null)
     throw "can't find possible list for " + property.uri;
@@ -3639,7 +3634,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
                   const r = v;
                   const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang);
                   const span = /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-                    children: label ? label : r.lname
+                    children: label ? label : r.qname
                   });
                   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, {
                     value: r.id,
@@ -4311,7 +4306,7 @@ function EntityEditContainer(props) {
         className: "pt-4",
         style: { textAlign: "center" },
         children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", {
-          className: "header " + (icon == null ? void 0 : icon.toLowerCase()),
+          className: "header " + (icon == null ? void 0 : icon.toLowerCase().replace(/(.*?[/])?([^/]+)\.[^.]+/, "$2")),
           ...!icon ? { "data-shape": shape.qname } : {},
           children: [
             /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
