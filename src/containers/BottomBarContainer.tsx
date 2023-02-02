@@ -42,7 +42,7 @@ export default function BottomBarContainer (props: RDEProps) {
   const entityUri = entities[entity]?.subject?.uri || "tmp:uri"
   const [message, setMessage] = useState<string|null>(null)
   const [uiLang, setUiLang] = useRecoilState(uiLangState)
-  const [lang, setLang] = useState<string>(uiLang[0])
+  const [lang, setLang] = useState<string>(uiLang)
   const [saving, setSaving] = useState(false)
   const [gen, setGen] = useState(false)
   const [popupOn, setPopupOn] = useRecoilState(savePopupState)

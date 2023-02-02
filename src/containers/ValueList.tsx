@@ -876,10 +876,10 @@ const EditLangString: FC<{
   useLayoutEffect(() => {
     if (document.activeElement === inputRef.current) {
       const { value, error } = config.previewLiteral(lit, uiLang)
-      setPreview(value)
-      setError(error)
+      if(preview !== value) setPreview(value)
+      if(error !== error) setError(error)
     } else {
-      setPreview(null)
+      if(preview !== null) setPreview(null)
     }
   })
 
@@ -985,13 +985,13 @@ const EditLangString: FC<{
             {...(!editable ? { disabled: true } : {})}
             onFocus={() => {
               const { value, error } = config.previewLiteral(lit, uiLang)
-              setPreview(value)
-              setError(error)
+              if(value !== preview) setPreview(value)
+              if(error !== error) setError(error)
             }}
             onBlur={() => {
-              setPreview(null)
+              if(preview !== null) setPreview(null)
               setTimeout(() => {
-                if (inputRef.current && document.activeElement != inputRef.current) setKeyboard(false)
+                if (inputRef.current && document.activeElement != inputRef.current && keyboard !== false) setKeyboard(false)
               }, 350)
             }}
           />
@@ -1239,7 +1239,7 @@ const EditString: FC<{
         value={lit.value}
         // TODO: refactor
         {...(property.qname !== "bds:NoteShape-contentLocationStatement" ? { InputLabelProps: { shrink: true } } : {})}
-        onBlur={(e) => setPreview(null)}
+        onBlur={(e) => { if(preview !== null) setPreview(null); }}
         onFocus={(e) => changeCallback(e.target.value)}
         onChange={(e) => changeCallback(e.target.value)}
         {...(!editable ? { disabled: true } : {})}
@@ -1973,13 +1973,13 @@ const SelectComponent: FC<{
               //debug("possible:",v,)
               if (v instanceof RDFResourceWithLabel) {
                 const r = v as RDFResourceWithLabel
-                const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang)
+                const label = ValueByLangToStrPrefLang(r.prefLabels, uiLang)
                 const span = <span>{label ? label : r.qname}</span>
                 //debug("r:",r.uri,r.description,r)
                 return (
                   <MenuItem key={"menu-uri_" + selectIdx + r.id} value={r.id} className="withDescription">
                     {r.description ? (
-                      <Tooltip title={ValueByLangToStrPrefLang(r.description, uiLitLang)}>{span}</Tooltip>
+                      <Tooltip title={ValueByLangToStrPrefLang(r.description, uiLang)}>{span}</Tooltip>
                     ) : 
                       span
                     }

@@ -2638,10 +2638,13 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
   useLayoutEffect(() => {
     if (document.activeElement === inputRef.current) {
       const { value, error: error2 } = config.previewLiteral(lit, uiLang);
-      setPreview(value);
-      setError(error2);
+      if (preview !== value)
+        setPreview(value);
+      if (error2 !== error2)
+        setError(error2);
     } else {
-      setPreview(null);
+      if (preview !== null)
+        setPreview(null);
     }
   });
   let padBot = "0px";
@@ -2748,13 +2751,16 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
             ...!editable ? { disabled: true } : {},
             onFocus: () => {
               const { value, error: error2 } = config.previewLiteral(lit, uiLang);
-              setPreview(value);
-              setError(error2);
+              if (value !== preview)
+                setPreview(value);
+              if (error2 !== error2)
+                setError(error2);
             },
             onBlur: () => {
-              setPreview(null);
+              if (preview !== null)
+                setPreview(null);
               setTimeout(() => {
-                if (inputRef.current && document.activeElement != inputRef.current)
+                if (inputRef.current && document.activeElement != inputRef.current && keyboard !== false)
                   setKeyboard(false);
               }, 350);
             }
@@ -2980,7 +2986,10 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
         style: { width: "100%" },
         value: lit.value,
         ...property.qname !== "bds:NoteShape-contentLocationStatement" ? { InputLabelProps: { shrink: true } } : {},
-        onBlur: (e) => setPreview(null),
+        onBlur: (e) => {
+          if (preview !== null)
+            setPreview(null);
+        },
         onFocus: (e) => changeCallback(e.target.value),
         onChange: (e) => changeCallback(e.target.value),
         ...!editable ? { disabled: true } : {},
@@ -3588,7 +3597,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
               possibleValues.map((v, k) => {
                 if (v instanceof RDFResourceWithLabel) {
                   const r = v;
-                  const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang);
+                  const label = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
                   const span = /* @__PURE__ */ jsx("span", {
                     children: label ? label : r.qname
                   });
@@ -3596,7 +3605,7 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
                     value: r.id,
                     className: "withDescription",
                     children: r.description ? /* @__PURE__ */ jsx(Tooltip, {
-                      title: ValueByLangToStrPrefLang(r.description, uiLitLang),
+                      title: ValueByLangToStrPrefLang(r.description, uiLang),
                       children: span
                     }) : span
                   }, "menu-uri_" + selectIdx + r.id);
@@ -5102,7 +5111,7 @@ function BottomBarContainer(props) {
   const entityUri = ((_c = (_b = entities[entity]) == null ? void 0 : _b.subject) == null ? void 0 : _c.uri) || "tmp:uri";
   const [message, setMessage] = useState8(null);
   const [uiLang, setUiLang] = useRecoilState10(uiLangState);
-  const [lang, setLang] = useState8(uiLang[0]);
+  const [lang, setLang] = useState8(uiLang);
   const [saving, setSaving] = useState8(false);
   const [gen, setGen] = useState8(false);
   const [popupOn, setPopupOn] = useRecoilState10(savePopupState);
