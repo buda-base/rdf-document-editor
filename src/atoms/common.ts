@@ -448,3 +448,9 @@ export const isUniqueTestSelector = selectorFamily<boolean, isUniqueTestSelector
       return true
     },
 })
+
+export const idTokenAtom = atom<string|null>({
+  key: "rde_idTokenAtom",
+  default: localStorage.getItem("BLMPidToken")
+})
+

@@ -193,6 +193,7 @@ export default function BottomBarContainer (props: RDEProps) {
               <TextField
                 label={"commit message"}
                 value={message}
+                variant="standard"
                 onChange={onMessageChangeHandler}
                 InputLabelProps={{ shrink: true }}
                 style={{ minWidth: 300 }}
@@ -217,6 +218,7 @@ export default function BottomBarContainer (props: RDEProps) {
 
               <TextField
                 select
+                variant="standard"
                 value={lang}
                 onChange={onLangChangeHandler}
                 InputLabelProps={{ shrink: true }}

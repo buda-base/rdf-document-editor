@@ -1333,6 +1333,7 @@ __export(common_exports, {
   EditedEntityState: () => EditedEntityState,
   defaultEntityLabelAtom: () => defaultEntityLabelAtom,
   entitiesAtom: () => entitiesAtom,
+  idTokenAtom: () => idTokenAtom,
   initListAtom: () => initListAtom,
   initMapAtom: () => initMapAtom,
   initStringAtom: () => initStringAtom,
@@ -1642,6 +1643,10 @@ var isUniqueTestSelector = selectorFamily({
     return true;
   }
 });
+var idTokenAtom = atom2({
+  key: "rde_idTokenAtom",
+  default: localStorage.getItem("BLMPidToken")
+});
 
 // src/translations/en.js
 var enTranslations = {
@@ -1832,7 +1837,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   const [uiReady, setUiReady] = useRecoilState(uiReadyState);
   const [entities, setEntities] = useRecoilState(entitiesAtom);
   const [sessionLoaded, setSessionLoaded] = useRecoilState(sessionLoadedState);
-  const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"));
+  const [idToken, setIdToken] = useRecoilState(idTokenAtom);
   const [current, setCurrent] = useState(entityQname);
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState);
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState);
@@ -2214,7 +2219,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     throw "can't find path of " + property.qname;
   const [unsortedList, setList] = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
   const [uiLang] = useRecoilState2(uiLangState);
-  const [idToken, setIdToken] = useState2(localStorage.getItem("BLMPidToken"));
+  const [idToken, setIdToken] = useRecoilState2(idTokenAtom);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
   const [undos, setUndos] = useRecoilState2(uiUndosState);
@@ -5236,6 +5241,7 @@ function BottomBarContainer(props) {
               /* @__PURE__ */ jsx10(TextField4, {
                 label: "commit message",
                 value: message,
+                variant: "standard",
                 onChange: onMessageChangeHandler,
                 InputLabelProps: { shrink: true },
                 style: { minWidth: 300 },
@@ -5263,6 +5269,7 @@ function BottomBarContainer(props) {
               }),
               /* @__PURE__ */ jsx10(TextField4, {
                 select: true,
+                variant: "standard",
                 value: lang,
                 onChange: onLangChangeHandler,
                 InputLabelProps: { shrink: true },

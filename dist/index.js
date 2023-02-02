@@ -1385,6 +1385,7 @@ __export(common_exports, {
   EditedEntityState: () => EditedEntityState,
   defaultEntityLabelAtom: () => defaultEntityLabelAtom,
   entitiesAtom: () => entitiesAtom,
+  idTokenAtom: () => idTokenAtom,
   initListAtom: () => initListAtom,
   initMapAtom: () => initMapAtom,
   initStringAtom: () => initStringAtom,
@@ -1694,6 +1695,10 @@ var isUniqueTestSelector = (0, import_recoil2.selectorFamily)({
     return true;
   }
 });
+var idTokenAtom = (0, import_recoil2.atom)({
+  key: "rde_idTokenAtom",
+  default: localStorage.getItem("BLMPidToken")
+});
 
 // src/translations/en.js
 var enTranslations = {
@@ -1884,7 +1889,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   const [uiReady, setUiReady] = (0, import_recoil3.useRecoilState)(uiReadyState);
   const [entities, setEntities] = (0, import_recoil3.useRecoilState)(entitiesAtom);
   const [sessionLoaded, setSessionLoaded] = (0, import_recoil3.useRecoilState)(sessionLoadedState);
-  const [idToken, setIdToken] = (0, import_react.useState)(localStorage.getItem("BLMPidToken"));
+  const [idToken, setIdToken] = (0, import_recoil3.useRecoilState)(idTokenAtom);
   const [current, setCurrent] = (0, import_react.useState)(entityQname);
   const [reloadEntity, setReloadEntity] = (0, import_recoil3.useRecoilState)(reloadEntityState);
   const [disabled, setDisabled] = (0, import_recoil3.useRecoilState)(uiDisabledTabsState);
@@ -2255,7 +2260,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     throw "can't find path of " + property.qname;
   const [unsortedList, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
   const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
-  const [idToken, setIdToken] = (0, import_react2.useState)(localStorage.getItem("BLMPidToken"));
+  const [idToken, setIdToken] = (0, import_recoil4.useRecoilState)(idTokenAtom);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
   const [undos, setUndos] = (0, import_recoil4.useRecoilState)(uiUndosState);
@@ -5272,6 +5277,7 @@ function BottomBarContainer(props) {
               /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.TextField, {
                 label: "commit message",
                 value: message,
+                variant: "standard",
                 onChange: onMessageChangeHandler,
                 InputLabelProps: { shrink: true },
                 style: { minWidth: 300 },
@@ -5299,6 +5305,7 @@ function BottomBarContainer(props) {
               }),
               /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.TextField, {
                 select: true,
+                variant: "standard",
                 value: lang,
                 onChange: onLangChangeHandler,
                 InputLabelProps: { shrink: true },

@@ -12,6 +12,7 @@ import {
   sessionLoadedState,
   EditedEntityState,
   defaultEntityLabelAtom,
+  idTokenAtom
 } from "../../atoms/common"
 import RDEConfig, { IFetchState } from "../rde_config"
 import { prefLabel } from "./ns"
@@ -165,7 +166,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
   const [uiReady, setUiReady] = useRecoilState(uiReadyState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
   const [sessionLoaded, setSessionLoaded] = useRecoilState(sessionLoadedState)
-  const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"))
+  const [idToken, setIdToken] = useRecoilState(idTokenAtom)
   const [current, setCurrent] = useState(entityQname)
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState)
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
