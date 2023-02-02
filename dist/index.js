@@ -1385,7 +1385,6 @@ __export(common_exports, {
   EditedEntityState: () => EditedEntityState,
   defaultEntityLabelAtom: () => defaultEntityLabelAtom,
   entitiesAtom: () => entitiesAtom,
-  idTokenAtom: () => idTokenAtom,
   initListAtom: () => initListAtom,
   initMapAtom: () => initMapAtom,
   initStringAtom: () => initStringAtom,
@@ -1695,10 +1694,6 @@ var isUniqueTestSelector = (0, import_recoil2.selectorFamily)({
     return true;
   }
 });
-var idTokenAtom = (0, import_recoil2.atom)({
-  key: "rde_idTokenAtom",
-  default: localStorage.getItem("BLMPidToken")
-});
 
 // src/translations/en.js
 var enTranslations = {
@@ -1889,7 +1884,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   const [uiReady, setUiReady] = (0, import_recoil3.useRecoilState)(uiReadyState);
   const [entities, setEntities] = (0, import_recoil3.useRecoilState)(entitiesAtom);
   const [sessionLoaded, setSessionLoaded] = (0, import_recoil3.useRecoilState)(sessionLoadedState);
-  const [idToken, setIdToken] = (0, import_recoil3.useRecoilState)(idTokenAtom);
   const [current, setCurrent] = (0, import_react.useState)(entityQname);
   const [reloadEntity, setReloadEntity] = (0, import_recoil3.useRecoilState)(reloadEntityState);
   const [disabled, setDisabled] = (0, import_recoil3.useRecoilState)(uiDisabledTabsState);
@@ -2033,8 +2027,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       (e) => e.subjectQname === entityQname
     );
     if (shapeLoaded && (reloadEntity === entityQname && !entities[index].subject || current === entityQname && (index === -1 || entities[index] && !entities[index].subject))) {
-      if (idToken)
-        fetchResource(entityQname);
+      fetchResource(entityQname);
     } else {
       if (unmounting.val)
         return;
@@ -2050,7 +2043,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       else
         setUiReady(true);
     }
-  }, [config, entities, entityQname, entity, current, shapeQname, idToken, reloadEntity, shapeLoaded]);
+  }, [config, entities, entityQname, entity, current, shapeQname, reloadEntity, shapeLoaded]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
   return retVal;
 }
@@ -2260,7 +2253,6 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     throw "can't find path of " + property.qname;
   const [unsortedList, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
   const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
-  const [idToken, setIdToken] = (0, import_recoil4.useRecoilState)(idTokenAtom);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
   const [undos, setUndos] = (0, import_recoil4.useRecoilState)(uiUndosState);

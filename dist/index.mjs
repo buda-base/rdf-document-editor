@@ -1333,7 +1333,6 @@ __export(common_exports, {
   EditedEntityState: () => EditedEntityState,
   defaultEntityLabelAtom: () => defaultEntityLabelAtom,
   entitiesAtom: () => entitiesAtom,
-  idTokenAtom: () => idTokenAtom,
   initListAtom: () => initListAtom,
   initMapAtom: () => initMapAtom,
   initStringAtom: () => initStringAtom,
@@ -1643,10 +1642,6 @@ var isUniqueTestSelector = selectorFamily({
     return true;
   }
 });
-var idTokenAtom = atom2({
-  key: "rde_idTokenAtom",
-  default: localStorage.getItem("BLMPidToken")
-});
 
 // src/translations/en.js
 var enTranslations = {
@@ -1837,7 +1832,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   const [uiReady, setUiReady] = useRecoilState(uiReadyState);
   const [entities, setEntities] = useRecoilState(entitiesAtom);
   const [sessionLoaded, setSessionLoaded] = useRecoilState(sessionLoadedState);
-  const [idToken, setIdToken] = useRecoilState(idTokenAtom);
   const [current, setCurrent] = useState(entityQname);
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState);
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState);
@@ -1981,8 +1975,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       (e) => e.subjectQname === entityQname
     );
     if (shapeLoaded && (reloadEntity === entityQname && !entities[index].subject || current === entityQname && (index === -1 || entities[index] && !entities[index].subject))) {
-      if (idToken)
-        fetchResource(entityQname);
+      fetchResource(entityQname);
     } else {
       if (unmounting.val)
         return;
@@ -1998,7 +1991,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       else
         setUiReady(true);
     }
-  }, [config, entities, entityQname, entity, current, shapeQname, idToken, reloadEntity, shapeLoaded]);
+  }, [config, entities, entityQname, entity, current, shapeQname, reloadEntity, shapeLoaded]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
   return retVal;
 }
@@ -2219,7 +2212,6 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     throw "can't find path of " + property.qname;
   const [unsortedList, setList] = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
   const [uiLang] = useRecoilState2(uiLangState);
-  const [idToken, setIdToken] = useRecoilState2(idTokenAtom);
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
   const [undos, setUndos] = useRecoilState2(uiUndosState);

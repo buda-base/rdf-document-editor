@@ -39,8 +39,7 @@ import {
   isUniqueTestSelectorType,
   initStringAtom,
   entitiesAtom,
-  EditedEntityState,
-  idTokenAtom
+  EditedEntityState
 } from "../atoms/common"
 
 import MDEditor, { commands } from "@uiw/react-md-editor"
@@ -280,7 +279,6 @@ const ValueList: FC<{
   if (property.path == null) throw "can't find path of " + property.qname
   const [unsortedList, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
   const [uiLang] = useRecoilState(uiLangState)
-  const [idToken, setIdToken] = useRecoilState(idTokenAtom)
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang)
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang)
   const [undos, setUndos] = useRecoilState(uiUndosState)

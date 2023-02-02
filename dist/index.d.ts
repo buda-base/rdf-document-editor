@@ -586,7 +586,6 @@ declare type isUniqueTestSelectorType = {
     propertyPath: string;
 };
 declare const isUniqueTestSelector: (param: isUniqueTestSelectorType) => recoil.RecoilValueReadOnly<boolean>;
-declare const idTokenAtom: RecoilState<string | null>;
 
 type common_EditedEntityState = EditedEntityState;
 declare const common_EditedEntityState: typeof EditedEntityState;
@@ -633,7 +632,6 @@ type common_ESfromRecoilSelectorType = ESfromRecoilSelectorType;
 declare const common_ESfromRecoilSelector: typeof ESfromRecoilSelector;
 type common_isUniqueTestSelectorType = isUniqueTestSelectorType;
 declare const common_isUniqueTestSelector: typeof isUniqueTestSelector;
-declare const common_idTokenAtom: typeof idTokenAtom;
 declare namespace common {
   export {
     common_EditedEntityState as EditedEntityState,
@@ -680,7 +678,6 @@ declare namespace common {
     common_ESfromRecoilSelector as ESfromRecoilSelector,
     common_isUniqueTestSelectorType as isUniqueTestSelectorType,
     common_isUniqueTestSelector as isUniqueTestSelector,
-    common_idTokenAtom as idTokenAtom,
   };
 }
 

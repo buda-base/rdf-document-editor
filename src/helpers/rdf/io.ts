@@ -11,8 +11,7 @@ import {
   entitiesAtom,
   sessionLoadedState,
   EditedEntityState,
-  defaultEntityLabelAtom,
-  idTokenAtom
+  defaultEntityLabelAtom
 } from "../../atoms/common"
 import RDEConfig, { IFetchState } from "../rde_config"
 import { prefLabel } from "./ns"
@@ -166,7 +165,6 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
   const [uiReady, setUiReady] = useRecoilState(uiReadyState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
   const [sessionLoaded, setSessionLoaded] = useRecoilState(sessionLoadedState)
-  const [idToken, setIdToken] = useRecoilState(idTokenAtom)
   const [current, setCurrent] = useState(entityQname)
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState)
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
@@ -203,7 +201,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       const entityUri = config.prefixMap.uriFromQname(entityQname)
       const entityNode = rdf.sym(entityUri)
 
-      //debug("fetching", entity, shapeQname, entityQname, entities) //, isAuthenticated, idToken)
+      //debug("fetching", entity, shapeQname, entityQname, entities) //, isAuthenticated)
 
       // TODO: UI "save draft" / "publish"
 
@@ -346,7 +344,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
         current === entityQname && (index === -1 || entities[index] && !entities[index].subject)
       )
     ) {
-      if (idToken) fetchResource(entityQname)
+      fetchResource(entityQname)      
     } else {
       if (unmounting.val) return
       else setEntityLoadingState({ status: "fetched", error: undefined })
@@ -359,7 +357,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       if (unmounting.val) return
       else setUiReady(true)
     }
-  }, [config, entities, entityQname, entity, current, shapeQname, idToken, reloadEntity, shapeLoaded])
+  }, [config, entities, entityQname, entity, current, shapeQname, reloadEntity, shapeLoaded])
 
   const retVal =
     entityQname === current
