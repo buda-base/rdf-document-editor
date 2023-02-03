@@ -896,6 +896,7 @@ interface IdTypeParams {
     subnodeQname?: string;
 }
 interface RDEProps extends IdTypeParams {
+    extraElement?: JSX.Element | Iterable<JSX.Element>;
     copy?: string | null | (string | null)[];
 }
 

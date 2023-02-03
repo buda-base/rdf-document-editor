@@ -50,7 +50,7 @@ export default function BottomBarContainer (props: RDEProps) {
   const shapeQname = entities[entity]?.shapeQname
   const [error, setError] = useState<React.ReactNode>(null)
   const [errorCode, setErrorCode] = useState<number|undefined>(undefined)
-  const [spinner, setSpinner] = useState(false)
+  const [spinner, setSpinner] = useState(false)  
 
   const { t } = useTranslation()
 
@@ -185,7 +185,9 @@ export default function BottomBarContainer (props: RDEProps) {
   }
 
   return (
-    <nav className="bottom navbar navbar-dark navbar-expand-md">
+    <nav className="bottom navbar navbar-dark navbar-expand-md"><>
+      { props.extraElement }
+      <span/>
       <div className={"popup " + (popupOn ? "on " : "") + (error ? "error " : "") }>
         <div>
           {saving && (
@@ -259,6 +261,6 @@ export default function BottomBarContainer (props: RDEProps) {
           </Button>
         )}
       </div>
-    </nav>
+    </></nav>
   )
 }

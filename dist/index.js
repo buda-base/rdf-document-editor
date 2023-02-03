@@ -5267,81 +5267,85 @@ function BottomBarContainer(props) {
       setReloadEntity(entitySubj.qname);
     closePopup();
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("nav", {
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("nav", {
     className: "bottom navbar navbar-dark navbar-expand-md",
-    children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", {
-        className: "popup " + (popupOn ? "on " : "") + (error ? "error " : ""),
-        children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", {
-          children: saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, {
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.TextField, {
-                label: "commit message",
-                value: message,
-                variant: "standard",
-                onChange: onMessageChangeHandler,
-                InputLabelProps: { shrink: true },
-                style: { minWidth: 300 },
-                ...error ? {
-                  helperText: /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", {
-                    style: { display: "flex", alignItems: "center" },
-                    children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_icons_material7.Error, {
-                        style: { fontSize: "20px" }
-                      }),
-                      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("i", {
-                        style: { paddingLeft: "5px", lineHeight: "14px", display: "inline-block" },
-                        children: error
-                      }),
-                      "\xA0\xA0",
-                      errorCode === 412 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
-                        className: "btn-blanc",
-                        onClick: handleReload,
-                        children: t("general.reload")
-                      })
-                    ]
-                  }),
-                  error: true
-                } : {}
-              }),
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.TextField, {
-                select: true,
-                variant: "standard",
-                value: lang,
-                onChange: onLangChangeHandler,
-                InputLabelProps: { shrink: true },
-                style: { minWidth: 100, marginTop: "16px", marginLeft: "15px", marginRight: "15px" },
-                children: props.config.possibleLiteralLangs.map((option) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.MenuItem, {
-                  value: option.value,
-                  children: option.value
-                }, option.value))
-              })
-            ]
+    children: /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, {
+      children: [
+        props.extraElement,
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", {}),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", {
+          className: "popup " + (popupOn ? "on " : "") + (error ? "error " : ""),
+          children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", {
+            children: saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, {
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.TextField, {
+                  label: "commit message",
+                  value: message,
+                  variant: "standard",
+                  onChange: onMessageChangeHandler,
+                  InputLabelProps: { shrink: true },
+                  style: { minWidth: 300 },
+                  ...error ? {
+                    helperText: /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", {
+                      style: { display: "flex", alignItems: "center" },
+                      children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_icons_material7.Error, {
+                          style: { fontSize: "20px" }
+                        }),
+                        /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("i", {
+                          style: { paddingLeft: "5px", lineHeight: "14px", display: "inline-block" },
+                          children: error
+                        }),
+                        "\xA0\xA0",
+                        errorCode === 412 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
+                          className: "btn-blanc",
+                          onClick: handleReload,
+                          children: t("general.reload")
+                        })
+                      ]
+                    }),
+                    error: true
+                  } : {}
+                }),
+                /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.TextField, {
+                  select: true,
+                  variant: "standard",
+                  value: lang,
+                  onChange: onLangChangeHandler,
+                  InputLabelProps: { shrink: true },
+                  style: { minWidth: 100, marginTop: "16px", marginLeft: "15px", marginRight: "15px" },
+                  children: props.config.possibleLiteralLangs.map((option) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.MenuItem, {
+                    value: option.value,
+                    children: option.value
+                  }, option.value))
+                })
+              ]
+            })
           })
+        }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", {
+          className: "buttons",
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
+              variant: "outlined",
+              onClick: save,
+              className: "btn-rouge",
+              ...spinner || message === "" && saving || saved || errorCode ? { disabled: true } : {},
+              children: spinner ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.CircularProgress, {
+                size: "14px",
+                color: "primary"
+              }) : saving ? t("general.ok") : t("general.save")
+            }),
+            saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
+              variant: "outlined",
+              onClick: closePopupHandler,
+              className: "btn-blanc ml-2",
+              children: t("general.cancel")
+            })
+          ]
         })
-      }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", {
-        className: "buttons",
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
-            variant: "outlined",
-            onClick: save,
-            className: "btn-rouge",
-            ...spinner || message === "" && saving || saved || errorCode ? { disabled: true } : {},
-            children: spinner ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.CircularProgress, {
-              size: "14px",
-              color: "primary"
-            }) : saving ? t("general.ok") : t("general.save")
-          }),
-          saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
-            variant: "outlined",
-            onClick: closePopupHandler,
-            className: "btn-blanc ml-2",
-            children: t("general.cancel")
-          })
-        ]
-      })
-    ]
+      ]
+    })
   });
 }
 
