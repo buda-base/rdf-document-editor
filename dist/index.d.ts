@@ -914,6 +914,16 @@ declare function EntitySelector(props: RDEProps): JSX.Element;
 
 declare function BottomBarContainer(props: RDEProps): JSX.Element;
 
+declare const LangSelect: FC<{
+    onChange: (value: string) => void;
+    value: string;
+    property?: PropertyShape;
+    disabled?: boolean;
+    error?: boolean;
+    editable?: boolean;
+    config: RDEConfig;
+}>;
+
 interface StoreWithEtag {
     store: rdf.Store;
     etag: string | null;
@@ -944,4 +954,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, HistoryStatus, HttpError, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, RDFResourceWithLabel, Subject, Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, shapes, updateHistory };
+export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, HistoryStatus, HttpError, IFetchState, IdTypeParams, Lang, LangSelect, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, RDFResourceWithLabel, Subject, Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, shapes, updateHistory };

@@ -5956,6 +5956,7 @@ export {
   EntityShapeChooserContainer_default as EntityShapeChooserContainer,
   ExtRDFResourceWithLabel,
   HttpError,
+  LangSelect,
   LiteralWithId,
   NewEntityContainer_default as NewEntityContainer,
   NodeShape,

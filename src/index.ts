@@ -17,6 +17,7 @@ export { default as EntityShapeChooserContainer } from "./containers/EntityShape
 export { default as EntitySelectorContainer } from "./containers/EntitySelectorContainer"
 export { default as BottomBarContainer } from "./containers/BottomBarContainer"
 export type { RDEProps, IdTypeParams } from "./helpers/editor_props"
+export { LangSelect } from "./containers/ValueList"
 
 export { NodeShape, generateSubnodes } from "./helpers/rdf/shapes"
 
