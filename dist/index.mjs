@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -13,10 +12,6 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result)
     __defProp(target, key, result);
   return result;
-};
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
 };
 
 // src/helpers/rdf/ns.ts
@@ -298,7 +293,7 @@ var updateHistory = (entity, qname, prop, val, noHisto = true) => {
     [qname]: { [prop]: val },
     ...entity != qname ? { "tmp:parentPath": getParentPath(entity, qname) } : {}
   };
-  if ((val == null ? void 0 : val.length) === 1 && !(val[0] instanceof LiteralWithId) && (val[0].uri === "tmp:uri" || val[0].value === ""))
+  if (val?.length === 1 && !(val[0] instanceof LiteralWithId) && (val[0].uri === "tmp:uri" || val[0].value === ""))
     return;
   if (noHisto === -1) {
     const first = history[entity].findIndex((h) => h["tmp:allValuesLoaded"]);
@@ -381,7 +376,9 @@ var EntityGraphValues = class {
   oldSubjectProps = {};
   newSubjectProps = {};
   subjectUri = "";
+  /* eslint-disable no-magic-numbers */
   idHash = Date.now();
+  //getRandomIntInclusive(1000, 9999).toString()
   noHisto = false;
   constructor(subjectUri) {
     this.subjectUri = subjectUri;
@@ -410,7 +407,6 @@ var EntityGraphValues = class {
     return subjectUri in this.oldSubjectProps && pathString in this.oldSubjectProps[subjectUri];
   };
   addNewValuestoStore(store, subjectUri) {
-    var _a, _b, _c, _d;
     if (!(subjectUri in this.newSubjectProps))
       return;
     const subject = rdf2.sym(subjectUri);
@@ -422,7 +418,7 @@ var EntityGraphValues = class {
           if (val instanceof LiteralWithId) {
             throw "can't add literals in inverse path, something's wrong with the data!";
           } else {
-            if (((_a = val.node) == null ? void 0 : _a.value) == "tmp:uri" || ((_b = val.node) == null ? void 0 : _b.value) == "tmp:none")
+            if (val.node?.value == "tmp:uri" || val.node?.value == "tmp:none")
               continue;
             store.add(val.node, property, subject, defaultGraphNode);
             if (val instanceof Subject) {
@@ -444,7 +440,7 @@ var EntityGraphValues = class {
             else
               store.add(subject, property, val, defaultGraphNode);
           } else {
-            if (((_c = val.node) == null ? void 0 : _c.value) == "tmp:uri" || ((_d = val.node) == null ? void 0 : _d.value) == "tmp:none")
+            if (val.node?.value == "tmp:uri" || val.node?.value == "tmp:none")
               continue;
             if (listMode) {
               if (val.node) {
@@ -478,7 +474,12 @@ var EntityGraphValues = class {
     return atom({
       key: this.idHash + subjectUri + pathString,
       default: [],
-      effects: [this.propsUpdateEffect(subjectUri, pathString)],
+      // effects_UNSTABLE no more, see https://github.com/facebookexperimental/Recoil/blob/main/CHANGELOG-recoil.md#breaking-changes-1
+      effects: [
+        /*debugAtomEffect,*/
+        this.propsUpdateEffect(subjectUri, pathString)
+      ],
+      // disable immutability in production
       dangerouslyAllowMutability: true
     });
   }
@@ -491,15 +492,18 @@ __decorateClass([
     return subjectUri + pathString;
   })
 ], EntityGraphValues.prototype, "getAtomForSubjectProperty", 1);
-var _EntityGraph = class {
+var EntityGraph = class _EntityGraph {
   onGetInitialValues;
   getAtomForSubjectProperty;
   getValues;
   get values() {
     return this.getValues();
   }
+  // where to start when reconstructing the tree
   topSubjectUri;
   store;
+  // connexGraph is the store that contains the labels of associated resources
+  // (ex: students, teachers, etc.), it's not present in all circumstances
   connexGraph;
   prefixMap;
   labelProperties;
@@ -521,11 +525,45 @@ var _EntityGraph = class {
   addNewValuestoStore(store) {
     this.values.addNewValuestoStore(store, this.topSubjectUri);
   }
+  static addIdToLitList = (litList) => {
+    return litList.map((lit) => {
+      return new LiteralWithId(lit.value, lit.language, lit.datatype);
+    });
+  };
+  static addLabelsFromGraph = (resList, graph3) => {
+    return resList.map((res) => {
+      return new RDFResourceWithLabel(res, graph3);
+    });
+  };
+  static addExtDataFromGraph = (resList, graph3) => {
+    return resList.map((res) => {
+      if (!graph3.connexGraph) {
+        throw "trying to access inexistant associatedStore";
+      }
+      const perLang = {};
+      for (const p of graph3.labelProperties) {
+        const lits = graph3.connexGraph.each(res, p, null);
+        for (const lit of lits) {
+          if (lit.language in perLang)
+            continue;
+          perLang[lit.language] = lit.value;
+        }
+      }
+      debug2("connex:", res.uri, perLang);
+      return new ExtRDFResourceWithLabel(res.uri, perLang, void 0, void 0, graph3.prefixMap);
+    });
+  };
   hasSubject(subjectUri) {
     if (this.values.hasSubject(subjectUri))
       return true;
     return this.store.any(rdf2.sym(subjectUri), null, null) != null;
   }
+  static subjectify = (resList, graph3) => {
+    return resList.map((res) => {
+      return new Subject(res, graph3);
+    });
+  };
+  // only returns the values that were not initalized before
   getUnitializedValues(s, p) {
     const path = p.path;
     if (!path)
@@ -584,40 +622,6 @@ var _EntityGraph = class {
     }
   }
 };
-var EntityGraph = _EntityGraph;
-__publicField(EntityGraph, "addIdToLitList", (litList) => {
-  return litList.map((lit) => {
-    return new LiteralWithId(lit.value, lit.language, lit.datatype);
-  });
-});
-__publicField(EntityGraph, "addLabelsFromGraph", (resList, graph3) => {
-  return resList.map((res) => {
-    return new RDFResourceWithLabel(res, graph3);
-  });
-});
-__publicField(EntityGraph, "addExtDataFromGraph", (resList, graph3) => {
-  return resList.map((res) => {
-    if (!graph3.connexGraph) {
-      throw "trying to access inexistant associatedStore";
-    }
-    const perLang = {};
-    for (const p of graph3.labelProperties) {
-      const lits = graph3.connexGraph.each(res, p, null);
-      for (const lit of lits) {
-        if (lit.language in perLang)
-          continue;
-        perLang[lit.language] = lit.value;
-      }
-    }
-    debug2("connex:", res.uri, perLang);
-    return new ExtRDFResourceWithLabel(res.uri, perLang, void 0, void 0, graph3.prefixMap);
-  });
-});
-__publicField(EntityGraph, "subjectify", (resList, graph3) => {
-  return resList.map((res) => {
-    return new Subject(res, graph3);
-  });
-});
 var RDFResource = class {
   node;
   graph;
@@ -803,7 +807,7 @@ __decorateClass([
 __decorateClass([
   Memoize()
 ], RDFResourceWithLabel.prototype, "description", 1);
-var ExtRDFResourceWithLabel = class extends RDFResourceWithLabel {
+var ExtRDFResourceWithLabel = class _ExtRDFResourceWithLabel extends RDFResourceWithLabel {
   _prefLabels;
   _description;
   _otherData;
@@ -823,10 +827,10 @@ var ExtRDFResourceWithLabel = class extends RDFResourceWithLabel {
     this._otherData = data;
   }
   addOtherData(key, value) {
-    return new ExtRDFResourceWithLabel(this.uri, this._prefLabels, { ...this._otherData, [key]: value });
+    return new _ExtRDFResourceWithLabel(this.uri, this._prefLabels, { ...this._otherData, [key]: value });
   }
 };
-var LiteralWithId = class extends rdf2.Literal {
+var LiteralWithId = class _LiteralWithId extends rdf2.Literal {
   id;
   constructor(value, language, datatype, id) {
     super(value, language, datatype);
@@ -837,16 +841,16 @@ var LiteralWithId = class extends rdf2.Literal {
     }
   }
   copy() {
-    return new LiteralWithId(this.value, this.language, this.datatype, this.id);
+    return new _LiteralWithId(this.value, this.language, this.datatype, this.id);
   }
   copyWithUpdatedValue(value) {
-    return new LiteralWithId(value, this.language, this.datatype, this.id);
+    return new _LiteralWithId(value, this.language, this.datatype, this.id);
   }
   copyWithUpdatedLanguage(language) {
-    return new LiteralWithId(this.value, language, this.datatype, this.id);
+    return new _LiteralWithId(this.value, language, this.datatype, this.id);
   }
 };
-var Subject = class extends RDFResource {
+var Subject = class _Subject extends RDFResource {
   node;
   constructor(node, graph3) {
     super(node, graph3);
@@ -858,6 +862,15 @@ var Subject = class extends RDFResource {
   getAtomForProperty(pathString) {
     return this.graph.getAtomForSubjectProperty(pathString, this.uri);
   }
+  /*
+  // sets the flag to store to history or not according to the case,
+  // allows to store value modification not on top of history,
+  // 
+  // ex: noHisto(false, -1)    // put empty subnodes in history before tmp:allValuesLoaded
+  //     noHisto(false, 1)     // allow parent node in history but default empty subnodes before tmp:allValuesLoaded
+  //     noHisto(false, false) // history back to normal => not exactly... must also use resetNoHisto()
+  //     noHisto(true)         // disable value storing when doing undo/redo
+  */
   noHisto(force = false, start = true) {
     const current = this.graph.getValues().noHisto;
     if (!force && current === -1)
@@ -871,7 +884,7 @@ var Subject = class extends RDFResource {
     this.graph.getValues().noHisto = false;
   }
   static createEmpty() {
-    return new Subject(rdf2.sym("tmp:uri"), new EntityGraph(new rdf2.Store(), "tmp:uri"));
+    return new _Subject(rdf2.sym("tmp:uri"), new EntityGraph(new rdf2.Store(), "tmp:uri"));
   }
   isEmpty() {
     return this.node.uri == "tmp:uri";
@@ -904,7 +917,7 @@ var sortByPropValue = (nodelist, property, store) => {
   });
   return res;
 };
-var _PropertyShape = class extends RDFResourceWithLabel {
+var _PropertyShape = class _PropertyShape extends RDFResourceWithLabel {
   constructor(node, graph3) {
     super(node, graph3, rdfsLabel);
   }
@@ -1134,106 +1147,106 @@ var _PropertyShape = class extends RDFResourceWithLabel {
     return null;
   }
 };
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "prefLabels", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "helpMessage", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "errorMessage", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "defaultValue", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "singleLine", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "connectIDs", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "displayPriority", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "minCount", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "maxCount", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "minInclusive", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "maxInclusive", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "minExclusive", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "maxExclusive", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "allowMarkDown", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "allowBatchManagement", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "uniqueValueAmongSiblings", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "uniqueLang", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "readOnly", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "defaultLanguage", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "editorLname", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "group", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "copyObjectsOfProperty", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "datatype", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "pattern", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "sortOnProperty", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "allowPushToTopLevelLabel", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "specialPattern", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "hasListAsObject", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "in", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "expectedObjectTypes", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "path", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "objectType", 1);
+__decorateClass([
+  Memoize2()
+], _PropertyShape.prototype, "targetShape", 1);
 var PropertyShape = _PropertyShape;
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "prefLabels", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "helpMessage", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "errorMessage", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "defaultValue", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "singleLine", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "connectIDs", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "displayPriority", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "minCount", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "maxCount", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "minInclusive", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "maxInclusive", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "minExclusive", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "maxExclusive", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "allowMarkDown", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "allowBatchManagement", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "uniqueValueAmongSiblings", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "uniqueLang", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "readOnly", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "defaultLanguage", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "editorLname", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "group", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "copyObjectsOfProperty", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "datatype", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "pattern", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "sortOnProperty", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "allowPushToTopLevelLabel", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "specialPattern", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "hasListAsObject", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "in", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "expectedObjectTypes", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "path", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "objectType", 1);
-__decorateClass([
-  Memoize2()
-], PropertyShape.prototype, "targetShape", 1);
 var PropertyGroup = class extends RDFResourceWithLabel {
   constructor(node, graph3) {
     super(node, graph3, rdfsLabel);
@@ -1312,7 +1325,7 @@ __decorateClass([
 var nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
 var generateSubnodes = async (subshape, parent, n = 1) => {
   const prefix = subshape ? subshape.getPropStringValue(rdeIdentifierPrefix) : "";
-  let namespace = subshape == null ? void 0 : subshape.getPropStringValue(shNamespace);
+  let namespace = subshape?.getPropStringValue(shNamespace);
   if (!namespace)
     namespace = parent.namespace;
   const res = [];
@@ -1362,7 +1375,7 @@ __export(common_exports, {
   uiTabState: () => uiTabState,
   uiUndosState: () => uiUndosState
 });
-import { atom as atom2, selectorFamily } from "recoil";
+import { atom as atom2, selectorFamily, DefaultValue as DefaultValue2 } from "recoil";
 import _ from "lodash";
 import { debug as debugfactory4 } from "debug";
 var debug4 = debugfactory4("rde:common");
@@ -1381,6 +1394,7 @@ var entitiesAtom = atom2({
 var defaultEntityLabelAtom = atom2({
   key: "rde_defaultEntityLabelAtom",
   default: [new LiteralWithId("...", "en")]
+  // TODO: use the i18n stuff
 });
 var uiLangState = atom2({
   key: "rde_uiLangState",
@@ -1559,17 +1573,19 @@ var orderedNewValSelector = selectorFamily({
 var toCopySelector = selectorFamily({
   key: "rde_toCopySelector",
   get: (args) => ({ get }) => {
-    var _a;
     const res = [];
-    (_a = args.list) == null ? void 0 : _a.map(({ property, atom: atom3 }) => {
+    args.list?.map(({ property, atom: atom3 }) => {
       const val = get(atom3);
       res.push({ k: property, val });
     });
     return res;
   },
-  set: (args) => ({ get, set }, [{ k, val }]) => {
-    var _a;
-    (_a = args.list) == null ? void 0 : _a.map(({ property, atom: atom3 }) => {
+  set: (args) => ({ get, set }, newValue) => {
+    if (newValue instanceof DefaultValue2) {
+      return;
+    }
+    const { k, val } = newValue[0];
+    args.list?.map(({ property, atom: atom3 }) => {
       if (k == property)
         set(atom3, [...get(atom3).filter((lit) => lit.value), ...val]);
     });
@@ -2042,7 +2058,7 @@ var langsWithDefault = (defaultLanguage, langs) => {
   if (defaultLanguage in cache)
     return cache[defaultLanguage];
   let res = langs.filter((l) => l.value === defaultLanguage);
-  if (!(res == null ? void 0 : res.length)) {
+  if (!res?.length) {
     debug6("can't find defaultLanguage ", defaultLanguage, " in languages");
     return langs;
   }
@@ -2074,86 +2090,93 @@ var PropertyContainer = ({ property, subject, embedded, force, editable, owner, 
         setCss(css.replace(new RegExp(txt), ""));
     }
   };
-  return /* @__PURE__ */ jsx(React.Fragment, {
-    children: /* @__PURE__ */ jsx("div", {
-      role: "main",
-      ...css ? { className: css } : {},
-      children: /* @__PURE__ */ jsx("section", {
-        className: "album",
-        children: /* @__PURE__ */ jsx("div", {
-          className: "container" + (embedded ? " px-0" : "") + " editable-" + editable,
-          style: { border: "dashed 1px none" },
-          children: /* @__PURE__ */ jsx(ValueList, {
-            subject,
-            property,
-            embedded,
-            force,
-            editable,
-            ...owner ? { owner } : {},
-            ...topEntity ? { topEntity } : {},
-            shape,
-            siblingsPath,
-            setCssClass,
-            config
-          })
-        })
-      })
-    })
-  });
+  return /* @__PURE__ */ jsx(React.Fragment, { children: /* @__PURE__ */ jsx("div", { role: "main", ...css ? { className: css } : {}, children: /* @__PURE__ */ jsx("section", { className: "album", children: /* @__PURE__ */ jsx(
+    "div",
+    {
+      className: "container" + (embedded ? " px-0" : "") + " editable-" + editable,
+      style: { border: "dashed 1px none" },
+      children: /* @__PURE__ */ jsx(
+        ValueList,
+        {
+          subject,
+          property,
+          embedded,
+          force,
+          editable,
+          ...owner ? { owner } : {},
+          ...topEntity ? { topEntity } : {},
+          shape,
+          siblingsPath,
+          setCssClass,
+          config
+        }
+      )
+    }
+  ) }) }) });
 };
 var MinimalAddButton = ({ add, className, disable }) => {
-  return /* @__PURE__ */ jsx("div", {
-    className: "minimalAdd disable_" + disable + (className !== void 0 ? className : " text-right"),
-    children: /* @__PURE__ */ jsx("button", {
-      className: "btn btn-link ml-2 px-0",
-      onClick: (ev) => add(ev, 1),
-      ...disable ? { disabled: true } : {},
-      children: /* @__PURE__ */ jsx(AddCircleOutlineIcon, {})
-    })
-  });
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      className: "minimalAdd disable_" + disable + (className !== void 0 ? className : " text-right"),
+      children: /* @__PURE__ */ jsx(
+        "button",
+        {
+          className: "btn btn-link ml-2 px-0",
+          onClick: (ev) => add(ev, 1),
+          ...disable ? { disabled: true } : {},
+          children: /* @__PURE__ */ jsx(AddCircleOutlineIcon, {})
+        }
+      )
+    }
+  );
 };
 var BlockAddButton = ({ add, label, count = 1 }) => {
   const [n, setN] = useState2(1);
   const [disable, setDisable] = useState2(false);
   const { t } = useTranslation2();
-  return /* @__PURE__ */ jsx(Fragment, {
-    children: /* @__PURE__ */ jsxs("div", {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs(
+    "div",
+    {
       className: "blockAdd text-center pb-1 mt-3",
       style: { width: "100%", ...count > 1 ? { display: "flex" } : {} },
       children: [
-        /* @__PURE__ */ jsxs("button", {
-          className: "btn btn-sm btn-block btn-outline-primary px-0",
-          style: {
-            boxShadow: "none",
-            pointerEvents: disable ? "none" : "auto",
-            ...disable ? { opacity: 0.5, pointerEvents: "none" } : {}
-          },
-          onClick: (e) => add(e, n),
-          children: [
-            t("general.add_another", { val: label, count }),
-            "\xA0",
-            /* @__PURE__ */ jsx(AddCircleOutlineIcon, {})
-          ]
-        }),
-        count > 1 && /* @__PURE__ */ jsx(TextField, {
-          variant: "standard",
-          label: /* @__PURE__ */ jsx(Fragment, {
-            children: t("general.add_nb", { val: label })
-          }),
-          style: { width: 200 },
-          value: n,
-          className: "ml-2",
-          type: "number",
-          InputLabelProps: { shrink: true },
-          onChange: (e) => setN(Number(e.target.value)),
-          InputProps: { inputProps: { min: 1, max: 500 } }
-        })
+        /* @__PURE__ */ jsxs(
+          "button",
+          {
+            className: "btn btn-sm btn-block btn-outline-primary px-0",
+            style: {
+              boxShadow: "none",
+              pointerEvents: disable ? "none" : "auto",
+              ...disable ? { opacity: 0.5, pointerEvents: "none" } : {}
+            },
+            onClick: (e) => add(e, n),
+            children: [
+              t("general.add_another", { val: label, count }),
+              "\xA0",
+              /* @__PURE__ */ jsx(AddCircleOutlineIcon, {})
+            ]
+          }
+        ),
+        count > 1 && /* @__PURE__ */ jsx(
+          TextField,
+          {
+            variant: "standard",
+            label: /* @__PURE__ */ jsx(Fragment, { children: t("general.add_nb", { val: label }) }),
+            style: { width: 200 },
+            value: n,
+            className: "ml-2",
+            type: "number",
+            InputLabelProps: { shrink: true },
+            onChange: (e) => setN(Number(e.target.value)),
+            InputProps: { inputProps: { min: 1, max: 500 } }
+          }
+        )
       ]
-    })
-  });
+    }
+  ) });
 };
 var generateDefault = async (property, parent, val = "", config) => {
-  var _a, _b;
   switch (property.objectType) {
     case 3 /* ResExt */:
       return new ExtRDFResourceWithLabel("tmp:uri", {}, {}, null, config.prefixMap);
@@ -2178,9 +2201,9 @@ var generateDefault = async (property, parent, val = "", config) => {
       if (defaultValueLiL !== null)
         return new LiteralWithId(defaultValueLiL.value, defaultValueLiL.language, defaultValueLiL.datatype);
       if (!property.minCount) {
-        const datatype2 = (_a = property.datatype) == null ? void 0 : _a.value;
+        const datatype2 = property.datatype?.value;
         if (datatype2 === RDF("langString").value) {
-          return new LiteralWithId("", (property == null ? void 0 : property.defaultLanguage) ? property.defaultLanguage : "bo-x-ewts");
+          return new LiteralWithId("", property?.defaultLanguage ? property.defaultLanguage : "bo-x-ewts");
         } else {
           return new LiteralWithId("", null, property.datatype ? property.datatype : void 0);
         }
@@ -2195,9 +2218,9 @@ var generateDefault = async (property, parent, val = "", config) => {
       const defaultValue = property.defaultValue;
       if (defaultValue !== null)
         return new LiteralWithId(defaultValue.value, defaultValue.language, defaultValue.datatype);
-      const datatype = (_b = property.datatype) == null ? void 0 : _b.value;
+      const datatype = property.datatype?.value;
       if (datatype === RDF("langString").value) {
-        return new LiteralWithId("", (property == null ? void 0 : property.defaultLanguage) ? property.defaultLanguage : "bo-x-ewts");
+        return new LiteralWithId("", property?.defaultLanguage ? property.defaultLanguage : "bo-x-ewts");
       } else if (datatype === XSD("integer").value) {
         return new LiteralWithId(val, null, property.datatype ? property.datatype : void 0);
       } else {
@@ -2207,7 +2230,6 @@ var generateDefault = async (property, parent, val = "", config) => {
   }
 };
 var ValueList = ({ subject, property, embedded, force, editable, owner, topEntity, shape, siblingsPath, setCssClass, config }) => {
-  var _a, _b;
   if (property.path == null)
     throw "can't find path of " + property.qname;
   const [unsortedList, setList] = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
@@ -2215,11 +2237,12 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
   const [undos, setUndos] = useRecoilState2(uiUndosState);
-  const sortOnPath = (_a = property == null ? void 0 : property.sortOnProperty) == null ? void 0 : _a.value;
+  const sortOnPath = property?.sortOnProperty?.value;
   const orderedList = useRecoilValue(
     orderedByPropSelector({
       atom: subject.getAtomForProperty(property.path.sparqlString),
       propertyPath: sortOnPath || ""
+      //order: "desc" // default is "asc"
     })
   );
   let list = unsortedList;
@@ -2227,14 +2250,12 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     list = orderedList;
   if (list === void 0)
     list = [];
-  const withOrder = shape.properties.filter((p) => {
-    var _a2, _b2;
-    return ((_a2 = p.sortOnProperty) == null ? void 0 : _a2.value) === ((_b2 = property.path) == null ? void 0 : _b2.sparqlString);
-  });
+  const withOrder = shape.properties.filter((p) => p.sortOnProperty?.value === property.path?.sparqlString);
   let newVal = useRecoilValue(
     orderedNewValSelector({
       atom: withOrder.length && withOrder[0].path ? (topEntity ? topEntity : subject).getAtomForProperty(withOrder[0].path.sparqlString) : null,
       propertyPath: property.path.sparqlString
+      //order: "desc" // default is "asc"
     })
   );
   if (newVal != "") {
@@ -2356,8 +2377,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
   const scrollElem = useRef(null);
   const [edit, setEdit] = useRecoilState2(uiEditState);
   useEffect2(() => {
-    var _a2;
-    if (((_a2 = property == null ? void 0 : property.group) == null ? void 0 : _a2.value) !== edit && (scrollElem == null ? void 0 : scrollElem.current)) {
+    if (property?.group?.value !== edit && scrollElem?.current) {
       scrollElem.current.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     }
   }, [edit]);
@@ -2378,139 +2398,165 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
   const renderListElem = (val, i, nbvalues) => {
     if (val instanceof RDFResourceWithLabel || property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */) {
       if (property.objectType == 3 /* ResExt */)
-        return /* @__PURE__ */ jsx(ExtEntityComponent, {
-          subject,
-          property,
-          extRes: val,
-          canDel: canDel && (i > 0 || !(val instanceof LiteralWithId) && val.uri !== "tmp:uri"),
-          onChange,
-          idx: i,
-          exists,
-          editable,
-          ...owner ? { owner } : {},
-          title: titleCase(propLabel),
-          updateEntityState,
-          shape,
-          config
-        }, val.id + ":" + i);
+        return /* @__PURE__ */ jsx(
+          ExtEntityComponent,
+          {
+            subject,
+            property,
+            extRes: val,
+            canDel: canDel && (i > 0 || !(val instanceof LiteralWithId) && val.uri !== "tmp:uri"),
+            onChange,
+            idx: i,
+            exists,
+            editable,
+            ...owner ? { owner } : {},
+            title: titleCase(propLabel),
+            updateEntityState,
+            shape,
+            config
+          },
+          val.id + ":" + i
+        );
       else if (val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
         addBtn = false;
         const canSelectNone = i == 0 && !property.minCount || i > 0 && i == nbvalues - 1;
-        return /* @__PURE__ */ jsx(SelectComponent, {
-          canSelectNone,
-          subject,
-          property,
-          res: val,
-          selectIdx: i,
-          canDel: canDel && val != noneSelected,
-          editable,
-          create: canAdd ? /* @__PURE__ */ jsx(Create, {
+        return /* @__PURE__ */ jsx(
+          SelectComponent,
+          {
+            canSelectNone,
             subject,
             property,
-            embedded,
-            newVal: Number(newVal),
-            shape,
-            config
-          }) : void 0,
-          updateEntityState
-        }, "select_" + val.id + "_" + i);
+            res: val,
+            selectIdx: i,
+            canDel: canDel && val != noneSelected,
+            editable,
+            create: canAdd ? /* @__PURE__ */ jsx(
+              Create,
+              {
+                subject,
+                property,
+                embedded,
+                newVal: Number(newVal),
+                shape,
+                config
+              }
+            ) : void 0,
+            updateEntityState
+          },
+          "select_" + val.id + "_" + i
+        );
       }
     } else if (val instanceof Subject) {
       addBtn = true;
-      return /* @__PURE__ */ jsx(FacetComponent, {
-        subject,
-        property,
-        subNode: val,
-        canDel: canDel && editable,
-        ...force ? { force } : {},
-        editable,
-        ...topEntity ? { topEntity } : { topEntity: subject },
-        updateEntityState,
-        shape,
-        config
-      }, val.id);
+      return /* @__PURE__ */ jsx(
+        FacetComponent,
+        {
+          subject,
+          property,
+          subNode: val,
+          canDel: canDel && editable,
+          ...force ? { force } : {},
+          editable,
+          ...topEntity ? { topEntity } : { topEntity: subject },
+          updateEntityState,
+          shape,
+          config
+        },
+        val.id
+      );
     } else if (val instanceof LiteralWithId) {
       addBtn = false;
       const isUniqueLang = list.filter((l) => l instanceof LiteralWithId && l.language === val.language).length === 1;
-      return /* @__PURE__ */ jsx(LiteralComponent, {
-        subject,
-        property,
-        lit: val,
-        ...{ canDel, isUniqueLang, isUniqueValueAmongSiblings },
-        create: /* @__PURE__ */ jsx(Create, {
-          disable: !canAdd || !(val && val.value !== ""),
+      return /* @__PURE__ */ jsx(
+        LiteralComponent,
+        {
           subject,
           property,
-          embedded,
-          newVal: Number(newVal),
-          shape,
+          lit: val,
+          ...{ canDel, isUniqueLang, isUniqueValueAmongSiblings },
+          create: /* @__PURE__ */ jsx(
+            Create,
+            {
+              disable: !canAdd || !(val && val.value !== ""),
+              subject,
+              property,
+              embedded,
+              newVal: Number(newVal),
+              shape,
+              config
+            }
+          ),
+          editable,
+          topEntity,
+          updateEntityState,
           config
-        }),
-        editable,
-        topEntity,
-        updateEntityState,
-        config
-      }, val.id);
+        },
+        val.id
+      );
     }
   };
-  return /* @__PURE__ */ jsxs(React.Fragment, {
-    children: [
-      /* @__PURE__ */ jsxs("div", {
+  return /* @__PURE__ */ jsxs(React.Fragment, { children: [
+    /* @__PURE__ */ jsxs(
+      "div",
+      {
         className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === 3 /* ResExt */ ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
         "data-priority": property.displayPriority ? property.displayPriority : 0,
         role: "main",
         style: {
           display: "flex",
           flexWrap: "wrap",
-          ...list.length > 1 && firstValueIsEmptyField && property.path.sparqlString !== SKOS("prefLabel").value ? {} : {}
+          ...list.length > 1 && firstValueIsEmptyField && property.path.sparqlString !== SKOS("prefLabel").value ? {
+            /*borderBottom: "2px solid #eee", paddingBottom: "16px"*/
+          } : {}
         },
         children: [
-          showLabel && (!property.in || property.in.length > 1) && /* @__PURE__ */ jsxs("label", {
-            className: "propLabel",
-            "data-prop": property.qname,
-            "data-type": property.objectType,
-            "data-priority": property.displayPriority,
-            children: [
-              titleCase(propLabel),
-              helpMessage && property.objectType === 3 /* ResExt */ && /* @__PURE__ */ jsx(Tooltip, {
-                title: helpMessage,
-                children: /* @__PURE__ */ jsx(HelpIcon, {
-                  className: "help label"
-                })
+          showLabel && (!property.in || property.in.length > 1) && /* @__PURE__ */ jsxs(
+            "label",
+            {
+              className: "propLabel",
+              "data-prop": property.qname,
+              "data-type": property.objectType,
+              "data-priority": property.displayPriority,
+              children: [
+                titleCase(propLabel),
+                helpMessage && property.objectType === 3 /* ResExt */ && /* @__PURE__ */ jsx(Tooltip, { title: helpMessage, children: /* @__PURE__ */ jsx(HelpIcon, { className: "help label" }) })
+              ]
+            }
+          ),
+          hasEmptyExtEntityAsFirst && /* @__PURE__ */ jsx("div", { style: { width: "100%" }, children: renderListElem(list[0], 0, list.length) }),
+          /* @__PURE__ */ jsx(
+            "div",
+            {
+              ref: scrollElem,
+              className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
+              style: {
+                width: "100%",
+                //...!embedded && property.objectType !== ObjectType.Internal ? { maxHeight: "338px" } : {}, // overflow conflict with iframe...
+                ...property?.group?.value !== edit ? { paddingRight: "0.5rem" } : {}
+              },
+              children: list.map((val, i) => {
+                if (!hasEmptyExtEntityAsFirst || i > 0)
+                  return renderListElem(val, i, list.length);
               })
-            ]
-          }),
-          hasEmptyExtEntityAsFirst && /* @__PURE__ */ jsx("div", {
-            style: { width: "100%" },
-            children: renderListElem(list[0], 0, list.length)
-          }),
-          /* @__PURE__ */ jsx("div", {
-            ref: scrollElem,
-            className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
-            style: {
-              width: "100%",
-              ...((_b = property == null ? void 0 : property.group) == null ? void 0 : _b.value) !== edit ? { paddingRight: "0.5rem" } : {}
-            },
-            children: list.map((val, i) => {
-              if (!hasEmptyExtEntityAsFirst || i > 0)
-                return renderListElem(val, i, list.length);
-            })
-          })
+            }
+          )
         ]
-      }),
-      canAdd && addBtn && /* @__PURE__ */ jsx(Create, {
+      }
+    ),
+    canAdd && addBtn && /* @__PURE__ */ jsx(
+      Create,
+      {
         subject,
         property,
         embedded,
         newVal: Number(newVal),
         shape,
         config
-      })
-    ]
-  });
+      }
+    )
+  ] });
 };
 var Create = ({ subject, property, embedded, disable, newVal, shape, config }) => {
-  var _a, _b;
   if (property.path == null)
     throw "can't find path of " + property.qname;
   const recoilArray = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
@@ -2522,7 +2568,7 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
   if (list.length === 1 && list[0] instanceof RDFResource && list[0].node && list[0].node instanceof rdf5.Collection) {
     collecNode = list[0].node;
   }
-  const collec = (collecNode == null ? void 0 : collecNode.termType) === "Collection" ? collecNode == null ? void 0 : collecNode.elements : void 0;
+  const collec = collecNode?.termType === "Collection" ? collecNode?.elements : void 0;
   const listOrCollec = collec ? collec : list;
   const [uiLang] = useRecoilState2(uiLangState);
   const [entities, setEntities] = useRecoilState2(entitiesAtom);
@@ -2533,19 +2579,17 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
     property.sortOnProperty ? orderedNewValSelector({
       atom: property.sortOnProperty ? subject.getAtomForProperty(property.path.sparqlString) : null,
       propertyPath: property.sortOnProperty.value
+      //order: "desc" // default is "asc"
     }) : initStringAtom
   );
-  const sortProps = (_a = property.targetShape) == null ? void 0 : _a.properties.filter(
-    (p) => {
-      var _a2, _b2;
-      return ((_a2 = p.path) == null ? void 0 : _a2.sparqlString) === ((_b2 = property.sortOnProperty) == null ? void 0 : _b2.value);
-    }
+  const sortProps = property.targetShape?.properties.filter(
+    (p) => p.path?.sparqlString === property.sortOnProperty?.value
   );
-  if (sortProps == null ? void 0 : sortProps.length) {
+  if (sortProps?.length) {
     const sortProp = sortProps[0];
-    if ((sortProp == null ? void 0 : sortProp.minInclusive) != null && Number(nextVal) < sortProp.minInclusive)
+    if (sortProp?.minInclusive != null && Number(nextVal) < sortProp.minInclusive)
       nextVal = sortProp.minInclusive.toString();
-    if ((sortProp == null ? void 0 : sortProp.maxInclusive) != null && Number(nextVal) > sortProp.maxInclusive)
+    if (sortProp?.maxInclusive != null && Number(nextVal) > sortProp.maxInclusive)
       nextVal = sortProp.maxInclusive.toString();
   }
   let waitForNoHisto = false;
@@ -2563,7 +2607,7 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
       waitForNoHisto = true;
       subject.noHisto(false, 1);
     }
-    const item = await generateDefault(property, subject, newVal == null ? void 0 : newVal.toString(), config);
+    const item = await generateDefault(property, subject, newVal?.toString(), config);
     setList([...listOrCollec, ...Array.isArray(item) ? item : [item]]);
     if (property.objectType === 1 /* Internal */ && item instanceof Subject) {
       setImmediate(() => {
@@ -2576,20 +2620,12 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
     }
   };
   if (property.objectType !== 1 /* Internal */ && (embedded || property.objectType == 0 /* Literal */ || property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */))
-    return /* @__PURE__ */ jsx(MinimalAddButton, {
-      disable,
-      add: addItem,
-      className: " "
-    });
+    return /* @__PURE__ */ jsx(MinimalAddButton, { disable, add: addItem, className: " " });
   else {
-    const targetShapeLabels = (_b = property.targetShape) == null ? void 0 : _b.targetClassPrefLabels;
+    const targetShapeLabels = property.targetShape?.targetClassPrefLabels;
     const labels = targetShapeLabels ? targetShapeLabels : property.prefLabels;
     const count = property.allowBatchManagement ? 2 : 1;
-    return /* @__PURE__ */ jsx(BlockAddButton, {
-      add: addItem,
-      label: ValueByLangToStrPrefLang(labels, uiLang),
-      count
-    });
+    return /* @__PURE__ */ jsx(BlockAddButton, { add: addItem, label: ValueByLangToStrPrefLang(labels, uiLang), count });
   }
 };
 var EditLangString = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
@@ -2621,17 +2657,11 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
     };
   }, []);
   const errorData = {
-    helperText: /* @__PURE__ */ jsxs(React.Fragment, {
-      children: [
-        /* @__PURE__ */ jsx(ErrorIcon, {
-          style: { fontSize: "20px", verticalAlign: "-7px" }
-        }),
-        "\xA0",
-        /* @__PURE__ */ jsx("i", {
-          children: error
-        })
-      ]
-    }),
+    helperText: /* @__PURE__ */ jsxs(React.Fragment, { children: [
+      /* @__PURE__ */ jsx(ErrorIcon, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
+      "\xA0",
+      /* @__PURE__ */ jsx("i", { children: error })
+    ] }),
     error: true
   };
   const [preview, setPreview] = useState2(null);
@@ -2653,11 +2683,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
   } else if (property.singleLine && editMD) {
     padBot = "1px";
   }
-  const codeEdit = { ...commands.codeEdit, icon: /* @__PURE__ */ jsx(EditIcon, {
-    style: { width: "12px", height: "12px" }
-  }) }, codePreview = { ...commands.codePreview, icon: /* @__PURE__ */ jsx(VisibilityIcon, {
-    style: { width: "12px", height: "12px" }
-  }) };
+  const codeEdit = { ...commands.codeEdit, icon: /* @__PURE__ */ jsx(EditIcon, { style: { width: "12px", height: "12px" } }) }, codePreview = { ...commands.codePreview, icon: /* @__PURE__ */ jsx(VisibilityIcon, { style: { width: "12px", height: "12px" } }) };
   const hasKB = config.possibleLiteralLangs.filter((l) => l.value === lit.language);
   const inputRef = useRef();
   const keepFocus = () => {
@@ -2677,7 +2703,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
       }, 10);
     }
   };
-  let prefLabelAtom = entity == null ? void 0 : entity.getAtomForProperty(SKOS("prefLabel").value);
+  let prefLabelAtom = entity?.getAtomForProperty(SKOS("prefLabel").value);
   if (!prefLabelAtom)
     prefLabelAtom = initListAtom;
   const [prefLabels, setPrefLabels] = useRecoilState2(prefLabelAtom);
@@ -2699,106 +2725,93 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
     if (newPrefLabels.length)
       setPrefLabels(newPrefLabels);
   };
-  return /* @__PURE__ */ jsxs("div", {
-    className: "mb-0" + (preview ? " withPreview" : ""),
-    style: {
-      display: "flex",
-      width: "100%",
-      alignItems: "flex-end",
-      paddingBottom: padBot,
-      position: "relative"
-    },
-    children: [
-      canPushPrefLabel && !error && !globalError && /* @__PURE__ */ jsx("span", {
-        className: "canPushPrefLabel",
-        children: /* @__PURE__ */ jsx("span", {
-          onClick: pushAsPrefLabel,
-          children: /* @__PURE__ */ jsx(Tooltip, {
-            title: /* @__PURE__ */ jsx(Fragment, {
-              children: "Use as the main name or title for this language"
-            }),
-            children: /* @__PURE__ */ jsx("div", {
-              className: "img",
-              children: /* @__PURE__ */ jsx(Label, {
-                style: { position: "relative", color: "white", left: "-9px", fontSize: "18px" }
-              })
-            })
-          }, lit.id)
-        })
-      }),
-      (property.singleLine || !editMD) && /* @__PURE__ */ jsxs("div", {
-        style: { width: "100%", position: "relative" },
-        children: [
-          /* @__PURE__ */ jsx(TextField, {
-            variant: "standard",
-            inputRef,
-            className: lit.language === "bo" ? " lang-bo" : "",
-            label,
-            style: { width: "100%" },
-            value: lit.value,
-            multiline: !property.singleLine,
-            InputLabelProps: { shrink: true },
-            inputProps: { spellCheck: "true", lang: lit.language === "en" ? "en_US" : lit.language },
-            onChange: (e) => {
-              const newError = getLangStringError(lit.value);
-              if (newError && error != newError)
-                setError(newError);
-              else
-                updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
-              onChange(lit.copyWithUpdatedValue(e.target.value));
-            },
-            ...error ? errorData : {},
-            ...!editable ? { disabled: true } : {},
-            onFocus: () => {
-              const { value, error: error2 } = config.previewLiteral(lit, uiLang);
-              if (value !== preview)
-                setPreview(value);
-              if (error2 !== error2)
-                setError(error2);
-            },
-            onBlur: () => {
-              if (preview !== null)
-                setPreview(null);
-              setTimeout(() => {
-                if (inputRef.current && document.activeElement != inputRef.current && keyboard !== false)
-                  setKeyboard(false);
-              }, 350);
+  return /* @__PURE__ */ jsxs(
+    "div",
+    {
+      className: "mb-0" + (preview ? " withPreview" : ""),
+      style: {
+        display: "flex",
+        width: "100%",
+        alignItems: "flex-end",
+        paddingBottom: padBot,
+        position: "relative"
+      },
+      children: [
+        canPushPrefLabel && !error && !globalError && /* @__PURE__ */ jsx("span", { className: "canPushPrefLabel", children: /* @__PURE__ */ jsx("span", { onClick: pushAsPrefLabel, children: /* @__PURE__ */ jsx(Tooltip, { title: /* @__PURE__ */ jsx(Fragment, { children: "Use as the main name or title for this language" }), children: /* @__PURE__ */ jsx("div", { className: "img", children: /* @__PURE__ */ jsx(Label, { style: { position: "relative", color: "white", left: "-9px", fontSize: "18px" } }) }) }, lit.id) }) }),
+        (property.singleLine || !editMD) && /* @__PURE__ */ jsxs("div", { style: { width: "100%", position: "relative" }, children: [
+          /* @__PURE__ */ jsx(
+            TextField,
+            {
+              variant: "standard",
+              inputRef,
+              className: lit.language === "bo" ? " lang-bo" : "",
+              label,
+              style: { width: "100%" },
+              value: lit.value,
+              multiline: !property.singleLine,
+              InputLabelProps: { shrink: true },
+              inputProps: { spellCheck: "true", lang: lit.language === "en" ? "en_US" : lit.language },
+              onChange: (e) => {
+                const newError = getLangStringError(lit.value);
+                if (newError && error != newError)
+                  setError(newError);
+                else
+                  updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
+                onChange(lit.copyWithUpdatedValue(e.target.value));
+              },
+              ...error ? errorData : {},
+              ...!editable ? { disabled: true } : {},
+              onFocus: () => {
+                const { value, error: error2 } = config.previewLiteral(lit, uiLang);
+                if (value !== preview)
+                  setPreview(value);
+                if (error2 !== error2)
+                  setError(error2);
+              },
+              onBlur: () => {
+                if (preview !== null)
+                  setPreview(null);
+                setTimeout(() => {
+                  if (inputRef.current && document.activeElement != inputRef.current && keyboard !== false)
+                    setKeyboard(false);
+                }, 350);
+              }
             }
-          }),
-          property.allowMarkDown && /* @__PURE__ */ jsxs("span", {
-            className: "opaHover",
-            style: { position: "absolute", right: 0, top: 0, fontSize: "0px" },
-            onClick: () => setEditMD(!editMD),
-            children: [
-              !editMD && /* @__PURE__ */ jsx(MDIcon, {
-                style: { height: "16px" }
-              }),
-              editMD && /* @__PURE__ */ jsx(MDIcon, {
-                style: { height: "16px" }
-              })
-            ]
-          }),
-          hasKB.length > 0 && hasKB[0].keyboard && /* @__PURE__ */ jsx("span", {
-            onClick: () => {
-              setKeyboard(!keyboard);
-              keepFocus();
-            },
-            className: "opaHover " + (keyboard ? "on" : ""),
-            style: {
-              position: "absolute",
-              right: 0,
-              top: "0px",
-              height: "100%",
-              display: "flex",
-              alignItems: "center"
-            },
-            children: /* @__PURE__ */ jsx(KeyboardIcon, {})
-          }),
-          hasKB.length > 0 && hasKB[0].keyboard && keyboard && /* @__PURE__ */ jsx("div", {
-            className: "card px-2 py-2 hasKB",
-            style: { display: "block", width: "405px" },
-            onClick: keepFocus,
-            children: hasKB[0].keyboard.map((k, i) => /* @__PURE__ */ jsx("span", {
+          ),
+          property.allowMarkDown && /* @__PURE__ */ jsxs(
+            "span",
+            {
+              className: "opaHover",
+              style: { position: "absolute", right: 0, top: 0, fontSize: "0px" },
+              onClick: () => setEditMD(!editMD),
+              children: [
+                !editMD && /* @__PURE__ */ jsx(MDIcon, { style: { height: "16px" } }),
+                editMD && /* @__PURE__ */ jsx(MDIcon, { style: { height: "16px" } })
+              ]
+            }
+          ),
+          hasKB.length > 0 && hasKB[0].keyboard && /* @__PURE__ */ jsx(
+            "span",
+            {
+              onClick: () => {
+                setKeyboard(!keyboard);
+                keepFocus();
+              },
+              className: "opaHover " + (keyboard ? "on" : ""),
+              style: {
+                position: "absolute",
+                right: 0,
+                top: "0px",
+                height: "100%",
+                display: "flex",
+                alignItems: "center"
+              },
+              children: /* @__PURE__ */ jsx(KeyboardIcon, {})
+            }
+          ),
+          hasKB.length > 0 && hasKB[0].keyboard && keyboard && /* @__PURE__ */ jsx("div", { className: "card px-2 py-2 hasKB", style: { display: "block", width: "405px" }, onClick: keepFocus, children: hasKB[0].keyboard.map((k, i) => /* @__PURE__ */ jsx(
+            "span",
+            {
               className: "card mx-1 my-1",
               style: {
                 display: "inline-flex",
@@ -2810,82 +2823,80 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
               },
               onClick: () => insertChar(k),
               children: k
-            }, i))
-          })
-        ]
-      }),
-      !property.singleLine && editMD && /* @__PURE__ */ jsxs("div", {
-        style: { width: "100%", position: "relative", paddingBottom: "1px" },
-        children: [
-          /* @__PURE__ */ jsx(MDEditor, {
-            textareaProps: { spellCheck: "true", lang: lit.language === "en" ? "en_US" : lit.language },
-            value: lit.value,
-            preview: "edit",
-            onChange: (e) => {
-              if (e)
-                onChange(lit.copyWithUpdatedValue(e));
             },
-            commands: [
-              commands.bold,
-              commands.italic,
-              commands.strikethrough,
-              commands.hr,
-              commands.title,
-              commands.divider,
-              commands.link,
-              commands.quote,
-              commands.code,
-              commands.image,
-              commands.divider,
-              commands.unorderedListCommand,
-              commands.orderedListCommand,
-              commands.checkedListCommand,
-              commands.divider,
-              codeEdit,
-              codePreview
-            ],
-            extraCommands: []
-          }),
-          /* @__PURE__ */ jsx("span", {
-            className: "opaHover on",
-            style: { position: "absolute", right: "5px", top: "7px", fontSize: "0px", cursor: "pointer" },
-            onClick: () => setEditMD(!editMD),
-            children: /* @__PURE__ */ jsx(MDIcon, {
-              style: { height: "15px" },
-              titleAccess: "Use rich text editor"
-            })
-          })
-        ]
-      }),
-      /* @__PURE__ */ jsx(LangSelect, {
-        onChange: (value) => {
-          onChange(lit.copyWithUpdatedLanguage(value));
-        },
-        value: lit.language || "",
-        property,
-        ...error ? { error: true } : {},
-        editable,
-        config
-      }),
-      preview && /* @__PURE__ */ jsx("div", {
-        className: "preview-ewts",
-        children: /* @__PURE__ */ jsx(TextField, {
-          disabled: true,
-          value: preview,
-          variant: "standard"
-        })
-      })
-    ]
-  });
+            i
+          )) })
+        ] }),
+        !property.singleLine && editMD && /* @__PURE__ */ jsxs("div", { style: { width: "100%", position: "relative", paddingBottom: "1px" }, children: [
+          /* @__PURE__ */ jsx(
+            MDEditor,
+            {
+              textareaProps: { spellCheck: "true", lang: lit.language === "en" ? "en_US" : lit.language },
+              value: lit.value,
+              preview: "edit",
+              onChange: (e) => {
+                if (e)
+                  onChange(lit.copyWithUpdatedValue(e));
+              },
+              commands: [
+                commands.bold,
+                commands.italic,
+                commands.strikethrough,
+                commands.hr,
+                commands.title,
+                commands.divider,
+                commands.link,
+                commands.quote,
+                commands.code,
+                commands.image,
+                commands.divider,
+                commands.unorderedListCommand,
+                commands.orderedListCommand,
+                commands.checkedListCommand,
+                commands.divider,
+                codeEdit,
+                codePreview
+              ],
+              extraCommands: []
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            "span",
+            {
+              className: "opaHover on",
+              style: { position: "absolute", right: "5px", top: "7px", fontSize: "0px", cursor: "pointer" },
+              onClick: () => setEditMD(!editMD),
+              children: /* @__PURE__ */ jsx(MDIcon, { style: { height: "15px" }, titleAccess: "Use rich text editor" })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsx(
+          LangSelect,
+          {
+            onChange: (value) => {
+              onChange(lit.copyWithUpdatedLanguage(value));
+            },
+            value: lit.language || "",
+            property,
+            ...error ? { error: true } : {},
+            editable,
+            config
+          }
+        ),
+        preview && // TODO see if fromWylie & MD can both be used ('escape' some chars?)
+        /* @__PURE__ */ jsx("div", { className: "preview-ewts", children: /* @__PURE__ */ jsx(TextField, { disabled: true, value: preview, variant: "standard" }) })
+      ]
+    }
+  );
 };
 var LangSelect = ({ onChange, value, property, disabled, error, editable, config }) => {
   const onChangeHandler = (event) => {
     onChange(event.target.value);
   };
-  const languages = (property == null ? void 0 : property.defaultLanguage) ? langsWithDefault(property.defaultLanguage, config.possibleLiteralLangs) : config.possibleLiteralLangs;
-  return /* @__PURE__ */ jsx("div", {
-    style: { position: "relative" },
-    children: /* @__PURE__ */ jsxs(TextField, {
+  const languages = property?.defaultLanguage ? langsWithDefault(property.defaultLanguage, config.possibleLiteralLangs) : config.possibleLiteralLangs;
+  return /* @__PURE__ */ jsx("div", { style: { position: "relative" }, children: /* @__PURE__ */ jsxs(
+    TextField,
+    {
       variant: "standard",
       select: true,
       InputLabelProps: { shrink: true },
@@ -2897,17 +2908,11 @@ var LangSelect = ({ onChange, value, property, disabled, error, editable, config
       ...error ? { error: true, helperText: /* @__PURE__ */ jsx("br", {}) } : {},
       ...!editable ? { disabled: true } : {},
       children: [
-        languages.map((option) => /* @__PURE__ */ jsx(MenuItem, {
-          value: option.value,
-          children: option.value
-        }, option.value)),
-        !languages.some((l) => l.value === value) && /* @__PURE__ */ jsx(MenuItem, {
-          value,
-          children: value
-        }, value)
+        languages.map((option) => /* @__PURE__ */ jsx(MenuItem, { value: option.value, children: option.value }, option.value)),
+        !languages.some((l) => l.value === value) && /* @__PURE__ */ jsx(MenuItem, { value, children: value }, value)
       ]
-    })
-  });
+    }
+  ) });
 };
 var EditString = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
   const [uiLang] = useRecoilState2(uiLangState);
@@ -2955,19 +2960,11 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
   const getEmptyStringError = (val) => {
     if (!val && property.minCount)
       return;
-    /* @__PURE__ */ jsxs(Fragment, {
-      children: [
-        /* @__PURE__ */ jsx(ErrorIcon, {
-          style: { fontSize: "20px", verticalAlign: "-7px" }
-        }),
-        " ",
-        /* @__PURE__ */ jsx("i", {
-          children: /* @__PURE__ */ jsx(Fragment, {
-            children: t("error.empty")
-          })
-        })
-      ]
-    });
+    /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(ErrorIcon, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
+      " ",
+      /* @__PURE__ */ jsx("i", { children: /* @__PURE__ */ jsx(Fragment, { children: t("error.empty") }) })
+    ] });
     return null;
   };
   useEffect2(() => {
@@ -2977,10 +2974,10 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
       updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
     }
   });
-  return /* @__PURE__ */ jsxs("div", {
-    style: { display: "flex", flexDirection: "column", width: "100%" },
-    children: [
-      /* @__PURE__ */ jsx(TextField, {
+  return /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", width: "100%" }, children: [
+    /* @__PURE__ */ jsx(
+      TextField,
+      {
         variant: "standard",
         label,
         style: { width: "100%" },
@@ -2994,16 +2991,10 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
         onChange: (e) => changeCallback(e.target.value),
         ...!editable ? { disabled: true } : {},
         ...error ? { error: true, helperText: error } : {}
-      }),
-      preview && /* @__PURE__ */ jsx("div", {
-        className: "preview-EDTF",
-        style: { width: "100%" },
-        children: /* @__PURE__ */ jsx("pre", {
-          children: preview
-        })
-      })
-    ]
-  });
+      }
+    ),
+    preview && /* @__PURE__ */ jsx("div", { className: "preview-EDTF", style: { width: "100%" }, children: /* @__PURE__ */ jsx("pre", { children: preview }) })
+  ] });
 };
 var EditBool = ({ property, lit, onChange, label, editable }) => {
   const { t } = useTranslation2();
@@ -3014,23 +3005,23 @@ var EditBool = ({ property, lit, onChange, label, editable }) => {
   const changeCallback = (val2) => {
     onChange(lit.copyWithUpdatedValue(val2 == "false" ? "0" : "1"));
   };
-  return /* @__PURE__ */ jsx(TextField, {
-    variant: "standard",
-    select: true,
-    style: { padding: "1px", minWidth: "250px" },
-    label,
-    value: val,
-    InputLabelProps: { shrink: true },
-    onChange: (e) => {
-      if (e.target.value != "-")
-        changeCallback(e.target.value);
-    },
-    ...!editable ? { disabled: true } : {},
-    children: ["true", "false"].concat(val === "unset" ? [val] : []).map((v) => /* @__PURE__ */ jsx(MenuItem, {
-      value: v,
-      children: t("types." + v)
-    }, v))
-  });
+  return /* @__PURE__ */ jsx(
+    TextField,
+    {
+      variant: "standard",
+      select: true,
+      style: { padding: "1px", minWidth: "250px" },
+      label,
+      value: val,
+      InputLabelProps: { shrink: true },
+      onChange: (e) => {
+        if (e.target.value != "-")
+          changeCallback(e.target.value);
+      },
+      ...!editable ? { disabled: true } : {},
+      children: ["true", "false"].concat(val === "unset" ? [val] : []).map((v) => /* @__PURE__ */ jsx(MenuItem, { value: v, children: t("types." + v) }, v))
+    }
+  );
 };
 var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
   const { t } = useTranslation2();
@@ -3088,33 +3079,30 @@ var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, ha
   if (dt && dt.value == xsdgYear) {
     value = value.replace(/^(-?)0+/, "$1");
   }
-  return /* @__PURE__ */ jsx(TextField, {
-    variant: "standard",
-    label,
-    style: { width: 240 },
-    value,
-    ...error ? {
-      helperText: /* @__PURE__ */ jsxs(React.Fragment, {
-        children: [
-          /* @__PURE__ */ jsx(ErrorIcon, {
-            style: { fontSize: "20px", verticalAlign: "-7px" }
-          }),
-          /* @__PURE__ */ jsxs("i", {
-            children: [
-              " ",
-              error
-            ]
-          })
-        ]
-      }),
-      error: true
-    } : {},
-    type: "number",
-    InputProps: { inputProps: { min: minInclusive, max: maxInclusive } },
-    InputLabelProps: { shrink: true },
-    onChange: (e) => changeCallback(e.target.value),
-    ...!editable ? { disabled: true } : {}
-  });
+  return /* @__PURE__ */ jsx(
+    TextField,
+    {
+      variant: "standard",
+      label,
+      style: { width: 240 },
+      value,
+      ...error ? {
+        helperText: /* @__PURE__ */ jsxs(React.Fragment, { children: [
+          /* @__PURE__ */ jsx(ErrorIcon, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
+          /* @__PURE__ */ jsxs("i", { children: [
+            " ",
+            error
+          ] })
+        ] }),
+        error: true
+      } : {},
+      type: "number",
+      InputProps: { inputProps: { min: minInclusive, max: maxInclusive } },
+      InputLabelProps: { shrink: true },
+      onChange: (e) => changeCallback(e.target.value),
+      ...!editable ? { disabled: true } : {}
+    }
+  );
 };
 var xsdgYear = XSD("gYear").value;
 var rdflangString = RDF("langString").value;
@@ -3170,111 +3158,110 @@ var LiteralComponent = ({
   const { t: tr } = useTranslation2();
   const t = property.datatype;
   let edit, classN;
-  if ((t == null ? void 0 : t.value) === rdflangString) {
+  if (t?.value === rdflangString) {
     classN = "langString " + (lit.value ? "lang-" + lit.language : "");
-    edit = /* @__PURE__ */ jsx(EditLangString, {
-      property,
-      lit,
-      onChange,
-      label: [
-        propLabel,
-        helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
-          title: helpMessage,
-          children: /* @__PURE__ */ jsx(HelpIcon, {
-            className: "help literal"
-          })
-        }, lit.id) : null
-      ],
-      ...property.uniqueLang && !isUniqueLang ? { globalError: tr("error.unique") } : {},
-      editable: editable && !property.readOnly,
-      updateEntityState,
-      entity: topEntity ? topEntity : subject,
-      index,
-      config
-    });
-  } else if ((t == null ? void 0 : t.value) === xsdgYear || t && (t == null ? void 0 : t.value) && intishTypeList.includes(t.value)) {
+    edit = /* @__PURE__ */ jsx(
+      EditLangString,
+      {
+        property,
+        lit,
+        onChange,
+        label: [
+          propLabel,
+          helpMessage ? /* @__PURE__ */ jsx(Tooltip, { title: helpMessage, children: /* @__PURE__ */ jsx(HelpIcon, { className: "help literal" }) }, lit.id) : null
+        ],
+        ...property.uniqueLang && !isUniqueLang ? { globalError: tr("error.unique") } : {},
+        editable: editable && !property.readOnly,
+        updateEntityState,
+        entity: topEntity ? topEntity : subject,
+        index,
+        config
+      }
+    );
+  } else if (t?.value === xsdgYear || t && t?.value && intishTypeList.includes(t.value)) {
     classN = "gYear intish";
-    edit = /* @__PURE__ */ jsx(EditInt, {
-      property,
-      lit,
-      onChange,
-      label: [
-        propLabel,
-        helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
-          title: helpMessage,
-          children: /* @__PURE__ */ jsx(HelpIcon, {
-            className: "help literal"
-          })
-        }, lit.id) : null
-      ],
-      editable: editable && !property.readOnly,
-      updateEntityState,
-      hasNoOtherValue: property.minCount === 1 && list.length === 1,
-      index,
-      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: tr("error.uniqueV") } : {}
-    });
-  } else if ((t == null ? void 0 : t.value) === xsdboolean) {
-    edit = /* @__PURE__ */ jsx(EditBool, {
-      property,
-      lit,
-      onChange,
-      label: [
-        propLabel,
-        helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
-          title: helpMessage,
-          children: /* @__PURE__ */ jsx(HelpIcon, {
-            className: "help literal"
-          })
-        }, lit.id) : null
-      ],
-      editable: editable && !property.readOnly
-    });
+    edit = /* @__PURE__ */ jsx(
+      EditInt,
+      {
+        property,
+        lit,
+        onChange,
+        label: [
+          propLabel,
+          helpMessage ? /* @__PURE__ */ jsx(Tooltip, { title: helpMessage, children: /* @__PURE__ */ jsx(HelpIcon, { className: "help literal" }) }, lit.id) : null
+        ],
+        editable: editable && !property.readOnly,
+        updateEntityState,
+        hasNoOtherValue: property.minCount === 1 && list.length === 1,
+        index,
+        ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: tr("error.uniqueV") } : {}
+      }
+    );
+  } else if (t?.value === xsdboolean) {
+    edit = /* @__PURE__ */ jsx(
+      EditBool,
+      {
+        property,
+        lit,
+        onChange,
+        label: [
+          propLabel,
+          helpMessage ? /* @__PURE__ */ jsx(Tooltip, { title: helpMessage, children: /* @__PURE__ */ jsx(HelpIcon, { className: "help literal" }) }, lit.id) : null
+        ],
+        editable: editable && !property.readOnly
+      }
+    );
   } else {
-    edit = /* @__PURE__ */ jsx(EditString, {
-      property,
-      lit,
-      onChange,
-      label: [
-        propLabel,
-        helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
-          title: helpMessage,
-          children: /* @__PURE__ */ jsx(HelpIcon, {
-            className: "help literal"
-          })
-        }, lit.id) : null
-      ],
-      editable: editable && !property.readOnly,
-      updateEntityState,
-      entity: subject,
-      index,
-      config
-    });
+    edit = /* @__PURE__ */ jsx(
+      EditString,
+      {
+        property,
+        lit,
+        onChange,
+        label: [
+          propLabel,
+          helpMessage ? /* @__PURE__ */ jsx(Tooltip, { title: helpMessage, children: /* @__PURE__ */ jsx(HelpIcon, { className: "help literal" }) }, lit.id) : null
+        ],
+        editable: editable && !property.readOnly,
+        updateEntityState,
+        entity: subject,
+        index,
+        config
+      }
+    );
   }
-  return /* @__PURE__ */ jsx(Fragment, {
-    children: /* @__PURE__ */ jsxs("div", {
-      className: classN,
-      style: { display: "flex", alignItems: "flex-end" },
-      children: [
-        edit,
-        /* @__PURE__ */ jsxs("div", {
-          className: "hoverPart",
-          children: [
-            /* @__PURE__ */ jsx("button", {
-              className: "btn btn-link ml-2 px-0 py-0 close-facet-btn",
-              onClick: deleteItem,
-              ...!canDel ? { disabled: true } : {},
-              children: /* @__PURE__ */ jsx(RemoveCircleOutlineIcon, {
-                className: "my-0 close-facet-btn"
-              })
-            }),
-            create
-          ]
-        })
-      ]
-    })
-  });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: classN, style: {
+    display: "flex",
+    alignItems: "flex-end"
+    /*, width: "100%"*/
+  }, children: [
+    edit,
+    /* @__PURE__ */ jsxs("div", { className: "hoverPart", children: [
+      /* @__PURE__ */ jsx(
+        "button",
+        {
+          className: "btn btn-link ml-2 px-0 py-0 close-facet-btn",
+          onClick: deleteItem,
+          ...!canDel ? { disabled: true } : {},
+          children: /* @__PURE__ */ jsx(RemoveCircleOutlineIcon, { className: "my-0 close-facet-btn" })
+        }
+      ),
+      create
+    ] })
+  ] }) });
 };
-var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity, updateEntityState, shape, config }) => {
+var FacetComponent = ({
+  subNode,
+  subject,
+  property,
+  canDel,
+  /*force,*/
+  editable,
+  topEntity,
+  updateEntityState,
+  shape,
+  config
+}) => {
   if (property.path == null)
     throw "can't find path of " + property.qname;
   const [list, setList] = useRecoilState2(subject.getAtomForProperty(property.path.sparqlString));
@@ -3319,84 +3306,67 @@ var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity,
     editClass = "edit";
   }
   const { t } = useTranslation2();
-  return /* @__PURE__ */ jsx(Fragment, {
-    children: /* @__PURE__ */ jsx("div", {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx(
+    "div",
+    {
       className: "facet " + editClass + " editable-" + editable + " force-" + force,
       onClick: (ev) => {
-        var _a;
         setEdit(subject.qname + " " + property.qname + " " + subNode.qname);
         const target = ev.target;
-        if (editClass || (target == null ? void 0 : target.classList) && !((_a = target == null ? void 0 : target.classList) == null ? void 0 : _a.contains("close-facet-btn"))) {
+        if (editClass || target?.classList && !target?.classList?.contains("close-facet-btn")) {
           ev.stopPropagation();
         }
       },
-      children: /* @__PURE__ */ jsxs("div", {
-        className: "card pt-2 pb-3 pr-3 mt-4 pl-2 " + (hasExtra ? "hasDisplayPriority" : ""),
-        children: [
-          targetShape.independentIdentifiers && /* @__PURE__ */ jsx("div", {
-            className: "internalId",
-            children: subNode.lname
-          }),
-          withoutDisplayPriority.map((p, index2) => {
-            var _a;
-            return /* @__PURE__ */ jsx(PropertyContainer, {
-              property: p,
-              subject: subNode,
-              embedded: true,
-              force,
-              editable: !p.readOnly,
-              owner: subject,
-              topEntity,
-              shape,
-              siblingsPath: (_a = property.path) == null ? void 0 : _a.sparqlString,
-              config
-            }, index2 + p.uri);
-          }),
-          withDisplayPriority.map((p, index2) => {
-            var _a;
-            return /* @__PURE__ */ jsx(PropertyContainer, {
-              property: p,
-              subject: subNode,
-              embedded: true,
-              force,
-              editable: !p.readOnly,
-              owner: subject,
-              topEntity,
-              shape,
-              siblingsPath: (_a = property.path) == null ? void 0 : _a.sparqlString,
-              config
-            }, index2 + p.uri);
-          }),
-          hasExtra && /* @__PURE__ */ jsx("span", {
-            className: "toggle-btn btn btn-rouge mt-4",
-            onClick: toggleExtra,
-            children: /* @__PURE__ */ jsx(Fragment, {
-              children: t("general.toggle", { show: force ? t("general.hide") : t("general.show") })
-            })
-          }),
-          /* @__PURE__ */ jsxs("div", {
-            className: "close-btn",
-            children: [
-              targetShape.description && /* @__PURE__ */ jsx(Tooltip, {
-                title: ValueByLangToStrPrefLang(targetShape.description, uiLang),
-                children: /* @__PURE__ */ jsx(HelpIcon, {
-                  className: "help"
-                })
-              }),
-              /* @__PURE__ */ jsx("button", {
-                className: "btn btn-link ml-2 px-0 close-facet-btn py-0",
-                onClick: deleteItem,
-                ...!canDel ? { disabled: true } : {},
-                children: /* @__PURE__ */ jsx(CloseIcon, {
-                  className: "close-facet-btn my-1"
-                })
-              })
-            ]
-          })
-        ]
-      })
-    })
-  });
+      children: /* @__PURE__ */ jsxs("div", { className: "card pt-2 pb-3 pr-3 mt-4 pl-2 " + (hasExtra ? "hasDisplayPriority" : ""), children: [
+        targetShape.independentIdentifiers && /* @__PURE__ */ jsx("div", { className: "internalId", children: subNode.lname }),
+        withoutDisplayPriority.map((p, index2) => /* @__PURE__ */ jsx(
+          PropertyContainer,
+          {
+            property: p,
+            subject: subNode,
+            embedded: true,
+            force,
+            editable: !p.readOnly,
+            owner: subject,
+            topEntity,
+            shape,
+            siblingsPath: property.path?.sparqlString,
+            config
+          },
+          index2 + p.uri
+        )),
+        withDisplayPriority.map((p, index2) => /* @__PURE__ */ jsx(
+          PropertyContainer,
+          {
+            property: p,
+            subject: subNode,
+            embedded: true,
+            force,
+            editable: !p.readOnly,
+            owner: subject,
+            topEntity,
+            shape,
+            siblingsPath: property.path?.sparqlString,
+            config
+          },
+          index2 + p.uri
+        )),
+        hasExtra && /* @__PURE__ */ jsx("span", { className: "toggle-btn btn btn-rouge mt-4", onClick: toggleExtra, children: /* @__PURE__ */ jsx(Fragment, { children: t("general.toggle", { show: force ? t("general.hide") : t("general.show") }) }) }),
+        /* @__PURE__ */ jsxs("div", { className: "close-btn", children: [
+          targetShape.description && /* @__PURE__ */ jsx(Tooltip, { title: ValueByLangToStrPrefLang(targetShape.description, uiLang), children: /* @__PURE__ */ jsx(HelpIcon, { className: "help" }) }),
+          /* @__PURE__ */ jsx(
+            "button",
+            {
+              className: "btn btn-link ml-2 px-0 close-facet-btn py-0",
+              onClick: deleteItem,
+              ...!canDel ? { disabled: true } : {},
+              children: /* @__PURE__ */ jsx(CloseIcon, { className: "close-facet-btn my-1" })
+            }
+          )
+        ] })
+      ] })
+    }
+  ) });
 };
 var ExtEntityComponent = ({
   extRes,
@@ -3441,10 +3411,9 @@ var ExtEntityComponent = ({
     setError(newError);
     updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, property.qname);
   }, [list]);
-  return /* @__PURE__ */ jsx("div", {
-    className: "extEntity" + (extRes.uri === "tmp:uri" ? " new" : ""),
-    style: { position: "relative" },
-    children: /* @__PURE__ */ jsxs("div", {
+  return /* @__PURE__ */ jsx("div", { className: "extEntity" + (extRes.uri === "tmp:uri" ? " new" : ""), style: { position: "relative" }, children: /* @__PURE__ */ jsxs(
+    "div",
+    {
       style: {
         ...extRes.uri !== "tmp:uri" ? {
           display: "inline-flex",
@@ -3460,30 +3429,28 @@ var ExtEntityComponent = ({
       },
       ...extRes.uri !== "tmp:uri" ? { className: "px-2 py-1 mr-2 mt-2 card" } : {},
       children: [
-        /* @__PURE__ */ jsx(config.resourceSelector, {
-          value: extRes,
-          onChange,
-          property,
-          idx,
-          exists,
-          subject,
-          editable,
-          ...owner ? { owner } : {},
-          title,
-          globalError: error,
-          updateEntityState,
-          shape,
-          config
-        }),
-        extRes.uri !== "tmp:uri" && /* @__PURE__ */ jsx("button", {
-          className: "btn btn-link ml-2 px-0",
-          onClick: deleteItem,
-          ...!canDel ? { disabled: true } : {},
-          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ jsx(RemoveCircleOutlineIcon, {}) : /* @__PURE__ */ jsx(CloseIcon, {})
-        })
+        /* @__PURE__ */ jsx(
+          config.resourceSelector,
+          {
+            value: extRes,
+            onChange,
+            property,
+            idx,
+            exists,
+            subject,
+            editable,
+            ...owner ? { owner } : {},
+            title,
+            globalError: error,
+            updateEntityState,
+            shape,
+            config
+          }
+        ),
+        extRes.uri !== "tmp:uri" && /* @__PURE__ */ jsx("button", { className: "btn btn-link ml-2 px-0", onClick: deleteItem, ...!canDel ? { disabled: true } : {}, children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ jsx(RemoveCircleOutlineIcon, {}) : /* @__PURE__ */ jsx(CloseIcon, {}) })
       ]
-    })
-  });
+    }
+  ) });
 };
 var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectIdx, editable, create, updateEntityState }) => {
   if (property.path == null)
@@ -3536,111 +3503,89 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
   }
   const { t } = useTranslation2();
   const [error, setError] = useState2("");
-  const valueNotInList = !possibleValues.some((pv) => pv.id === (val == null ? void 0 : val.id));
+  const valueNotInList = !possibleValues.some((pv) => pv.id === val?.id);
   useEffect2(() => {
-    var _a, _b;
     if (valueNotInList) {
-      setError("" + t("error.select", { val: val == null ? void 0 : val.value }));
-      updateEntityState(0 /* Error */, ((_a = property.path) == null ? void 0 : _a.sparqlString) + "_" + selectIdx);
+      setError("" + t("error.select", { val: val?.value }));
+      updateEntityState(0 /* Error */, property.path?.sparqlString + "_" + selectIdx);
     } else {
-      updateEntityState(1 /* Saved */, ((_b = property.path) == null ? void 0 : _b.sparqlString) + "_" + selectIdx);
+      updateEntityState(1 /* Saved */, property.path?.sparqlString + "_" + selectIdx);
     }
   }, [valueNotInList]);
   useEffect2(() => {
     return () => {
-      var _a, _b;
-      const inOtherEntity = !window.location.href.includes("/" + ((_a = entities[entity]) == null ? void 0 : _a.subjectQname) + "/");
+      const inOtherEntity = !window.location.href.includes("/" + entities[entity]?.subjectQname + "/");
       if (!inOtherEntity)
-        updateEntityState(1 /* Saved */, ((_b = property.path) == null ? void 0 : _b.sparqlString) + "_" + selectIdx, false, !inOtherEntity);
+        updateEntityState(1 /* Saved */, property.path?.sparqlString + "_" + selectIdx, false, !inOtherEntity);
     };
   }, []);
   if (possibleValues.length > 1 || error) {
-    return /* @__PURE__ */ jsx(Fragment, {
-      children: /* @__PURE__ */ jsxs("div", {
-        className: "resSelect",
-        style: { display: "inline-flex", alignItems: "flex-end" },
-        children: [
-          /* @__PURE__ */ jsxs(TextField, {
-            variant: "standard",
-            select: true,
-            className: "selector mr-2",
-            value: val == null ? void 0 : val.id,
-            style: { padding: "1px", minWidth: "250px" },
-            onChange,
-            label: [
-              propLabel,
-              helpMessage ? /* @__PURE__ */ jsx(Tooltip, {
-                title: helpMessage,
-                children: /* @__PURE__ */ jsx(HelpIcon, {
-                  className: "help"
-                })
-              }, "tooltip_" + selectIdx + "_" + index) : null
-            ],
-            ...error ? {
-              helperText: /* @__PURE__ */ jsxs(React.Fragment, {
-                children: [
-                  /* @__PURE__ */ jsx(ErrorIcon, {
-                    style: { fontSize: "20px", verticalAlign: "-7px" }
-                  }),
-                  /* @__PURE__ */ jsxs("i", {
-                    children: [
-                      " ",
-                      error
-                    ]
-                  })
-                ]
-              }),
-              error: true
-            } : {},
-            ...!editable ? { disabled: true } : {},
-            children: [
-              possibleValues.map((v, k) => {
-                if (v instanceof RDFResourceWithLabel) {
-                  const r = v;
-                  const label = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                  const span = /* @__PURE__ */ jsx("span", {
-                    children: label ? label : r.qname
-                  });
-                  return /* @__PURE__ */ jsx(MenuItem, {
-                    value: r.id,
-                    className: "withDescription",
-                    children: r.description ? /* @__PURE__ */ jsx(Tooltip, {
-                      title: ValueByLangToStrPrefLang(r.description, uiLang),
-                      children: span
-                    }) : span
-                  }, "menu-uri_" + selectIdx + r.id);
-                } else {
-                  const l = v;
-                  return /* @__PURE__ */ jsx(MenuItem, {
+    return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs("div", { className: "resSelect", style: { display: "inline-flex", alignItems: "flex-end" }, children: [
+      /* @__PURE__ */ jsxs(
+        TextField,
+        {
+          variant: "standard",
+          select: true,
+          className: "selector mr-2",
+          value: val?.id,
+          style: { padding: "1px", minWidth: "250px" },
+          onChange,
+          label: [
+            propLabel,
+            // ? propLabel : "[unlabelled]",
+            helpMessage ? /* @__PURE__ */ jsx(Tooltip, { title: helpMessage, children: /* @__PURE__ */ jsx(HelpIcon, { className: "help" }) }, "tooltip_" + selectIdx + "_" + index) : null
+          ],
+          ...error ? {
+            helperText: /* @__PURE__ */ jsxs(React.Fragment, { children: [
+              /* @__PURE__ */ jsx(ErrorIcon, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
+              /* @__PURE__ */ jsxs("i", { children: [
+                " ",
+                error
+              ] })
+            ] }),
+            error: true
+          } : {},
+          ...!editable ? { disabled: true } : {},
+          children: [
+            possibleValues.map((v, k) => {
+              if (v instanceof RDFResourceWithLabel) {
+                const r = v;
+                const label = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
+                const span = /* @__PURE__ */ jsx("span", { children: label ? label : r.qname });
+                return /* @__PURE__ */ jsx(MenuItem, { value: r.id, className: "withDescription", children: r.description ? /* @__PURE__ */ jsx(Tooltip, { title: ValueByLangToStrPrefLang(r.description, uiLang), children: span }) : span }, "menu-uri_" + selectIdx + r.id);
+              } else {
+                const l = v;
+                return /* @__PURE__ */ jsx(
+                  MenuItem,
+                  {
                     value: l.id,
                     className: "withDescription",
                     children: l.value
-                  }, "menu-lit_" + selectIdx + l.id + "_" + index + "_" + k);
-                }
-              }),
-              valueNotInList && /* @__PURE__ */ jsx(MenuItem, {
-                value: val == null ? void 0 : val.id,
+                  },
+                  "menu-lit_" + selectIdx + l.id + "_" + index + "_" + k
+                );
+              }
+            }),
+            valueNotInList && /* @__PURE__ */ jsx(
+              MenuItem,
+              {
+                value: val?.id,
                 className: "withDescription",
                 style: { color: "red" },
                 disabled: true,
-                children: val == null ? void 0 : val.value
-              }, "extra-val-id")
-            ]
-          }, "textfield_" + selectIdx + "_" + index),
-          /* @__PURE__ */ jsxs("div", {
-            className: "hoverPart",
-            children: [
-              canDel && /* @__PURE__ */ jsx("button", {
-                className: "btn btn-link mx-0 px-0 py-0",
-                onClick: deleteItem,
-                children: /* @__PURE__ */ jsx(RemoveCircleOutlineIcon, {})
-              }),
-              create
-            ]
-          })
-        ]
-      })
-    });
+                children: val?.value
+              },
+              "extra-val-id"
+            )
+          ]
+        },
+        "textfield_" + selectIdx + "_" + index
+      ),
+      /* @__PURE__ */ jsxs("div", { className: "hoverPart", children: [
+        canDel && /* @__PURE__ */ jsx("button", { className: "btn btn-link mx-0 px-0 py-0", onClick: deleteItem, children: /* @__PURE__ */ jsx(RemoveCircleOutlineIcon, {}) }),
+        create
+      ] })
+    ] }) });
   }
   return /* @__PURE__ */ jsx(Fragment, {});
 };
@@ -3662,9 +3607,13 @@ var redIcon = new L.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
   iconSize: [25, 41],
+  // eslint-disable-line no-magic-numbers
   iconAnchor: [12, 41],
+  // eslint-disable-line no-magic-numbers
   popupAnchor: [1, -34],
+  // eslint-disable-line no-magic-numbers
   shadowSize: [41, 41]
+  // eslint-disable-line no-magic-numbers
 });
 function DraggableMarker({
   pos,
@@ -3690,13 +3639,7 @@ function DraggableMarker({
       markerRef.current.setLatLng(pos);
     }
   });
-  return /* @__PURE__ */ jsx2(Marker, {
-    draggable: true,
-    eventHandlers,
-    position,
-    icon,
-    ref: markerRef
-  });
+  return /* @__PURE__ */ jsx2(Marker, { draggable: true, eventHandlers, position, icon, ref: markerRef });
 }
 var MapEventHandler = ({
   coords,
@@ -3739,8 +3682,7 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
   const errorKeys = Object.keys(errors[subject.qname] ? errors[subject.qname] : {});
   let hasError = false;
   group.properties.map((property) => {
-    var _a;
-    if (!hasError && errorKeys.some((k) => k.includes(property.qname)) || ((_a = property.targetShape) == null ? void 0 : _a.properties.some((p) => errorKeys.some((k) => k.includes(p.qname))))) {
+    if (!hasError && errorKeys.some((k) => k.includes(property.qname)) || property.targetShape?.properties.some((p) => errorKeys.some((k) => k.includes(p.qname)))) {
       hasError = true;
     }
     if (property.displayPriority && property.displayPriority >= 1) {
@@ -3784,17 +3726,16 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
         setLng([new LiteralWithId("" + val.lat)]);
     }
   };
-  return /* @__PURE__ */ jsx2("div", {
-    role: "main",
-    className: "group " + (hasError ? "hasError" : ""),
-    id: group.qname,
-    style: { scrollMargin: "90px" },
-    children: /* @__PURE__ */ jsx2("section", {
-      className: "album",
-      children: /* @__PURE__ */ jsx2("div", {
-        className: "container col-lg-6 col-md-6 col-sm-12",
-        style: { border: "dashed 1px none" },
-        children: /* @__PURE__ */ jsxs2("div", {
+  return /* @__PURE__ */ jsx2(
+    "div",
+    {
+      role: "main",
+      className: "group " + (hasError ? "hasError" : ""),
+      id: group.qname,
+      style: { scrollMargin: "90px" },
+      children: /* @__PURE__ */ jsx2("section", { className: "album", children: /* @__PURE__ */ jsx2("div", { className: "container col-lg-6 col-md-6 col-sm-12", style: { border: "dashed 1px none" }, children: /* @__PURE__ */ jsxs2(
+        "div",
+        {
           className: "row card my-2 pb-3" + (edit === group.qname ? " group-edit" : "") + " show-displayPriority-" + force,
           onClick: (e) => {
             if (onGroupOpen && groupEd !== group.qname)
@@ -3803,114 +3744,57 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
             setGroupEd(group.qname);
           },
           children: [
-            /* @__PURE__ */ jsxs2("p", {
-              className: "",
-              children: [
-                label,
-                hasError && /* @__PURE__ */ jsx2(ErrorIcon2, {})
-              ]
-            }),
-            /* @__PURE__ */ jsx2(Fragment2, {
-              children: /* @__PURE__ */ jsxs2("div", {
-                className: group.properties.length <= 1 ? "hidePropLabel" : "",
-                style: { fontSize: 0 },
-                children: [
-                  withoutDisplayPriority.map((property, index) => /* @__PURE__ */ jsx2(PropertyContainer, {
-                    property,
-                    subject,
-                    editable: property.readOnly !== true,
-                    shape,
-                    config
-                  }, index)),
-                  withDisplayPriority.map((property, index) => /* @__PURE__ */ jsx2(PropertyContainer, {
-                    property,
-                    subject,
-                    force,
-                    editable: property.readOnly !== true,
-                    shape,
-                    config
-                  }, index)),
-                  config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri && groupEd === group.qname && coords && /* @__PURE__ */ jsx2("div", {
-                    style: { position: "relative", overflow: "hidden", marginTop: "16px" },
-                    children: /* @__PURE__ */ jsxs2(MapContainer, {
-                      style: { width: "100%", height: "400px" },
-                      zoom,
-                      center: coords,
-                      children: [
-                        /* @__PURE__ */ jsxs2(LayersControl, {
-                          position: "topright",
-                          children: [
-                            config.googleMapsAPIKey && /* @__PURE__ */ jsxs2(Fragment2, {
-                              children: [
-                                /* @__PURE__ */ jsx2(LayersControl.BaseLayer, {
-                                  checked: true,
-                                  name: "Satellite+Roadmap",
-                                  children: /* @__PURE__ */ jsx2(ReactLeafletGoogleLayer, {
-                                    apiKey: config.googleMapsAPIKey,
-                                    type: "hybrid"
-                                  })
-                                }),
-                                /* @__PURE__ */ jsx2(LayersControl.BaseLayer, {
-                                  name: "Satellite",
-                                  children: /* @__PURE__ */ jsx2(ReactLeafletGoogleLayer, {
-                                    apiKey: config.googleMapsAPIKey,
-                                    type: "satellite"
-                                  })
-                                }),
-                                /* @__PURE__ */ jsx2(LayersControl.BaseLayer, {
-                                  name: "Roadmap",
-                                  children: /* @__PURE__ */ jsx2(ReactLeafletGoogleLayer, {
-                                    apiKey: config.googleMapsAPIKey,
-                                    type: "roadmap"
-                                  })
-                                }),
-                                /* @__PURE__ */ jsx2(LayersControl.BaseLayer, {
-                                  name: "Terrain",
-                                  children: /* @__PURE__ */ jsx2(ReactLeafletGoogleLayer, {
-                                    apiKey: config.googleMapsAPIKey,
-                                    type: "terrain"
-                                  })
-                                })
-                              ]
-                            }),
-                            !config.googleMapsAPIKey && /* @__PURE__ */ jsx2(LayersControl.BaseLayer, {
-                              checked: true,
-                              name: "OpenStreetMap",
-                              children: /* @__PURE__ */ jsx2(TileLayer, {
-                                url: "https://{s}.tile.iosb.fraunhofer.de/tiles/osmde/{z}/{x}/{y}.png"
-                              })
-                            })
-                          ]
-                        }),
-                        !unset && /* @__PURE__ */ jsx2(DraggableMarker, {
-                          pos: coords,
-                          icon: redIcon,
-                          setCoords
-                        }),
-                        /* @__PURE__ */ jsx2(MapEventHandler, {
-                          coords,
-                          redraw,
-                          setCoords,
-                          config
-                        })
-                      ]
-                    })
-                  }),
-                  hasExtra && /* @__PURE__ */ jsx2("span", {
-                    className: "toggle-btn  btn btn-rouge my-4",
-                    onClick: toggleExtra,
-                    children: /* @__PURE__ */ jsx2(Fragment2, {
-                      children: t("general.toggle", { show: force ? t("general.hide") : t("general.show") })
-                    })
-                  })
-                ]
-              })
-            })
+            /* @__PURE__ */ jsxs2("p", { className: "", children: [
+              label,
+              hasError && /* @__PURE__ */ jsx2(ErrorIcon2, {})
+            ] }),
+            //groupEd === group.qname && ( // WIP, good idea but breaks undo initialization
+            /* @__PURE__ */ jsx2(Fragment2, { children: /* @__PURE__ */ jsxs2("div", { className: group.properties.length <= 1 ? "hidePropLabel" : "", style: { fontSize: 0 }, children: [
+              withoutDisplayPriority.map((property, index) => /* @__PURE__ */ jsx2(
+                PropertyContainer,
+                {
+                  property,
+                  subject,
+                  editable: property.readOnly !== true,
+                  shape,
+                  config
+                },
+                index
+              )),
+              withDisplayPriority.map((property, index) => /* @__PURE__ */ jsx2(
+                PropertyContainer,
+                {
+                  property,
+                  subject,
+                  force,
+                  editable: property.readOnly !== true,
+                  shape,
+                  config
+                },
+                index
+              )),
+              config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri && groupEd === group.qname && // to force updating map when switching between two place entities
+              coords && // TODO: add a property in shape to enable this instead
+              /* @__PURE__ */ jsx2("div", { style: { position: "relative", overflow: "hidden", marginTop: "16px" }, children: /* @__PURE__ */ jsxs2(MapContainer, { style: { width: "100%", height: "400px" }, zoom, center: coords, children: [
+                /* @__PURE__ */ jsxs2(LayersControl, { position: "topright", children: [
+                  config.googleMapsAPIKey && /* @__PURE__ */ jsxs2(Fragment2, { children: [
+                    /* @__PURE__ */ jsx2(LayersControl.BaseLayer, { checked: true, name: "Satellite+Roadmap", children: /* @__PURE__ */ jsx2(ReactLeafletGoogleLayer, { apiKey: config.googleMapsAPIKey, type: "hybrid" }) }),
+                    /* @__PURE__ */ jsx2(LayersControl.BaseLayer, { name: "Satellite", children: /* @__PURE__ */ jsx2(ReactLeafletGoogleLayer, { apiKey: config.googleMapsAPIKey, type: "satellite" }) }),
+                    /* @__PURE__ */ jsx2(LayersControl.BaseLayer, { name: "Roadmap", children: /* @__PURE__ */ jsx2(ReactLeafletGoogleLayer, { apiKey: config.googleMapsAPIKey, type: "roadmap" }) }),
+                    /* @__PURE__ */ jsx2(LayersControl.BaseLayer, { name: "Terrain", children: /* @__PURE__ */ jsx2(ReactLeafletGoogleLayer, { apiKey: config.googleMapsAPIKey, type: "terrain" }) })
+                  ] }),
+                  !config.googleMapsAPIKey && /* @__PURE__ */ jsx2(LayersControl.BaseLayer, { checked: true, name: "OpenStreetMap", children: /* @__PURE__ */ jsx2(TileLayer, { url: "https://{s}.tile.iosb.fraunhofer.de/tiles/osmde/{z}/{x}/{y}.png" }) })
+                ] }),
+                !unset && /* @__PURE__ */ jsx2(DraggableMarker, { pos: coords, icon: redIcon, setCoords }),
+                /* @__PURE__ */ jsx2(MapEventHandler, { coords, redraw, setCoords, config })
+              ] }) }),
+              hasExtra && /* @__PURE__ */ jsx2("span", { className: "toggle-btn  btn btn-rouge my-4", onClick: toggleExtra, children: /* @__PURE__ */ jsx2(Fragment2, { children: t("general.toggle", { show: force ? t("general.hide") : t("general.show") }) }) })
+            ] }) })
           ]
-        })
-      })
-    })
-  });
+        }
+      ) }) })
+    }
+  );
 };
 var PropertyGroupContainer_default = PropertyGroupContainer;
 
@@ -3942,7 +3826,6 @@ function EntityEditContainerMayUpdate(props) {
   const [subject, setSubject] = useState4(null);
   const { copy } = queryString.parse(location.search, { decode: false });
   useEffect4(() => {
-    var _a;
     const i = entities.findIndex((e) => e.subjectQname === subjectQname);
     let subj;
     if (i === -1)
@@ -3953,7 +3836,7 @@ function EntityEditContainerMayUpdate(props) {
         props.config.prefixMap.uriFromQname(subnodeQname)
       );
       if (pp.length > 1 && i >= 0) {
-        const atom3 = (_a = entities[i].subject) == null ? void 0 : _a.getAtomForProperty(pp[1]);
+        const atom3 = entities[i].subject?.getAtomForProperty(pp[1]);
         if (!atom3) {
           setSubject(null);
           return;
@@ -3975,23 +3858,23 @@ function EntityEditContainerMayUpdate(props) {
   }, []);
   if (subject && propertyQname && entityQname && index) {
     const propsForCall = { ...props, copy };
-    return /* @__PURE__ */ jsx3(EntityEditContainerDoUpdate, {
-      subject,
-      propertyQname,
-      objectQname: entityQname,
-      index: Number(index),
-      copy,
-      ...props
-    });
+    return /* @__PURE__ */ jsx3(
+      EntityEditContainerDoUpdate,
+      {
+        subject,
+        propertyQname,
+        objectQname: entityQname,
+        index: Number(index),
+        copy,
+        ...props
+      }
+    );
   } else if (subject != null)
-    return /* @__PURE__ */ jsx3(Navigate, {
-      to: "/edit/" + entityQname + "/" + shapeQname
-    });
+    return /* @__PURE__ */ jsx3(Navigate, { to: "/edit/" + entityQname + "/" + shapeQname });
   else
     return /* @__PURE__ */ jsx3("div", {});
 }
 function EntityEditContainerDoUpdate(props) {
-  var _a;
   const config = props.config;
   const params = useParams();
   const shapeQname = params.shapeQname;
@@ -3999,7 +3882,7 @@ function EntityEditContainerDoUpdate(props) {
   const [list, setList] = useRecoilState4(atom3);
   const [entities, setEntities] = useRecoilState4(entitiesAtom);
   const i = entities.findIndex((e) => e.subjectQname === props.objectQname);
-  const subject = (_a = entities[i]) == null ? void 0 : _a.subject;
+  const subject = entities[i]?.subject;
   let copy = null;
   if (props.copy && typeof props.copy === "string") {
     copy = props.copy.split(";").reduce((acc, p) => {
@@ -4036,12 +3919,9 @@ function EntityEditContainerDoUpdate(props) {
     const newList = replaceItemAtIndex2(list, props.index, newObject);
     setList(newList);
   }, []);
-  return /* @__PURE__ */ jsx3(Navigate, {
-    to: "/edit/" + props.objectQname + "/" + shapeQname
-  });
+  return /* @__PURE__ */ jsx3(Navigate, { to: "/edit/" + props.objectQname + "/" + shapeQname });
 }
 function EntityEditContainer(props) {
-  var _a, _b, _c, _d, _e, _f;
   const config = props.config;
   const params = useParams();
   const { t } = useTranslation4();
@@ -4058,7 +3938,7 @@ function EntityEditContainer(props) {
   );
   const icon = config.iconFromEntity(entityObj.length ? entityObj[0] : null);
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config);
-  const canPushPrefLabelGroups = shape == null ? void 0 : shape.groups.reduce(
+  const canPushPrefLabelGroups = shape?.groups.reduce(
     (acc, group) => {
       const _props = group.properties.filter((p) => p.allowPushToTopLevelLabel).map((p) => {
         if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
@@ -4066,12 +3946,8 @@ function EntityEditContainer(props) {
       }).filter((a) => a != void 0);
       const subprops = group.properties.reduce(
         (accG, p) => {
-          var _a2;
-          const allowPush = (_a2 = p.targetShape) == null ? void 0 : _a2.properties.filter((s) => s.allowPushToTopLevelLabel).map((s) => {
-            var _a3;
-            return (_a3 = s.path) == null ? void 0 : _a3.sparqlString;
-          });
-          if ((allowPush == null ? void 0 : allowPush.length) && entityObj && entityObj[0] && entityObj[0].subject && p.path)
+          const allowPush = p.targetShape?.properties.filter((s) => s.allowPushToTopLevelLabel).map((s) => s.path?.sparqlString);
+          if (allowPush?.length && entityObj && entityObj[0] && entityObj[0].subject && p.path)
             return {
               ...accG,
               [p.qname]: { atom: entityObj[0].subject.getAtomForProperty(p.path.sparqlString), allowPush }
@@ -4080,7 +3956,7 @@ function EntityEditContainer(props) {
         },
         {}
       );
-      if ((_props == null ? void 0 : _props.length) || Object.keys(subprops).length)
+      if (_props?.length || Object.keys(subprops).length)
         return { ...acc, [group.qname]: { props: _props, subprops } };
       return { ...acc };
     },
@@ -4089,11 +3965,11 @@ function EntityEditContainer(props) {
   const possiblePrefLabels = useRecoilValue2(
     canPushPrefLabelGroups ? possiblePrefLabelsSelector({ canPushPrefLabelGroups }) : initMapAtom
   );
-  let prefLabelAtom = (_b = (_a = entityObj[0]) == null ? void 0 : _a.subject) == null ? void 0 : _b.getAtomForProperty(SKOS("prefLabel").value);
+  let prefLabelAtom = entityObj[0]?.subject?.getAtomForProperty(SKOS("prefLabel").value);
   if (!prefLabelAtom)
     prefLabelAtom = initListAtom;
   const [prefLabels, setPrefLabels] = useRecoilState4(prefLabelAtom);
-  let altLabelAtom = (_d = (_c = entityObj[0]) == null ? void 0 : _c.subject) == null ? void 0 : _d.getAtomForProperty(SKOS("altLabel").value);
+  let altLabelAtom = entityObj[0]?.subject?.getAtomForProperty(SKOS("altLabel").value);
   if (!altLabelAtom)
     altLabelAtom = initListAtom;
   const altLabels = useRecoilValue2(altLabelAtom);
@@ -4132,19 +4008,17 @@ function EntityEditContainer(props) {
   const save = useCallback2(
     (obj) => {
       return new Promise(async (resolve) => {
-        var _a2, _b2, _c2;
-        if ([2 /* NeedsSaving */, 0 /* Error */].includes((_a2 = obj[0]) == null ? void 0 : _a2.state)) {
+        if ([2 /* NeedsSaving */, 0 /* Error */].includes(obj[0]?.state)) {
           const defaultRef = new rdf6.NamedNode(rdf6.Store.defaultGraphURI);
           const store = new rdf6.Store();
           props.config.prefixMap.setDefaultPrefixes(store);
-          (_c2 = (_b2 = obj[0]) == null ? void 0 : _b2.subject) == null ? void 0 : _c2.graph.addNewValuestoStore(store);
+          obj[0]?.subject?.graph.addNewValuestoStore(store);
           rdf6.serialize(defaultRef, store, void 0, "text/turtle", async function(err, str) {
-            var _a3;
             if (err || !str) {
               debug9(err, store);
               throw "error when serializing";
             }
-            const shape2 = (_a3 = obj[0]) == null ? void 0 : _a3.shapeQname;
+            const shape2 = obj[0]?.shapeQname;
             config.setUserLocalEntity(
               obj[0].subjectQname,
               shape2,
@@ -4162,9 +4036,8 @@ function EntityEditContainer(props) {
   );
   const entityObjRef = useRef3(entityObj);
   useEffect4(() => {
-    var _a2, _b2, _c2;
-    if (((_a2 = entityObjRef.current) == null ? void 0 : _a2.length) && (entityObj == null ? void 0 : entityObj.length)) {
-      if (((_b2 = entityObjRef.current[0]) == null ? void 0 : _b2.subjectQname) != ((_c2 = entityObj[0]) == null ? void 0 : _c2.subjectQname)) {
+    if (entityObjRef.current?.length && entityObj?.length) {
+      if (entityObjRef.current[0]?.subjectQname != entityObj[0]?.subjectQname) {
         save(entityObjRef.current);
       }
     }
@@ -4215,42 +4088,20 @@ function EntityEditContainer(props) {
     loadingState.status === "fetched" ? true : false
   );
   if (loadingState.status === "error" || entityLoadingState.status === "error") {
-    return /* @__PURE__ */ jsxs3("p", {
-      className: "text-center text-muted",
-      children: [
-        /* @__PURE__ */ jsx3(NotFoundIcon, {
-          className: "icon mr-2"
-        }),
-        loadingState.error,
-        entityLoadingState.error
-      ]
-    });
+    return /* @__PURE__ */ jsxs3("p", { className: "text-center text-muted", children: [
+      /* @__PURE__ */ jsx3(NotFoundIcon, { className: "icon mr-2" }),
+      loadingState.error,
+      entityLoadingState.error
+    ] });
   }
   if (loadingState.status === "fetching" || entityLoadingState.status === "fetching" || !entity || entity.isEmpty()) {
-    return /* @__PURE__ */ jsx3(Fragment3, {
-      children: /* @__PURE__ */ jsx3("div", {
-        children: /* @__PURE__ */ jsx3("div", {
-          children: /* @__PURE__ */ jsx3(Fragment3, {
-            children: t("types.loading")
-          })
-        })
-      })
-    });
+    return /* @__PURE__ */ jsx3(Fragment3, { children: /* @__PURE__ */ jsx3("div", { children: /* @__PURE__ */ jsx3("div", { children: /* @__PURE__ */ jsx3(Fragment3, { children: t("types.loading") }) }) }) });
   }
   if (!shape || !entity)
-    return /* @__PURE__ */ jsx3(Fragment3, {
-      children: /* @__PURE__ */ jsx3("div", {
-        children: /* @__PURE__ */ jsx3("div", {
-          children: /* @__PURE__ */ jsx3(Fragment3, {
-            children: t("types.loading")
-          })
-        })
-      })
-    });
+    return /* @__PURE__ */ jsx3(Fragment3, { children: /* @__PURE__ */ jsx3("div", { children: /* @__PURE__ */ jsx3("div", { children: /* @__PURE__ */ jsx3(Fragment3, { children: t("types.loading") }) }) }) });
   const shapeLabel = ValueByLangToStrPrefLang(shape.targetClassPrefLabels, uiLang);
   const checkPushNameAsPrefLabel = (e, currentGroupName) => {
-    var _a2;
-    if (possiblePrefLabels && ((_a2 = possiblePrefLabels[currentGroupName]) == null ? void 0 : _a2.length)) {
+    if (possiblePrefLabels && possiblePrefLabels[currentGroupName]?.length) {
       const newLabels = [...prefLabels];
       for (const n of possiblePrefLabels[currentGroupName]) {
         if (n instanceof LiteralWithId && !newLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language)) && !altLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language)))
@@ -4264,89 +4115,64 @@ function EntityEditContainer(props) {
     e.stopPropagation();
   };
   const previewLink = config.getPreviewLink(entity.node);
-  return /* @__PURE__ */ jsxs3(React3.Fragment, {
-    children: [
-      /* @__PURE__ */ jsx3("div", {
-        role: "main",
-        className: "pt-4",
-        style: { textAlign: "center" },
-        children: /* @__PURE__ */ jsxs3("div", {
-          className: "header " + (icon == null ? void 0 : icon.toLowerCase().replace(/(.*?[/])?([^/]+)\.[^.]+/, "$2")),
-          ...!icon ? { "data-shape": shape.qname } : {},
-          children: [
-            /* @__PURE__ */ jsx3("div", {
-              className: "shape-icon"
-            }),
-            /* @__PURE__ */ jsxs3("div", {
-              children: [
-                /* @__PURE__ */ jsx3("h1", {
-                  children: shapeLabel
-                }),
-                /* @__PURE__ */ jsx3("span", {
-                  children: entity.qname
-                }),
-                previewLink && /* @__PURE__ */ jsx3("div", {
-                  className: "buda-link",
-                  children: /* @__PURE__ */ jsx3("a", {
-                    className: "btn-rouge" + (!((_e = entityObj[0]) == null ? void 0 : _e.etag) ? " disabled" : ""),
-                    target: "_blank",
-                    rel: "noreferrer",
-                    ...!((_f = entityObj[0]) == null ? void 0 : _f.etag) ? { title: t("error.preview") } : { href: previewLink },
-                    children: /* @__PURE__ */ jsx3(Fragment3, {
-                      children: t("general.preview")
-                    })
-                  })
-                })
-              ]
-            })
-          ]
-        })
-      }),
-      /* @__PURE__ */ jsxs3("div", {
-        role: "navigation",
-        className: "innerNav",
-        children: [
-          /* @__PURE__ */ jsx3("p", {
-            className: "text-uppercase small my-2",
-            children: /* @__PURE__ */ jsx3(Fragment3, {
-              children: t("home.nav")
-            })
-          }),
-          shape.groups.map((group, index) => {
-            const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
-            return /* @__PURE__ */ jsx3(Link, {
-              to: "#" + group.qname,
-              onClick: () => {
-                setGroupEd(group.qname);
-                setEdit(group.qname);
-              },
-              className: groupEd === group.qname ? "on" : "",
-              children: /* @__PURE__ */ jsx3("span", {
-                children: label
-              })
-            }, "lk" + group.qname);
-          })
-        ]
-      }),
-      /* @__PURE__ */ jsx3("div", {
-        children: shape.groups.map((group, index) => /* @__PURE__ */ jsxs3(React3.Fragment, {
-          children: [
-            groupEd === group.qname && /* @__PURE__ */ jsx3("div", {
-              className: "group-edit-BG",
-              onClick: (e) => checkPushNameAsPrefLabel(e, group.qname)
-            }),
-            /* @__PURE__ */ jsx3(PropertyGroupContainer_default, {
-              group,
-              subject: entity,
-              onGroupOpen: checkPushNameAsPrefLabel,
-              shape,
-              config
-            }, "pg" + group.qname)
-          ]
-        }, "rf" + group.qname))
+  return /* @__PURE__ */ jsxs3(React3.Fragment, { children: [
+    /* @__PURE__ */ jsx3("div", { role: "main", className: "pt-4", style: { textAlign: "center" }, children: /* @__PURE__ */ jsxs3("div", { className: "header " + icon?.toLowerCase().replace(/(.*?[/])?([^/]+)\.[^.]+/, "$2"), ...!icon ? { "data-shape": shape.qname } : {}, children: [
+      /* @__PURE__ */ jsx3("div", { className: "shape-icon" }),
+      /* @__PURE__ */ jsxs3("div", { children: [
+        /* @__PURE__ */ jsx3("h1", { children: shapeLabel }),
+        /* @__PURE__ */ jsx3("span", { children: entity.qname }),
+        previewLink && /* @__PURE__ */ jsx3("div", { className: "buda-link", children: /* @__PURE__ */ jsx3(
+          "a",
+          {
+            className: "btn-rouge" + (!entityObj[0]?.etag ? " disabled" : ""),
+            target: "_blank",
+            rel: "noreferrer",
+            ...!entityObj[0]?.etag ? { title: t("error.preview") } : { href: previewLink },
+            children: /* @__PURE__ */ jsx3(Fragment3, { children: t("general.preview") })
+          }
+        ) })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsxs3("div", { role: "navigation", className: "innerNav", children: [
+      /* @__PURE__ */ jsx3("p", { className: "text-uppercase small my-2", children: /* @__PURE__ */ jsx3(Fragment3, { children: t("home.nav") }) }),
+      shape.groups.map((group, index) => {
+        const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
+        return /* @__PURE__ */ jsx3(
+          Link,
+          {
+            to: "#" + group.qname,
+            onClick: () => {
+              setGroupEd(group.qname);
+              setEdit(group.qname);
+            },
+            className: groupEd === group.qname ? "on" : "",
+            children: /* @__PURE__ */ jsx3("span", { children: label })
+          },
+          "lk" + group.qname
+        );
       })
-    ]
-  });
+    ] }),
+    /* @__PURE__ */ jsx3("div", { children: shape.groups.map((group, index) => /* @__PURE__ */ jsxs3(React3.Fragment, { children: [
+      groupEd === group.qname && /* @__PURE__ */ jsx3(
+        "div",
+        {
+          className: "group-edit-BG",
+          onClick: (e) => checkPushNameAsPrefLabel(e, group.qname)
+        }
+      ),
+      /* @__PURE__ */ jsx3(
+        PropertyGroupContainer_default,
+        {
+          group,
+          subject: entity,
+          onGroupOpen: checkPushNameAsPrefLabel,
+          shape,
+          config
+        },
+        "pg" + group.qname
+      )
+    ] }, "rf" + group.qname)) })
+  ] });
 }
 var EntityEditContainer_default = EntityEditContainer;
 
@@ -4365,76 +4191,54 @@ function NewEntityContainer(props) {
   const [RID, setRID] = useState5("");
   const navigate = useNavigate();
   const { t } = useTranslation5();
-  return /* @__PURE__ */ jsxs4("div", {
-    className: "new-fix",
-    children: [
-      /* @__PURE__ */ jsxs4("div", {
-        children: [
-          /* @__PURE__ */ jsx4("b", {
-            children: "New entity:"
-          }),
-          /* @__PURE__ */ jsx4("span", {
-            children: /* @__PURE__ */ jsx4(TextField2, {
-              variant: "standard",
-              select: true,
-              helperText: "List of all possible shapes",
-              id: "shapeSelec",
-              className: "shapeSelector",
-              value: config.possibleShapeRefs[0].qname,
-              style: { marginTop: "3px", marginLeft: "10px" },
-              children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ jsx4(MenuItem2, {
-                value: shape.qname,
-                style: { padding: 0 },
-                children: /* @__PURE__ */ jsx4(Link2, {
-                  to: "/new/" + shape.qname,
-                  className: "popLink",
-                  children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang)
-                })
-              }, shape.qname))
-            })
-          })
-        ]
-      }),
-      /* @__PURE__ */ jsxs4("div", {
-        style: { display: "flex", alignItems: "baseline" },
-        children: [
-          /* @__PURE__ */ jsxs4("div", {
-            style: { marginRight: "10px" },
-            children: [
-              /* @__PURE__ */ jsx4("b", {
-                children: "Load entity:"
-              }),
-              " "
-            ]
-          }),
-          /* @__PURE__ */ jsx4("div", {
-            children: /* @__PURE__ */ jsx4(TextField2, {
-              variant: "standard",
-              style: { width: "100%" },
-              value: RID,
-              InputLabelProps: { shrink: true },
-              onChange: (e) => setRID(e.target.value),
-              helperText: "select an entity to load here by its RID",
-              onKeyDown: (event) => {
-                if (event.key === "Enter")
-                  navigate("/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase());
-              }
-            })
-          }),
-          /* @__PURE__ */ jsx4("div", {
-            children: /* @__PURE__ */ jsx4(Link2, {
-              to: "/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase(),
-              className: "btn btn-sm btn-outline-primary py-3 ml-2 lookup btn-rouge " + (!RID ? "disabled" : ""),
-              style: { boxShadow: "none", alignSelf: "center", marginBottom: "15px" },
-              children: /* @__PURE__ */ jsx4(Fragment4, {
-                children: t("search.open")
-              })
-            })
-          })
-        ]
-      })
-    ]
-  });
+  return /* @__PURE__ */ jsxs4("div", { className: "new-fix", children: [
+    /* @__PURE__ */ jsxs4("div", { children: [
+      /* @__PURE__ */ jsx4("b", { children: "New entity:" }),
+      /* @__PURE__ */ jsx4("span", { children: /* @__PURE__ */ jsx4(
+        TextField2,
+        {
+          variant: "standard",
+          select: true,
+          helperText: "List of all possible shapes",
+          id: "shapeSelec",
+          className: "shapeSelector",
+          value: config.possibleShapeRefs[0].qname,
+          style: { marginTop: "3px", marginLeft: "10px" },
+          children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ jsx4(MenuItem2, { value: shape.qname, style: { padding: 0 }, children: /* @__PURE__ */ jsx4(Link2, { to: "/new/" + shape.qname, className: "popLink", children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang) }) }, shape.qname))
+        }
+      ) })
+    ] }),
+    /* @__PURE__ */ jsxs4("div", { style: { display: "flex", alignItems: "baseline" }, children: [
+      /* @__PURE__ */ jsxs4("div", { style: { marginRight: "10px" }, children: [
+        /* @__PURE__ */ jsx4("b", { children: "Load entity:" }),
+        " "
+      ] }),
+      /* @__PURE__ */ jsx4("div", { children: /* @__PURE__ */ jsx4(
+        TextField2,
+        {
+          variant: "standard",
+          style: { width: "100%" },
+          value: RID,
+          InputLabelProps: { shrink: true },
+          onChange: (e) => setRID(e.target.value),
+          helperText: "select an entity to load here by its RID",
+          onKeyDown: (event) => {
+            if (event.key === "Enter")
+              navigate("/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase());
+          }
+        }
+      ) }),
+      /* @__PURE__ */ jsx4("div", { children: /* @__PURE__ */ jsx4(
+        Link2,
+        {
+          to: "/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase(),
+          className: "btn btn-sm btn-outline-primary py-3 ml-2 lookup btn-rouge " + (!RID ? "disabled" : ""),
+          style: { boxShadow: "none", alignSelf: "center", marginBottom: "15px" },
+          children: /* @__PURE__ */ jsx4(Fragment4, { children: t("search.open") })
+        }
+      ) })
+    ] })
+  ] });
 }
 var NewEntityContainer_default = NewEntityContainer;
 
@@ -4449,9 +4253,8 @@ import { debug as debugfactory10 } from "debug";
 import { jsx as jsx5, jsxs as jsxs5 } from "react/jsx-runtime";
 var debug11 = debugfactory10("rde:entity:dialog");
 function Dialog422(props) {
-  var _a;
   const [open, setOpen] = React5.useState(props.open);
-  const shape = (_a = props.shaped.split(":")[1]) == null ? void 0 : _a.replace(/Shape$/, "");
+  const shape = props.shaped.split(":")[1]?.replace(/Shape$/, "");
   const [createNew, setCreateNew] = useState6(false);
   const [loadNamed, setLoadNamed] = useState6(false);
   debug11("422:", props);
@@ -4464,69 +4267,35 @@ function Dialog422(props) {
     setOpen(false);
   };
   if (createNew)
-    return /* @__PURE__ */ jsx5(Navigate2, {
-      to: props.newUrl
-    });
+    return /* @__PURE__ */ jsx5(Navigate2, { to: props.newUrl });
   else if (loadNamed)
-    return /* @__PURE__ */ jsx5(Navigate2, {
-      to: props.editUrl
-    });
+    return /* @__PURE__ */ jsx5(Navigate2, { to: props.editUrl });
   else
-    return /* @__PURE__ */ jsx5("div", {
-      children: /* @__PURE__ */ jsxs5(Dialog, {
-        open,
-        children: [
-          /* @__PURE__ */ jsxs5(DialogTitle, {
-            children: [
-              shape,
-              " ",
-              props.named,
-              " has already been created"
-            ]
-          }),
-          /* @__PURE__ */ jsx5(DialogContent, {
-            children: /* @__PURE__ */ jsxs5(DialogContentText, {
-              children: [
-                "Do you want to use it, or to create a new ",
-                shape,
-                " with another RID instead?"
-              ]
-            })
-          }),
-          /* @__PURE__ */ jsxs5(DialogActions, {
-            style: { justifyContent: "space-around" },
-            children: [
-              /* @__PURE__ */ jsxs5(Button, {
-                className: "btn-rouge",
-                onClick: handleLoad,
-                color: "primary",
-                children: [
-                  "Use\xA0",
-                  /* @__PURE__ */ jsx5("span", {
-                    style: { textTransform: "none" },
-                    children: props.named
-                  })
-                ]
-              }),
-              /* @__PURE__ */ jsxs5(Button, {
-                className: "btn-rouge",
-                onClick: handleNew,
-                color: "primary",
-                children: [
-                  "Create\xA0",
-                  /* @__PURE__ */ jsx5("span", {
-                    style: { textTransform: "none" },
-                    children: shape
-                  }),
-                  "\xA0with another RID"
-                ]
-              })
-            ]
-          }),
-          /* @__PURE__ */ jsx5("br", {})
-        ]
-      })
-    });
+    return /* @__PURE__ */ jsx5("div", { children: /* @__PURE__ */ jsxs5(Dialog, { open, children: [
+      /* @__PURE__ */ jsxs5(DialogTitle, { children: [
+        shape,
+        " ",
+        props.named,
+        " has already been created"
+      ] }),
+      /* @__PURE__ */ jsx5(DialogContent, { children: /* @__PURE__ */ jsxs5(DialogContentText, { children: [
+        "Do you want to use it, or to create a new ",
+        shape,
+        " with another RID instead?"
+      ] }) }),
+      /* @__PURE__ */ jsxs5(DialogActions, { style: { justifyContent: "space-around" }, children: [
+        /* @__PURE__ */ jsxs5(Button, { className: "btn-rouge", onClick: handleLoad, color: "primary", children: [
+          "Use\xA0",
+          /* @__PURE__ */ jsx5("span", { style: { textTransform: "none" }, children: props.named })
+        ] }),
+        /* @__PURE__ */ jsxs5(Button, { className: "btn-rouge", onClick: handleNew, color: "primary", children: [
+          "Create\xA0",
+          /* @__PURE__ */ jsx5("span", { style: { textTransform: "none" }, children: shape }),
+          "\xA0with another RID"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx5("br", {})
+    ] }) });
 }
 
 // src/containers/EntityCreationContainer.tsx
@@ -4563,43 +4332,25 @@ function EntityCreationContainer(props) {
   if (entityLoadingState.error === "422" && entity) {
     const editUrl = subjectQname && propertyQname && index != void 0 ? "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "") : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname;
     const newUrl = location.pathname.replace(/\/named\/.*/, "") + location.search;
-    return /* @__PURE__ */ jsx6(Dialog422, {
-      open: true,
-      shaped: shapeQname,
-      named: entityQname,
-      editUrl,
-      newUrl
-    });
+    return /* @__PURE__ */ jsx6(Dialog422, { open: true, shaped: shapeQname, named: entityQname, editUrl, newUrl });
   } else if (entity) {
     if (subjectQname && propertyQname && index != void 0)
-      return /* @__PURE__ */ jsx6(Navigate3, {
-        to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
-      });
+      return /* @__PURE__ */ jsx6(
+        Navigate3,
+        {
+          to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
+        }
+      );
     else
-      return /* @__PURE__ */ jsx6(Navigate3, {
-        to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname
-      });
+      return /* @__PURE__ */ jsx6(Navigate3, { to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname });
   }
   if (entityLoadingState.status === "error") {
-    return /* @__PURE__ */ jsxs6("p", {
-      className: "text-center text-muted",
-      children: [
-        /* @__PURE__ */ jsx6(NotFoundIcon2, {
-          className: "icon mr-2"
-        }),
-        entityLoadingState.error
-      ]
-    });
+    return /* @__PURE__ */ jsxs6("p", { className: "text-center text-muted", children: [
+      /* @__PURE__ */ jsx6(NotFoundIcon2, { className: "icon mr-2" }),
+      entityLoadingState.error
+    ] });
   }
-  return /* @__PURE__ */ jsx6(Fragment5, {
-    children: /* @__PURE__ */ jsx6("div", {
-      children: /* @__PURE__ */ jsx6("div", {
-        children: /* @__PURE__ */ jsx6(Fragment5, {
-          children: t("types.creating")
-        })
-      })
-    })
-  });
+  return /* @__PURE__ */ jsx6(Fragment5, { children: /* @__PURE__ */ jsx6("div", { children: /* @__PURE__ */ jsx6("div", { children: /* @__PURE__ */ jsx6(Fragment5, { children: t("types.creating") }) }) }) });
 }
 function EntityCreationContainerAlreadyOpen(props) {
   const params = useParams2();
@@ -4616,22 +4367,15 @@ function EntityCreationContainerAlreadyOpen(props) {
     };
   }, []);
   if (subjectQname && propertyQname && index != void 0)
-    return /* @__PURE__ */ jsx6(Navigate3, {
-      to: "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
-    });
+    return /* @__PURE__ */ jsx6(
+      Navigate3,
+      {
+        to: "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
+      }
+    );
   else
-    return /* @__PURE__ */ jsx6(Navigate3, {
-      to: "/edit/" + entityQname + "/" + shapeQname
-    });
-  return /* @__PURE__ */ jsx6(Fragment5, {
-    children: /* @__PURE__ */ jsx6("div", {
-      children: /* @__PURE__ */ jsx6("div", {
-        children: /* @__PURE__ */ jsx6(Fragment5, {
-          children: i18n2.t("types.loading")
-        })
-      })
-    })
-  });
+    return /* @__PURE__ */ jsx6(Navigate3, { to: "/edit/" + entityQname + "/" + shapeQname });
+  return /* @__PURE__ */ jsx6(Fragment5, { children: /* @__PURE__ */ jsx6("div", { children: /* @__PURE__ */ jsx6("div", { children: /* @__PURE__ */ jsx6(Fragment5, { children: i18n2.t("types.loading") }) }) }) });
 }
 function EntityCreationContainerRoute(props) {
   const params = useParams2();
@@ -4641,15 +4385,9 @@ function EntityCreationContainerRoute(props) {
   const location = useLocation2();
   const { copy } = queryString2.parse(location.search, { decode: false });
   if (theEntity)
-    return /* @__PURE__ */ jsx6(EntityCreationContainerAlreadyOpen, {
-      ...props,
-      copy
-    });
+    return /* @__PURE__ */ jsx6(EntityCreationContainerAlreadyOpen, { ...props, copy });
   else
-    return /* @__PURE__ */ jsx6(EntityCreationContainer, {
-      ...props,
-      copy
-    });
+    return /* @__PURE__ */ jsx6(EntityCreationContainer, { ...props, copy });
 }
 var EntityCreationContainer_default = EntityCreationContainer;
 
@@ -4664,7 +4402,6 @@ import { useTranslation as useTranslation7 } from "react-i18next";
 import { Fragment as Fragment6, jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
 var debug13 = debugfactory12("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
-  var _a, _b, _c;
   const config = props.config;
   const params = useParams3();
   const navigate = useNavigate2();
@@ -4688,68 +4425,26 @@ function EntityShapeChooserContainer(props) {
   if (entityFromList && entityFromList.shapeQname) {
     const shapeQname = entityFromList.shapeQname;
     navigate("/edit/" + entityQname + "/" + shapeQname, { replace: true });
-    return /* @__PURE__ */ jsx7("div", {
-      children: /* @__PURE__ */ jsx7("div", {
-        children: /* @__PURE__ */ jsx7(Fragment6, {
-          children: i18n3.t("types.redirect")
-        })
-      })
-    });
+    return /* @__PURE__ */ jsx7("div", { children: /* @__PURE__ */ jsx7("div", { children: /* @__PURE__ */ jsx7(Fragment6, { children: i18n3.t("types.redirect") }) }) });
   }
   const { entityLoadingState, entity } = EntityFetcher(entityQname, "", config, unmounting, true);
   if (entity) {
     const possibleShapes = config.possibleShapeRefsForEntity(entity.node);
     if (entityLoadingState.status === "fetching") {
-      return /* @__PURE__ */ jsx7("div", {
-        children: /* @__PURE__ */ jsx7("div", {
-          children: /* @__PURE__ */ jsx7(Fragment6, {
-            children: i18n3.t("types.loading")
-          })
-        })
-      });
+      return /* @__PURE__ */ jsx7("div", { children: /* @__PURE__ */ jsx7("div", { children: /* @__PURE__ */ jsx7(Fragment6, { children: i18n3.t("types.loading") }) }) });
     } else if (entityLoadingState.error === "not found") {
-      return /* @__PURE__ */ jsx7("div", {
-        className: "error",
-        children: /* @__PURE__ */ jsxs7("div", {
-          children: [
-            /* @__PURE__ */ jsx7("span", {
-              children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n3.t("error.exist", { id: entityQname })
-              })
-            }),
-            /* @__PURE__ */ jsx7("br", {}),
-            /* @__PURE__ */ jsx7(Link3, {
-              style: { fontWeight: 700 },
-              to: "/new",
-              children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n3.t("error.redirect")
-              })
-            })
-          ]
-        })
-      });
+      return /* @__PURE__ */ jsx7("div", { className: "error", children: /* @__PURE__ */ jsxs7("div", { children: [
+        /* @__PURE__ */ jsx7("span", { children: /* @__PURE__ */ jsx7(Fragment6, { children: i18n3.t("error.exist", { id: entityQname }) }) }),
+        /* @__PURE__ */ jsx7("br", {}),
+        /* @__PURE__ */ jsx7(Link3, { style: { fontWeight: 700 }, to: "/new", children: /* @__PURE__ */ jsx7(Fragment6, { children: i18n3.t("error.redirect") }) })
+      ] }) });
     } else if (!possibleShapes) {
       debug13("cannot find", entity, entityLoadingState);
-      return /* @__PURE__ */ jsx7("div", {
-        className: "error",
-        children: /* @__PURE__ */ jsxs7("div", {
-          children: [
-            /* @__PURE__ */ jsx7("span", {
-              children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n3.t("error.shape", { id: entityQname })
-              })
-            }),
-            /* @__PURE__ */ jsx7("br", {}),
-            /* @__PURE__ */ jsx7(Link3, {
-              style: { fontWeight: 700 },
-              to: "/new",
-              children: /* @__PURE__ */ jsx7(Fragment6, {
-                children: i18n3.t("error.redirect")
-              })
-            })
-          ]
-        })
-      });
+      return /* @__PURE__ */ jsx7("div", { className: "error", children: /* @__PURE__ */ jsxs7("div", { children: [
+        /* @__PURE__ */ jsx7("span", { children: /* @__PURE__ */ jsx7(Fragment6, { children: i18n3.t("error.shape", { id: entityQname }) }) }),
+        /* @__PURE__ */ jsx7("br", {}),
+        /* @__PURE__ */ jsx7(Link3, { style: { fontWeight: 700 }, to: "/new", children: /* @__PURE__ */ jsx7(Fragment6, { children: i18n3.t("error.redirect") }) })
+      ] }) });
     }
     if (possibleShapes.length > 1) {
       const handleClick = (event, shape) => {
@@ -4763,50 +4458,35 @@ function EntityShapeChooserContainer(props) {
           }
         }
       };
-      return /* @__PURE__ */ jsx7("div", {
-        className: "centered-ctn",
-        children: /* @__PURE__ */ jsxs7("div", {
-          children: [
-            /* @__PURE__ */ jsx7("b", {
-              children: "Choose a shape:"
-            }),
-            /* @__PURE__ */ jsx7(TextField3, {
-              variant: "standard",
-              select: true,
-              helperText: "List of all possible shapes",
-              id: "shapeSelec",
-              className: "shapeSelector",
-              value: (_a = config.possibleShapeRefs[0]) == null ? void 0 : _a.qname,
-              style: { marginTop: "3px", marginLeft: "10px" },
-              children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ jsx7(MenuItem3, {
-                value: shape.qname,
-                style: { padding: 0 },
-                children: /* @__PURE__ */ jsx7(Link3, {
-                  to: "/edit/" + entityQname + "/" + (shape == null ? void 0 : shape.qname),
-                  className: "popLink",
-                  onClick: (ev) => handleClick(ev, shape),
-                  children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang)
-                })
-              }, shape.qname))
-            })
-          ]
-        })
-      });
-    } else if ((_b = possibleShapes[0]) == null ? void 0 : _b.qname) {
-      return /* @__PURE__ */ jsx7(Navigate4, {
-        to: "/edit/" + entityQname + "/" + ((_c = possibleShapes[0]) == null ? void 0 : _c.qname)
-      });
+      return /* @__PURE__ */ jsx7("div", { className: "centered-ctn", children: /* @__PURE__ */ jsxs7("div", { children: [
+        /* @__PURE__ */ jsx7("b", { children: "Choose a shape:" }),
+        /* @__PURE__ */ jsx7(
+          TextField3,
+          {
+            variant: "standard",
+            select: true,
+            helperText: "List of all possible shapes",
+            id: "shapeSelec",
+            className: "shapeSelector",
+            value: config.possibleShapeRefs[0]?.qname,
+            style: { marginTop: "3px", marginLeft: "10px" },
+            children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ jsx7(MenuItem3, { value: shape.qname, style: { padding: 0 }, children: /* @__PURE__ */ jsx7(
+              Link3,
+              {
+                to: "/edit/" + entityQname + "/" + shape?.qname,
+                className: "popLink",
+                onClick: (ev) => handleClick(ev, shape),
+                children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang)
+              }
+            ) }, shape.qname))
+          }
+        )
+      ] }) });
+    } else if (possibleShapes[0]?.qname) {
+      return /* @__PURE__ */ jsx7(Navigate4, { to: "/edit/" + entityQname + "/" + possibleShapes[0]?.qname });
     }
   }
-  return /* @__PURE__ */ jsx7(Fragment6, {
-    children: /* @__PURE__ */ jsx7("div", {
-      children: /* @__PURE__ */ jsx7("div", {
-        children: /* @__PURE__ */ jsx7(Fragment6, {
-          children: t("types.loading")
-        })
-      })
-    })
-  });
+  return /* @__PURE__ */ jsx7(Fragment6, { children: /* @__PURE__ */ jsx7("div", { children: /* @__PURE__ */ jsx7("div", { children: /* @__PURE__ */ jsx7(Fragment6, { children: t("types.loading") }) }) }) });
 }
 var EntityShapeChooserContainer_default = EntityShapeChooserContainer;
 
@@ -4836,7 +4516,6 @@ var EntityInEntitySelectorContainer = ({
   index,
   config
 }) => {
-  var _a, _b, _c;
   const [uiLitLang] = useRecoilState8(uiLitLangState);
   const [labelValues] = useRecoilState8(!entity.preloadedLabel ? entity.subjectLabelState : defaultEntityLabelAtom);
   const [tab, setTab] = useRecoilState8(uiTabState);
@@ -4858,7 +4537,6 @@ var EntityInEntitySelectorContainer = ({
     }
   };
   const closeEntity = async (ev) => {
-    var _a2, _b2;
     ev.persist();
     if (entity.state === 2 /* NeedsSaving */ || entity.state === 0 /* Error */) {
       const go = window.confirm("unsaved data will be lost");
@@ -4868,7 +4546,7 @@ var EntityInEntitySelectorContainer = ({
     config.setUserMenuState(
       entity.subjectQname,
       shapeQname,
-      !entity.preloadedLabel ? label && ((_a2 = entity.subject) == null ? void 0 : _a2.lname) ? (_b2 = entity.subject) == null ? void 0 : _b2.lname : label : entity.preloadedLabel,
+      !entity.preloadedLabel ? label && entity.subject?.lname ? entity.subject?.lname : label : entity.preloadedLabel,
       true,
       null
     );
@@ -4896,51 +4574,38 @@ var EntityInEntitySelectorContainer = ({
   config.setUserMenuState(
     entity.subjectQname,
     shapeQname,
-    !entity.preloadedLabel ? ((_a = entity.subject) == null ? void 0 : _a.lname) ? (_b = entity.subject) == null ? void 0 : _b.lname : label : entity.preloadedLabel,
+    !entity.preloadedLabel ? entity.subject?.lname ? entity.subject?.lname : label : entity.preloadedLabel,
     false,
     entity.etag
   );
-  return /* @__PURE__ */ jsx8(Fragment7, {
-    children: /* @__PURE__ */ jsx8(Tab, {
+  return /* @__PURE__ */ jsx8(Fragment7, { children: /* @__PURE__ */ jsx8(
+    Tab,
+    {
       ...a11yProps(index),
       className: index === tab ? "Mui-selected" : "",
       onClick: (e) => handleClick(e, index),
       ...disabled ? { disabled: true } : {},
-      label: /* @__PURE__ */ jsxs8(Fragment7, {
-        children: [
-          /* @__PURE__ */ jsxs8(Link4, {
-            to: link,
-            children: [
-              icon && /* @__PURE__ */ jsx8("img", {
-                className: "entity-type",
-                src: icon
-              }),
-              /* @__PURE__ */ jsxs8("span", {
-                style: { marginLeft: 30, marginRight: "auto", textAlign: "left" },
-                children: [
-                  /* @__PURE__ */ jsx8("span", {
-                    children: label && label != "..." ? label : ((_c = entity.subject) == null ? void 0 : _c.lname) ? entity.subject.lname : label
-                  }),
-                  /* @__PURE__ */ jsx8("br", {}),
-                  /* @__PURE__ */ jsx8("span", {
-                    className: "RID",
-                    children: entity.subjectQname
-                  })
-                ]
-              })
-            ]
-          }),
-          /* @__PURE__ */ jsx8("span", {
-            className: "state state-" + entity.state
-          }),
-          /* @__PURE__ */ jsx8(CloseIcon2, {
-            className: "close-facet-btn",
-            onClick: closeEntity
-          })
-        ]
-      })
-    }, entity.subjectQname)
-  });
+      label: /* @__PURE__ */ jsxs8(Fragment7, { children: [
+        /* @__PURE__ */ jsxs8(Link4, { to: link, children: [
+          icon && /* @__PURE__ */ jsx8(
+            "img",
+            {
+              className: "entity-type",
+              src: icon
+            }
+          ),
+          /* @__PURE__ */ jsxs8("span", { style: { marginLeft: 30, marginRight: "auto", textAlign: "left" }, children: [
+            /* @__PURE__ */ jsx8("span", { children: label && label != "..." ? label : entity.subject?.lname ? entity.subject.lname : label }),
+            /* @__PURE__ */ jsx8("br", {}),
+            /* @__PURE__ */ jsx8("span", { className: "RID", children: entity.subjectQname })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx8("span", { className: "state state-" + entity.state }),
+        /* @__PURE__ */ jsx8(CloseIcon2, { className: "close-facet-btn", onClick: closeEntity })
+      ] })
+    },
+    entity.subjectQname
+  ) });
 };
 
 // src/containers/EntitySelectorContainer.tsx
@@ -4992,9 +4657,9 @@ function EntitySelector(props) {
       }
       if (!sessionLoaded)
         setSessionLoaded(true);
-      if ((location == null ? void 0 : location.pathname) == "/new")
+      if (location?.pathname == "/new")
         setTab(newEntities.length);
-      if (location == null ? void 0 : location.pathname.startsWith("/edit/")) {
+      if (location?.pathname.startsWith("/edit/")) {
         const id = location.pathname.split("/")[2];
         let found = false;
         newEntities.map((e, i) => {
@@ -5036,54 +4701,37 @@ function EntitySelector(props) {
     navigate("/");
     return false;
   };
-  return /* @__PURE__ */ jsxs9("div", {
-    className: "tabs-select",
-    onClick: () => {
-      setEdit("");
-      setGroupEd("");
-    },
-    children: [
-      /* @__PURE__ */ jsx9("h3", {
-        children: "Edition"
-      }),
-      /* @__PURE__ */ jsxs9("h4", {
-        children: [
+  return /* @__PURE__ */ jsxs9(
+    "div",
+    {
+      className: "tabs-select",
+      onClick: () => {
+        setEdit("");
+        setGroupEd("");
+      },
+      children: [
+        /* @__PURE__ */ jsx9("h3", { children: "Edition" }),
+        /* @__PURE__ */ jsxs9("h4", { children: [
           "Open entities",
-          /* @__PURE__ */ jsx9("span", {
-            title: t("general.close"),
-            children: /* @__PURE__ */ jsx9(CloseIcon3, {
-              className: "close-facet-btn",
-              onClick: closeEntities
-            })
-          })
-        ]
-      }),
-      /* @__PURE__ */ jsxs9(Tabs, {
-        value: tab === -1 ? false : tab,
-        onChange: handleChange,
-        "aria-label": "entities",
-        children: [
+          /* @__PURE__ */ jsx9("span", { title: t("general.close"), children: /* @__PURE__ */ jsx9(CloseIcon3, { className: "close-facet-btn", onClick: closeEntities }) })
+        ] }),
+        /* @__PURE__ */ jsxs9(Tabs, { value: tab === -1 ? false : tab, onChange: handleChange, "aria-label": "entities", children: [
           entities.map((entity, index) => {
-            return /* @__PURE__ */ jsx9(EntityInEntitySelectorContainer, {
-              entity,
-              index,
-              config
-            }, index);
+            return /* @__PURE__ */ jsx9(EntityInEntitySelectorContainer, { entity, index, config }, index);
           }),
-          /* @__PURE__ */ jsx9(Tab2, {
-            ...a11yProps2(entities.length),
-            id: "new-load",
-            label: /* @__PURE__ */ jsx9(Link5, {
-              to: "/new",
-              className: "btn-rouge",
-              onClick: () => setDisabled(false),
-              children: "NEW / LOAD"
-            })
-          }, "new")
-        ]
-      })
-    ]
-  });
+          /* @__PURE__ */ jsx9(
+            Tab2,
+            {
+              ...a11yProps2(entities.length),
+              id: "new-load",
+              label: /* @__PURE__ */ jsx9(Link5, { to: "/new", className: "btn-rouge", onClick: () => setDisabled(false), children: "NEW / LOAD" })
+            },
+            "new"
+          )
+        ] })
+      ]
+    }
+  );
 }
 var EntitySelectorContainer_default = EntitySelector;
 
@@ -5103,12 +4751,11 @@ import { useTranslation as useTranslation9 } from "react-i18next";
 import { Fragment as Fragment8, jsx as jsx10, jsxs as jsxs10 } from "react/jsx-runtime";
 var debug16 = debugfactory15("rde:BottomBarContainer");
 function BottomBarContainer(props) {
-  var _a, _b, _c, _d;
   const [entities, setEntities] = useRecoilState10(entitiesAtom);
   const [uiTab] = useRecoilState10(uiTabState);
   const entity = entities.findIndex((e, i) => i === uiTab);
-  const entitySubj = (_a = entities[entity]) == null ? void 0 : _a.subject;
-  const entityUri = ((_c = (_b = entities[entity]) == null ? void 0 : _b.subject) == null ? void 0 : _c.uri) || "tmp:uri";
+  const entitySubj = entities[entity]?.subject;
+  const entityUri = entities[entity]?.subject?.uri || "tmp:uri";
   const [message, setMessage] = useState8(null);
   const [uiLang, setUiLang] = useRecoilState10(uiLangState);
   const [lang, setLang] = useState8(uiLang);
@@ -5116,7 +4763,7 @@ function BottomBarContainer(props) {
   const [gen, setGen] = useState8(false);
   const [popupOn, setPopupOn] = useRecoilState10(savePopupState);
   const [reloadEntity, setReloadEntity] = useRecoilState10(reloadEntityState);
-  const shapeQname = (_d = entities[entity]) == null ? void 0 : _d.shapeQname;
+  const shapeQname = entities[entity]?.shapeQname;
   const [error, setError] = useState8(null);
   const [errorCode, setErrorCode] = useState8(void 0);
   const [spinner, setSpinner] = useState8(false);
@@ -5139,7 +4786,6 @@ function BottomBarContainer(props) {
     closePopup();
   };
   const save = async (event) => {
-    var _a2, _b2;
     if (entities[entity].state === 0 /* Error */ && !saving) {
       if (!window.confirm(t("error.force")))
         return;
@@ -5151,7 +4797,7 @@ function BottomBarContainer(props) {
     }
     const store = new rdf8.Store();
     props.config.prefixMap.setDefaultPrefixes(store);
-    entitySubj == null ? void 0 : entitySubj.graph.addNewValuestoStore(store);
+    entitySubj?.graph.addNewValuestoStore(store);
     rdf8.serialize(defaultGraphNode, store, void 0, "text/turtle", async function(err, str) {
       if (err) {
         debug16(err, store);
@@ -5173,7 +4819,7 @@ function BottomBarContainer(props) {
         etag = await props.config.putDocument(
           entitySubj.node,
           store,
-          (_a2 = entities[entity]) == null ? void 0 : _a2.etag,
+          entities[entity]?.etag,
           '"' + message + '"@' + lang
         );
         setSpinner(false);
@@ -5186,13 +4832,11 @@ function BottomBarContainer(props) {
         if (error2.status === 412) {
           setErrorCode(error2.status);
           setError(
-            /* @__PURE__ */ jsxs10(React9.Fragment, {
-              children: [
-                t("error.newer"),
-                /* @__PURE__ */ jsx10("br", {}),
-                t("error.lost")
-              ]
-            })
+            /* @__PURE__ */ jsxs10(React9.Fragment, { children: [
+              t("error.newer"),
+              /* @__PURE__ */ jsx10("br", {}),
+              t("error.lost")
+            ] })
           );
         } else {
           setError(error2.status ? error2.status : error2.message ? error2.message : error2);
@@ -5211,7 +4855,7 @@ function BottomBarContainer(props) {
     setEntities(newEntities);
     history[entityUri] = history[entityUri].filter((h) => !h["tmp:allValuesLoaded"]);
     history[entityUri].push({ "tmp:allValuesLoaded": true });
-    (_b2 = newEntities[entity].subject) == null ? void 0 : _b2.resetNoHisto();
+    newEntities[entity].subject?.resetNoHisto();
     closePopup();
   };
   const onLangChangeHandler = (event) => {
@@ -5231,86 +4875,65 @@ function BottomBarContainer(props) {
       setReloadEntity(entitySubj.qname);
     closePopup();
   };
-  return /* @__PURE__ */ jsx10("nav", {
-    className: "bottom navbar navbar-dark navbar-expand-md",
-    children: /* @__PURE__ */ jsxs10(Fragment8, {
-      children: [
-        props.extraElement,
-        /* @__PURE__ */ jsx10("span", {}),
-        /* @__PURE__ */ jsx10("div", {
-          className: "popup " + (popupOn ? "on " : "") + (error ? "error " : ""),
-          children: /* @__PURE__ */ jsx10("div", {
-            children: saving && /* @__PURE__ */ jsxs10(Fragment8, {
-              children: [
-                /* @__PURE__ */ jsx10(TextField4, {
-                  label: "commit message",
-                  value: message,
-                  variant: "standard",
-                  onChange: onMessageChangeHandler,
-                  InputLabelProps: { shrink: true },
-                  style: { minWidth: 300 },
-                  ...error ? {
-                    helperText: /* @__PURE__ */ jsxs10("span", {
-                      style: { display: "flex", alignItems: "center" },
-                      children: [
-                        /* @__PURE__ */ jsx10(ErrorIcon3, {
-                          style: { fontSize: "20px" }
-                        }),
-                        /* @__PURE__ */ jsx10("i", {
-                          style: { paddingLeft: "5px", lineHeight: "14px", display: "inline-block" },
-                          children: error
-                        }),
-                        "\xA0\xA0",
-                        errorCode === 412 && /* @__PURE__ */ jsx10(Button2, {
-                          className: "btn-blanc",
-                          onClick: handleReload,
-                          children: t("general.reload")
-                        })
-                      ]
-                    }),
-                    error: true
-                  } : {}
-                }),
-                /* @__PURE__ */ jsx10(TextField4, {
-                  select: true,
-                  variant: "standard",
-                  value: lang,
-                  onChange: onLangChangeHandler,
-                  InputLabelProps: { shrink: true },
-                  style: { minWidth: 100, marginTop: "16px", marginLeft: "15px", marginRight: "15px" },
-                  children: props.config.possibleLiteralLangs.map((option) => /* @__PURE__ */ jsx10(MenuItem4, {
-                    value: option.value,
-                    children: option.value
-                  }, option.value))
-                })
-              ]
-            })
-          })
-        }),
-        /* @__PURE__ */ jsxs10("div", {
-          className: "buttons",
-          children: [
-            /* @__PURE__ */ jsx10(Button2, {
-              variant: "outlined",
-              onClick: save,
-              className: "btn-rouge",
-              ...spinner || message === "" && saving || saved || errorCode ? { disabled: true } : {},
-              children: spinner ? /* @__PURE__ */ jsx10(CircularProgress, {
-                size: "14px",
-                color: "primary"
-              }) : saving ? t("general.ok") : t("general.save")
-            }),
-            saving && /* @__PURE__ */ jsx10(Button2, {
-              variant: "outlined",
-              onClick: closePopupHandler,
-              className: "btn-blanc ml-2",
-              children: t("general.cancel")
-            })
-          ]
-        })
-      ]
-    })
-  });
+  return /* @__PURE__ */ jsx10("nav", { className: "bottom navbar navbar-dark navbar-expand-md", children: /* @__PURE__ */ jsxs10(Fragment8, { children: [
+    props.extraElement,
+    /* @__PURE__ */ jsx10("span", {}),
+    /* @__PURE__ */ jsx10("div", { className: "popup " + (popupOn ? "on " : "") + (error ? "error " : ""), children: /* @__PURE__ */ jsx10("div", { children: saving && /* @__PURE__ */ jsxs10(Fragment8, { children: [
+      /* @__PURE__ */ jsx10(
+        TextField4,
+        {
+          label: "commit message",
+          value: message,
+          variant: "standard",
+          onChange: onMessageChangeHandler,
+          InputLabelProps: { shrink: true },
+          style: { minWidth: 300 },
+          ...error ? {
+            helperText: /* @__PURE__ */ jsxs10("span", { style: { display: "flex", alignItems: "center" }, children: [
+              /* @__PURE__ */ jsx10(ErrorIcon3, { style: { fontSize: "20px" } }),
+              /* @__PURE__ */ jsx10("i", { style: { paddingLeft: "5px", lineHeight: "14px", display: "inline-block" }, children: error }),
+              "\xA0\xA0",
+              errorCode === 412 && /* @__PURE__ */ jsx10(Button2, { className: "btn-blanc", onClick: handleReload, children: t("general.reload") })
+            ] }),
+            error: true
+          } : {}
+        }
+      ),
+      /* @__PURE__ */ jsx10(
+        TextField4,
+        {
+          select: true,
+          variant: "standard",
+          value: lang,
+          onChange: onLangChangeHandler,
+          InputLabelProps: { shrink: true },
+          style: { minWidth: 100, marginTop: "16px", marginLeft: "15px", marginRight: "15px" },
+          children: props.config.possibleLiteralLangs.map((option) => /* @__PURE__ */ jsx10(MenuItem4, { value: option.value, children: option.value }, option.value))
+        }
+      )
+    ] }) }) }),
+    /* @__PURE__ */ jsxs10("div", { className: "buttons", children: [
+      /* @__PURE__ */ jsx10(
+        Button2,
+        {
+          variant: "outlined",
+          onClick: save,
+          className: "btn-rouge",
+          ...spinner || message === "" && saving || saved || errorCode ? { disabled: true } : {},
+          children: spinner ? /* @__PURE__ */ jsx10(CircularProgress, { size: "14px", color: "primary" }) : saving ? t("general.ok") : t("general.save")
+        }
+      ),
+      saving && /* @__PURE__ */ jsx10(
+        Button2,
+        {
+          variant: "outlined",
+          onClick: closePopupHandler,
+          className: "btn-blanc ml-2",
+          children: t("general.cancel")
+        }
+      )
+    ] })
+  ] }) });
 }
 
 // src/containers/BUDAResourceSelector.tsx
@@ -5358,7 +4981,6 @@ var BUDAResourceSelector = ({
   shape,
   config
 }) => {
-  var _a, _b, _c, _d;
   const [keyword, setKeyword] = useState9("");
   const [language, setLanguage] = useState9("bo-x-ewts");
   const [type, setType] = useState9(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
@@ -5375,19 +4997,18 @@ var BUDAResourceSelector = ({
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i) ? true : false;
   const [toCopy, setProp] = useRecoilState11(
     toCopySelector({
-      list: (_a = property.copyObjectsOfProperty) == null ? void 0 : _a.map((p) => ({
+      list: property.copyObjectsOfProperty?.map((p) => ({
         property: config.prefixMap.qnameFromUri(p.value),
         atom: (owner ? owner : subject).getAtomForProperty(p.uri)
       }))
     })
   );
   useEffect9(() => {
-    var _a2, _b2;
-    if ((_a2 = property.copyObjectsOfProperty) == null ? void 0 : _a2.length) {
+    if (property.copyObjectsOfProperty?.length) {
       const copy = [];
       for (const prop of property.copyObjectsOfProperty) {
         const propQname = config.prefixMap.qnameFromUri(prop.value);
-        if ((_b2 = value.otherData[propQname]) == null ? void 0 : _b2.length)
+        if (value.otherData[propQname]?.length)
           copy.push({
             k: propQname,
             val: value.otherData[propQname].map(
@@ -5577,9 +5198,9 @@ var BUDAResourceSelector = ({
   }
   const createAndUpdate = useCallback3(
     async (type2, named = "") => {
-      var _a2, _b2;
       let url = "";
-      url = "/new/" + config.possibleShapeRefsForType(type2.node)[0].qname + "/" + ((owner == null ? void 0 : owner.qname) && owner.qname !== subject.qname ? owner.qname : subject.qname) + "/" + config.prefixMap.qnameFromUri((_a2 = property == null ? void 0 : property.path) == null ? void 0 : _a2.sparqlString) + "/" + idx + ((owner == null ? void 0 : owner.qname) && owner.qname !== subject.qname ? "/" + subject.qname : "");
+      url = "/new/" + // TODO: perhaps users might want to choose between different shapes?
+      config.possibleShapeRefsForType(type2.node)[0].qname + "/" + (owner?.qname && owner.qname !== subject.qname ? owner.qname : subject.qname) + "/" + config.prefixMap.qnameFromUri(property?.path?.sparqlString) + "/" + idx + (owner?.qname && owner.qname !== subject.qname ? "/" + subject.qname : "");
       if (property.connectIDs) {
         const newNode = await config.generateConnectedID(subject, shape, type2);
         const newQname = config.prefixMap.qnameFromUri(newNode.uri);
@@ -5587,7 +5208,7 @@ var BUDAResourceSelector = ({
           url += "/named/" + (named ? named : newQname);
       }
       let urlParams = "";
-      if ((_b2 = property.copyObjectsOfProperty) == null ? void 0 : _b2.length) {
+      if (property.copyObjectsOfProperty?.length) {
         for (const kv of toCopy) {
           if (urlParams)
             urlParams += ";";
@@ -5635,15 +5256,13 @@ var BUDAResourceSelector = ({
   const onClickKB = (e) => {
     updateLibrary(e);
   };
-  let name = /* @__PURE__ */ jsx11("div", {
-    style: { fontSize: "16px" },
-    children: ValueByLangToStrPrefLang(value.prefLabels, uiLitLang) + " " + dates
-  });
+  let name = /* @__PURE__ */ jsx11("div", { style: {
+    fontSize: "16px"
+    /*, borderBottom:"1px solid #ccc"*/
+  }, children: ValueByLangToStrPrefLang(value.prefLabels, uiLitLang) + " " + dates });
   const entity = entities.filter((e) => e.subjectQname === value.qname);
   if (entity.length) {
-    name = /* @__PURE__ */ jsx11(LabelWithRID, {
-      entity: entity[0]
-    });
+    name = /* @__PURE__ */ jsx11(LabelWithRID, { entity: entity[0] });
   }
   useEffect9(() => {
     if (error) {
@@ -5660,180 +5279,168 @@ var BUDAResourceSelector = ({
       setPreview(null);
     }
   }, [config, isRid, keyword, language, uiLang]);
-  return /* @__PURE__ */ jsxs11(React10.Fragment, {
-    children: [
-      /* @__PURE__ */ jsxs11("div", {
+  return /* @__PURE__ */ jsxs11(React10.Fragment, { children: [
+    /* @__PURE__ */ jsxs11(
+      "div",
+      {
         className: "resSelect " + (error ? "error" : ""),
         style: { position: "relative", ...value.uri === "tmp:uri" ? { width: "100%" } : {} },
         children: [
-          value.uri === "tmp:uri" && /* @__PURE__ */ jsx11("div", {
-            className: preview ? "withPreview" : "",
-            style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
-            children: /* @__PURE__ */ jsxs11(React10.Fragment, {
-              children: [
-                preview && /* @__PURE__ */ jsx11("div", {
-                  className: "preview-ewts",
-                  children: /* @__PURE__ */ jsx11(TextField5, {
-                    disabled: true,
-                    value: preview,
-                    variant: "standard"
-                  })
-                }),
-                /* @__PURE__ */ jsx11(TextField5, {
-                  variant: "standard",
-                  onKeyPress: (e) => {
-                    if (e.key === "Enter")
-                      onClickKB(e);
-                  },
-                  onFocus: () => {
-                    if (!keyword || isRid)
-                      setPreview(null);
-                    const { value: value2, error: error2 } = config.previewLiteral(new rdf9.Literal(keyword, language), uiLang);
-                    setPreview(value2);
-                  },
-                  onBlur: () => setPreview(null),
-                  inputRef,
-                  InputLabelProps: { shrink: true },
-                  style: { width: "90%" },
-                  value: keyword,
-                  onChange: textOnChange,
-                  placeholder: "Search name or RID for " + title,
-                  ...error ? {
-                    helperText: /* @__PURE__ */ jsxs11(React10.Fragment, {
-                      children: [
-                        /* @__PURE__ */ jsx11(ErrorIcon4, {
-                          style: { fontSize: "20px", verticalAlign: "-7px" }
-                        }),
-                        /* @__PURE__ */ jsx11("i", {
-                          children: error
-                        })
-                      ]
-                    }),
-                    error: true
-                  } : {},
-                  ...!editable ? { disabled: true } : {}
-                }),
-                /* @__PURE__ */ jsx11(LangSelect, {
-                  value: language,
-                  onChange: (lang) => {
-                    setLanguage(lang);
-                    debug17(lang);
-                    if (libraryURL)
-                      updateLibrary(void 0, lang);
-                  },
-                  ...isRid ? { disabled: true } : { disabled: false },
-                  editable,
-                  error: !!error,
-                  config
-                }),
-                ((_b = property.expectedObjectTypes) == null ? void 0 : _b.length) > 1 && /* @__PURE__ */ jsx11(TextField5, {
-                  variant: "standard",
-                  select: true,
-                  style: { width: 100, flexShrink: 0 },
-                  value: type,
-                  className: "mx-2",
-                  onChange: textOnChangeType,
-                  label: "Type",
-                  ...isRid ? { disabled: true } : {},
-                  ...!editable ? { disabled: true } : {},
-                  ...error ? {
-                    helperText: /* @__PURE__ */ jsx11("br", {}),
-                    error: true
-                  } : {},
-                  children: (_c = property.expectedObjectTypes) == null ? void 0 : _c.map((r) => {
-                    const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                    return /* @__PURE__ */ jsx11(MenuItem5, {
-                      value: r.qname,
-                      children: label2
-                    }, r.qname);
-                  })
-                }),
-                /* @__PURE__ */ jsx11("button", {
-                  ...!keyword || !isRid && (!language || !type) ? { disabled: true } : {},
-                  className: "btn btn-sm btn-outline-primary ml-2 lookup btn-rouge",
-                  style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
-                  onClick,
-                  ...!editable ? { disabled: true } : {},
-                  children: libraryURL ? /* @__PURE__ */ jsx11(CloseIcon4, {}) : /* @__PURE__ */ jsx11(LookupIcon, {})
-                }),
-                /* @__PURE__ */ jsx11("button", {
-                  className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
-                  style: { boxShadow: "none", alignSelf: "center" },
-                  onClick: togglePopup,
-                  ...!editable ? { disabled: true } : {},
-                  children: /* @__PURE__ */ jsx11(Fragment9, {
-                    children: t("search.create")
-                  })
-                })
-              ]
-            })
-          }),
-          value.uri !== "tmp:uri" && /* @__PURE__ */ jsx11(React10.Fragment, {
-            children: /* @__PURE__ */ jsxs11("div", {
-              className: "selected",
-              children: [
-                name,
-                /* @__PURE__ */ jsxs11("div", {
-                  style: { fontSize: "12px", opacity: "0.5", display: "flex", alignItems: "center" },
-                  children: [
-                    value.qname,
-                    "\xA0",
-                    /* @__PURE__ */ jsxs11("a", {
-                      title: t("search.help.preview"),
-                      onClick: () => {
-                        if (libraryURL)
-                          setLibraryURL("");
-                        else if (value.otherData["tmp:externalUrl"])
-                          setLibraryURL(value.otherData["tmp:externalUrl"]);
-                        else
-                          setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
-                      },
-                      children: [
-                        !libraryURL && /* @__PURE__ */ jsx11(InfoOutlinedIcon, {
-                          style: { width: "18px", cursor: "pointer" }
-                        }),
-                        libraryURL && /* @__PURE__ */ jsx11(InfoIcon, {
-                          style: { width: "18px", cursor: "pointer" }
-                        })
-                      ]
-                    }),
-                    "\xA0",
-                    /* @__PURE__ */ jsx11("a", {
-                      title: t("search.help.open"),
-                      href: config.libraryUrl + "/show/" + value.qname,
-                      rel: "noopener noreferrer",
-                      target: "_blank",
-                      children: /* @__PURE__ */ jsx11(LaunchIcon, {
-                        style: { width: "16px" }
-                      })
-                    }),
-                    "\xA0",
-                    /* @__PURE__ */ jsx11(Link6, {
-                      title: t("search.help.edit"),
-                      to: "/edit/" + value.qname,
-                      children: /* @__PURE__ */ jsx11(EditIcon2, {
-                        style: { width: "16px" }
-                      })
-                    }),
-                    "\xA0",
-                    canCopy.length > 0 && /* @__PURE__ */ jsx11("span", {
-                      title: t("general.import"),
-                      children: /* @__PURE__ */ jsx11(ContentPasteIcon, {
-                        style: { width: "17px", cursor: "pointer" },
-                        onClick: () => {
-                          setProp(canCopy);
-                          setCanCopy([]);
-                        }
-                      })
+          value.uri === "tmp:uri" && /* @__PURE__ */ jsx11(
+            "div",
+            {
+              className: preview ? "withPreview" : "",
+              style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
+              children: /* @__PURE__ */ jsxs11(React10.Fragment, { children: [
+                preview && /* @__PURE__ */ jsx11("div", { className: "preview-ewts", children: /* @__PURE__ */ jsx11(TextField5, { disabled: true, value: preview, variant: "standard" }) }),
+                /* @__PURE__ */ jsx11(
+                  TextField5,
+                  {
+                    variant: "standard",
+                    onKeyPress: (e) => {
+                      if (e.key === "Enter")
+                        onClickKB(e);
+                    },
+                    onFocus: () => {
+                      if (!keyword || isRid)
+                        setPreview(null);
+                      const { value: value2, error: error2 } = config.previewLiteral(new rdf9.Literal(keyword, language), uiLang);
+                      setPreview(value2);
+                    },
+                    onBlur: () => setPreview(null),
+                    inputRef,
+                    InputLabelProps: { shrink: true },
+                    style: { width: "90%" },
+                    value: keyword,
+                    onChange: textOnChange,
+                    placeholder: "Search name or RID for " + title,
+                    ...error ? {
+                      helperText: /* @__PURE__ */ jsxs11(React10.Fragment, { children: [
+                        /* @__PURE__ */ jsx11(ErrorIcon4, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
+                        /* @__PURE__ */ jsx11("i", { children: error })
+                      ] }),
+                      error: true
+                    } : {},
+                    ...!editable ? { disabled: true } : {}
+                  }
+                ),
+                /* @__PURE__ */ jsx11(
+                  LangSelect,
+                  {
+                    value: language,
+                    onChange: (lang) => {
+                      setLanguage(lang);
+                      debug17(lang);
+                      if (libraryURL)
+                        updateLibrary(void 0, lang);
+                    },
+                    ...isRid ? { disabled: true } : { disabled: false },
+                    editable,
+                    error: !!error,
+                    config
+                  }
+                ),
+                property.expectedObjectTypes?.length > 1 && /* @__PURE__ */ jsx11(
+                  TextField5,
+                  {
+                    variant: "standard",
+                    select: true,
+                    style: { width: 100, flexShrink: 0 },
+                    value: type,
+                    className: "mx-2",
+                    onChange: textOnChangeType,
+                    label: "Type",
+                    ...isRid ? { disabled: true } : {},
+                    ...!editable ? { disabled: true } : {},
+                    ...error ? {
+                      helperText: /* @__PURE__ */ jsx11("br", {}),
+                      error: true
+                    } : {},
+                    children: property.expectedObjectTypes?.map((r) => {
+                      const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
+                      return /* @__PURE__ */ jsx11(MenuItem5, { value: r.qname, children: label2 }, r.qname);
                     })
+                  }
+                ),
+                /* @__PURE__ */ jsx11(
+                  "button",
+                  {
+                    ...!keyword || !isRid && (!language || !type) ? { disabled: true } : {},
+                    className: "btn btn-sm btn-outline-primary ml-2 lookup btn-rouge",
+                    style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
+                    onClick,
+                    ...!editable ? { disabled: true } : {},
+                    children: libraryURL ? /* @__PURE__ */ jsx11(CloseIcon4, {}) : /* @__PURE__ */ jsx11(LookupIcon, {})
+                  }
+                ),
+                /* @__PURE__ */ jsx11(
+                  "button",
+                  {
+                    className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
+                    style: { boxShadow: "none", alignSelf: "center" },
+                    onClick: togglePopup,
+                    ...!editable ? { disabled: true } : {},
+                    children: /* @__PURE__ */ jsx11(Fragment9, { children: t("search.create") })
+                  }
+                )
+              ] })
+            }
+          ),
+          value.uri !== "tmp:uri" && /* @__PURE__ */ jsx11(React10.Fragment, { children: /* @__PURE__ */ jsxs11("div", { className: "selected", children: [
+            name,
+            /* @__PURE__ */ jsxs11("div", { style: { fontSize: "12px", opacity: "0.5", display: "flex", alignItems: "center" }, children: [
+              value.qname,
+              "\xA0",
+              /* @__PURE__ */ jsxs11(
+                "a",
+                {
+                  title: t("search.help.preview"),
+                  onClick: () => {
+                    if (libraryURL)
+                      setLibraryURL("");
+                    else if (value.otherData["tmp:externalUrl"])
+                      setLibraryURL(value.otherData["tmp:externalUrl"]);
+                    else
+                      setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
+                  },
+                  children: [
+                    !libraryURL && /* @__PURE__ */ jsx11(InfoOutlinedIcon, { style: { width: "18px", cursor: "pointer" } }),
+                    libraryURL && /* @__PURE__ */ jsx11(InfoIcon, { style: { width: "18px", cursor: "pointer" } })
                   ]
-                })
-              ]
-            })
-          })
+                }
+              ),
+              "\xA0",
+              /* @__PURE__ */ jsx11(
+                "a",
+                {
+                  title: t("search.help.open"),
+                  href: config.libraryUrl + "/show/" + value.qname,
+                  rel: "noopener noreferrer",
+                  target: "_blank",
+                  children: /* @__PURE__ */ jsx11(LaunchIcon, { style: { width: "16px" } })
+                }
+              ),
+              "\xA0",
+              /* @__PURE__ */ jsx11(Link6, { title: t("search.help.edit"), to: "/edit/" + value.qname, children: /* @__PURE__ */ jsx11(EditIcon2, { style: { width: "16px" } }) }),
+              "\xA0",
+              canCopy.length > 0 && /* @__PURE__ */ jsx11("span", { title: t("general.import"), children: /* @__PURE__ */ jsx11(
+                ContentPasteIcon,
+                {
+                  style: { width: "17px", cursor: "pointer" },
+                  onClick: () => {
+                    setProp(canCopy);
+                    setCanCopy([]);
+                  }
+                }
+              ) })
+            ] })
+          ] }) })
         ]
-      }),
-      libraryURL && /* @__PURE__ */ jsxs11("div", {
+      }
+    ),
+    libraryURL && /* @__PURE__ */ jsxs11(
+      "div",
+      {
         className: "row card px-3 py-3 iframe",
         style: {
           position: "absolute",
@@ -5848,100 +5455,63 @@ var BUDAResourceSelector = ({
           ...value.uri !== "tmp:uri" ? { left: "calc(1rem)", width: "calc(100%)", bottom: "calc(100% - 0.5rem)" } : {}
         },
         children: [
-          /* @__PURE__ */ jsx11("iframe", {
-            style: { border: "none" },
-            height: "400",
-            src: libraryURL,
-            ref: iframeRef
-          }),
-          /* @__PURE__ */ jsx11("div", {
-            className: "iframe-BG",
-            onClick: closeFrame
-          })
+          /* @__PURE__ */ jsx11("iframe", { style: { border: "none" }, height: "400", src: libraryURL, ref: iframeRef }),
+          /* @__PURE__ */ jsx11("div", { className: "iframe-BG", onClick: closeFrame })
         ]
-      }),
-      popupNew && /* @__PURE__ */ jsxs11("div", {
-        className: "card popup-new",
-        children: [
-          /* @__PURE__ */ jsxs11("div", {
-            className: "front",
-            children: [
-              entities.map((e, i) => {
-                var _a2;
-                if (!exists(e == null ? void 0 : e.subjectQname) && (e == null ? void 0 : e.subjectQname) != subject.qname && (e == null ? void 0 : e.subjectQname) != (owner == null ? void 0 : owner.qname) && ((_a2 = property.expectedObjectTypes) == null ? void 0 : _a2.some(
-                  (t2) => {
-                    var _a3;
-                    return (_a3 = e.shapeQname) == null ? void 0 : _a3.startsWith(t2.qname.replace(/^bdo:/, "bds:"));
-                  }
-                ))) {
-                  return /* @__PURE__ */ jsx11(MenuItem5, {
-                    className: "px-0 py-0",
-                    children: /* @__PURE__ */ jsx11(LabelWithRID, {
-                      choose: chooseEntity,
-                      entity: e
-                    })
-                  }, i + 1);
-                }
-              }),
-              /* @__PURE__ */ jsx11("hr", {
-                className: "my-1"
-              }),
-              (_d = property.expectedObjectTypes) == null ? void 0 : _d.map((r) => {
-                const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                return /* @__PURE__ */ createElement(MenuItem5, {
-                  ...r.qname === "bdo:EtextInstance" ? { disabled: true } : {},
-                  key: r.qname,
-                  value: r.qname,
-                  onClick: async () => {
-                    const url = await createAndUpdate(r);
-                    navigate(url);
-                  }
-                }, t("search.new", { type: label2 }));
-              })
-            ]
-          }),
-          /* @__PURE__ */ jsx11("div", {
-            className: "popup-new-BG",
-            onClick: togglePopup
-          })
-        ]
-      })
-    ]
-  });
+      }
+    ),
+    popupNew && /* @__PURE__ */ jsxs11("div", { className: "card popup-new", children: [
+      /* @__PURE__ */ jsxs11("div", { className: "front", children: [
+        entities.map((e, i) => {
+          if (!exists(e?.subjectQname) && e?.subjectQname != subject.qname && e?.subjectQname != owner?.qname && property.expectedObjectTypes?.some(
+            (t2) => (
+              // DONE shapeRef is updated upon shape selection
+              e.shapeQname?.startsWith(t2.qname.replace(/^bdo:/, "bds:"))
+            )
+          )) {
+            return /* @__PURE__ */ jsx11(MenuItem5, { className: "px-0 py-0", children: /* @__PURE__ */ jsx11(LabelWithRID, { choose: chooseEntity, entity: e }) }, i + 1);
+          }
+        }),
+        /* @__PURE__ */ jsx11("hr", { className: "my-1" }),
+        property.expectedObjectTypes?.map((r) => {
+          const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
+          return /* @__PURE__ */ createElement(
+            MenuItem5,
+            {
+              ...r.qname === "bdo:EtextInstance" ? { disabled: true } : {},
+              key: r.qname,
+              value: r.qname,
+              onClick: async () => {
+                const url = await createAndUpdate(r);
+                navigate(url);
+              }
+            },
+            t("search.new", { type: label2 })
+          );
+        })
+      ] }),
+      /* @__PURE__ */ jsx11("div", { className: "popup-new-BG", onClick: togglePopup })
+    ] })
+  ] });
 };
 var LabelWithRID = ({
   entity,
   choose
 }) => {
-  var _a;
   const [uiLitLang] = useRecoilState11(uiLitLangState);
   const [labelValues] = useRecoilState11(entity.subjectLabelState);
   const prefLabels = RDFResource.valuesByLang(labelValues);
   const label = ValueByLangToStrPrefLang(prefLabels, uiLitLang);
-  let name = label && label != "..." ? label : ((_a = entity.subject) == null ? void 0 : _a.lname) ? entity.subject.lname : entity.subjectQname.split(":")[1];
+  let name = label && label != "..." ? label : entity.subject?.lname ? entity.subject.lname : entity.subjectQname.split(":")[1];
   if (!name)
     name = label;
   if (!choose)
-    return /* @__PURE__ */ jsx11("span", {
-      style: { fontSize: "16px" },
-      children: name
-    });
+    return /* @__PURE__ */ jsx11("span", { style: { fontSize: "16px" }, children: name });
   else
-    return /* @__PURE__ */ jsxs11("div", {
-      className: "px-3 py-1",
-      style: { width: "100%" },
-      onClick: choose(entity, prefLabels),
-      children: [
-        /* @__PURE__ */ jsx11("div", {
-          className: "label",
-          children: name
-        }),
-        /* @__PURE__ */ jsx11("div", {
-          className: "RID",
-          children: entity.subjectQname
-        })
-      ]
-    });
+    return /* @__PURE__ */ jsxs11("div", { className: "px-3 py-1", style: { width: "100%" }, onClick: choose(entity, prefLabels), children: [
+      /* @__PURE__ */ jsx11("div", { className: "label", children: name }),
+      /* @__PURE__ */ jsx11("div", { className: "RID", children: entity.subjectQname })
+    ] });
 };
 var BUDAResourceSelector_default = BUDAResourceSelector;
 export {

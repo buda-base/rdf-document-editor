@@ -1,4 +1,4 @@
-import { ReactI18NextChild } from "react-i18next"
+
 import RDEConfig from "./rde_config"
 
 export interface IdTypeParams {

@@ -1,4 +1,4 @@
-import { atom, selectorFamily, RecoilValue, RecoilState } from "recoil"
+import { atom, selectorFamily, RecoilValue, RecoilState, DefaultValue } from "recoil"
 import { FC } from "react"
 import _ from "lodash"
 import * as ns from "../helpers/rdf/ns"
@@ -325,7 +325,11 @@ export const toCopySelector = selectorFamily<{ k: string; val: Value[] }[], toCo
     },
   set:
     (args: toCopySelectorType) =>
-    ({ get, set }, [{ k, val }]: { k: string; val: Value[] }[]) => {
+    ({ get, set }, newValue: DefaultValue|{ k: string; val: Value[] }[]) => {
+      if(newValue instanceof DefaultValue) {
+        return
+      }
+      const { k, val } = newValue[0]
       //debug("set:", list, k, val)
       args.list?.map(({ property, atom }) => {
         if (k == property) set(atom, [...get(atom).filter((lit) => lit.value), ...val])
