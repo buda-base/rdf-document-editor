@@ -18,7 +18,6 @@ import {
   EditedEntityState,
   Entity,
 } from "../atoms/common"
-import { makeStyles } from "@mui/styles"
 import { Tabs, Tab } from "@mui/material"
 import * as lang from "../helpers/lang"
 import * as ns from "../helpers/rdf/ns"

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, FC, useRef, useLayoutEffect, useCallback } from "react"
 import { useRecoilState } from "recoil"
-import { makeStyles } from "@mui/styles"
 import { TextField, MenuItem } from "@mui/material"
 import i18n from "i18next"
 import { useNavigate, Link } from "react-router-dom"
@@ -35,19 +34,7 @@ import { Theme } from '@mui/material/styles';
 import { debug as debugfactory } from "debug"
 import { useTranslation } from "react-i18next"
 
-declare module '@mui/styles/defaultTheme' {
-  interface DefaultTheme extends Theme {}
-}
-
 const debug = debugfactory("rde:atom:event:RS")
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-  },
-}))
 
 type valueLang = {
   "@value": string

@@ -5,7 +5,6 @@ import * as recoil from 'recoil';
 import { RecoilState, AtomEffect, RecoilValue } from 'recoil';
 import { FC } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { Theme } from '@mui/material/styles';
 
 declare const DASH_uri = "http://datashapes.org/dash#";
 declare const DASH: (ln: string) => rdflib_lib_tf_types.NamedNode;
@@ -684,78 +683,78 @@ declare namespace common {
 
 declare namespace enTranslations {
     namespace home {
-        let title: string;
-        let uilang: string;
-        let nav: string;
+        const title: string;
+        const uilang: string;
+        const nav: string;
     }
     namespace types {
-        export let loading: string;
-        export let creating: string;
-        export let redirect: string;
-        export let boolean: string;
-        let _true: string;
+        export const loading: string;
+        export const creating: string;
+        export const redirect: string;
+        export const boolean: string;
+        const _true: string;
         export { _true as true };
-        let _false: string;
+        const _false: string;
         export { _false as false };
-        export let unset: string;
+        export const unset: string;
     }
     namespace search {
         export namespace help {
-            let preview: string;
-            let open: string;
-            let replace: string;
-            let edit: string;
+            const preview: string;
+            const open: string;
+            const replace: string;
+            const edit: string;
         }
-        export let lookup: string;
-        export let cancel: string;
-        export let change: string;
-        export let create: string;
-        let _new: string;
+        export const lookup: string;
+        export const cancel: string;
+        export const change: string;
+        export const create: string;
+        const _new: string;
         export { _new as new };
-        let open_1: string;
+        const open_1: string;
         export { open_1 as open };
     }
     namespace error {
-        export let inferiorTo: string;
-        export let superiorTo: string;
-        export let inferiorToStrict: string;
-        export let superiorToStrict: string;
-        export let empty: string;
-        export let unique: string;
-        export let uniqueV: string;
-        export let exist: string;
-        export let shape: string;
-        let redirect_1: string;
+        export const inferiorTo: string;
+        export const superiorTo: string;
+        export const inferiorToStrict: string;
+        export const superiorToStrict: string;
+        export const empty: string;
+        export const unique: string;
+        export const uniqueV: string;
+        export const exist: string;
+        export const shape: string;
+        const redirect_1: string;
         export { redirect_1 as redirect };
-        export let minC: string;
-        export let maxC: string;
-        export let prefix: string;
-        export let notF: string;
-        export let type: string;
-        let preview_1: string;
+        export const minC: string;
+        export const maxC: string;
+        export const prefix: string;
+        export const notF: string;
+        export const type: string;
+        const preview_1: string;
         export { preview_1 as preview };
-        export let force: string;
-        export let modified: string;
-        export let unauthorized: string;
-        export let year: string;
-        export let select: string;
-        export let local_load_fail: string;
+        export const force: string;
+        export const modified: string;
+        export const unauthorized: string;
+        export const year: string;
+        export const select: string;
+        export const local_load_fail: string;
     }
     namespace general {
-        export let add_another: string;
-        export let add_another_plural: string;
-        export let toggle: string;
-        export let show: string;
-        export let hide: string;
-        export let add_nb: string;
-        export let close: string;
-        let _import: string;
+        export const add_another: string;
+        export const add_another_plural: string;
+        export const toggle: string;
+        export const show: string;
+        export const hide: string;
+        export const add_nb: string;
+        export const close: string;
+        const _import: string;
         export { _import as import };
-        export let save: string;
-        export let ok: string;
-        let cancel_1: string;
+        export const save: string;
+        export const ok: string;
+        const cancel_1: string;
         export { cancel_1 as cancel };
-        export let load_previous_q: string;
+        export const load_previous_q: string;
     }
 }
 
@@ -935,10 +934,6 @@ declare class HttpError extends Error {
 }
 declare const fetchTtl: (url: string, allow404?: boolean, headers?: Headers, allowEmptyEtag?: boolean) => Promise<StoreWithEtag>;
 
-declare module '@mui/styles/defaultTheme' {
-    interface DefaultTheme extends Theme {
-    }
-}
 declare const BUDAResourceSelector: FC<{
     value: ExtRDFResourceWithLabel;
     onChange: (value: ExtRDFResourceWithLabel, idx: number, removeFirst: boolean | undefined) => void;

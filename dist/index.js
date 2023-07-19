@@ -4980,7 +4980,6 @@ function BottomBarContainer(props) {
 // src/containers/BUDAResourceSelector.tsx
 var import_react11 = __toESM(require("react"));
 var import_recoil13 = require("recoil");
-var import_styles = require("@mui/styles");
 var import_material8 = require("@mui/material");
 var import_react_router_dom8 = require("react-router-dom");
 var rdf9 = __toESM(require("rdflib"));
@@ -4990,13 +4989,6 @@ var import_react_i18next10 = require("react-i18next");
 var import_jsx_runtime11 = require("react/jsx-runtime");
 var import_react12 = require("react");
 var debug17 = (0, import_debug17.debug)("rde:atom:event:RS");
-var useStyles = (0, import_styles.makeStyles)((theme) => ({
-  root: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main
-    }
-  }
-}));
 var BDR_uri = "http://purl.bdrc.io/resource/";
 var BUDAResourceSelector = ({
   value,

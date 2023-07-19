@@ -4939,7 +4939,6 @@ function BottomBarContainer(props) {
 // src/containers/BUDAResourceSelector.tsx
 import React10, { useEffect as useEffect9, useState as useState9, useRef as useRef4, useLayoutEffect as useLayoutEffect2, useCallback as useCallback3 } from "react";
 import { useRecoilState as useRecoilState11 } from "recoil";
-import { makeStyles } from "@mui/styles";
 import { TextField as TextField5, MenuItem as MenuItem5 } from "@mui/material";
 import { useNavigate as useNavigate5, Link as Link6 } from "react-router-dom";
 import * as rdf9 from "rdflib";
@@ -4958,13 +4957,6 @@ import { useTranslation as useTranslation10 } from "react-i18next";
 import { Fragment as Fragment9, jsx as jsx11, jsxs as jsxs11 } from "react/jsx-runtime";
 import { createElement } from "react";
 var debug17 = debugfactory16("rde:atom:event:RS");
-var useStyles = makeStyles((theme) => ({
-  root: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main
-    }
-  }
-}));
 var BDR_uri = "http://purl.bdrc.io/resource/";
 var BUDAResourceSelector = ({
   value,
