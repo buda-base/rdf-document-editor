@@ -2272,6 +2272,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     const entityQname = topEntity ? topEntity.qname : subject.qname;
     const undo = undos[config.prefixMap.uriFromQname(entityQname)];
     const hStatus = getHistoryStatus(config.prefixMap.uriFromQname(entityQname));
+    debug7("undo:", undo, hStatus, history, entityQname, undos);
     setESfromRecoil({ property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove });
   };
   const alreadyHasEmptyValue = () => {

@@ -11,6 +11,7 @@ import {
   errors,
   noneSelected,
   getHistoryStatus,
+  history
 } from "../helpers/rdf/types"
 import { NodeShape, PropertyShape } from "../helpers/rdf/shapes"
 import * as ns from "../helpers/rdf/ns"
@@ -320,7 +321,8 @@ const ValueList: FC<{
     const entityQname = topEntity ? topEntity.qname : subject.qname
     const undo = undos[config.prefixMap.uriFromQname(entityQname)]
     const hStatus = getHistoryStatus(config.prefixMap.uriFromQname(entityQname))
-    //debug("undo:", undo, hStatus, history, entityQname, undos)
+
+    debug("undo:", undo, hStatus, history, entityQname, undos)
 
     setESfromRecoil({ property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove })
   }
