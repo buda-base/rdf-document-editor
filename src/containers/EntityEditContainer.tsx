@@ -268,7 +268,7 @@ function EntityEditContainer(props: RDEProps) {
   if (!altLabelAtom) altLabelAtom = initListAtom
   const altLabels = useRecoilValue(altLabelAtom)
 
-  debug("EntityEditContainer:", props, params, entityQname, shapeQname, history, shape, loadingState)
+  //debug("EntityEditContainer:", props, params, entityQname, shapeQname, history, shape, loadingState)
   
   useEffect(() => {
     entities.map((e, i) => {

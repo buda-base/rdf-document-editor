@@ -10977,6 +10977,7 @@ body {
 #root > div > nav + main > div {
   padding: 70px 0;
 }
+#root .home + .bottom.navbar,
 #root .home .bottom.navbar {
   display: none;
 }

@@ -3973,7 +3973,6 @@ function EntityEditContainer(props) {
   if (!altLabelAtom)
     altLabelAtom = initListAtom;
   const altLabels = useRecoilValue2(altLabelAtom);
-  debug9("EntityEditContainer:", props, params, entityQname, shapeQname, history, shape, loadingState);
   useEffect4(() => {
     entities.map((e, i) => {
       if (e.subjectQname === entityQname) {
