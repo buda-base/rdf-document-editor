@@ -31,6 +31,7 @@ import RDEConfig from "../helpers/rde_config"
 import { RDEProps } from "../helpers/editor_props"
 import { Error as ErrorIcon  } from '@mui/icons-material'
 import { useTranslation } from "react-i18next"
+import { HistoryHandler } from "../helpers/observer"
 
 const debug = debugfactory("rde:BottomBarContainer")
 
@@ -187,6 +188,8 @@ export default function BottomBarContainer (props: RDEProps) {
   return (
     <nav className="bottom navbar navbar-dark navbar-expand-md"><>
       { props.extraElement }
+      <HistoryHandler entityUri={entityUri} />
+      <span />
       <span/>
       <div className={"popup " + (popupOn ? "on " : "") + (error ? "error " : "") }>
         <div>

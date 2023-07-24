@@ -3,7 +3,7 @@ import * as rdf from 'rdflib';
 export { rdf };
 import * as recoil from 'recoil';
 import { RecoilState, AtomEffect, RecoilValue } from 'recoil';
-import { FC } from 'react';
+import { FC, RefObject } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
 declare const DASH_uri = "http://datashapes.org/dash#";
@@ -924,6 +924,9 @@ declare const LangSelect: FC<{
     config: RDEConfig;
 }>;
 
+declare let undoRef: RefObject<HTMLButtonElement> | null;
+declare let redoRef: RefObject<HTMLButtonElement> | null;
+
 interface StoreWithEtag {
     store: rdf.Store;
     etag: string | null;
@@ -950,4 +953,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, HistoryStatus, HttpError, IFetchState, IdTypeParams, Lang, LangSelect, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, RDFResourceWithLabel, Subject, Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, shapes, updateHistory };
+export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, HistoryStatus, HttpError, IFetchState, IdTypeParams, Lang, LangSelect, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, RDFResourceWithLabel, Subject, Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, redoRef, shapes, undoRef, updateHistory };

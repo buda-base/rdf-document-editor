@@ -19,6 +19,8 @@ export { default as BottomBarContainer } from "./containers/BottomBarContainer"
 export type { RDEProps, IdTypeParams } from "./helpers/editor_props"
 export { LangSelect } from "./containers/ValueList"
 
+export { undoRef, redoRef } from "./helpers/observer"
+
 export { NodeShape, generateSubnodes } from "./helpers/rdf/shapes"
 
 export type { default as RDEConfig, LocalEntityInfo, IFetchState } from "./helpers/rde_config"

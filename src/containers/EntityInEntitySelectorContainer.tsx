@@ -118,6 +118,8 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
     entity.etag
   )  
 
+  debug("state:",entity.state,entity.subjectQname)
+
   return (
     <>
       <Tab

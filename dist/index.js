@@ -66,7 +66,9 @@ __export(src_exports, {
   history: () => history,
   ns: () => ns_exports,
   rdf: () => rdf10,
+  redoRef: () => redoRef,
   shapes: () => shapes_exports,
+  undoRef: () => undoRef,
   updateHistory: () => updateHistory
 });
 module.exports = __toCommonJS(src_exports);
@@ -1660,6 +1662,7 @@ var ESfromRecoilSelector = (0, import_recoil2.selectorFamily)({
   set: ({}) => ({ get, set }, args) => {
     const entities = get(entitiesAtom);
     const setEntities = (val) => set(entitiesAtom, val);
+    debug4("UES:", args.status, args.entityQname, args.id, args.removingFacet, args.forceRemove, args.undo, args.hStatus);
     const n = entities.findIndex((e) => e.subjectQname === args.entityQname);
     if (n > -1) {
       const ent = entities[n];
@@ -1676,7 +1679,9 @@ var ESfromRecoilSelector = (0, import_recoil2.selectorFamily)({
       }
       const status = ent.etag && (!args.undo || args.undo.prev && !args.undo.prev.enabled) && !ent.loadedUnsavedFromLocalStorage ? 1 /* Saved */ : 2 /* NeedsSaving */;
       const hasError = errors[ent.subjectQname] && errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id];
+      debug4("no error:", hasError, args.forceRemove, args.id, status, ent.state, ent, n, args.property.qname, errors);
       if (ent.state != status || hasError && args.forceRemove) {
+        debug4("status:", ent.state, status);
         if (args.removingFacet) {
           if (errors[ent.subjectQname]) {
             const keys = Object.keys(errors[ent.subjectQname]);
@@ -4624,6 +4629,7 @@ var EntityInEntitySelectorContainer = ({
     false,
     entity.etag
   );
+  debug14("state:", entity.state, entity.subjectQname);
   return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
     import_material5.Tab,
     {
@@ -4782,32 +4788,189 @@ function EntitySelector(props) {
 var EntitySelectorContainer_default = EntitySelector;
 
 // src/containers/BottomBarContainer.tsx
-var import_react10 = __toESM(require("react"));
+var import_react11 = __toESM(require("react"));
 var import_material7 = require("@mui/material");
-var import_recoil12 = require("recoil");
+var import_recoil13 = require("recoil");
 var rdf8 = __toESM(require("rdflib"));
 var import_debug16 = require("debug");
 var import_icons_material7 = require("@mui/icons-material");
 var import_react_i18next9 = require("react-i18next");
+
+// src/helpers/observer.tsx
+var import_react10 = require("react");
+var import_recoil12 = require("recoil");
 var import_jsx_runtime10 = require("react/jsx-runtime");
-var debug16 = (0, import_debug16.debug)("rde:BottomBarContainer");
-function BottomBarContainer(props) {
+var undoRef = null;
+var redoRef = null;
+var GotoButton = ({ label, subject, undo, setUndo, propFromParentPath }) => {
+  const entityUri = subject.uri;
+  const which = label === "UNDO" ? "prev" : "next";
+  const [list, setList] = (0, import_recoil12.useRecoilState)(
+    subject.getAtomForProperty(
+      propFromParentPath ? propFromParentPath : undo[which].parentPath.length && undo[which].parentPath[0] === entityUri ? undo[which].parentPath[1] : undo[which].propertyPath
+    )
+  );
+  const disabled = !undo[which].enabled;
+  const previousValues = (entityUri2, subjectUri, pathString, idx) => {
+    const histo = history[entityUri2], prevUndo = {
+      ...noUndoRedo,
+      next: { enabled: true, subjectUri, propertyPath: pathString, parentPath: undo[which].parentPath }
+    };
+    let vals = [];
+    if (histo && histo.length > idx) {
+      const first = histo.findIndex((h) => h["tmp:allValuesLoaded"]);
+      histo[idx]["tmp:undone"] = true;
+      for (let j = idx - 1; j >= 0; j--) {
+        if (histo[j] && histo[j][subjectUri] && histo[j][subjectUri][pathString]) {
+          vals = histo[j][subjectUri][pathString];
+          break;
+        }
+      }
+      if (first >= 0 && idx > first) {
+        const parentPath = histo[idx - 1]["tmp:parentPath"] || [];
+        for (const subj of Object.keys(histo[idx - 1])) {
+          for (const prop of Object.keys(histo[idx - 1][subj])) {
+            if (["tmp:parentPath", "tmp:undone"].includes(prop))
+              continue;
+            prevUndo.prev = { enabled: true, subjectUri: subj, propertyPath: prop, parentPath };
+            break;
+          }
+          if (prevUndo.prev.enabled)
+            break;
+        }
+      }
+    }
+    return { vals, prevUndo };
+  };
+  const nextValues = (entityUri2, subjectUri, pathString, idx) => {
+    const histo = history[entityUri2], nextUndo = {
+      ...noUndoRedo,
+      prev: { enabled: true, subjectUri, propertyPath: pathString, parentPath: undo[which].parentPath }
+    };
+    let vals = [];
+    if (histo && histo.length > idx) {
+      for (let j = idx; j < histo.length; j++) {
+        if (histo[j] && histo[j][subjectUri] && histo[j][subjectUri][pathString]) {
+          vals = histo[j][subjectUri][pathString];
+          delete histo[j]["tmp:undone"];
+          break;
+        }
+      }
+      if (idx < histo.length - 1) {
+        const parentPath = histo[idx + 1]["tmp:parentPath"] || [];
+        for (const subj of Object.keys(histo[idx + 1])) {
+          for (const prop of Object.keys(histo[idx + 1][subj])) {
+            if (["tmp:parentPath", "tmp:undone"].includes(prop))
+              continue;
+            nextUndo.next = { enabled: true, subjectUri: subj, propertyPath: prop, parentPath };
+            break;
+          }
+          if (nextUndo.next.enabled)
+            break;
+        }
+      }
+    }
+    return { vals, nextUndo };
+  };
+  const clickHandler = () => {
+    if (disabled)
+      return;
+    const entityUri2 = undo[which].parentPath.length ? undo[which].parentPath[0] : subject.uri;
+    if (entityUri2) {
+      let idx = history[entityUri2].findIndex((h) => h["tmp:undone"]) - 1 + (label === "REDO" ? 1 : 0);
+      if (idx < 0)
+        idx = history[entityUri2].length - 1;
+      if (history[entityUri2][idx]) {
+        if (label === "UNDO") {
+          const { vals, prevUndo } = previousValues(entityUri2, undo[which].subjectUri, undo[which].propertyPath, idx);
+          subject.noHisto(true);
+          setList(vals);
+          setUndo(prevUndo);
+        } else if (label === "REDO") {
+          const { vals, nextUndo } = nextValues(entityUri2, undo[which].subjectUri, undo[which].propertyPath, idx);
+          subject.noHisto(true);
+          setList(vals);
+          setUndo(nextUndo);
+        }
+      }
+    }
+  };
+  if (undo[which].parentPath.length && entityUri !== undo[which].subjectUri) {
+    const subnode = list.filter((l) => l instanceof Subject && l.uri === undo[which].subjectUri);
+    if (subnode.length) {
+      return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(GotoButton, { label, undo, setUndo, subject: subnode[0] });
+    } else {
+      const midnode = list.filter((l) => l instanceof Subject && undo[which].parentPath.includes(l.uri));
+      if (midnode.length) {
+        const s = midnode[0];
+        const p = undo[which].parentPath.findIndex((h) => h === s.uri);
+        return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+          GotoButton,
+          {
+            label,
+            undo,
+            setUndo,
+            subject: s,
+            propFromParentPath: undo[which].parentPath[p + 1]
+          }
+        );
+      } else {
+        return null;
+      }
+    }
+  }
+  const ref = (0, import_react10.createRef)();
+  if (label === "UNDO")
+    undoRef = ref;
+  else if (label === "REDO")
+    redoRef = ref;
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+    "button",
+    {
+      ref,
+      disabled,
+      className: "btn btn-sm btn-danger mx-1 icon undo-btn btn-blanc",
+      onClick: clickHandler,
+      children: label
+    },
+    label
+  );
+};
+var HistoryHandler = ({ entityUri }) => {
   const [entities, setEntities] = (0, import_recoil12.useRecoilState)(entitiesAtom);
   const [uiTab] = (0, import_recoil12.useRecoilState)(uiTabState);
+  const [undos, setUndos] = (0, import_recoil12.useRecoilState)(uiUndosState);
+  const undo = undos[entityUri];
+  const setUndo = (s) => setUndos({ ...undos, [entityUri]: s });
+  if (!entities[uiTab])
+    return null;
+  const subject = entities[uiTab].subject;
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "small text-muted", children: [
+    subject && undo && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(GotoButton, { label: "UNDO", subject, undo, setUndo }),
+    subject && undo && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(GotoButton, { label: "REDO", subject, undo, setUndo })
+  ] });
+};
+
+// src/containers/BottomBarContainer.tsx
+var import_jsx_runtime11 = require("react/jsx-runtime");
+var debug16 = (0, import_debug16.debug)("rde:BottomBarContainer");
+function BottomBarContainer(props) {
+  const [entities, setEntities] = (0, import_recoil13.useRecoilState)(entitiesAtom);
+  const [uiTab] = (0, import_recoil13.useRecoilState)(uiTabState);
   const entity = entities.findIndex((e, i) => i === uiTab);
   const entitySubj = entities[entity]?.subject;
   const entityUri = entities[entity]?.subject?.uri || "tmp:uri";
-  const [message, setMessage] = (0, import_react10.useState)(null);
-  const [uiLang, setUiLang] = (0, import_recoil12.useRecoilState)(uiLangState);
-  const [lang, setLang] = (0, import_react10.useState)(uiLang);
-  const [saving, setSaving] = (0, import_react10.useState)(false);
-  const [gen, setGen] = (0, import_react10.useState)(false);
-  const [popupOn, setPopupOn] = (0, import_recoil12.useRecoilState)(savePopupState);
-  const [reloadEntity, setReloadEntity] = (0, import_recoil12.useRecoilState)(reloadEntityState);
+  const [message, setMessage] = (0, import_react11.useState)(null);
+  const [uiLang, setUiLang] = (0, import_recoil13.useRecoilState)(uiLangState);
+  const [lang, setLang] = (0, import_react11.useState)(uiLang);
+  const [saving, setSaving] = (0, import_react11.useState)(false);
+  const [gen, setGen] = (0, import_react11.useState)(false);
+  const [popupOn, setPopupOn] = (0, import_recoil13.useRecoilState)(savePopupState);
+  const [reloadEntity, setReloadEntity] = (0, import_recoil13.useRecoilState)(reloadEntityState);
   const shapeQname = entities[entity]?.shapeQname;
-  const [error, setError] = (0, import_react10.useState)(null);
-  const [errorCode, setErrorCode] = (0, import_react10.useState)(void 0);
-  const [spinner, setSpinner] = (0, import_react10.useState)(false);
+  const [error, setError] = (0, import_react11.useState)(null);
+  const [errorCode, setErrorCode] = (0, import_react11.useState)(void 0);
+  const [spinner, setSpinner] = (0, import_react11.useState)(false);
   const { t } = (0, import_react_i18next9.useTranslation)();
   const delay = 300;
   const closePopup = (delay1 = delay, delay2 = delay) => {
@@ -4873,9 +5036,9 @@ function BottomBarContainer(props) {
         if (error2.status === 412) {
           setErrorCode(error2.status);
           setError(
-            /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_react10.default.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_react11.default.Fragment, { children: [
               t("error.newer"),
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("br", {}),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("br", {}),
               t("error.lost")
             ] })
           );
@@ -4916,11 +5079,13 @@ function BottomBarContainer(props) {
       setReloadEntity(entitySubj.qname);
     closePopup();
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("nav", { className: "bottom navbar navbar-dark navbar-expand-md", children: /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("nav", { className: "bottom navbar navbar-dark navbar-expand-md", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
     props.extraElement,
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("span", {}),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "popup " + (popupOn ? "on " : "") + (error ? "error " : ""), children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { children: saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(HistoryHandler, { entityUri }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", {}),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", {}),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "popup " + (popupOn ? "on " : "") + (error ? "error " : ""), children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { children: saving && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
         import_material7.TextField,
         {
           label: "commit message",
@@ -4930,17 +5095,17 @@ function BottomBarContainer(props) {
           InputLabelProps: { shrink: true },
           style: { minWidth: 300 },
           ...error ? {
-            helperText: /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", { style: { display: "flex", alignItems: "center" }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_icons_material7.Error, { style: { fontSize: "20px" } }),
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("i", { style: { paddingLeft: "5px", lineHeight: "14px", display: "inline-block" }, children: error }),
+            helperText: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { style: { display: "flex", alignItems: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material7.Error, { style: { fontSize: "20px" } }),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("i", { style: { paddingLeft: "5px", lineHeight: "14px", display: "inline-block" }, children: error }),
               "\xA0\xA0",
-              errorCode === 412 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, { className: "btn-blanc", onClick: handleReload, children: t("general.reload") })
+              errorCode === 412 && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material7.Button, { className: "btn-blanc", onClick: handleReload, children: t("general.reload") })
             ] }),
             error: true
           } : {}
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
         import_material7.TextField,
         {
           select: true,
@@ -4949,22 +5114,22 @@ function BottomBarContainer(props) {
           onChange: onLangChangeHandler,
           InputLabelProps: { shrink: true },
           style: { minWidth: 100, marginTop: "16px", marginLeft: "15px", marginRight: "15px" },
-          children: props.config.possibleLiteralLangs.map((option) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.MenuItem, { value: option.value, children: option.value }, option.value))
+          children: props.config.possibleLiteralLangs.map((option) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material7.MenuItem, { value: option.value, children: option.value }, option.value))
         }
       )
     ] }) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "buttons", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "buttons", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
         import_material7.Button,
         {
           variant: "outlined",
           onClick: save,
           className: "btn-rouge",
           ...spinner || message === "" && saving || saved || errorCode ? { disabled: true } : {},
-          children: spinner ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.CircularProgress, { size: "14px", color: "primary" }) : saving ? t("general.ok") : t("general.save")
+          children: spinner ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material7.CircularProgress, { size: "14px", color: "primary" }) : saving ? t("general.ok") : t("general.save")
         }
       ),
-      saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+      saving && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
         import_material7.Button,
         {
           variant: "outlined",
@@ -4978,16 +5143,16 @@ function BottomBarContainer(props) {
 }
 
 // src/containers/BUDAResourceSelector.tsx
-var import_react11 = __toESM(require("react"));
-var import_recoil13 = require("recoil");
+var import_react12 = __toESM(require("react"));
+var import_recoil14 = require("recoil");
 var import_material8 = require("@mui/material");
 var import_react_router_dom8 = require("react-router-dom");
 var rdf9 = __toESM(require("rdflib"));
 var import_icons_material8 = require("@mui/icons-material");
 var import_debug17 = require("debug");
 var import_react_i18next10 = require("react-i18next");
-var import_jsx_runtime11 = require("react/jsx-runtime");
-var import_react12 = require("react");
+var import_jsx_runtime12 = require("react/jsx-runtime");
+var import_react13 = require("react");
 var debug17 = (0, import_debug17.debug)("rde:atom:event:RS");
 var BDR_uri = "http://purl.bdrc.io/resource/";
 var BUDAResourceSelector = ({
@@ -5005,21 +5170,21 @@ var BUDAResourceSelector = ({
   shape,
   config
 }) => {
-  const [keyword, setKeyword] = (0, import_react11.useState)("");
-  const [language, setLanguage] = (0, import_react11.useState)("bo-x-ewts");
-  const [type, setType] = (0, import_react11.useState)(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
-  const [libraryURL, setLibraryURL] = (0, import_react11.useState)("");
-  const [uiLang, setUiLang] = (0, import_recoil13.useRecoilState)(uiLangState);
-  const [uiLitLang, setUiLitLang] = (0, import_recoil13.useRecoilState)(uiLitLangState);
-  const [error, setError] = (0, import_react11.useState)();
-  const [entities, setEntities] = (0, import_recoil13.useRecoilState)(entitiesAtom);
+  const [keyword, setKeyword] = (0, import_react12.useState)("");
+  const [language, setLanguage] = (0, import_react12.useState)("bo-x-ewts");
+  const [type, setType] = (0, import_react12.useState)(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
+  const [libraryURL, setLibraryURL] = (0, import_react12.useState)("");
+  const [uiLang, setUiLang] = (0, import_recoil14.useRecoilState)(uiLangState);
+  const [uiLitLang, setUiLitLang] = (0, import_recoil14.useRecoilState)(uiLitLangState);
+  const [error, setError] = (0, import_react12.useState)();
+  const [entities, setEntities] = (0, import_recoil14.useRecoilState)(entitiesAtom);
   const navigate = (0, import_react_router_dom8.useNavigate)();
   const msgId = subject.qname + property.qname + idx;
-  const [popupNew, setPopupNew] = (0, import_react11.useState)(false);
-  const iframeRef = (0, import_react11.useRef)(null);
-  const [canCopy, setCanCopy] = (0, import_react11.useState)([]);
+  const [popupNew, setPopupNew] = (0, import_react12.useState)(false);
+  const iframeRef = (0, import_react12.useRef)(null);
+  const [canCopy, setCanCopy] = (0, import_react12.useState)([]);
   const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i) ? true : false;
-  const [toCopy, setProp] = (0, import_recoil13.useRecoilState)(
+  const [toCopy, setProp] = (0, import_recoil14.useRecoilState)(
     toCopySelector({
       list: property.copyObjectsOfProperty?.map((p) => ({
         property: config.prefixMap.qnameFromUri(p.value),
@@ -5027,7 +5192,7 @@ var BUDAResourceSelector = ({
       }))
     })
   );
-  (0, import_react11.useEffect)(() => {
+  (0, import_react12.useEffect)(() => {
     if (property.copyObjectsOfProperty?.length) {
       const copy = [];
       for (const prop of property.copyObjectsOfProperty) {
@@ -5043,7 +5208,7 @@ var BUDAResourceSelector = ({
       setCanCopy(copy);
     }
   }, []);
-  (0, import_react11.useEffect)(() => {
+  (0, import_react12.useEffect)(() => {
     if (globalError && !error)
       setError(globalError);
   }, [globalError]);
@@ -5065,7 +5230,7 @@ var BUDAResourceSelector = ({
     }
   };
   const { t } = (0, import_react_i18next10.useTranslation)();
-  const updateRes = (0, import_react11.useCallback)((data) => {
+  const updateRes = (0, import_react12.useCallback)((data) => {
     let isTypeOk = false;
     let actual;
     if (property.expectedObjectTypes) {
@@ -5117,7 +5282,7 @@ var BUDAResourceSelector = ({
     }
   }, [exists, idx, libraryURL, onChange, property.expectedObjectTypes]);
   let msgHandler = null;
-  (0, import_react11.useEffect)(() => {
+  (0, import_react12.useEffect)(() => {
     if (msgHandler)
       window.removeEventListener("message", msgHandler, true);
     msgHandler = (ev) => {
@@ -5145,7 +5310,7 @@ var BUDAResourceSelector = ({
         window.removeEventListener("message", msgHandler, true);
     };
   }, [libraryURL]);
-  (0, import_react11.useEffect)(() => {
+  (0, import_react12.useEffect)(() => {
     if (value.otherData["tmp:keyword"]) {
       setKeyword(value.otherData["tmp:keyword"]["@value"]);
       setLanguage(value.otherData["tmp:keyword"]["@language"]);
@@ -5220,7 +5385,7 @@ var BUDAResourceSelector = ({
     if (dates)
       dates = "(" + dates + ")";
   }
-  const createAndUpdate = (0, import_react11.useCallback)(
+  const createAndUpdate = (0, import_react12.useCallback)(
     async (type2, named = "") => {
       let url = "";
       url = "/new/" + // TODO: perhaps users might want to choose between different shapes?
@@ -5280,22 +5445,22 @@ var BUDAResourceSelector = ({
   const onClickKB = (e) => {
     updateLibrary(e);
   };
-  let name = /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { style: {
+  let name = /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { style: {
     fontSize: "16px"
     /*, borderBottom:"1px solid #ccc"*/
   }, children: ValueByLangToStrPrefLang(value.prefLabels, uiLitLang) + " " + dates });
   const entity = entities.filter((e) => e.subjectQname === value.qname);
   if (entity.length) {
-    name = /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(LabelWithRID, { entity: entity[0] });
+    name = /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(LabelWithRID, { entity: entity[0] });
   }
-  (0, import_react11.useEffect)(() => {
+  (0, import_react12.useEffect)(() => {
     if (error) {
       debug17("error:", error);
     }
   }, [error]);
-  const inputRef = (0, import_react11.useRef)();
-  const [preview, setPreview] = (0, import_react11.useState)(null);
-  (0, import_react11.useLayoutEffect)(() => {
+  const inputRef = (0, import_react12.useRef)();
+  const [preview, setPreview] = (0, import_react12.useState)(null);
+  (0, import_react12.useLayoutEffect)(() => {
     if (document.activeElement === inputRef.current && !isRid && keyword) {
       const previewVal = config.previewLiteral(new rdf9.Literal(keyword, language), uiLang);
       setPreview(previewVal.value);
@@ -5303,21 +5468,21 @@ var BUDAResourceSelector = ({
       setPreview(null);
     }
   }, [config, isRid, keyword, language, uiLang]);
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_react11.default.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(import_react12.default.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(
       "div",
       {
         className: "resSelect " + (error ? "error" : ""),
         style: { position: "relative", ...value.uri === "tmp:uri" ? { width: "100%" } : {} },
         children: [
-          value.uri === "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+          value.uri === "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
             "div",
             {
               className: preview ? "withPreview" : "",
               style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
-              children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_react11.default.Fragment, { children: [
-                preview && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "preview-ewts", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.TextField, { disabled: true, value: preview, variant: "standard" }) }),
-                /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+              children: /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(import_react12.default.Fragment, { children: [
+                preview && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "preview-ewts", children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_material8.TextField, { disabled: true, value: preview, variant: "standard" }) }),
+                /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
                   import_material8.TextField,
                   {
                     variant: "standard",
@@ -5339,16 +5504,16 @@ var BUDAResourceSelector = ({
                     onChange: textOnChange,
                     placeholder: "Search name or RID for " + title,
                     ...error ? {
-                      helperText: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_react11.default.Fragment, { children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Error, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
-                        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("i", { children: error })
+                      helperText: /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(import_react12.default.Fragment, { children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Error, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
+                        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("i", { children: error })
                       ] }),
                       error: true
                     } : {},
                     ...!editable ? { disabled: true } : {}
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
                   LangSelect,
                   {
                     value: language,
@@ -5364,7 +5529,7 @@ var BUDAResourceSelector = ({
                     config
                   }
                 ),
-                property.expectedObjectTypes?.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+                property.expectedObjectTypes?.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
                   import_material8.TextField,
                   {
                     variant: "standard",
@@ -5377,16 +5542,16 @@ var BUDAResourceSelector = ({
                     ...isRid ? { disabled: true } : {},
                     ...!editable ? { disabled: true } : {},
                     ...error ? {
-                      helperText: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("br", {}),
+                      helperText: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("br", {}),
                       error: true
                     } : {},
                     children: property.expectedObjectTypes?.map((r) => {
                       const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                      return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.MenuItem, { value: r.qname, children: label2 }, r.qname);
+                      return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_material8.MenuItem, { value: r.qname, children: label2 }, r.qname);
                     })
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
                   "button",
                   {
                     ...!keyword || !isRid && (!language || !type) ? { disabled: true } : {},
@@ -5394,28 +5559,28 @@ var BUDAResourceSelector = ({
                     style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
                     onClick,
                     ...!editable ? { disabled: true } : {},
-                    children: libraryURL ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Close, {}) : /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Search, {})
+                    children: libraryURL ? /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Close, {}) : /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Search, {})
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
                   "button",
                   {
                     className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
                     style: { boxShadow: "none", alignSelf: "center" },
                     onClick: togglePopup,
                     ...!editable ? { disabled: true } : {},
-                    children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_jsx_runtime11.Fragment, { children: t("search.create") })
+                    children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_jsx_runtime12.Fragment, { children: t("search.create") })
                   }
                 )
               ] })
             }
           ),
-          value.uri !== "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_react11.default.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "selected", children: [
+          value.uri !== "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_react12.default.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "selected", children: [
             name,
-            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { style: { fontSize: "12px", opacity: "0.5", display: "flex", alignItems: "center" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { style: { fontSize: "12px", opacity: "0.5", display: "flex", alignItems: "center" }, children: [
               value.qname,
               "\xA0",
-              /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(
+              /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(
                 "a",
                 {
                   title: t("search.help.preview"),
@@ -5428,26 +5593,26 @@ var BUDAResourceSelector = ({
                       setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
                   },
                   children: [
-                    !libraryURL && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.InfoOutlined, { style: { width: "18px", cursor: "pointer" } }),
-                    libraryURL && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Info, { style: { width: "18px", cursor: "pointer" } })
+                    !libraryURL && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.InfoOutlined, { style: { width: "18px", cursor: "pointer" } }),
+                    libraryURL && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Info, { style: { width: "18px", cursor: "pointer" } })
                   ]
                 }
               ),
               "\xA0",
-              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
                 "a",
                 {
                   title: t("search.help.open"),
                   href: config.libraryUrl + "/show/" + value.qname,
                   rel: "noopener noreferrer",
                   target: "_blank",
-                  children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Launch, { style: { width: "16px" } })
+                  children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Launch, { style: { width: "16px" } })
                 }
               ),
               "\xA0",
-              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_react_router_dom8.Link, { title: t("search.help.edit"), to: "/edit/" + value.qname, children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Edit, { style: { width: "16px" } }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_react_router_dom8.Link, { title: t("search.help.edit"), to: "/edit/" + value.qname, children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Edit, { style: { width: "16px" } }) }),
               "\xA0",
-              canCopy.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { title: t("general.import"), children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+              canCopy.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { title: t("general.import"), children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
                 import_icons_material8.ContentPaste,
                 {
                   style: { width: "17px", cursor: "pointer" },
@@ -5462,7 +5627,7 @@ var BUDAResourceSelector = ({
         ]
       }
     ),
-    libraryURL && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(
+    libraryURL && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(
       "div",
       {
         className: "row card px-3 py-3 iframe",
@@ -5479,13 +5644,13 @@ var BUDAResourceSelector = ({
           ...value.uri !== "tmp:uri" ? { left: "calc(1rem)", width: "calc(100%)", bottom: "calc(100% - 0.5rem)" } : {}
         },
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("iframe", { style: { border: "none" }, height: "400", src: libraryURL, ref: iframeRef }),
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "iframe-BG", onClick: closeFrame })
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("iframe", { style: { border: "none" }, height: "400", src: libraryURL, ref: iframeRef }),
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "iframe-BG", onClick: closeFrame })
         ]
       }
     ),
-    popupNew && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "card popup-new", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "front", children: [
+    popupNew && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "card popup-new", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "front", children: [
         entities.map((e, i) => {
           if (!exists(e?.subjectQname) && e?.subjectQname != subject.qname && e?.subjectQname != owner?.qname && property.expectedObjectTypes?.some(
             (t2) => (
@@ -5493,13 +5658,13 @@ var BUDAResourceSelector = ({
               e.shapeQname?.startsWith(t2.qname.replace(/^bdo:/, "bds:"))
             )
           )) {
-            return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.MenuItem, { className: "px-0 py-0", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(LabelWithRID, { choose: chooseEntity, entity: e }) }, i + 1);
+            return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_material8.MenuItem, { className: "px-0 py-0", children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(LabelWithRID, { choose: chooseEntity, entity: e }) }, i + 1);
           }
         }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("hr", { className: "my-1" }),
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("hr", { className: "my-1" }),
         property.expectedObjectTypes?.map((r) => {
           const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-          return /* @__PURE__ */ (0, import_react12.createElement)(
+          return /* @__PURE__ */ (0, import_react13.createElement)(
             import_material8.MenuItem,
             {
               ...r.qname === "bdo:EtextInstance" ? { disabled: true } : {},
@@ -5514,7 +5679,7 @@ var BUDAResourceSelector = ({
           );
         })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "popup-new-BG", onClick: togglePopup })
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "popup-new-BG", onClick: togglePopup })
     ] })
   ] });
 };
@@ -5522,19 +5687,19 @@ var LabelWithRID = ({
   entity,
   choose
 }) => {
-  const [uiLitLang] = (0, import_recoil13.useRecoilState)(uiLitLangState);
-  const [labelValues] = (0, import_recoil13.useRecoilState)(entity.subjectLabelState);
+  const [uiLitLang] = (0, import_recoil14.useRecoilState)(uiLitLangState);
+  const [labelValues] = (0, import_recoil14.useRecoilState)(entity.subjectLabelState);
   const prefLabels = RDFResource.valuesByLang(labelValues);
   const label = ValueByLangToStrPrefLang(prefLabels, uiLitLang);
   let name = label && label != "..." ? label : entity.subject?.lname ? entity.subject.lname : entity.subjectQname.split(":")[1];
   if (!name)
     name = label;
   if (!choose)
-    return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", { style: { fontSize: "16px" }, children: name });
+    return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { style: { fontSize: "16px" }, children: name });
   else
-    return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "px-3 py-1", style: { width: "100%" }, onClick: choose(entity, prefLabels), children: [
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "label", children: name }),
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "RID", children: entity.subjectQname })
+    return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "px-3 py-1", style: { width: "100%" }, onClick: choose(entity, prefLabels), children: [
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "label", children: name }),
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "RID", children: entity.subjectQname })
     ] });
 };
 var BUDAResourceSelector_default = BUDAResourceSelector;
@@ -5567,6 +5732,8 @@ var BUDAResourceSelector_default = BUDAResourceSelector;
   history,
   ns,
   rdf,
+  redoRef,
   shapes,
+  undoRef,
   updateHistory
 });
