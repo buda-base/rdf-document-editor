@@ -185,3 +185,8 @@ rde:PatternEDTF
 rde:PatternISBN
   a rde:SpecialPattern ;
   skos:prefLabel "ISBN pattern"@en ;
+.
+rde:PatternISSN
+  a rde:SpecialPattern ;
+  skos:prefLabel "ISSN pattern"@en ;
+.
