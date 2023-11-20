@@ -108,7 +108,7 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
   }
 
   //debug("entity?", entity.alreadySaved, entity, tab, entities[tab], entities.map(e => e.subjectQname+":"+e.alreadySaved))
-
+  
   // update user session
   config.setUserMenuState(
     entity.subjectQname,
@@ -116,7 +116,9 @@ export const EntityInEntitySelectorContainer: FC<{ entity: Entity; index: number
     !entity.preloadedLabel ? (entity.subject?.lname ? entity.subject?.lname : label) : entity.preloadedLabel,
     false,
     entity.etag
-  )
+  )  
+
+  debug("state:",entity.state,entity.subjectQname)
 
   return (
     <>

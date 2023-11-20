@@ -89,6 +89,7 @@ export class PrefixMap {
   }
 
   uriFromQname = (qname = ""): string => {
+    if(!qname) return ""
     const j = qname.indexOf(":")
 
     if (j < 0) throw new Error("Cannot make uri out of <" + qname + ">")

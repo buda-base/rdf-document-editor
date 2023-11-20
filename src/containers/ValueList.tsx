@@ -11,6 +11,7 @@ import {
   errors,
   noneSelected,
   getHistoryStatus,
+  history
 } from "../helpers/rdf/types"
 import { NodeShape, PropertyShape } from "../helpers/rdf/shapes"
 import * as ns from "../helpers/rdf/ns"
@@ -39,11 +40,12 @@ import {
   isUniqueTestSelectorType,
   initStringAtom,
   entitiesAtom,
-  EditedEntityState,
+  EditedEntityState
 } from "../atoms/common"
 
 import MDEditor, { commands } from "@uiw/react-md-editor"
 import { debug as debugfactory } from "debug"
+import { useTranslation } from "react-i18next"
 
 const debug = debugfactory("rde:entity:container:ValueList")
 
@@ -137,6 +139,8 @@ export const BlockAddButton: FC<{
   const [n, setN] = useState(1)
   const [disable, setDisable] = useState(false)
 
+  const { t } = useTranslation()
+
   return (
     <>
     <div
@@ -153,14 +157,14 @@ export const BlockAddButton: FC<{
         onClick={(e: React.MouseEvent<HTMLButtonElement>) => add(e, n)}
         //disabled={disable}
       >
-          {i18n.t("general.add_another", { val: label, count })}
+          {t("general.add_another", { val: label, count })}
           &nbsp;
           <AddCircleOutlineIcon/>
       </button>
       {count > 1 && (
         <TextField
           variant="standard"
-          label={<>{i18n.t("general.add_nb", { val: label })}</>}
+          label={<>{t("general.add_nb", { val: label })}</>}
           style={{ width: 200 }}
           value={n}
           className="ml-2"
@@ -276,7 +280,6 @@ const ValueList: FC<{
   if (property.path == null) throw "can't find path of " + property.qname
   const [unsortedList, setList] = useRecoilState(subject.getAtomForProperty(property.path.sparqlString))
   const [uiLang] = useRecoilState(uiLangState)
-  const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"))
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang)
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang)
   const [undos, setUndos] = useRecoilState(uiUndosState)
@@ -318,7 +321,8 @@ const ValueList: FC<{
     const entityQname = topEntity ? topEntity.qname : subject.qname
     const undo = undos[config.prefixMap.uriFromQname(entityQname)]
     const hStatus = getHistoryStatus(config.prefixMap.uriFromQname(entityQname))
-    //debug("undo:", undo, hStatus, history, entityQname, undos)
+
+    debug("undo:", undo, hStatus, history, entityQname, undos)
 
     setESfromRecoil({ property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove })
   }
@@ -801,6 +805,9 @@ const Create: CreateComponentType = ({ subject, property, embedded, disable, new
     const targetShapeLabels = property.targetShape?.targetClassPrefLabels
     const labels = targetShapeLabels ? targetShapeLabels : property.prefLabels
     const count = property.allowBatchManagement ? 2 : 1
+
+    //debug("create:", targetShapeLabels, labels, property.targetShape)
+
     return (<BlockAddButton add={addItem} label={ValueByLangToStrPrefLang(labels, uiLang)} count={count} />)
   }
 }
@@ -825,9 +832,11 @@ const EditLangString: FC<{
 
   const canPushPrefLabel = property.allowPushToTopLevelLabel
 
+  const { t } = useTranslation()
+
   const getLangStringError = (val: string) => {
     let err = ""
-    if (!val && property.minCount) err = i18n.t("error.empty")
+    if (!val && property.minCount) err = t("error.empty")
     else if (globalError) err = globalError
     return err
   }
@@ -869,10 +878,10 @@ const EditLangString: FC<{
   useLayoutEffect(() => {
     if (document.activeElement === inputRef.current) {
       const { value, error } = config.previewLiteral(lit, uiLang)
-      setPreview(value)
-      setError(error)
+      if(preview !== value) setPreview(value)
+      if(error !== error) setError(error)
     } else {
-      setPreview(null)
+      if(preview !== null) setPreview(null)
     }
   })
 
@@ -978,13 +987,13 @@ const EditLangString: FC<{
             {...(!editable ? { disabled: true } : {})}
             onFocus={() => {
               const { value, error } = config.previewLiteral(lit, uiLang)
-              setPreview(value)
-              setError(error)
+              if(value !== preview) setPreview(value)
+              if(error !== error) setError(error)
             }}
             onBlur={() => {
-              setPreview(null)
+              if(preview !== null) setPreview(null)
               setTimeout(() => {
-                if (inputRef.current && document.activeElement != inputRef.current) setKeyboard(false)
+                if (inputRef.current && document.activeElement != inputRef.current && keyboard !== false) setKeyboard(false)
               }, 350)
             }}
           />
@@ -1200,12 +1209,14 @@ const EditString: FC<{
     }
   })
 
+  const { t } = useTranslation()
+
   const getEmptyStringError = (val: string): React.ReactNode | null => {
     if (!val && property.minCount) return
     ;<>
       <ErrorIcon style={{ fontSize: "20px", verticalAlign: "-7px" }} />{" "}
       <i>
-        <>{i18n.t("error.empty")}</>
+        <>{t("error.empty")}</>
       </i>
     </>
     return null
@@ -1230,7 +1241,7 @@ const EditString: FC<{
         value={lit.value}
         // TODO: refactor
         {...(property.qname !== "bds:NoteShape-contentLocationStatement" ? { InputLabelProps: { shrink: true } } : {})}
-        onBlur={(e) => setPreview(null)}
+        onBlur={(e) => { if(preview !== null) setPreview(null); }}
         onFocus={(e) => changeCallback(e.target.value)}
         onChange={(e) => changeCallback(e.target.value)}
         {...(!editable ? { disabled: true } : {})}
@@ -1252,6 +1263,8 @@ const EditBool: FC<{
   label: React.ReactNode
   editable?: boolean
 }> = ({ property, lit, onChange, label, editable }) => {
+
+  const { t } = useTranslation()
 
   const dt = property.datatype
 
@@ -1278,7 +1291,7 @@ const EditBool: FC<{
     >
       {["true", "false"].concat(val === "unset" ? [val] : []).map((v) => (
         <MenuItem key={v} value={v}>
-          {i18n.t("types." + v)}
+          {t("types." + v)}
         </MenuItem>
       ))}
     </TextField>
@@ -1298,6 +1311,8 @@ const EditInt: FC<{
 }> = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
   // used for integers and gYear
 
+  const { t } = useTranslation()
+
   const dt = property.datatype
   const minInclusive = property.minInclusive
   const maxInclusive = property.maxInclusive
@@ -1309,17 +1324,17 @@ const EditInt: FC<{
     if (globalError) {
       err = globalError
     } else if (hasNoOtherValue && val === "") {
-      err = i18n.t("error.empty")
+      err = t("error.empty")
     } else if (val !== undefined && val !== "") {
       const valueInt = parseInt(val)
       if (minInclusive && minInclusive > valueInt) {
-        err = i18n.t("error.superiorTo", { val: minInclusive })
+        err = t("error.superiorTo", { val: minInclusive })
       } else if (maxInclusive && maxInclusive < valueInt) {
-        err = i18n.t("error.inferiorTo", { val: maxInclusive })
+        err = t("error.inferiorTo", { val: maxInclusive })
       } else if (minExclusive && minExclusive >= valueInt) {
-        err = i18n.t("error.superiorToStrict", { val: minExclusive })
+        err = t("error.superiorToStrict", { val: minExclusive })
       } else if (maxExclusive && maxExclusive <= valueInt) {
-        err = i18n.t("error.inferiorToStrict", { val: maxExclusive })
+        err = t("error.inferiorToStrict", { val: maxExclusive })
       }
     }
     return err
@@ -1461,6 +1476,10 @@ const LiteralComponent: FC<{
     }
   }, [undos])
 
+
+
+  const { t: tr  } = useTranslation()
+
   const t = property.datatype
   let edit, classN
 
@@ -1479,7 +1498,7 @@ const LiteralComponent: FC<{
             </Tooltip>
           ) : null,
         ]}
-        {...(property.uniqueLang && !isUniqueLang ? { globalError: i18n.t("error.unique") } : {})}
+        {...(property.uniqueLang && !isUniqueLang ? { globalError: tr("error.unique") as string } : {})}
         editable={editable && !property.readOnly}
         updateEntityState={updateEntityState}
         entity={topEntity ? topEntity : subject}
@@ -1508,7 +1527,7 @@ const LiteralComponent: FC<{
         hasNoOtherValue={property.minCount === 1 && list.length === 1}
         index={index}
         {...(property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings
-          ? { globalError: i18n.t("error.uniqueV") }
+          ? { globalError: tr("error.uniqueV") as string }
           : {})}
       />
     )
@@ -1641,6 +1660,8 @@ const FacetComponent: FC<{
     editClass = "edit"
   }
 
+  const { t } = useTranslation()
+
   return (
     <>
       <div
@@ -1687,7 +1708,7 @@ const FacetComponent: FC<{
           ))}
           {hasExtra && (
             <span className="toggle-btn btn btn-rouge mt-4" onClick={toggleExtra}>
-              <>{i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })}</>
+              <>{t("general.toggle", { show: force ? t("general.hide") : t("general.show") })}</>
             </span>
           )}
           <div className="close-btn">
@@ -1758,13 +1779,15 @@ const ExtEntityComponent: FC<{
 
   const [error, setError] = useState("")
 
+  const { t } = useTranslation()
+
   useEffect(() => {
     let newError
     const nonEmptyList = list.filter((e) => e instanceof RDFResource && e.uri !== "tmp:uri")
     if (property.minCount && nonEmptyList.length < property.minCount) {
-      newError = i18n.t("error.minC", { count: property.minCount })
+      newError = t("error.minC", { count: property.minCount })
     } else if (property.maxCount && nonEmptyList.length > property.maxCount) {
-      newError = i18n.t("error.maxC", { count: property.maxCount })
+      newError = t("error.maxC", { count: property.maxCount })
     } else newError = ""
 
     //debug("nE?e",property.qname,newError,error)
@@ -1893,12 +1916,14 @@ const SelectComponent: FC<{
     setList([possibleValues[0]])
   }
 
+  const { t } = useTranslation()
+
   const [error, setError] = useState("")
   const valueNotInList = !possibleValues.some((pv) => pv.id === val?.id)
   useEffect(() => {
     if (valueNotInList) {
       //debug("not in list:",property.path.sparqlString+"_"+selectIdx,res,val,possibleValues)
-      setError(""+i18n.t("error.select", { val: val?.value }))
+      setError(""+t("error.select", { val: val?.value }))
       updateEntityState(EditedEntityState.Error, property.path?.sparqlString + "_" + selectIdx)
     } else {
       updateEntityState(EditedEntityState.Saved, property.path?.sparqlString + "_" + selectIdx)
@@ -1947,15 +1972,16 @@ const SelectComponent: FC<{
             {...(!editable ? { disabled: true } : {})}
           >
             {possibleValues.map((v, k) => {
-              //debug("possible:",v,v.uri)
+              //debug("possible:",v,)
               if (v instanceof RDFResourceWithLabel) {
                 const r = v as RDFResourceWithLabel
-                const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang)
-                const span = <span>{label ? label : r.lname}</span>
+                const label = ValueByLangToStrPrefLang(r.prefLabels, uiLang)
+                const span = <span>{label ? label : r.qname}</span>
+                //debug("r:",r.uri,r.description,r)
                 return (
                   <MenuItem key={"menu-uri_" + selectIdx + r.id} value={r.id} className="withDescription">
                     {r.description ? (
-                      <Tooltip title={ValueByLangToStrPrefLang(r.description, uiLitLang)}>{span}</Tooltip>
+                      <Tooltip title={ValueByLangToStrPrefLang(r.description, uiLang)}>{span}</Tooltip>
                     ) : 
                       span
                     }

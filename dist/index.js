@@ -5,7 +5,6 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -19,6 +18,10 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
@@ -31,10 +34,6 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result)
     __defProp(target, key, result);
   return result;
-};
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
 };
 
 // src/index.ts
@@ -51,6 +50,7 @@ __export(src_exports, {
   EntityShapeChooserContainer: () => EntityShapeChooserContainer_default,
   ExtRDFResourceWithLabel: () => ExtRDFResourceWithLabel,
   HttpError: () => HttpError,
+  LangSelect: () => LangSelect,
   LiteralWithId: () => LiteralWithId,
   NewEntityContainer: () => NewEntityContainer_default,
   NodeShape: () => NodeShape,
@@ -65,7 +65,10 @@ __export(src_exports, {
   getHistoryStatus: () => getHistoryStatus,
   history: () => history,
   ns: () => ns_exports,
+  rdf: () => rdf10,
+  redoRef: () => redoRef,
   shapes: () => shapes_exports,
+  undoRef: () => undoRef,
   updateHistory: () => updateHistory
 });
 module.exports = __toCommonJS(src_exports);
@@ -236,6 +239,8 @@ var PrefixMap = class {
     return uri.slice(0, j + 1);
   };
   uriFromQname = (qname = "") => {
+    if (!qname)
+      return "";
     const j = qname.indexOf(":");
     if (j < 0)
       throw new Error("Cannot make uri out of <" + qname + ">");
@@ -347,7 +352,7 @@ var updateHistory = (entity, qname, prop, val, noHisto = true) => {
     [qname]: { [prop]: val },
     ...entity != qname ? { "tmp:parentPath": getParentPath(entity, qname) } : {}
   };
-  if ((val == null ? void 0 : val.length) === 1 && !(val[0] instanceof LiteralWithId) && (val[0].uri === "tmp:uri" || val[0].value === ""))
+  if (val?.length === 1 && !(val[0] instanceof LiteralWithId) && (val[0].uri === "tmp:uri" || val[0].value === ""))
     return;
   if (noHisto === -1) {
     const first = history[entity].findIndex((h) => h["tmp:allValuesLoaded"]);
@@ -430,7 +435,9 @@ var EntityGraphValues = class {
   oldSubjectProps = {};
   newSubjectProps = {};
   subjectUri = "";
+  /* eslint-disable no-magic-numbers */
   idHash = Date.now();
+  //getRandomIntInclusive(1000, 9999).toString()
   noHisto = false;
   constructor(subjectUri) {
     this.subjectUri = subjectUri;
@@ -459,7 +466,6 @@ var EntityGraphValues = class {
     return subjectUri in this.oldSubjectProps && pathString in this.oldSubjectProps[subjectUri];
   };
   addNewValuestoStore(store, subjectUri) {
-    var _a, _b, _c, _d;
     if (!(subjectUri in this.newSubjectProps))
       return;
     const subject = rdf2.sym(subjectUri);
@@ -471,7 +477,7 @@ var EntityGraphValues = class {
           if (val instanceof LiteralWithId) {
             throw "can't add literals in inverse path, something's wrong with the data!";
           } else {
-            if (((_a = val.node) == null ? void 0 : _a.value) == "tmp:uri" || ((_b = val.node) == null ? void 0 : _b.value) == "tmp:none")
+            if (val.node?.value == "tmp:uri" || val.node?.value == "tmp:none")
               continue;
             store.add(val.node, property, subject, defaultGraphNode);
             if (val instanceof Subject) {
@@ -493,7 +499,7 @@ var EntityGraphValues = class {
             else
               store.add(subject, property, val, defaultGraphNode);
           } else {
-            if (((_c = val.node) == null ? void 0 : _c.value) == "tmp:uri" || ((_d = val.node) == null ? void 0 : _d.value) == "tmp:none")
+            if (val.node?.value == "tmp:uri" || val.node?.value == "tmp:none")
               continue;
             if (listMode) {
               if (val.node) {
@@ -527,7 +533,12 @@ var EntityGraphValues = class {
     return (0, import_recoil.atom)({
       key: this.idHash + subjectUri + pathString,
       default: [],
-      effects: [this.propsUpdateEffect(subjectUri, pathString)],
+      // effects_UNSTABLE no more, see https://github.com/facebookexperimental/Recoil/blob/main/CHANGELOG-recoil.md#breaking-changes-1
+      effects: [
+        /*debugAtomEffect,*/
+        this.propsUpdateEffect(subjectUri, pathString)
+      ],
+      // disable immutability in production
       dangerouslyAllowMutability: true
     });
   }
@@ -540,15 +551,18 @@ __decorateClass([
     return subjectUri + pathString;
   })
 ], EntityGraphValues.prototype, "getAtomForSubjectProperty", 1);
-var _EntityGraph = class {
+var EntityGraph = class _EntityGraph {
   onGetInitialValues;
   getAtomForSubjectProperty;
   getValues;
   get values() {
     return this.getValues();
   }
+  // where to start when reconstructing the tree
   topSubjectUri;
   store;
+  // connexGraph is the store that contains the labels of associated resources
+  // (ex: students, teachers, etc.), it's not present in all circumstances
   connexGraph;
   prefixMap;
   labelProperties;
@@ -570,11 +584,45 @@ var _EntityGraph = class {
   addNewValuestoStore(store) {
     this.values.addNewValuestoStore(store, this.topSubjectUri);
   }
+  static addIdToLitList = (litList) => {
+    return litList.map((lit) => {
+      return new LiteralWithId(lit.value, lit.language, lit.datatype);
+    });
+  };
+  static addLabelsFromGraph = (resList, graph3) => {
+    return resList.map((res) => {
+      return new RDFResourceWithLabel(res, graph3);
+    });
+  };
+  static addExtDataFromGraph = (resList, graph3) => {
+    return resList.map((res) => {
+      if (!graph3.connexGraph) {
+        throw "trying to access inexistant associatedStore";
+      }
+      const perLang = {};
+      for (const p of graph3.labelProperties) {
+        const lits = graph3.connexGraph.each(res, p, null);
+        for (const lit of lits) {
+          if (lit.language in perLang)
+            continue;
+          perLang[lit.language] = lit.value;
+        }
+      }
+      debug2("connex:", res.uri, perLang);
+      return new ExtRDFResourceWithLabel(res.uri, perLang, void 0, void 0, graph3.prefixMap);
+    });
+  };
   hasSubject(subjectUri) {
     if (this.values.hasSubject(subjectUri))
       return true;
     return this.store.any(rdf2.sym(subjectUri), null, null) != null;
   }
+  static subjectify = (resList, graph3) => {
+    return resList.map((res) => {
+      return new Subject(res, graph3);
+    });
+  };
+  // only returns the values that were not initalized before
   getUnitializedValues(s, p) {
     const path = p.path;
     if (!path)
@@ -633,39 +681,6 @@ var _EntityGraph = class {
     }
   }
 };
-var EntityGraph = _EntityGraph;
-__publicField(EntityGraph, "addIdToLitList", (litList) => {
-  return litList.map((lit) => {
-    return new LiteralWithId(lit.value, lit.language, lit.datatype);
-  });
-});
-__publicField(EntityGraph, "addLabelsFromGraph", (resList, graph3) => {
-  return resList.map((res) => {
-    return new RDFResourceWithLabel(res, graph3);
-  });
-});
-__publicField(EntityGraph, "addExtDataFromGraph", (resList, graph3) => {
-  return resList.map((res) => {
-    if (!graph3.connexGraph) {
-      throw "trying to access inexistant associatedStore";
-    }
-    const perLang = {};
-    for (const p of graph3.labelProperties) {
-      const lits = graph3.connexGraph.each(res, p, null);
-      for (const lit of lits) {
-        if (lit.language in perLang)
-          continue;
-        perLang[lit.language] = lit.value;
-      }
-    }
-    return new ExtRDFResourceWithLabel(res.uri, perLang, void 0, void 0, graph3.prefixMap);
-  });
-});
-__publicField(EntityGraph, "subjectify", (resList, graph3) => {
-  return resList.map((res) => {
-    return new Subject(res, graph3);
-  });
-});
 var RDFResource = class {
   node;
   graph;
@@ -834,7 +849,7 @@ var RDFResourceWithLabel = class extends RDFResource {
       if (res != null)
         return res;
     }
-    return { en: this.node.uri };
+    return { en: this.node.value };
   }
   get description() {
     for (const p of this.graph.descriptionProperties) {
@@ -851,7 +866,7 @@ __decorateClass([
 __decorateClass([
   (0, import_typescript_memoize.Memoize)()
 ], RDFResourceWithLabel.prototype, "description", 1);
-var ExtRDFResourceWithLabel = class extends RDFResourceWithLabel {
+var ExtRDFResourceWithLabel = class _ExtRDFResourceWithLabel extends RDFResourceWithLabel {
   _prefLabels;
   _description;
   _otherData;
@@ -871,10 +886,10 @@ var ExtRDFResourceWithLabel = class extends RDFResourceWithLabel {
     this._otherData = data;
   }
   addOtherData(key, value) {
-    return new ExtRDFResourceWithLabel(this.uri, this._prefLabels, { ...this._otherData, [key]: value });
+    return new _ExtRDFResourceWithLabel(this.uri, this._prefLabels, { ...this._otherData, [key]: value });
   }
 };
-var LiteralWithId = class extends rdf2.Literal {
+var LiteralWithId = class _LiteralWithId extends rdf2.Literal {
   id;
   constructor(value, language, datatype, id) {
     super(value, language, datatype);
@@ -885,16 +900,16 @@ var LiteralWithId = class extends rdf2.Literal {
     }
   }
   copy() {
-    return new LiteralWithId(this.value, this.language, this.datatype, this.id);
+    return new _LiteralWithId(this.value, this.language, this.datatype, this.id);
   }
   copyWithUpdatedValue(value) {
-    return new LiteralWithId(value, this.language, this.datatype, this.id);
+    return new _LiteralWithId(value, this.language, this.datatype, this.id);
   }
   copyWithUpdatedLanguage(language) {
-    return new LiteralWithId(this.value, language, this.datatype, this.id);
+    return new _LiteralWithId(this.value, language, this.datatype, this.id);
   }
 };
-var Subject = class extends RDFResource {
+var Subject = class _Subject extends RDFResource {
   node;
   constructor(node, graph3) {
     super(node, graph3);
@@ -906,6 +921,15 @@ var Subject = class extends RDFResource {
   getAtomForProperty(pathString) {
     return this.graph.getAtomForSubjectProperty(pathString, this.uri);
   }
+  /*
+  // sets the flag to store to history or not according to the case,
+  // allows to store value modification not on top of history,
+  // 
+  // ex: noHisto(false, -1)    // put empty subnodes in history before tmp:allValuesLoaded
+  //     noHisto(false, 1)     // allow parent node in history but default empty subnodes before tmp:allValuesLoaded
+  //     noHisto(false, false) // history back to normal => not exactly... must also use resetNoHisto()
+  //     noHisto(true)         // disable value storing when doing undo/redo
+  */
   noHisto(force = false, start = true) {
     const current = this.graph.getValues().noHisto;
     if (!force && current === -1)
@@ -919,7 +943,7 @@ var Subject = class extends RDFResource {
     this.graph.getValues().noHisto = false;
   }
   static createEmpty() {
-    return new Subject(rdf2.sym("tmp:uri"), new EntityGraph(new rdf2.Store(), "tmp:uri"));
+    return new _Subject(rdf2.sym("tmp:uri"), new EntityGraph(new rdf2.Store(), "tmp:uri"));
   }
   isEmpty() {
     return this.node.uri == "tmp:uri";
@@ -952,7 +976,7 @@ var sortByPropValue = (nodelist, property, store) => {
   });
   return res;
 };
-var _PropertyShape = class extends RDFResourceWithLabel {
+var _PropertyShape = class _PropertyShape extends RDFResourceWithLabel {
   constructor(node, graph3) {
     super(node, graph3, rdfsLabel);
   }
@@ -1075,13 +1099,12 @@ var _PropertyShape = class extends RDFResourceWithLabel {
   }
   static resourcizeWithInit(nodes, graph3) {
     const res = [];
-    for (const node of nodes)
-      if (node instanceof rdf3.NamedNode) {
-        const r = new RDFResourceWithLabel(node, graph3);
-        let justforinit = r.description;
-        justforinit = r.prefLabels;
-        res.push(r);
-      }
+    for (const node of nodes) {
+      const r = new RDFResourceWithLabel(node, graph3);
+      let justforinit = r.description;
+      justforinit = r.prefLabels;
+      res.push(r);
+    }
     return res;
   }
   get hasListAsObject() {
@@ -1183,106 +1206,106 @@ var _PropertyShape = class extends RDFResourceWithLabel {
     return null;
   }
 };
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "prefLabels", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "helpMessage", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "errorMessage", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "defaultValue", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "singleLine", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "connectIDs", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "displayPriority", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "minCount", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "maxCount", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "minInclusive", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "maxInclusive", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "minExclusive", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "maxExclusive", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "allowMarkDown", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "allowBatchManagement", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "uniqueValueAmongSiblings", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "uniqueLang", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "readOnly", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "defaultLanguage", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "editorLname", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "group", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "copyObjectsOfProperty", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "datatype", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "pattern", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "sortOnProperty", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "allowPushToTopLevelLabel", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "specialPattern", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "hasListAsObject", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "in", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "expectedObjectTypes", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "path", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "objectType", 1);
+__decorateClass([
+  (0, import_typescript_memoize2.Memoize)()
+], _PropertyShape.prototype, "targetShape", 1);
 var PropertyShape = _PropertyShape;
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "prefLabels", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "helpMessage", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "errorMessage", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "defaultValue", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "singleLine", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "connectIDs", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "displayPriority", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "minCount", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "maxCount", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "minInclusive", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "maxInclusive", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "minExclusive", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "maxExclusive", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "allowMarkDown", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "allowBatchManagement", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "uniqueValueAmongSiblings", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "uniqueLang", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "readOnly", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "defaultLanguage", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "editorLname", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "group", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "copyObjectsOfProperty", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "datatype", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "pattern", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "sortOnProperty", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "allowPushToTopLevelLabel", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "specialPattern", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "hasListAsObject", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "in", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "expectedObjectTypes", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "path", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "objectType", 1);
-__decorateClass([
-  (0, import_typescript_memoize2.Memoize)()
-], PropertyShape.prototype, "targetShape", 1);
 var PropertyGroup = class extends RDFResourceWithLabel {
   constructor(node, graph3) {
     super(node, graph3, rdfsLabel);
@@ -1361,7 +1384,7 @@ __decorateClass([
 var nanoidCustom = (0, import_nanoid2.customAlphabet)("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
 var generateSubnodes = async (subshape, parent, n = 1) => {
   const prefix = subshape ? subshape.getPropStringValue(rdeIdentifierPrefix) : "";
-  let namespace = subshape == null ? void 0 : subshape.getPropStringValue(shNamespace);
+  let namespace = subshape?.getPropStringValue(shNamespace);
   if (!namespace)
     namespace = parent.namespace;
   const res = [];
@@ -1430,6 +1453,7 @@ var entitiesAtom = (0, import_recoil2.atom)({
 var defaultEntityLabelAtom = (0, import_recoil2.atom)({
   key: "rde_defaultEntityLabelAtom",
   default: [new LiteralWithId("...", "en")]
+  // TODO: use the i18n stuff
 });
 var uiLangState = (0, import_recoil2.atom)({
   key: "rde_uiLangState",
@@ -1608,17 +1632,19 @@ var orderedNewValSelector = (0, import_recoil2.selectorFamily)({
 var toCopySelector = (0, import_recoil2.selectorFamily)({
   key: "rde_toCopySelector",
   get: (args) => ({ get }) => {
-    var _a;
     const res = [];
-    (_a = args.list) == null ? void 0 : _a.map(({ property, atom: atom3 }) => {
+    args.list?.map(({ property, atom: atom3 }) => {
       const val = get(atom3);
       res.push({ k: property, val });
     });
     return res;
   },
-  set: (args) => ({ get, set }, [{ k, val }]) => {
-    var _a;
-    (_a = args.list) == null ? void 0 : _a.map(({ property, atom: atom3 }) => {
+  set: (args) => ({ get, set }, newValue) => {
+    if (newValue instanceof import_recoil2.DefaultValue) {
+      return;
+    }
+    const { k, val } = newValue[0];
+    args.list?.map(({ property, atom: atom3 }) => {
       if (k == property)
         set(atom3, [...get(atom3).filter((lit) => lit.value), ...val]);
     });
@@ -1636,6 +1662,7 @@ var ESfromRecoilSelector = (0, import_recoil2.selectorFamily)({
   set: ({}) => ({ get, set }, args) => {
     const entities = get(entitiesAtom);
     const setEntities = (val) => set(entitiesAtom, val);
+    debug4("UES:", args.status, args.entityQname, args.id, args.removingFacet, args.forceRemove, args.undo, args.hStatus);
     const n = entities.findIndex((e) => e.subjectQname === args.entityQname);
     if (n > -1) {
       const ent = entities[n];
@@ -1652,7 +1679,9 @@ var ESfromRecoilSelector = (0, import_recoil2.selectorFamily)({
       }
       const status = ent.etag && (!args.undo || args.undo.prev && !args.undo.prev.enabled) && !ent.loadedUnsavedFromLocalStorage ? 1 /* Saved */ : 2 /* NeedsSaving */;
       const hasError = errors[ent.subjectQname] && errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id];
+      debug4("no error:", hasError, args.forceRemove, args.id, status, ent.state, ent, n, args.property.qname, errors);
       if (ent.state != status || hasError && args.forceRemove) {
+        debug4("status:", ent.state, status);
         if (args.removingFacet) {
           if (errors[ent.subjectQname]) {
             const keys = Object.keys(errors[ent.subjectQname]);
@@ -1763,6 +1792,9 @@ var enTranslations = {
 };
 var en_default = enTranslations;
 
+// src/index.ts
+var rdf10 = __toESM(require("rdflib"));
+
 // src/containers/EntityEditContainer.tsx
 var import_react4 = __toESM(require("react"));
 
@@ -1772,6 +1804,7 @@ var import_i18next = __toESM(require("i18next"));
 var import_react = require("react");
 var import_recoil3 = require("recoil");
 var import_debug5 = require("debug");
+var import_react_i18next = require("react-i18next");
 var debug5 = (0, import_debug5.debug)("rde:rdf:io");
 var defaultFetchTtlHeaders = new Headers();
 defaultFetchTtlHeaders.set("Accept", "text/turtle");
@@ -1877,7 +1910,6 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
   const [uiReady, setUiReady] = (0, import_recoil3.useRecoilState)(uiReadyState);
   const [entities, setEntities] = (0, import_recoil3.useRecoilState)(entitiesAtom);
   const [sessionLoaded, setSessionLoaded] = (0, import_recoil3.useRecoilState)(sessionLoadedState);
-  const [idToken, setIdToken] = (0, import_react.useState)(localStorage.getItem("BLMPidToken"));
   const [current, setCurrent] = (0, import_react.useState)(entityQname);
   const [reloadEntity, setReloadEntity] = (0, import_recoil3.useRecoilState)(reloadEntityState);
   const [disabled, setDisabled] = (0, import_recoil3.useRecoilState)(uiDisabledTabsState);
@@ -1898,6 +1930,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
     setEntity(Subject.createEmpty());
     setEntityLoadingState({ status: "idle", error: void 0 });
   };
+  const { t } = (0, import_react_i18next.useTranslation)();
   (0, import_react.useEffect)(() => {
     if (unmounting.val)
       return;
@@ -1905,13 +1938,12 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       setEntityLoadingState({ status: "fetching", error: void 0 });
       const entityUri = config.prefixMap.uriFromQname(entityQname2);
       const entityNode = rdf4.sym(entityUri);
-      debug5("fetching", entity, shapeQname, entityQname2, entities);
       let loadRes, loadLabels, localRes, useLocal, notFound, needsSaving;
       let res = null;
       let etag = null;
       const localEntities = await config.getUserLocalEntities();
       if (reloadEntity !== entityQname2 && shapeQname && localEntities[entityQname2] !== void 0) {
-        useLocal = window.confirm(import_i18next.default.t("general.load_previous_q"));
+        useLocal = window.confirm(t("general.load_previous_q"));
         const store = rdf4.graph();
         if (useLocal) {
           try {
@@ -1929,7 +1961,14 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
         } else {
           rdf4.parse("", store, rdf4.Store.defaultGraphURI, "text/turtle");
         }
-        const subject = new Subject(entityNode, new EntityGraph(store, entityUri, config.prefixMap));
+        const subject = new Subject(entityNode, new EntityGraph(
+          store,
+          entityUri,
+          config.prefixMap,
+          void 0,
+          void 0,
+          config.descriptionProperties
+        ));
         res = { subject, etag };
       }
       try {
@@ -2014,8 +2053,7 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       (e) => e.subjectQname === entityQname
     );
     if (shapeLoaded && (reloadEntity === entityQname && !entities[index].subject || current === entityQname && (index === -1 || entities[index] && !entities[index].subject))) {
-      if (idToken)
-        fetchResource(entityQname);
+      fetchResource(entityQname);
     } else {
       if (unmounting.val)
         return;
@@ -2031,14 +2069,13 @@ function EntityFetcher(entityQname, shapeQname, config, unmounting = { val: fals
       else
         setUiReady(true);
     }
-  }, [config, entities, entityQname, entity, current, shapeQname, idToken, reloadEntity, shapeLoaded]);
+  }, [config, entities, entityQname, entity, current, shapeQname, reloadEntity, shapeLoaded]);
   const retVal = entityQname === current ? { entityLoadingState, entity, reset } : { entityLoadingState: { status: "loading", error: void 0 }, entity: Subject.createEmpty(), reset };
   return retVal;
 }
 
 // src/containers/EntityEditContainer.tsx
 var import_icons_material3 = require("@mui/icons-material");
-var import_i18next4 = __toESM(require("i18next"));
 
 // src/containers/PropertyGroupContainer.tsx
 var import_react3 = require("react");
@@ -2049,7 +2086,6 @@ var rdf5 = __toESM(require("rdflib"));
 var import_recoil4 = require("recoil");
 var import_material = require("@mui/material");
 var import_icons_material = require("@mui/icons-material");
-var import_i18next2 = __toESM(require("i18next"));
 
 // src/helpers/lang.ts
 var import_debug6 = require("debug");
@@ -2073,7 +2109,7 @@ var langsWithDefault = (defaultLanguage, langs) => {
   if (defaultLanguage in cache)
     return cache[defaultLanguage];
   let res = langs.filter((l) => l.value === defaultLanguage);
-  if (!(res == null ? void 0 : res.length)) {
+  if (!res?.length) {
     debug6("can't find defaultLanguage ", defaultLanguage, " in languages");
     return langs;
   }
@@ -2085,6 +2121,7 @@ var langsWithDefault = (defaultLanguage, langs) => {
 // src/containers/ValueList.tsx
 var import_react_md_editor = __toESM(require("@uiw/react-md-editor"));
 var import_debug7 = require("debug");
+var import_react_i18next2 = require("react-i18next");
 var import_jsx_runtime = require("react/jsx-runtime");
 var debug7 = (0, import_debug7.debug)("rde:entity:container:ValueList");
 function replaceItemAtIndex(arr, index, newValue) {
@@ -2104,85 +2141,93 @@ var PropertyContainer = ({ property, subject, embedded, force, editable, owner, 
         setCss(css.replace(new RegExp(txt), ""));
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react2.default.Fragment, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-      role: "main",
-      ...css ? { className: css } : {},
-      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", {
-        className: "album",
-        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-          className: "container" + (embedded ? " px-0" : "") + " editable-" + editable,
-          style: { border: "dashed 1px none" },
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ValueList, {
-            subject,
-            property,
-            embedded,
-            force,
-            editable,
-            ...owner ? { owner } : {},
-            ...topEntity ? { topEntity } : {},
-            shape,
-            siblingsPath,
-            setCssClass,
-            config
-          })
-        })
-      })
-    })
-  });
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react2.default.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { role: "main", ...css ? { className: css } : {}, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", { className: "album", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+    "div",
+    {
+      className: "container" + (embedded ? " px-0" : "") + " editable-" + editable,
+      style: { border: "dashed 1px none" },
+      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        ValueList,
+        {
+          subject,
+          property,
+          embedded,
+          force,
+          editable,
+          ...owner ? { owner } : {},
+          ...topEntity ? { topEntity } : {},
+          shape,
+          siblingsPath,
+          setCssClass,
+          config
+        }
+      )
+    }
+  ) }) }) });
 };
 var MinimalAddButton = ({ add, className, disable }) => {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-    className: "minimalAdd disable_" + disable + (className !== void 0 ? className : " text-right"),
-    children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-      className: "btn btn-link ml-2 px-0",
-      onClick: (ev) => add(ev, 1),
-      ...disable ? { disabled: true } : {},
-      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.AddCircleOutline, {})
-    })
-  });
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+    "div",
+    {
+      className: "minimalAdd disable_" + disable + (className !== void 0 ? className : " text-right"),
+      children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "button",
+        {
+          className: "btn btn-link ml-2 px-0",
+          onClick: (ev) => add(ev, 1),
+          ...disable ? { disabled: true } : {},
+          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.AddCircleOutline, {})
+        }
+      )
+    }
+  );
 };
 var BlockAddButton = ({ add, label, count = 1 }) => {
   const [n, setN] = (0, import_react2.useState)(1);
   const [disable, setDisable] = (0, import_react2.useState)(false);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+  const { t } = (0, import_react_i18next2.useTranslation)();
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+    "div",
+    {
       className: "blockAdd text-center pb-1 mt-3",
       style: { width: "100%", ...count > 1 ? { display: "flex" } : {} },
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-          className: "btn btn-sm btn-block btn-outline-primary px-0",
-          style: {
-            boxShadow: "none",
-            pointerEvents: disable ? "none" : "auto",
-            ...disable ? { opacity: 0.5, pointerEvents: "none" } : {}
-          },
-          onClick: (e) => add(e, n),
-          children: [
-            import_i18next2.default.t("general.add_another", { val: label, count }),
-            "\xA0",
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.AddCircleOutline, {})
-          ]
-        }),
-        count > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
-          variant: "standard",
-          label: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-            children: import_i18next2.default.t("general.add_nb", { val: label })
-          }),
-          style: { width: 200 },
-          value: n,
-          className: "ml-2",
-          type: "number",
-          InputLabelProps: { shrink: true },
-          onChange: (e) => setN(Number(e.target.value)),
-          InputProps: { inputProps: { min: 1, max: 500 } }
-        })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+          "button",
+          {
+            className: "btn btn-sm btn-block btn-outline-primary px-0",
+            style: {
+              boxShadow: "none",
+              pointerEvents: disable ? "none" : "auto",
+              ...disable ? { opacity: 0.5, pointerEvents: "none" } : {}
+            },
+            onClick: (e) => add(e, n),
+            children: [
+              t("general.add_another", { val: label, count }),
+              "\xA0",
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.AddCircleOutline, {})
+            ]
+          }
+        ),
+        count > 1 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          import_material.TextField,
+          {
+            variant: "standard",
+            label: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: t("general.add_nb", { val: label }) }),
+            style: { width: 200 },
+            value: n,
+            className: "ml-2",
+            type: "number",
+            InputLabelProps: { shrink: true },
+            onChange: (e) => setN(Number(e.target.value)),
+            InputProps: { inputProps: { min: 1, max: 500 } }
+          }
+        )
       ]
-    })
-  });
+    }
+  ) });
 };
 var generateDefault = async (property, parent, val = "", config) => {
-  var _a, _b;
   switch (property.objectType) {
     case 3 /* ResExt */:
       return new ExtRDFResourceWithLabel("tmp:uri", {}, {}, null, config.prefixMap);
@@ -2207,9 +2252,9 @@ var generateDefault = async (property, parent, val = "", config) => {
       if (defaultValueLiL !== null)
         return new LiteralWithId(defaultValueLiL.value, defaultValueLiL.language, defaultValueLiL.datatype);
       if (!property.minCount) {
-        const datatype2 = (_a = property.datatype) == null ? void 0 : _a.value;
+        const datatype2 = property.datatype?.value;
         if (datatype2 === RDF("langString").value) {
-          return new LiteralWithId("", (property == null ? void 0 : property.defaultLanguage) ? property.defaultLanguage : "bo-x-ewts");
+          return new LiteralWithId("", property?.defaultLanguage ? property.defaultLanguage : "bo-x-ewts");
         } else {
           return new LiteralWithId("", null, property.datatype ? property.datatype : void 0);
         }
@@ -2224,9 +2269,9 @@ var generateDefault = async (property, parent, val = "", config) => {
       const defaultValue = property.defaultValue;
       if (defaultValue !== null)
         return new LiteralWithId(defaultValue.value, defaultValue.language, defaultValue.datatype);
-      const datatype = (_b = property.datatype) == null ? void 0 : _b.value;
+      const datatype = property.datatype?.value;
       if (datatype === RDF("langString").value) {
-        return new LiteralWithId("", (property == null ? void 0 : property.defaultLanguage) ? property.defaultLanguage : "bo-x-ewts");
+        return new LiteralWithId("", property?.defaultLanguage ? property.defaultLanguage : "bo-x-ewts");
       } else if (datatype === XSD("integer").value) {
         return new LiteralWithId(val, null, property.datatype ? property.datatype : void 0);
       } else {
@@ -2236,20 +2281,19 @@ var generateDefault = async (property, parent, val = "", config) => {
   }
 };
 var ValueList = ({ subject, property, embedded, force, editable, owner, topEntity, shape, siblingsPath, setCssClass, config }) => {
-  var _a, _b;
   if (property.path == null)
     throw "can't find path of " + property.qname;
   const [unsortedList, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
   const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
-  const [idToken, setIdToken] = (0, import_react2.useState)(localStorage.getItem("BLMPidToken"));
   const propLabel = ValueByLangToStrPrefLang(property.prefLabels, uiLang);
   const helpMessage = ValueByLangToStrPrefLang(property.helpMessage, uiLang);
   const [undos, setUndos] = (0, import_recoil4.useRecoilState)(uiUndosState);
-  const sortOnPath = (_a = property == null ? void 0 : property.sortOnProperty) == null ? void 0 : _a.value;
+  const sortOnPath = property?.sortOnProperty?.value;
   const orderedList = (0, import_recoil4.useRecoilValue)(
     orderedByPropSelector({
       atom: subject.getAtomForProperty(property.path.sparqlString),
       propertyPath: sortOnPath || ""
+      //order: "desc" // default is "asc"
     })
   );
   let list = unsortedList;
@@ -2257,14 +2301,12 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     list = orderedList;
   if (list === void 0)
     list = [];
-  const withOrder = shape.properties.filter((p) => {
-    var _a2, _b2;
-    return ((_a2 = p.sortOnProperty) == null ? void 0 : _a2.value) === ((_b2 = property.path) == null ? void 0 : _b2.sparqlString);
-  });
+  const withOrder = shape.properties.filter((p) => p.sortOnProperty?.value === property.path?.sparqlString);
   let newVal = (0, import_recoil4.useRecoilValue)(
     orderedNewValSelector({
       atom: withOrder.length && withOrder[0].path ? (topEntity ? topEntity : subject).getAtomForProperty(withOrder[0].path.sparqlString) : null,
       propertyPath: property.path.sparqlString
+      //order: "desc" // default is "asc"
     })
   );
   if (newVal != "") {
@@ -2281,6 +2323,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     const entityQname = topEntity ? topEntity.qname : subject.qname;
     const undo = undos[config.prefixMap.uriFromQname(entityQname)];
     const hStatus = getHistoryStatus(config.prefixMap.uriFromQname(entityQname));
+    debug7("undo:", undo, hStatus, history, entityQname, undos);
     setESfromRecoil({ property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove });
   };
   const alreadyHasEmptyValue = () => {
@@ -2386,8 +2429,7 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
   const scrollElem = (0, import_react2.useRef)(null);
   const [edit, setEdit] = (0, import_recoil4.useRecoilState)(uiEditState);
   (0, import_react2.useEffect)(() => {
-    var _a2;
-    if (((_a2 = property == null ? void 0 : property.group) == null ? void 0 : _a2.value) !== edit && (scrollElem == null ? void 0 : scrollElem.current)) {
+    if (property?.group?.value !== edit && scrollElem?.current) {
       scrollElem.current.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     }
   }, [edit]);
@@ -2408,139 +2450,165 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
   const renderListElem = (val, i, nbvalues) => {
     if (val instanceof RDFResourceWithLabel || property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */) {
       if (property.objectType == 3 /* ResExt */)
-        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExtEntityComponent, {
-          subject,
-          property,
-          extRes: val,
-          canDel: canDel && (i > 0 || !(val instanceof LiteralWithId) && val.uri !== "tmp:uri"),
-          onChange,
-          idx: i,
-          exists,
-          editable,
-          ...owner ? { owner } : {},
-          title: titleCase(propLabel),
-          updateEntityState,
-          shape,
-          config
-        }, val.id + ":" + i);
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          ExtEntityComponent,
+          {
+            subject,
+            property,
+            extRes: val,
+            canDel: canDel && (i > 0 || !(val instanceof LiteralWithId) && val.uri !== "tmp:uri"),
+            onChange,
+            idx: i,
+            exists,
+            editable,
+            ...owner ? { owner } : {},
+            title: titleCase(propLabel),
+            updateEntityState,
+            shape,
+            config
+          },
+          val.id + ":" + i
+        );
       else if (val instanceof LiteralWithId || val instanceof RDFResourceWithLabel) {
         addBtn = false;
         const canSelectNone = i == 0 && !property.minCount || i > 0 && i == nbvalues - 1;
-        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectComponent, {
-          canSelectNone,
-          subject,
-          property,
-          res: val,
-          selectIdx: i,
-          canDel: canDel && val != noneSelected,
-          editable,
-          create: canAdd ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Create, {
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          SelectComponent,
+          {
+            canSelectNone,
             subject,
             property,
-            embedded,
-            newVal: Number(newVal),
-            shape,
-            config
-          }) : void 0,
-          updateEntityState
-        }, "select_" + val.id + "_" + i);
+            res: val,
+            selectIdx: i,
+            canDel: canDel && val != noneSelected,
+            editable,
+            create: canAdd ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              Create,
+              {
+                subject,
+                property,
+                embedded,
+                newVal: Number(newVal),
+                shape,
+                config
+              }
+            ) : void 0,
+            updateEntityState
+          },
+          "select_" + val.id + "_" + i
+        );
       }
     } else if (val instanceof Subject) {
       addBtn = true;
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FacetComponent, {
-        subject,
-        property,
-        subNode: val,
-        canDel: canDel && editable,
-        ...force ? { force } : {},
-        editable,
-        ...topEntity ? { topEntity } : { topEntity: subject },
-        updateEntityState,
-        shape,
-        config
-      }, val.id);
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        FacetComponent,
+        {
+          subject,
+          property,
+          subNode: val,
+          canDel: canDel && editable,
+          ...force ? { force } : {},
+          editable,
+          ...topEntity ? { topEntity } : { topEntity: subject },
+          updateEntityState,
+          shape,
+          config
+        },
+        val.id
+      );
     } else if (val instanceof LiteralWithId) {
       addBtn = false;
       const isUniqueLang = list.filter((l) => l instanceof LiteralWithId && l.language === val.language).length === 1;
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LiteralComponent, {
-        subject,
-        property,
-        lit: val,
-        ...{ canDel, isUniqueLang, isUniqueValueAmongSiblings },
-        create: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Create, {
-          disable: !canAdd || !(val && val.value !== ""),
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        LiteralComponent,
+        {
           subject,
           property,
-          embedded,
-          newVal: Number(newVal),
-          shape,
+          lit: val,
+          ...{ canDel, isUniqueLang, isUniqueValueAmongSiblings },
+          create: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            Create,
+            {
+              disable: !canAdd || !(val && val.value !== ""),
+              subject,
+              property,
+              embedded,
+              newVal: Number(newVal),
+              shape,
+              config
+            }
+          ),
+          editable,
+          topEntity,
+          updateEntityState,
           config
-        }),
-        editable,
-        topEntity,
-        updateEntityState,
-        config
-      }, val.id);
+        },
+        val.id
+      );
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, {
-    children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      "div",
+      {
         className: "ValueList " + (property.maxCount && property.maxCount < list.length ? "maxCount" : "") + (hasNonEmptyValue ? "" : "empty") + (property.objectType === 3 /* ResExt */ ? " ResExt" : "") + (embedded ? "" : " main") + (canPush ? " canPush" : ""),
         "data-priority": property.displayPriority ? property.displayPriority : 0,
         role: "main",
         style: {
           display: "flex",
           flexWrap: "wrap",
-          ...list.length > 1 && firstValueIsEmptyField && property.path.sparqlString !== SKOS("prefLabel").value ? {} : {}
+          ...list.length > 1 && firstValueIsEmptyField && property.path.sparqlString !== SKOS("prefLabel").value ? {
+            /*borderBottom: "2px solid #eee", paddingBottom: "16px"*/
+          } : {}
         },
         children: [
-          showLabel && (!property.in || property.in.length > 1) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-            className: "propLabel",
-            "data-prop": property.qname,
-            "data-type": property.objectType,
-            "data-priority": property.displayPriority,
-            children: [
-              titleCase(propLabel),
-              helpMessage && property.objectType === 3 /* ResExt */ && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
-                title: helpMessage,
-                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
-                  className: "help label"
-                })
+          showLabel && (!property.in || property.in.length > 1) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "label",
+            {
+              className: "propLabel",
+              "data-prop": property.qname,
+              "data-type": property.objectType,
+              "data-priority": property.displayPriority,
+              children: [
+                titleCase(propLabel),
+                helpMessage && property.objectType === 3 /* ResExt */ && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, { title: helpMessage, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, { className: "help label" }) })
+              ]
+            }
+          ),
+          hasEmptyExtEntityAsFirst && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { width: "100%" }, children: renderListElem(list[0], 0, list.length) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "div",
+            {
+              ref: scrollElem,
+              className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
+              style: {
+                width: "100%",
+                //...!embedded && property.objectType !== ObjectType.Internal ? { maxHeight: "338px" } : {}, // overflow conflict with iframe...
+                ...property?.group?.value !== edit ? { paddingRight: "0.5rem" } : {}
+              },
+              children: list.map((val, i) => {
+                if (!hasEmptyExtEntityAsFirst || i > 0)
+                  return renderListElem(val, i, list.length);
               })
-            ]
-          }),
-          hasEmptyExtEntityAsFirst && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-            style: { width: "100%" },
-            children: renderListElem(list[0], 0, list.length)
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-            ref: scrollElem,
-            className: !embedded && property.objectType !== 1 /* Internal */ ? "overFauto" : "",
-            style: {
-              width: "100%",
-              ...((_b = property == null ? void 0 : property.group) == null ? void 0 : _b.value) !== edit ? { paddingRight: "0.5rem" } : {}
-            },
-            children: list.map((val, i) => {
-              if (!hasEmptyExtEntityAsFirst || i > 0)
-                return renderListElem(val, i, list.length);
-            })
-          })
+            }
+          )
         ]
-      }),
-      canAdd && addBtn && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Create, {
+      }
+    ),
+    canAdd && addBtn && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      Create,
+      {
         subject,
         property,
         embedded,
         newVal: Number(newVal),
         shape,
         config
-      })
-    ]
-  });
+      }
+    )
+  ] });
 };
 var Create = ({ subject, property, embedded, disable, newVal, shape, config }) => {
-  var _a, _b;
   if (property.path == null)
     throw "can't find path of " + property.qname;
   const recoilArray = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
@@ -2552,7 +2620,7 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
   if (list.length === 1 && list[0] instanceof RDFResource && list[0].node && list[0].node instanceof rdf5.Collection) {
     collecNode = list[0].node;
   }
-  const collec = (collecNode == null ? void 0 : collecNode.termType) === "Collection" ? collecNode == null ? void 0 : collecNode.elements : void 0;
+  const collec = collecNode?.termType === "Collection" ? collecNode?.elements : void 0;
   const listOrCollec = collec ? collec : list;
   const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
   const [entities, setEntities] = (0, import_recoil4.useRecoilState)(entitiesAtom);
@@ -2563,19 +2631,17 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
     property.sortOnProperty ? orderedNewValSelector({
       atom: property.sortOnProperty ? subject.getAtomForProperty(property.path.sparqlString) : null,
       propertyPath: property.sortOnProperty.value
+      //order: "desc" // default is "asc"
     }) : initStringAtom
   );
-  const sortProps = (_a = property.targetShape) == null ? void 0 : _a.properties.filter(
-    (p) => {
-      var _a2, _b2;
-      return ((_a2 = p.path) == null ? void 0 : _a2.sparqlString) === ((_b2 = property.sortOnProperty) == null ? void 0 : _b2.value);
-    }
+  const sortProps = property.targetShape?.properties.filter(
+    (p) => p.path?.sparqlString === property.sortOnProperty?.value
   );
-  if (sortProps == null ? void 0 : sortProps.length) {
+  if (sortProps?.length) {
     const sortProp = sortProps[0];
-    if ((sortProp == null ? void 0 : sortProp.minInclusive) != null && Number(nextVal) < sortProp.minInclusive)
+    if (sortProp?.minInclusive != null && Number(nextVal) < sortProp.minInclusive)
       nextVal = sortProp.minInclusive.toString();
-    if ((sortProp == null ? void 0 : sortProp.maxInclusive) != null && Number(nextVal) > sortProp.maxInclusive)
+    if (sortProp?.maxInclusive != null && Number(nextVal) > sortProp.maxInclusive)
       nextVal = sortProp.maxInclusive.toString();
   }
   let waitForNoHisto = false;
@@ -2593,7 +2659,7 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
       waitForNoHisto = true;
       subject.noHisto(false, 1);
     }
-    const item = await generateDefault(property, subject, newVal == null ? void 0 : newVal.toString(), config);
+    const item = await generateDefault(property, subject, newVal?.toString(), config);
     setList([...listOrCollec, ...Array.isArray(item) ? item : [item]]);
     if (property.objectType === 1 /* Internal */ && item instanceof Subject) {
       setImmediate(() => {
@@ -2606,30 +2672,23 @@ var Create = ({ subject, property, embedded, disable, newVal, shape, config }) =
     }
   };
   if (property.objectType !== 1 /* Internal */ && (embedded || property.objectType == 0 /* Literal */ || property.objectType == 2 /* ResInList */ || property.objectType == 5 /* LitInList */))
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MinimalAddButton, {
-      disable,
-      add: addItem,
-      className: " "
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MinimalAddButton, { disable, add: addItem, className: " " });
   else {
-    const targetShapeLabels = (_b = property.targetShape) == null ? void 0 : _b.targetClassPrefLabels;
+    const targetShapeLabels = property.targetShape?.targetClassPrefLabels;
     const labels = targetShapeLabels ? targetShapeLabels : property.prefLabels;
     const count = property.allowBatchManagement ? 2 : 1;
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BlockAddButton, {
-      add: addItem,
-      label: ValueByLangToStrPrefLang(labels, uiLang),
-      count
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BlockAddButton, { add: addItem, label: ValueByLangToStrPrefLang(labels, uiLang), count });
   }
 };
 var EditLangString = ({ property, lit, onChange, label, globalError, editable, updateEntityState, entity, index, config }) => {
   const [editMD, setEditMD] = (0, import_react2.useState)(false);
   const [keyboard, setKeyboard] = (0, import_react2.useState)(false);
   const canPushPrefLabel = property.allowPushToTopLevelLabel;
+  const { t } = (0, import_react_i18next2.useTranslation)();
   const getLangStringError = (val) => {
     let err = "";
     if (!val && property.minCount)
-      err = import_i18next2.default.t("error.empty");
+      err = t("error.empty");
     else if (globalError)
       err = globalError;
     return err;
@@ -2650,27 +2709,24 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
     };
   }, []);
   const errorData = {
-    helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, {
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, {
-          style: { fontSize: "20px", verticalAlign: "-7px" }
-        }),
-        "\xA0",
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {
-          children: error
-        })
-      ]
-    }),
+    helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
+      "\xA0",
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { children: error })
+    ] }),
     error: true
   };
   const [preview, setPreview] = (0, import_react2.useState)(null);
   (0, import_react2.useLayoutEffect)(() => {
     if (document.activeElement === inputRef.current) {
       const { value, error: error2 } = config.previewLiteral(lit, uiLang);
-      setPreview(value);
-      setError(error2);
+      if (preview !== value)
+        setPreview(value);
+      if (error2 !== error2)
+        setError(error2);
     } else {
-      setPreview(null);
+      if (preview !== null)
+        setPreview(null);
     }
   });
   let padBot = "0px";
@@ -2679,11 +2735,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
   } else if (property.singleLine && editMD) {
     padBot = "1px";
   }
-  const codeEdit = { ...import_react_md_editor.commands.codeEdit, icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Edit, {
-    style: { width: "12px", height: "12px" }
-  }) }, codePreview = { ...import_react_md_editor.commands.codePreview, icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Visibility, {
-    style: { width: "12px", height: "12px" }
-  }) };
+  const codeEdit = { ...import_react_md_editor.commands.codeEdit, icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Edit, { style: { width: "12px", height: "12px" } }) }, codePreview = { ...import_react_md_editor.commands.codePreview, icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Visibility, { style: { width: "12px", height: "12px" } }) };
   const hasKB = config.possibleLiteralLangs.filter((l) => l.value === lit.language);
   const inputRef = (0, import_react2.useRef)();
   const keepFocus = () => {
@@ -2703,7 +2755,7 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
       }, 10);
     }
   };
-  let prefLabelAtom = entity == null ? void 0 : entity.getAtomForProperty(SKOS("prefLabel").value);
+  let prefLabelAtom = entity?.getAtomForProperty(SKOS("prefLabel").value);
   if (!prefLabelAtom)
     prefLabelAtom = initListAtom;
   const [prefLabels, setPrefLabels] = (0, import_recoil4.useRecoilState)(prefLabelAtom);
@@ -2725,103 +2777,93 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
     if (newPrefLabels.length)
       setPrefLabels(newPrefLabels);
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-    className: "mb-0" + (preview ? " withPreview" : ""),
-    style: {
-      display: "flex",
-      width: "100%",
-      alignItems: "flex-end",
-      paddingBottom: padBot,
-      position: "relative"
-    },
-    children: [
-      canPushPrefLabel && !error && !globalError && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-        className: "canPushPrefLabel",
-        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-          onClick: pushAsPrefLabel,
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
-            title: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-              children: "Use as the main name or title for this language"
-            }),
-            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-              className: "img",
-              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.More, {
-                style: { position: "relative", color: "white", left: "-9px", fontSize: "18px" }
-              })
-            })
-          }, lit.id)
-        })
-      }),
-      (property.singleLine || !editMD) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-        style: { width: "100%", position: "relative" },
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
-            variant: "standard",
-            inputRef,
-            className: lit.language === "bo" ? " lang-bo" : "",
-            label,
-            style: { width: "100%" },
-            value: lit.value,
-            multiline: !property.singleLine,
-            InputLabelProps: { shrink: true },
-            inputProps: { spellCheck: "true", lang: lit.language === "en" ? "en_US" : lit.language },
-            onChange: (e) => {
-              const newError = getLangStringError(lit.value);
-              if (newError && error != newError)
-                setError(newError);
-              else
-                updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
-              onChange(lit.copyWithUpdatedValue(e.target.value));
-            },
-            ...error ? errorData : {},
-            ...!editable ? { disabled: true } : {},
-            onFocus: () => {
-              const { value, error: error2 } = config.previewLiteral(lit, uiLang);
-              setPreview(value);
-              setError(error2);
-            },
-            onBlur: () => {
-              setPreview(null);
-              setTimeout(() => {
-                if (inputRef.current && document.activeElement != inputRef.current)
-                  setKeyboard(false);
-              }, 350);
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+    "div",
+    {
+      className: "mb-0" + (preview ? " withPreview" : ""),
+      style: {
+        display: "flex",
+        width: "100%",
+        alignItems: "flex-end",
+        paddingBottom: padBot,
+        position: "relative"
+      },
+      children: [
+        canPushPrefLabel && !error && !globalError && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "canPushPrefLabel", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { onClick: pushAsPrefLabel, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, { title: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: "Use as the main name or title for this language" }), children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "img", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.More, { style: { position: "relative", color: "white", left: "-9px", fontSize: "18px" } }) }) }, lit.id) }) }),
+        (property.singleLine || !editMD) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { width: "100%", position: "relative" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            import_material.TextField,
+            {
+              variant: "standard",
+              inputRef,
+              className: lit.language === "bo" ? " lang-bo" : "",
+              label,
+              style: { width: "100%" },
+              value: lit.value,
+              multiline: !property.singleLine,
+              InputLabelProps: { shrink: true },
+              inputProps: { spellCheck: "true", lang: lit.language === "en" ? "en_US" : lit.language },
+              onChange: (e) => {
+                const newError = getLangStringError(lit.value);
+                if (newError && error != newError)
+                  setError(newError);
+                else
+                  updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
+                onChange(lit.copyWithUpdatedValue(e.target.value));
+              },
+              ...error ? errorData : {},
+              ...!editable ? { disabled: true } : {},
+              onFocus: () => {
+                const { value, error: error2 } = config.previewLiteral(lit, uiLang);
+                if (value !== preview)
+                  setPreview(value);
+                if (error2 !== error2)
+                  setError(error2);
+              },
+              onBlur: () => {
+                if (preview !== null)
+                  setPreview(null);
+                setTimeout(() => {
+                  if (inputRef.current && document.activeElement != inputRef.current && keyboard !== false)
+                    setKeyboard(false);
+                }, 350);
+              }
             }
-          }),
-          property.allowMarkDown && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-            className: "opaHover",
-            style: { position: "absolute", right: 0, top: 0, fontSize: "0px" },
-            onClick: () => setEditMD(!editMD),
-            children: [
-              !editMD && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.FormatBold, {
-                style: { height: "16px" }
-              }),
-              editMD && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.FormatBold, {
-                style: { height: "16px" }
-              })
-            ]
-          }),
-          hasKB.length > 0 && hasKB[0].keyboard && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-            onClick: () => {
-              setKeyboard(!keyboard);
-              keepFocus();
-            },
-            className: "opaHover " + (keyboard ? "on" : ""),
-            style: {
-              position: "absolute",
-              right: 0,
-              top: "0px",
-              height: "100%",
-              display: "flex",
-              alignItems: "center"
-            },
-            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Keyboard, {})
-          }),
-          hasKB.length > 0 && hasKB[0].keyboard && keyboard && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-            className: "card px-2 py-2 hasKB",
-            style: { display: "block", width: "405px" },
-            onClick: keepFocus,
-            children: hasKB[0].keyboard.map((k, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+          ),
+          property.allowMarkDown && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "span",
+            {
+              className: "opaHover",
+              style: { position: "absolute", right: 0, top: 0, fontSize: "0px" },
+              onClick: () => setEditMD(!editMD),
+              children: [
+                !editMD && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.FormatBold, { style: { height: "16px" } }),
+                editMD && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.FormatBold, { style: { height: "16px" } })
+              ]
+            }
+          ),
+          hasKB.length > 0 && hasKB[0].keyboard && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "span",
+            {
+              onClick: () => {
+                setKeyboard(!keyboard);
+                keepFocus();
+              },
+              className: "opaHover " + (keyboard ? "on" : ""),
+              style: {
+                position: "absolute",
+                right: 0,
+                top: "0px",
+                height: "100%",
+                display: "flex",
+                alignItems: "center"
+              },
+              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Keyboard, {})
+            }
+          ),
+          hasKB.length > 0 && hasKB[0].keyboard && keyboard && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "card px-2 py-2 hasKB", style: { display: "block", width: "405px" }, onClick: keepFocus, children: hasKB[0].keyboard.map((k, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "span",
+            {
               className: "card mx-1 my-1",
               style: {
                 display: "inline-flex",
@@ -2833,82 +2875,80 @@ var EditLangString = ({ property, lit, onChange, label, globalError, editable, u
               },
               onClick: () => insertChar(k),
               children: k
-            }, i))
-          })
-        ]
-      }),
-      !property.singleLine && editMD && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-        style: { width: "100%", position: "relative", paddingBottom: "1px" },
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_md_editor.default, {
-            textareaProps: { spellCheck: "true", lang: lit.language === "en" ? "en_US" : lit.language },
-            value: lit.value,
-            preview: "edit",
-            onChange: (e) => {
-              if (e)
-                onChange(lit.copyWithUpdatedValue(e));
             },
-            commands: [
-              import_react_md_editor.commands.bold,
-              import_react_md_editor.commands.italic,
-              import_react_md_editor.commands.strikethrough,
-              import_react_md_editor.commands.hr,
-              import_react_md_editor.commands.title,
-              import_react_md_editor.commands.divider,
-              import_react_md_editor.commands.link,
-              import_react_md_editor.commands.quote,
-              import_react_md_editor.commands.code,
-              import_react_md_editor.commands.image,
-              import_react_md_editor.commands.divider,
-              import_react_md_editor.commands.unorderedListCommand,
-              import_react_md_editor.commands.orderedListCommand,
-              import_react_md_editor.commands.checkedListCommand,
-              import_react_md_editor.commands.divider,
-              codeEdit,
-              codePreview
-            ],
-            extraCommands: []
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-            className: "opaHover on",
-            style: { position: "absolute", right: "5px", top: "7px", fontSize: "0px", cursor: "pointer" },
-            onClick: () => setEditMD(!editMD),
-            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.FormatBold, {
-              style: { height: "15px" },
-              titleAccess: "Use rich text editor"
-            })
-          })
-        ]
-      }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LangSelect, {
-        onChange: (value) => {
-          onChange(lit.copyWithUpdatedLanguage(value));
-        },
-        value: lit.language || "",
-        property,
-        ...error ? { error: true } : {},
-        editable,
-        config
-      }),
-      preview && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-        className: "preview-ewts",
-        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
-          disabled: true,
-          value: preview,
-          variant: "standard"
-        })
-      })
-    ]
-  });
+            i
+          )) })
+        ] }),
+        !property.singleLine && editMD && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { width: "100%", position: "relative", paddingBottom: "1px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            import_react_md_editor.default,
+            {
+              textareaProps: { spellCheck: "true", lang: lit.language === "en" ? "en_US" : lit.language },
+              value: lit.value,
+              preview: "edit",
+              onChange: (e) => {
+                if (e)
+                  onChange(lit.copyWithUpdatedValue(e));
+              },
+              commands: [
+                import_react_md_editor.commands.bold,
+                import_react_md_editor.commands.italic,
+                import_react_md_editor.commands.strikethrough,
+                import_react_md_editor.commands.hr,
+                import_react_md_editor.commands.title,
+                import_react_md_editor.commands.divider,
+                import_react_md_editor.commands.link,
+                import_react_md_editor.commands.quote,
+                import_react_md_editor.commands.code,
+                import_react_md_editor.commands.image,
+                import_react_md_editor.commands.divider,
+                import_react_md_editor.commands.unorderedListCommand,
+                import_react_md_editor.commands.orderedListCommand,
+                import_react_md_editor.commands.checkedListCommand,
+                import_react_md_editor.commands.divider,
+                codeEdit,
+                codePreview
+              ],
+              extraCommands: []
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "span",
+            {
+              className: "opaHover on",
+              style: { position: "absolute", right: "5px", top: "7px", fontSize: "0px", cursor: "pointer" },
+              onClick: () => setEditMD(!editMD),
+              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.FormatBold, { style: { height: "15px" }, titleAccess: "Use rich text editor" })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          LangSelect,
+          {
+            onChange: (value) => {
+              onChange(lit.copyWithUpdatedLanguage(value));
+            },
+            value: lit.language || "",
+            property,
+            ...error ? { error: true } : {},
+            editable,
+            config
+          }
+        ),
+        preview && // TODO see if fromWylie & MD can both be used ('escape' some chars?)
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "preview-ewts", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, { disabled: true, value: preview, variant: "standard" }) })
+      ]
+    }
+  );
 };
 var LangSelect = ({ onChange, value, property, disabled, error, editable, config }) => {
   const onChangeHandler = (event) => {
     onChange(event.target.value);
   };
-  const languages = (property == null ? void 0 : property.defaultLanguage) ? langsWithDefault(property.defaultLanguage, config.possibleLiteralLangs) : config.possibleLiteralLangs;
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-    style: { position: "relative" },
-    children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_material.TextField, {
+  const languages = property?.defaultLanguage ? langsWithDefault(property.defaultLanguage, config.possibleLiteralLangs) : config.possibleLiteralLangs;
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { position: "relative" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+    import_material.TextField,
+    {
       variant: "standard",
       select: true,
       InputLabelProps: { shrink: true },
@@ -2920,17 +2960,11 @@ var LangSelect = ({ onChange, value, property, disabled, error, editable, config
       ...error ? { error: true, helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("br", {}) } : {},
       ...!editable ? { disabled: true } : {},
       children: [
-        languages.map((option) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, {
-          value: option.value,
-          children: option.value
-        }, option.value)),
-        !languages.some((l) => l.value === value) && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, {
-          value,
-          children: value
-        }, value)
+        languages.map((option) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, { value: option.value, children: option.value }, option.value)),
+        !languages.some((l) => l.value === value) && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, { value, children: value }, value)
       ]
-    })
-  });
+    }
+  ) });
 };
 var EditString = ({ property, lit, onChange, label, editable, updateEntityState, entity, index, config }) => {
   const [uiLang] = (0, import_recoil4.useRecoilState)(uiLangState);
@@ -2974,22 +3008,15 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
       onChange(lit.copyWithUpdatedValue(val));
     };
   });
+  const { t } = (0, import_react_i18next2.useTranslation)();
   const getEmptyStringError = (val) => {
     if (!val && property.minCount)
       return;
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, {
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, {
-          style: { fontSize: "20px", verticalAlign: "-7px" }
-        }),
-        " ",
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-            children: import_i18next2.default.t("error.empty")
-          })
-        })
-      ]
-    });
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
+      " ",
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: t("error.empty") }) })
+    ] });
     return null;
   };
   (0, import_react2.useEffect)(() => {
@@ -2999,32 +3026,30 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
       updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
     }
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-    style: { display: "flex", flexDirection: "column", width: "100%" },
-    children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", flexDirection: "column", width: "100%" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      import_material.TextField,
+      {
         variant: "standard",
         label,
         style: { width: "100%" },
         value: lit.value,
         ...property.qname !== "bds:NoteShape-contentLocationStatement" ? { InputLabelProps: { shrink: true } } : {},
-        onBlur: (e) => setPreview(null),
+        onBlur: (e) => {
+          if (preview !== null)
+            setPreview(null);
+        },
         onFocus: (e) => changeCallback(e.target.value),
         onChange: (e) => changeCallback(e.target.value),
         ...!editable ? { disabled: true } : {},
         ...error ? { error: true, helperText: error } : {}
-      }),
-      preview && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-        className: "preview-EDTF",
-        style: { width: "100%" },
-        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", {
-          children: preview
-        })
-      })
-    ]
-  });
+      }
+    ),
+    preview && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "preview-EDTF", style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", { children: preview }) })
+  ] });
 };
 var EditBool = ({ property, lit, onChange, label, editable }) => {
+  const { t } = (0, import_react_i18next2.useTranslation)();
   const dt = property.datatype;
   let val = !lit.value || lit.value == "false" || lit.value == "0" ? false : true;
   if (property.defaultValue === null && lit.value == "")
@@ -3032,25 +3057,26 @@ var EditBool = ({ property, lit, onChange, label, editable }) => {
   const changeCallback = (val2) => {
     onChange(lit.copyWithUpdatedValue(val2 == "false" ? "0" : "1"));
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
-    variant: "standard",
-    select: true,
-    style: { padding: "1px", minWidth: "250px" },
-    label,
-    value: val,
-    InputLabelProps: { shrink: true },
-    onChange: (e) => {
-      if (e.target.value != "-")
-        changeCallback(e.target.value);
-    },
-    ...!editable ? { disabled: true } : {},
-    children: ["true", "false"].concat(val === "unset" ? [val] : []).map((v) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, {
-      value: v,
-      children: import_i18next2.default.t("types." + v)
-    }, v))
-  });
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+    import_material.TextField,
+    {
+      variant: "standard",
+      select: true,
+      style: { padding: "1px", minWidth: "250px" },
+      label,
+      value: val,
+      InputLabelProps: { shrink: true },
+      onChange: (e) => {
+        if (e.target.value != "-")
+          changeCallback(e.target.value);
+      },
+      ...!editable ? { disabled: true } : {},
+      children: ["true", "false"].concat(val === "unset" ? [val] : []).map((v) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, { value: v, children: t("types." + v) }, v))
+    }
+  );
 };
 var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, hasNoOtherValue, index, globalError }) => {
+  const { t } = (0, import_react_i18next2.useTranslation)();
   const dt = property.datatype;
   const minInclusive = property.minInclusive;
   const maxInclusive = property.maxInclusive;
@@ -3061,17 +3087,17 @@ var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, ha
     if (globalError) {
       err = globalError;
     } else if (hasNoOtherValue && val === "") {
-      err = import_i18next2.default.t("error.empty");
+      err = t("error.empty");
     } else if (val !== void 0 && val !== "") {
       const valueInt = parseInt(val);
       if (minInclusive && minInclusive > valueInt) {
-        err = import_i18next2.default.t("error.superiorTo", { val: minInclusive });
+        err = t("error.superiorTo", { val: minInclusive });
       } else if (maxInclusive && maxInclusive < valueInt) {
-        err = import_i18next2.default.t("error.inferiorTo", { val: maxInclusive });
+        err = t("error.inferiorTo", { val: maxInclusive });
       } else if (minExclusive && minExclusive >= valueInt) {
-        err = import_i18next2.default.t("error.superiorToStrict", { val: minExclusive });
+        err = t("error.superiorToStrict", { val: minExclusive });
       } else if (maxExclusive && maxExclusive <= valueInt) {
-        err = import_i18next2.default.t("error.inferiorToStrict", { val: maxExclusive });
+        err = t("error.inferiorToStrict", { val: maxExclusive });
       }
     }
     return err;
@@ -3105,33 +3131,30 @@ var EditInt = ({ property, lit, onChange, label, editable, updateEntityState, ha
   if (dt && dt.value == xsdgYear) {
     value = value.replace(/^(-?)0+/, "$1");
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.TextField, {
-    variant: "standard",
-    label,
-    style: { width: 240 },
-    value,
-    ...error ? {
-      helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, {
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, {
-            style: { fontSize: "20px", verticalAlign: "-7px" }
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("i", {
-            children: [
-              " ",
-              error
-            ]
-          })
-        ]
-      }),
-      error: true
-    } : {},
-    type: "number",
-    InputProps: { inputProps: { min: minInclusive, max: maxInclusive } },
-    InputLabelProps: { shrink: true },
-    onChange: (e) => changeCallback(e.target.value),
-    ...!editable ? { disabled: true } : {}
-  });
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+    import_material.TextField,
+    {
+      variant: "standard",
+      label,
+      style: { width: 240 },
+      value,
+      ...error ? {
+        helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("i", { children: [
+            " ",
+            error
+          ] })
+        ] }),
+        error: true
+      } : {},
+      type: "number",
+      InputProps: { inputProps: { min: minInclusive, max: maxInclusive } },
+      InputLabelProps: { shrink: true },
+      onChange: (e) => changeCallback(e.target.value),
+      ...!editable ? { disabled: true } : {}
+    }
+  );
 };
 var xsdgYear = XSD("gYear").value;
 var rdflangString = RDF("langString").value;
@@ -3184,113 +3207,113 @@ var LiteralComponent = ({
       updateEntityState(1 /* Saved */, lit.id);
     }
   }, [undos]);
+  const { t: tr } = (0, import_react_i18next2.useTranslation)();
   const t = property.datatype;
   let edit, classN;
-  if ((t == null ? void 0 : t.value) === rdflangString) {
+  if (t?.value === rdflangString) {
     classN = "langString " + (lit.value ? "lang-" + lit.language : "");
-    edit = /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EditLangString, {
-      property,
-      lit,
-      onChange,
-      label: [
-        propLabel,
-        helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
-          title: helpMessage,
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
-            className: "help literal"
-          })
-        }, lit.id) : null
-      ],
-      ...property.uniqueLang && !isUniqueLang ? { globalError: import_i18next2.default.t("error.unique") } : {},
-      editable: editable && !property.readOnly,
-      updateEntityState,
-      entity: topEntity ? topEntity : subject,
-      index,
-      config
-    });
-  } else if ((t == null ? void 0 : t.value) === xsdgYear || t && (t == null ? void 0 : t.value) && intishTypeList.includes(t.value)) {
+    edit = /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      EditLangString,
+      {
+        property,
+        lit,
+        onChange,
+        label: [
+          propLabel,
+          helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, { title: helpMessage, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, { className: "help literal" }) }, lit.id) : null
+        ],
+        ...property.uniqueLang && !isUniqueLang ? { globalError: tr("error.unique") } : {},
+        editable: editable && !property.readOnly,
+        updateEntityState,
+        entity: topEntity ? topEntity : subject,
+        index,
+        config
+      }
+    );
+  } else if (t?.value === xsdgYear || t && t?.value && intishTypeList.includes(t.value)) {
     classN = "gYear intish";
-    edit = /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EditInt, {
-      property,
-      lit,
-      onChange,
-      label: [
-        propLabel,
-        helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
-          title: helpMessage,
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
-            className: "help literal"
-          })
-        }, lit.id) : null
-      ],
-      editable: editable && !property.readOnly,
-      updateEntityState,
-      hasNoOtherValue: property.minCount === 1 && list.length === 1,
-      index,
-      ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: import_i18next2.default.t("error.uniqueV") } : {}
-    });
-  } else if ((t == null ? void 0 : t.value) === xsdboolean) {
-    edit = /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EditBool, {
-      property,
-      lit,
-      onChange,
-      label: [
-        propLabel,
-        helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
-          title: helpMessage,
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
-            className: "help literal"
-          })
-        }, lit.id) : null
-      ],
-      editable: editable && !property.readOnly
-    });
+    edit = /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      EditInt,
+      {
+        property,
+        lit,
+        onChange,
+        label: [
+          propLabel,
+          helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, { title: helpMessage, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, { className: "help literal" }) }, lit.id) : null
+        ],
+        editable: editable && !property.readOnly,
+        updateEntityState,
+        hasNoOtherValue: property.minCount === 1 && list.length === 1,
+        index,
+        ...property.uniqueValueAmongSiblings && !isUniqueValueAmongSiblings ? { globalError: tr("error.uniqueV") } : {}
+      }
+    );
+  } else if (t?.value === xsdboolean) {
+    edit = /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      EditBool,
+      {
+        property,
+        lit,
+        onChange,
+        label: [
+          propLabel,
+          helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, { title: helpMessage, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, { className: "help literal" }) }, lit.id) : null
+        ],
+        editable: editable && !property.readOnly
+      }
+    );
   } else {
-    edit = /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EditString, {
-      property,
-      lit,
-      onChange,
-      label: [
-        propLabel,
-        helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
-          title: helpMessage,
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
-            className: "help literal"
-          })
-        }, lit.id) : null
-      ],
-      editable: editable && !property.readOnly,
-      updateEntityState,
-      entity: subject,
-      index,
-      config
-    });
+    edit = /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      EditString,
+      {
+        property,
+        lit,
+        onChange,
+        label: [
+          propLabel,
+          helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, { title: helpMessage, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, { className: "help literal" }) }, lit.id) : null
+        ],
+        editable: editable && !property.readOnly,
+        updateEntityState,
+        entity: subject,
+        index,
+        config
+      }
+    );
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-      className: classN,
-      style: { display: "flex", alignItems: "flex-end" },
-      children: [
-        edit,
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-          className: "hoverPart",
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-              className: "btn btn-link ml-2 px-0 py-0 close-facet-btn",
-              onClick: deleteItem,
-              ...!canDel ? { disabled: true } : {},
-              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.RemoveCircleOutline, {
-                className: "my-0 close-facet-btn"
-              })
-            }),
-            create
-          ]
-        })
-      ]
-    })
-  });
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: classN, style: {
+    display: "flex",
+    alignItems: "flex-end"
+    /*, width: "100%"*/
+  }, children: [
+    edit,
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hoverPart", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "button",
+        {
+          className: "btn btn-link ml-2 px-0 py-0 close-facet-btn",
+          onClick: deleteItem,
+          ...!canDel ? { disabled: true } : {},
+          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.RemoveCircleOutline, { className: "my-0 close-facet-btn" })
+        }
+      ),
+      create
+    ] })
+  ] }) });
 };
-var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity, updateEntityState, shape, config }) => {
+var FacetComponent = ({
+  subNode,
+  subject,
+  property,
+  canDel,
+  /*force,*/
+  editable,
+  topEntity,
+  updateEntityState,
+  shape,
+  config
+}) => {
   if (property.path == null)
     throw "can't find path of " + property.qname;
   const [list, setList] = (0, import_recoil4.useRecoilState)(subject.getAtomForProperty(property.path.sparqlString));
@@ -3334,84 +3357,68 @@ var FacetComponent = ({ subNode, subject, property, canDel, editable, topEntity,
   if (edit === subject.qname + " " + property.qname + " " + subNode.qname || edit.startsWith(subNode.qname + " ") || edit.endsWith(" " + subject.qname)) {
     editClass = "edit";
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+  const { t } = (0, import_react_i18next2.useTranslation)();
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+    "div",
+    {
       className: "facet " + editClass + " editable-" + editable + " force-" + force,
       onClick: (ev) => {
-        var _a;
         setEdit(subject.qname + " " + property.qname + " " + subNode.qname);
         const target = ev.target;
-        if (editClass || (target == null ? void 0 : target.classList) && !((_a = target == null ? void 0 : target.classList) == null ? void 0 : _a.contains("close-facet-btn"))) {
+        if (editClass || target?.classList && !target?.classList?.contains("close-facet-btn")) {
           ev.stopPropagation();
         }
       },
-      children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-        className: "card pt-2 pb-3 pr-3 mt-4 pl-2 " + (hasExtra ? "hasDisplayPriority" : ""),
-        children: [
-          targetShape.independentIdentifiers && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-            className: "internalId",
-            children: subNode.lname
-          }),
-          withoutDisplayPriority.map((p, index2) => {
-            var _a;
-            return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PropertyContainer, {
-              property: p,
-              subject: subNode,
-              embedded: true,
-              force,
-              editable: !p.readOnly,
-              owner: subject,
-              topEntity,
-              shape,
-              siblingsPath: (_a = property.path) == null ? void 0 : _a.sparqlString,
-              config
-            }, index2 + p.uri);
-          }),
-          withDisplayPriority.map((p, index2) => {
-            var _a;
-            return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PropertyContainer, {
-              property: p,
-              subject: subNode,
-              embedded: true,
-              force,
-              editable: !p.readOnly,
-              owner: subject,
-              topEntity,
-              shape,
-              siblingsPath: (_a = property.path) == null ? void 0 : _a.sparqlString,
-              config
-            }, index2 + p.uri);
-          }),
-          hasExtra && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-            className: "toggle-btn btn btn-rouge mt-4",
-            onClick: toggleExtra,
-            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-              children: import_i18next2.default.t("general.toggle", { show: force ? import_i18next2.default.t("general.hide") : import_i18next2.default.t("general.show") })
-            })
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-            className: "close-btn",
-            children: [
-              targetShape.description && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
-                title: ValueByLangToStrPrefLang(targetShape.description, uiLang),
-                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
-                  className: "help"
-                })
-              }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-                className: "btn btn-link ml-2 px-0 close-facet-btn py-0",
-                onClick: deleteItem,
-                ...!canDel ? { disabled: true } : {},
-                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Close, {
-                  className: "close-facet-btn my-1"
-                })
-              })
-            ]
-          })
-        ]
-      })
-    })
-  });
+      children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card pt-2 pb-3 pr-3 mt-4 pl-2 " + (hasExtra ? "hasDisplayPriority" : ""), children: [
+        targetShape.independentIdentifiers && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "internalId", children: subNode.lname }),
+        withoutDisplayPriority.map((p, index2) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          PropertyContainer,
+          {
+            property: p,
+            subject: subNode,
+            embedded: true,
+            force,
+            editable: !p.readOnly,
+            owner: subject,
+            topEntity,
+            shape,
+            siblingsPath: property.path?.sparqlString,
+            config
+          },
+          index2 + p.uri
+        )),
+        withDisplayPriority.map((p, index2) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          PropertyContainer,
+          {
+            property: p,
+            subject: subNode,
+            embedded: true,
+            force,
+            editable: !p.readOnly,
+            owner: subject,
+            topEntity,
+            shape,
+            siblingsPath: property.path?.sparqlString,
+            config
+          },
+          index2 + p.uri
+        )),
+        hasExtra && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "toggle-btn btn btn-rouge mt-4", onClick: toggleExtra, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: t("general.toggle", { show: force ? t("general.hide") : t("general.show") }) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "close-btn", children: [
+          targetShape.description && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, { title: ValueByLangToStrPrefLang(targetShape.description, uiLang), children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, { className: "help" }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "button",
+            {
+              className: "btn btn-link ml-2 px-0 close-facet-btn py-0",
+              onClick: deleteItem,
+              ...!canDel ? { disabled: true } : {},
+              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Close, { className: "close-facet-btn my-1" })
+            }
+          )
+        ] })
+      ] })
+    }
+  ) });
 };
 var ExtEntityComponent = ({
   extRes,
@@ -3443,22 +3450,22 @@ var ExtEntityComponent = ({
     setList(newList);
   };
   const [error, setError] = (0, import_react2.useState)("");
+  const { t } = (0, import_react_i18next2.useTranslation)();
   (0, import_react2.useEffect)(() => {
     let newError;
     const nonEmptyList = list.filter((e) => e instanceof RDFResource && e.uri !== "tmp:uri");
     if (property.minCount && nonEmptyList.length < property.minCount) {
-      newError = import_i18next2.default.t("error.minC", { count: property.minCount });
+      newError = t("error.minC", { count: property.minCount });
     } else if (property.maxCount && nonEmptyList.length > property.maxCount) {
-      newError = import_i18next2.default.t("error.maxC", { count: property.maxCount });
+      newError = t("error.maxC", { count: property.maxCount });
     } else
       newError = "";
     setError(newError);
     updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, property.qname);
   }, [list]);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-    className: "extEntity" + (extRes.uri === "tmp:uri" ? " new" : ""),
-    style: { position: "relative" },
-    children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "extEntity" + (extRes.uri === "tmp:uri" ? " new" : ""), style: { position: "relative" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+    "div",
+    {
       style: {
         ...extRes.uri !== "tmp:uri" ? {
           display: "inline-flex",
@@ -3474,30 +3481,28 @@ var ExtEntityComponent = ({
       },
       ...extRes.uri !== "tmp:uri" ? { className: "px-2 py-1 mr-2 mt-2 card" } : {},
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(config.resourceSelector, {
-          value: extRes,
-          onChange,
-          property,
-          idx,
-          exists,
-          subject,
-          editable,
-          ...owner ? { owner } : {},
-          title,
-          globalError: error,
-          updateEntityState,
-          shape,
-          config
-        }),
-        extRes.uri !== "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-          className: "btn btn-link ml-2 px-0",
-          onClick: deleteItem,
-          ...!canDel ? { disabled: true } : {},
-          children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.RemoveCircleOutline, {}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Close, {})
-        })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          config.resourceSelector,
+          {
+            value: extRes,
+            onChange,
+            property,
+            idx,
+            exists,
+            subject,
+            editable,
+            ...owner ? { owner } : {},
+            title,
+            globalError: error,
+            updateEntityState,
+            shape,
+            config
+          }
+        ),
+        extRes.uri !== "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-link ml-2 px-0", onClick: deleteItem, ...!canDel ? { disabled: true } : {}, children: extRes.uri === "tmp:uri" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.RemoveCircleOutline, {}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Close, {}) })
       ]
-    })
-  });
+    }
+  ) });
 };
 var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectIdx, editable, create, updateEntityState }) => {
   if (property.path == null)
@@ -3548,112 +3553,91 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
   if (possibleValues.length == 1 && list.length == 0) {
     setList([possibleValues[0]]);
   }
+  const { t } = (0, import_react_i18next2.useTranslation)();
   const [error, setError] = (0, import_react2.useState)("");
-  const valueNotInList = !possibleValues.some((pv) => pv.id === (val == null ? void 0 : val.id));
+  const valueNotInList = !possibleValues.some((pv) => pv.id === val?.id);
   (0, import_react2.useEffect)(() => {
-    var _a, _b;
     if (valueNotInList) {
-      setError("" + import_i18next2.default.t("error.select", { val: val == null ? void 0 : val.value }));
-      updateEntityState(0 /* Error */, ((_a = property.path) == null ? void 0 : _a.sparqlString) + "_" + selectIdx);
+      setError("" + t("error.select", { val: val?.value }));
+      updateEntityState(0 /* Error */, property.path?.sparqlString + "_" + selectIdx);
     } else {
-      updateEntityState(1 /* Saved */, ((_b = property.path) == null ? void 0 : _b.sparqlString) + "_" + selectIdx);
+      updateEntityState(1 /* Saved */, property.path?.sparqlString + "_" + selectIdx);
     }
   }, [valueNotInList]);
   (0, import_react2.useEffect)(() => {
     return () => {
-      var _a, _b;
-      const inOtherEntity = !window.location.href.includes("/" + ((_a = entities[entity]) == null ? void 0 : _a.subjectQname) + "/");
+      const inOtherEntity = !window.location.href.includes("/" + entities[entity]?.subjectQname + "/");
       if (!inOtherEntity)
-        updateEntityState(1 /* Saved */, ((_b = property.path) == null ? void 0 : _b.sparqlString) + "_" + selectIdx, false, !inOtherEntity);
+        updateEntityState(1 /* Saved */, property.path?.sparqlString + "_" + selectIdx, false, !inOtherEntity);
     };
   }, []);
   if (possibleValues.length > 1 || error) {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {
-      children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-        className: "resSelect",
-        style: { display: "inline-flex", alignItems: "flex-end" },
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_material.TextField, {
-            variant: "standard",
-            select: true,
-            className: "selector mr-2",
-            value: val == null ? void 0 : val.id,
-            style: { padding: "1px", minWidth: "250px" },
-            onChange,
-            label: [
-              propLabel,
-              helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
-                title: helpMessage,
-                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, {
-                  className: "help"
-                })
-              }, "tooltip_" + selectIdx + "_" + index) : null
-            ],
-            ...error ? {
-              helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, {
-                children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, {
-                    style: { fontSize: "20px", verticalAlign: "-7px" }
-                  }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("i", {
-                    children: [
-                      " ",
-                      error
-                    ]
-                  })
-                ]
-              }),
-              error: true
-            } : {},
-            ...!editable ? { disabled: true } : {},
-            children: [
-              possibleValues.map((v, k) => {
-                if (v instanceof RDFResourceWithLabel) {
-                  const r = v;
-                  const label = ValueByLangToStrPrefLang(r.prefLabels, uiLitLang);
-                  const span = /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-                    children: label ? label : r.lname
-                  });
-                  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, {
-                    value: r.id,
-                    className: "withDescription",
-                    children: r.description ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, {
-                      title: ValueByLangToStrPrefLang(r.description, uiLitLang),
-                      children: span
-                    }) : span
-                  }, "menu-uri_" + selectIdx + r.id);
-                } else {
-                  const l = v;
-                  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "resSelect", style: { display: "inline-flex", alignItems: "flex-end" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+        import_material.TextField,
+        {
+          variant: "standard",
+          select: true,
+          className: "selector mr-2",
+          value: val?.id,
+          style: { padding: "1px", minWidth: "250px" },
+          onChange,
+          label: [
+            propLabel,
+            // ? propLabel : "[unlabelled]",
+            helpMessage ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, { title: helpMessage, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Help, { className: "help" }) }, "tooltip_" + selectIdx + "_" + index) : null
+          ],
+          ...error ? {
+            helperText: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react2.default.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.Error, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("i", { children: [
+                " ",
+                error
+              ] })
+            ] }),
+            error: true
+          } : {},
+          ...!editable ? { disabled: true } : {},
+          children: [
+            possibleValues.map((v, k) => {
+              if (v instanceof RDFResourceWithLabel) {
+                const r = v;
+                const label = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
+                const span = /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: label ? label : r.qname });
+                return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, { value: r.id, className: "withDescription", children: r.description ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.Tooltip, { title: ValueByLangToStrPrefLang(r.description, uiLang), children: span }) : span }, "menu-uri_" + selectIdx + r.id);
+              } else {
+                const l = v;
+                return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  import_material.MenuItem,
+                  {
                     value: l.id,
                     className: "withDescription",
                     children: l.value
-                  }, "menu-lit_" + selectIdx + l.id + "_" + index + "_" + k);
-                }
-              }),
-              valueNotInList && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_material.MenuItem, {
-                value: val == null ? void 0 : val.id,
+                  },
+                  "menu-lit_" + selectIdx + l.id + "_" + index + "_" + k
+                );
+              }
+            }),
+            valueNotInList && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              import_material.MenuItem,
+              {
+                value: val?.id,
                 className: "withDescription",
                 style: { color: "red" },
                 disabled: true,
-                children: val == null ? void 0 : val.value
-              }, "extra-val-id")
-            ]
-          }, "textfield_" + selectIdx + "_" + index),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-            className: "hoverPart",
-            children: [
-              canDel && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-                className: "btn btn-link mx-0 px-0 py-0",
-                onClick: deleteItem,
-                children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.RemoveCircleOutline, {})
-              }),
-              create
-            ]
-          })
-        ]
-      })
-    });
+                children: val?.value
+              },
+              "extra-val-id"
+            )
+          ]
+        },
+        "textfield_" + selectIdx + "_" + index
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hoverPart", children: [
+        canDel && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "btn btn-link mx-0 px-0 py-0", onClick: deleteItem, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_material.RemoveCircleOutline, {}) }),
+        create
+      ] })
+    ] }) });
   }
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, {});
 };
@@ -3661,7 +3645,6 @@ var SelectComponent = ({ res, subject, property, canDel, canSelectNone, selectId
 // src/containers/PropertyGroupContainer.tsx
 var import_icons_material2 = require("@mui/icons-material");
 var import_recoil5 = require("recoil");
-var import_i18next3 = __toESM(require("i18next"));
 var import_react_leaflet = require("react-leaflet");
 var import_react_leaflet_google_layer = __toESM(require("react-leaflet-google-layer"));
 var import_leaflet_geosearch = require("leaflet-geosearch");
@@ -3669,15 +3652,20 @@ var import_leaflet = __toESM(require("leaflet"));
 var import_leaflet2 = require("leaflet/dist/leaflet.css");
 var import_geosearch = require("leaflet-geosearch/dist/geosearch.css");
 var import_debug8 = require("debug");
+var import_react_i18next3 = require("react-i18next");
 var import_jsx_runtime2 = require("react/jsx-runtime");
 var debug8 = (0, import_debug8.debug)("rde:entity:propertygroup");
 var redIcon = new import_leaflet.default.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
   iconSize: [25, 41],
+  // eslint-disable-line no-magic-numbers
   iconAnchor: [12, 41],
+  // eslint-disable-line no-magic-numbers
   popupAnchor: [1, -34],
+  // eslint-disable-line no-magic-numbers
   shadowSize: [41, 41]
+  // eslint-disable-line no-magic-numbers
 });
 function DraggableMarker({
   pos,
@@ -3703,13 +3691,7 @@ function DraggableMarker({
       markerRef.current.setLatLng(pos);
     }
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.Marker, {
-    draggable: true,
-    eventHandlers,
-    position,
-    icon,
-    ref: markerRef
-  });
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.Marker, { draggable: true, eventHandlers, position, icon, ref: markerRef });
 }
 var MapEventHandler = ({
   coords,
@@ -3747,12 +3729,12 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
   const [uiLang] = (0, import_recoil5.useRecoilState)(uiLangState);
   const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
   const [force, setForce] = (0, import_react3.useState)(false);
+  const { t } = (0, import_react_i18next3.useTranslation)();
   const withDisplayPriority = [], withoutDisplayPriority = [];
   const errorKeys = Object.keys(errors[subject.qname] ? errors[subject.qname] : {});
   let hasError = false;
   group.properties.map((property) => {
-    var _a;
-    if (!hasError && errorKeys.some((k) => k.includes(property.qname)) || ((_a = property.targetShape) == null ? void 0 : _a.properties.some((p) => errorKeys.some((k) => k.includes(p.qname))))) {
+    if (!hasError && errorKeys.some((k) => k.includes(property.qname)) || property.targetShape?.properties.some((p) => errorKeys.some((k) => k.includes(p.qname)))) {
       hasError = true;
     }
     if (property.displayPriority && property.displayPriority >= 1) {
@@ -3796,17 +3778,16 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
         setLng([new LiteralWithId("" + val.lat)]);
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
-    role: "main",
-    className: "group " + (hasError ? "hasError" : ""),
-    id: group.qname,
-    style: { scrollMargin: "90px" },
-    children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("section", {
-      className: "album",
-      children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
-        className: "container col-lg-6 col-md-6 col-sm-12",
-        style: { border: "dashed 1px none" },
-        children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+    "div",
+    {
+      role: "main",
+      className: "group " + (hasError ? "hasError" : ""),
+      id: group.qname,
+      style: { scrollMargin: "90px" },
+      children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("section", { className: "album", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "container col-lg-6 col-md-6 col-sm-12", style: { border: "dashed 1px none" }, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+        "div",
+        {
           className: "row card my-2 pb-3" + (edit === group.qname ? " group-edit" : "") + " show-displayPriority-" + force,
           onClick: (e) => {
             if (onGroupOpen && groupEd !== group.qname)
@@ -3815,114 +3796,57 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
             setGroupEd(group.qname);
           },
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", {
-              className: "",
-              children: [
-                label,
-                hasError && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_material2.Error, {})
-              ]
-            }),
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {
-              children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", {
-                className: group.properties.length <= 1 ? "hidePropLabel" : "",
-                style: { fontSize: 0 },
-                children: [
-                  withoutDisplayPriority.map((property, index) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(PropertyContainer, {
-                    property,
-                    subject,
-                    editable: property.readOnly !== true,
-                    shape,
-                    config
-                  }, index)),
-                  withDisplayPriority.map((property, index) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(PropertyContainer, {
-                    property,
-                    subject,
-                    force,
-                    editable: property.readOnly !== true,
-                    shape,
-                    config
-                  }, index)),
-                  config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri && groupEd === group.qname && coords && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", {
-                    style: { position: "relative", overflow: "hidden", marginTop: "16px" },
-                    children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_react_leaflet.MapContainer, {
-                      style: { width: "100%", height: "400px" },
-                      zoom,
-                      center: coords,
-                      children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_react_leaflet.LayersControl, {
-                          position: "topright",
-                          children: [
-                            config.googleMapsAPIKey && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, {
-                              children: [
-                                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.LayersControl.BaseLayer, {
-                                  checked: true,
-                                  name: "Satellite+Roadmap",
-                                  children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet_google_layer.default, {
-                                    apiKey: config.googleMapsAPIKey,
-                                    type: "hybrid"
-                                  })
-                                }),
-                                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.LayersControl.BaseLayer, {
-                                  name: "Satellite",
-                                  children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet_google_layer.default, {
-                                    apiKey: config.googleMapsAPIKey,
-                                    type: "satellite"
-                                  })
-                                }),
-                                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.LayersControl.BaseLayer, {
-                                  name: "Roadmap",
-                                  children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet_google_layer.default, {
-                                    apiKey: config.googleMapsAPIKey,
-                                    type: "roadmap"
-                                  })
-                                }),
-                                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.LayersControl.BaseLayer, {
-                                  name: "Terrain",
-                                  children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet_google_layer.default, {
-                                    apiKey: config.googleMapsAPIKey,
-                                    type: "terrain"
-                                  })
-                                })
-                              ]
-                            }),
-                            !config.googleMapsAPIKey && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.LayersControl.BaseLayer, {
-                              checked: true,
-                              name: "OpenStreetMap",
-                              children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.TileLayer, {
-                                url: "https://{s}.tile.iosb.fraunhofer.de/tiles/osmde/{z}/{x}/{y}.png"
-                              })
-                            })
-                          ]
-                        }),
-                        !unset && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(DraggableMarker, {
-                          pos: coords,
-                          icon: redIcon,
-                          setCoords
-                        }),
-                        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(MapEventHandler, {
-                          coords,
-                          redraw,
-                          setCoords,
-                          config
-                        })
-                      ]
-                    })
-                  }),
-                  hasExtra && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", {
-                    className: "toggle-btn  btn btn-rouge my-4",
-                    onClick: toggleExtra,
-                    children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, {
-                      children: import_i18next3.default.t("general.toggle", { show: force ? import_i18next3.default.t("general.hide") : import_i18next3.default.t("general.show") })
-                    })
-                  })
-                ]
-              })
-            })
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("p", { className: "", children: [
+              label,
+              hasError && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_material2.Error, {})
+            ] }),
+            //groupEd === group.qname && ( // WIP, good idea but breaks undo initialization
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: group.properties.length <= 1 ? "hidePropLabel" : "", style: { fontSize: 0 }, children: [
+              withoutDisplayPriority.map((property, index) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                PropertyContainer,
+                {
+                  property,
+                  subject,
+                  editable: property.readOnly !== true,
+                  shape,
+                  config
+                },
+                index
+              )),
+              withDisplayPriority.map((property, index) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                PropertyContainer,
+                {
+                  property,
+                  subject,
+                  force,
+                  editable: property.readOnly !== true,
+                  shape,
+                  config
+                },
+                index
+              )),
+              config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri && groupEd === group.qname && // to force updating map when switching between two place entities
+              coords && // TODO: add a property in shape to enable this instead
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { position: "relative", overflow: "hidden", marginTop: "16px" }, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_react_leaflet.MapContainer, { style: { width: "100%", height: "400px" }, zoom, center: coords, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_react_leaflet.LayersControl, { position: "topright", children: [
+                  config.googleMapsAPIKey && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.LayersControl.BaseLayer, { checked: true, name: "Satellite+Roadmap", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet_google_layer.default, { apiKey: config.googleMapsAPIKey, type: "hybrid" }) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.LayersControl.BaseLayer, { name: "Satellite", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet_google_layer.default, { apiKey: config.googleMapsAPIKey, type: "satellite" }) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.LayersControl.BaseLayer, { name: "Roadmap", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet_google_layer.default, { apiKey: config.googleMapsAPIKey, type: "roadmap" }) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.LayersControl.BaseLayer, { name: "Terrain", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet_google_layer.default, { apiKey: config.googleMapsAPIKey, type: "terrain" }) })
+                  ] }),
+                  !config.googleMapsAPIKey && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.LayersControl.BaseLayer, { checked: true, name: "OpenStreetMap", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_leaflet.TileLayer, { url: "https://{s}.tile.iosb.fraunhofer.de/tiles/osmde/{z}/{x}/{y}.png" }) })
+                ] }),
+                !unset && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(DraggableMarker, { pos: coords, icon: redIcon, setCoords }),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(MapEventHandler, { coords, redraw, setCoords, config })
+              ] }) }),
+              hasExtra && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "toggle-btn  btn btn-rouge my-4", onClick: toggleExtra, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: t("general.toggle", { show: force ? t("general.hide") : t("general.show") }) }) })
+            ] }) })
           ]
-        })
-      })
-    })
-  });
+        }
+      ) }) })
+    }
+  );
 };
 var PropertyGroupContainer_default = PropertyGroupContainer;
 
@@ -3934,6 +3858,7 @@ var import_react_router_hash_link = require("react-router-hash-link");
 var import_query_string = __toESM(require("query-string"));
 var import_react_router = require("react-router");
 var import_debug9 = require("debug");
+var import_react_i18next4 = require("react-i18next");
 var import_jsx_runtime3 = require("react/jsx-runtime");
 var debug9 = (0, import_debug9.debug)("rde:entity:edit");
 function replaceItemAtIndex2(arr, index, newValue) {
@@ -3953,7 +3878,6 @@ function EntityEditContainerMayUpdate(props) {
   const [subject, setSubject] = (0, import_react4.useState)(null);
   const { copy } = import_query_string.default.parse(location.search, { decode: false });
   (0, import_react4.useEffect)(() => {
-    var _a;
     const i = entities.findIndex((e) => e.subjectQname === subjectQname);
     let subj;
     if (i === -1)
@@ -3964,7 +3888,7 @@ function EntityEditContainerMayUpdate(props) {
         props.config.prefixMap.uriFromQname(subnodeQname)
       );
       if (pp.length > 1 && i >= 0) {
-        const atom3 = (_a = entities[i].subject) == null ? void 0 : _a.getAtomForProperty(pp[1]);
+        const atom3 = entities[i].subject?.getAtomForProperty(pp[1]);
         if (!atom3) {
           setSubject(null);
           return;
@@ -3986,23 +3910,23 @@ function EntityEditContainerMayUpdate(props) {
   }, []);
   if (subject && propertyQname && entityQname && index) {
     const propsForCall = { ...props, copy };
-    return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(EntityEditContainerDoUpdate, {
-      subject,
-      propertyQname,
-      objectQname: entityQname,
-      index: Number(index),
-      copy,
-      ...props
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+      EntityEditContainerDoUpdate,
+      {
+        subject,
+        propertyQname,
+        objectQname: entityQname,
+        index: Number(index),
+        copy,
+        ...props
+      }
+    );
   } else if (subject != null)
-    return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_router_dom.Navigate, {
-      to: "/edit/" + entityQname + "/" + shapeQname
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_router_dom.Navigate, { to: "/edit/" + entityQname + "/" + shapeQname });
   else
     return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {});
 }
 function EntityEditContainerDoUpdate(props) {
-  var _a;
   const config = props.config;
   const params = (0, import_react_router.useParams)();
   const shapeQname = params.shapeQname;
@@ -4010,7 +3934,7 @@ function EntityEditContainerDoUpdate(props) {
   const [list, setList] = (0, import_recoil6.useRecoilState)(atom3);
   const [entities, setEntities] = (0, import_recoil6.useRecoilState)(entitiesAtom);
   const i = entities.findIndex((e) => e.subjectQname === props.objectQname);
-  const subject = (_a = entities[i]) == null ? void 0 : _a.subject;
+  const subject = entities[i]?.subject;
   let copy = null;
   if (props.copy && typeof props.copy === "string") {
     copy = props.copy.split(";").reduce((acc, p) => {
@@ -4047,16 +3971,14 @@ function EntityEditContainerDoUpdate(props) {
     const newList = replaceItemAtIndex2(list, props.index, newObject);
     setList(newList);
   }, []);
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_router_dom.Navigate, {
-    to: "/edit/" + props.objectQname + "/" + shapeQname
-  });
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_router_dom.Navigate, { to: "/edit/" + props.objectQname + "/" + shapeQname });
 }
 function EntityEditContainer(props) {
-  var _a, _b, _c, _d, _e, _f;
   const config = props.config;
   const params = (0, import_react_router.useParams)();
-  const shapeQname = params.shapeQname || "";
-  const entityQname = params.entityQname || "";
+  const { t } = (0, import_react_i18next4.useTranslation)();
+  const shapeQname = props.shapeQname || params.shapeQname || "";
+  const entityQname = props.entityQname || params.entityQname || "";
   const [entities, setEntities] = (0, import_recoil6.useRecoilState)(entitiesAtom);
   const [uiLang] = (0, import_recoil6.useRecoilState)(uiLangState);
   const [edit, setEdit] = (0, import_recoil6.useRecoilState)(uiEditState);
@@ -4068,7 +3990,7 @@ function EntityEditContainer(props) {
   );
   const icon = config.iconFromEntity(entityObj.length ? entityObj[0] : null);
   const { loadingState, shape } = ShapeFetcher(shapeQname, entityQname, config);
-  const canPushPrefLabelGroups = shape == null ? void 0 : shape.groups.reduce(
+  const canPushPrefLabelGroups = shape?.groups.reduce(
     (acc, group) => {
       const _props = group.properties.filter((p) => p.allowPushToTopLevelLabel).map((p) => {
         if (entityObj && entityObj[0] && entityObj[0].subject && p.path)
@@ -4076,12 +3998,8 @@ function EntityEditContainer(props) {
       }).filter((a) => a != void 0);
       const subprops = group.properties.reduce(
         (accG, p) => {
-          var _a2;
-          const allowPush = (_a2 = p.targetShape) == null ? void 0 : _a2.properties.filter((s) => s.allowPushToTopLevelLabel).map((s) => {
-            var _a3;
-            return (_a3 = s.path) == null ? void 0 : _a3.sparqlString;
-          });
-          if ((allowPush == null ? void 0 : allowPush.length) && entityObj && entityObj[0] && entityObj[0].subject && p.path)
+          const allowPush = p.targetShape?.properties.filter((s) => s.allowPushToTopLevelLabel).map((s) => s.path?.sparqlString);
+          if (allowPush?.length && entityObj && entityObj[0] && entityObj[0].subject && p.path)
             return {
               ...accG,
               [p.qname]: { atom: entityObj[0].subject.getAtomForProperty(p.path.sparqlString), allowPush }
@@ -4090,7 +4008,7 @@ function EntityEditContainer(props) {
         },
         {}
       );
-      if ((_props == null ? void 0 : _props.length) || Object.keys(subprops).length)
+      if (_props?.length || Object.keys(subprops).length)
         return { ...acc, [group.qname]: { props: _props, subprops } };
       return { ...acc };
     },
@@ -4099,15 +4017,14 @@ function EntityEditContainer(props) {
   const possiblePrefLabels = (0, import_recoil6.useRecoilValue)(
     canPushPrefLabelGroups ? possiblePrefLabelsSelector({ canPushPrefLabelGroups }) : initMapAtom
   );
-  let prefLabelAtom = (_b = (_a = entityObj[0]) == null ? void 0 : _a.subject) == null ? void 0 : _b.getAtomForProperty(SKOS("prefLabel").value);
+  let prefLabelAtom = entityObj[0]?.subject?.getAtomForProperty(SKOS("prefLabel").value);
   if (!prefLabelAtom)
     prefLabelAtom = initListAtom;
   const [prefLabels, setPrefLabels] = (0, import_recoil6.useRecoilState)(prefLabelAtom);
-  let altLabelAtom = (_d = (_c = entityObj[0]) == null ? void 0 : _c.subject) == null ? void 0 : _d.getAtomForProperty(SKOS("altLabel").value);
+  let altLabelAtom = entityObj[0]?.subject?.getAtomForProperty(SKOS("altLabel").value);
   if (!altLabelAtom)
     altLabelAtom = initListAtom;
   const altLabels = (0, import_recoil6.useRecoilValue)(altLabelAtom);
-  debug9("EntityEditContainer:", entityQname, shapeQname, history, shape, loadingState);
   (0, import_react4.useEffect)(() => {
     entities.map((e, i) => {
       if (e.subjectQname === entityQname) {
@@ -4142,19 +4059,17 @@ function EntityEditContainer(props) {
   const save = (0, import_react4.useCallback)(
     (obj) => {
       return new Promise(async (resolve) => {
-        var _a2, _b2, _c2;
-        if ([2 /* NeedsSaving */, 0 /* Error */].includes((_a2 = obj[0]) == null ? void 0 : _a2.state)) {
+        if ([2 /* NeedsSaving */, 0 /* Error */].includes(obj[0]?.state)) {
           const defaultRef = new rdf6.NamedNode(rdf6.Store.defaultGraphURI);
           const store = new rdf6.Store();
           props.config.prefixMap.setDefaultPrefixes(store);
-          (_c2 = (_b2 = obj[0]) == null ? void 0 : _b2.subject) == null ? void 0 : _c2.graph.addNewValuestoStore(store);
+          obj[0]?.subject?.graph.addNewValuestoStore(store);
           rdf6.serialize(defaultRef, store, void 0, "text/turtle", async function(err, str) {
-            var _a3;
             if (err || !str) {
               debug9(err, store);
               throw "error when serializing";
             }
-            const shape2 = (_a3 = obj[0]) == null ? void 0 : _a3.shapeQname;
+            const shape2 = obj[0]?.shapeQname;
             config.setUserLocalEntity(
               obj[0].subjectQname,
               shape2,
@@ -4172,9 +4087,8 @@ function EntityEditContainer(props) {
   );
   const entityObjRef = (0, import_react4.useRef)(entityObj);
   (0, import_react4.useEffect)(() => {
-    var _a2, _b2, _c2;
-    if (((_a2 = entityObjRef.current) == null ? void 0 : _a2.length) && (entityObj == null ? void 0 : entityObj.length)) {
-      if (((_b2 = entityObjRef.current[0]) == null ? void 0 : _b2.subjectQname) != ((_c2 = entityObj[0]) == null ? void 0 : _c2.subjectQname)) {
+    if (entityObjRef.current?.length && entityObj?.length) {
+      if (entityObjRef.current[0]?.subjectQname != entityObj[0]?.subjectQname) {
         save(entityObjRef.current);
       }
     }
@@ -4225,42 +4139,20 @@ function EntityEditContainer(props) {
     loadingState.status === "fetched" ? true : false
   );
   if (loadingState.status === "error" || entityLoadingState.status === "error") {
-    return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("p", {
-      className: "text-center text-muted",
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_icons_material3.BrokenImage, {
-          className: "icon mr-2"
-        }),
-        loadingState.error,
-        entityLoadingState.error
-      ]
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("p", { className: "text-center text-muted", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_icons_material3.BrokenImage, { className: "icon mr-2" }),
+      loadingState.error,
+      entityLoadingState.error
+    ] });
   }
   if (loadingState.status === "fetching" || entityLoadingState.status === "fetching" || !entity || entity.isEmpty()) {
-    return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
-      children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
-        children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
-          children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
-            children: import_i18next4.default.t("types.loading")
-          })
-        })
-      })
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, { children: t("types.loading") }) }) }) });
   }
   if (!shape || !entity)
-    return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
-      children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
-        children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
-          children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
-            children: import_i18next4.default.t("types.loading")
-          })
-        })
-      })
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, { children: t("types.loading") }) }) }) });
   const shapeLabel = ValueByLangToStrPrefLang(shape.targetClassPrefLabels, uiLang);
   const checkPushNameAsPrefLabel = (e, currentGroupName) => {
-    var _a2;
-    if (possiblePrefLabels && ((_a2 = possiblePrefLabels[currentGroupName]) == null ? void 0 : _a2.length)) {
+    if (possiblePrefLabels && possiblePrefLabels[currentGroupName]?.length) {
       const newLabels = [...prefLabels];
       for (const n of possiblePrefLabels[currentGroupName]) {
         if (n instanceof LiteralWithId && !newLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language)) && !altLabels.some((l) => l instanceof LiteralWithId && sameLanguage(l.language, n.language)))
@@ -4274,89 +4166,64 @@ function EntityEditContainer(props) {
     e.stopPropagation();
   };
   const previewLink = config.getPreviewLink(entity.node);
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_react4.default.Fragment, {
-    children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
-        role: "main",
-        className: "pt-4",
-        style: { textAlign: "center" },
-        children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", {
-          className: "header " + (icon == null ? void 0 : icon.toLowerCase()),
-          ...!icon ? { "data-shape": shape.qname } : {},
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
-              className: "shape-icon"
-            }),
-            /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", {
-              children: [
-                /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h1", {
-                  children: shapeLabel
-                }),
-                /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", {
-                  children: entity.qname
-                }),
-                previewLink && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
-                  className: "buda-link",
-                  children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("a", {
-                    className: "btn-rouge" + (!((_e = entityObj[0]) == null ? void 0 : _e.etag) ? " disabled" : ""),
-                    target: "_blank",
-                    rel: "noreferrer",
-                    ...!((_f = entityObj[0]) == null ? void 0 : _f.etag) ? { title: import_i18next4.default.t("error.preview") } : { href: previewLink },
-                    children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
-                      children: import_i18next4.default.t("general.preview")
-                    })
-                  })
-                })
-              ]
-            })
-          ]
-        })
-      }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", {
-        role: "navigation",
-        className: "innerNav",
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", {
-            className: "text-uppercase small my-2",
-            children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
-              children: import_i18next4.default.t("home.nav")
-            })
-          }),
-          shape.groups.map((group, index) => {
-            const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
-            return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react_router_hash_link.HashLink, {
-              to: "#" + group.qname,
-              onClick: () => {
-                setGroupEd(group.qname);
-                setEdit(group.qname);
-              },
-              className: groupEd === group.qname ? "on" : "",
-              children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", {
-                children: label
-              })
-            }, "lk" + group.qname);
-          })
-        ]
-      }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
-        children: shape.groups.map((group, index) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_react4.default.Fragment, {
-          children: [
-            groupEd === group.qname && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", {
-              className: "group-edit-BG",
-              onClick: (e) => checkPushNameAsPrefLabel(e, group.qname)
-            }),
-            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(PropertyGroupContainer_default, {
-              group,
-              subject: entity,
-              onGroupOpen: checkPushNameAsPrefLabel,
-              shape,
-              config
-            }, "pg" + group.qname)
-          ]
-        }, "rf" + group.qname))
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_react4.default.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { role: "main", className: "pt-4", style: { textAlign: "center" }, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "header " + icon?.toLowerCase().replace(/(.*?[/])?([^/]+)\.[^.]+/, "$2"), ...!icon ? { "data-shape": shape.qname } : {}, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "shape-icon" }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h1", { children: shapeLabel }),
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { children: entity.qname }),
+        previewLink && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "buda-link", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+          "a",
+          {
+            className: "btn-rouge" + (!entityObj[0]?.etag ? " disabled" : ""),
+            target: "_blank",
+            rel: "noreferrer",
+            ...!entityObj[0]?.etag ? { title: t("error.preview") } : { href: previewLink },
+            children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, { children: t("general.preview") })
+          }
+        ) })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { role: "navigation", className: "innerNav", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { className: "text-uppercase small my-2", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, { children: t("home.nav") }) }),
+      shape.groups.map((group, index) => {
+        const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
+        return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+          import_react_router_hash_link.HashLink,
+          {
+            to: "#" + group.qname,
+            onClick: () => {
+              setGroupEd(group.qname);
+              setEdit(group.qname);
+            },
+            className: groupEd === group.qname ? "on" : "",
+            children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { children: label })
+          },
+          "lk" + group.qname
+        );
       })
-    ]
-  });
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { children: shape.groups.map((group, index) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(import_react4.default.Fragment, { children: [
+      groupEd === group.qname && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+        "div",
+        {
+          className: "group-edit-BG",
+          onClick: (e) => checkPushNameAsPrefLabel(e, group.qname)
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+        PropertyGroupContainer_default,
+        {
+          group,
+          subject: entity,
+          onGroupOpen: checkPushNameAsPrefLabel,
+          shape,
+          config
+        },
+        "pg" + group.qname
+      )
+    ] }, "rf" + group.qname)) })
+  ] });
 }
 var EntityEditContainer_default = EntityEditContainer;
 
@@ -4364,84 +4231,65 @@ var EntityEditContainer_default = EntityEditContainer;
 var import_react5 = require("react");
 var import_recoil7 = require("recoil");
 var import_react_router_dom2 = require("react-router-dom");
-var import_i18next5 = __toESM(require("i18next"));
+var import_react_i18next5 = require("react-i18next");
 var import_material2 = require("@mui/material");
+var import_debug10 = __toESM(require("debug"));
 var import_jsx_runtime4 = require("react/jsx-runtime");
+var debug10 = (0, import_debug10.default)("rde:rdf:new");
 function NewEntityContainer(props) {
   const config = props.config || {};
   const [uiLang] = (0, import_recoil7.useRecoilState)(uiLangState);
   const [RID, setRID] = (0, import_react5.useState)("");
   const navigate = (0, import_react_router_dom2.useNavigate)();
-  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", {
-    className: "new-fix",
-    children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", {
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("b", {
-            children: "New entity:"
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", {
-            children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_material2.TextField, {
-              variant: "standard",
-              select: true,
-              helperText: "List of all possible shapes",
-              id: "shapeSelec",
-              className: "shapeSelector",
-              value: config.possibleShapeRefs[0].qname,
-              style: { marginTop: "3px", marginLeft: "10px" },
-              children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_material2.MenuItem, {
-                value: shape.qname,
-                style: { padding: 0 },
-                children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_react_router_dom2.Link, {
-                  to: "/new/" + shape.qname,
-                  className: "popLink",
-                  children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang)
-                })
-              }, shape.qname))
-            })
-          })
-        ]
-      }),
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", {
-        style: { display: "flex", alignItems: "baseline" },
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", {
-            style: { marginRight: "10px" },
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("b", {
-                children: "Load entity:"
-              }),
-              " "
-            ]
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
-            children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_material2.TextField, {
-              variant: "standard",
-              style: { width: "100%" },
-              value: RID,
-              InputLabelProps: { shrink: true },
-              onChange: (e) => setRID(e.target.value),
-              helperText: "select an entity to load here by its RID",
-              onKeyDown: (event) => {
-                if (event.key === "Enter")
-                  navigate("/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase());
-              }
-            })
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", {
-            children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_react_router_dom2.Link, {
-              to: "/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase(),
-              className: "btn btn-sm btn-outline-primary py-3 ml-2 lookup btn-rouge " + (!RID ? "disabled" : ""),
-              style: { boxShadow: "none", alignSelf: "center", marginBottom: "15px" },
-              children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_jsx_runtime4.Fragment, {
-                children: import_i18next5.default.t("search.open")
-              })
-            })
-          })
-        ]
-      })
-    ]
-  });
+  const { t } = (0, import_react_i18next5.useTranslation)();
+  return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "new-fix", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("b", { children: "New entity:" }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("span", { children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+        import_material2.TextField,
+        {
+          variant: "standard",
+          select: true,
+          helperText: "List of all possible shapes",
+          id: "shapeSelec",
+          className: "shapeSelector",
+          value: config.possibleShapeRefs[0].qname,
+          style: { marginTop: "3px", marginLeft: "10px" },
+          children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_material2.MenuItem, { value: shape.qname, style: { padding: 0 }, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_react_router_dom2.Link, { to: "/new/" + shape.qname, className: "popLink", children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang) }) }, shape.qname))
+        }
+      ) })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { style: { display: "flex", alignItems: "baseline" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { style: { marginRight: "10px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("b", { children: "Load entity:" }),
+        " "
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+        import_material2.TextField,
+        {
+          variant: "standard",
+          style: { width: "100%" },
+          value: RID,
+          InputLabelProps: { shrink: true },
+          onChange: (e) => setRID(e.target.value),
+          helperText: "select an entity to load here by its RID",
+          onKeyDown: (event) => {
+            if (event.key === "Enter")
+              navigate("/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase());
+          }
+        }
+      ) }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+        import_react_router_dom2.Link,
+        {
+          to: "/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase(),
+          className: "btn btn-sm btn-outline-primary py-3 ml-2 lookup btn-rouge " + (!RID ? "disabled" : ""),
+          style: { boxShadow: "none", alignSelf: "center", marginBottom: "15px" },
+          children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_jsx_runtime4.Fragment, { children: t("search.open") })
+        }
+      ) })
+    ] })
+  ] });
 }
 var NewEntityContainer_default = NewEntityContainer;
 
@@ -4452,16 +4300,15 @@ var import_recoil8 = require("recoil");
 var import_react6 = __toESM(require("react"));
 var import_react_router_dom3 = require("react-router-dom");
 var import_material3 = require("@mui/material");
-var import_debug10 = require("debug");
+var import_debug11 = require("debug");
 var import_jsx_runtime5 = require("react/jsx-runtime");
-var debug10 = (0, import_debug10.debug)("rde:entity:dialog");
+var debug11 = (0, import_debug11.debug)("rde:entity:dialog");
 function Dialog422(props) {
-  var _a;
   const [open, setOpen] = import_react6.default.useState(props.open);
-  const shape = (_a = props.shaped.split(":")[1]) == null ? void 0 : _a.replace(/Shape$/, "");
+  const shape = props.shaped.split(":")[1]?.replace(/Shape$/, "");
   const [createNew, setCreateNew] = (0, import_react6.useState)(false);
   const [loadNamed, setLoadNamed] = (0, import_react6.useState)(false);
-  debug10("422:", props);
+  debug11("422:", props);
   const handleLoad = () => {
     setLoadNamed(true);
     setOpen(false);
@@ -4471,81 +4318,48 @@ function Dialog422(props) {
     setOpen(false);
   };
   if (createNew)
-    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_router_dom3.Navigate, {
-      to: props.newUrl
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_router_dom3.Navigate, { to: props.newUrl });
   else if (loadNamed)
-    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_router_dom3.Navigate, {
-      to: props.editUrl
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_router_dom3.Navigate, { to: props.editUrl });
   else
-    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", {
-      children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.Dialog, {
-        open,
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.DialogTitle, {
-            children: [
-              shape,
-              " ",
-              props.named,
-              " has already been created"
-            ]
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_material3.DialogContent, {
-            children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.DialogContentText, {
-              children: [
-                "Do you want to use it, or to create a new ",
-                shape,
-                " with another RID instead?"
-              ]
-            })
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.DialogActions, {
-            style: { justifyContent: "space-around" },
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.Button, {
-                className: "btn-rouge",
-                onClick: handleLoad,
-                color: "primary",
-                children: [
-                  "Use\xA0",
-                  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", {
-                    style: { textTransform: "none" },
-                    children: props.named
-                  })
-                ]
-              }),
-              /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.Button, {
-                className: "btn-rouge",
-                onClick: handleNew,
-                color: "primary",
-                children: [
-                  "Create\xA0",
-                  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", {
-                    style: { textTransform: "none" },
-                    children: shape
-                  }),
-                  "\xA0with another RID"
-                ]
-              })
-            ]
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("br", {})
-        ]
-      })
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.Dialog, { open, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.DialogTitle, { children: [
+        shape,
+        " ",
+        props.named,
+        " has already been created"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_material3.DialogContent, { children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.DialogContentText, { children: [
+        "Do you want to use it, or to create a new ",
+        shape,
+        " with another RID instead?"
+      ] }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.DialogActions, { style: { justifyContent: "space-around" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.Button, { className: "btn-rouge", onClick: handleLoad, color: "primary", children: [
+          "Use\xA0",
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { style: { textTransform: "none" }, children: props.named })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.Button, { className: "btn-rouge", onClick: handleNew, color: "primary", children: [
+          "Create\xA0",
+          /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { style: { textTransform: "none" }, children: shape }),
+          "\xA0with another RID"
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("br", {})
+    ] }) });
 }
 
 // src/containers/EntityCreationContainer.tsx
 var import_react_router_dom4 = require("react-router-dom");
 var import_react7 = require("react");
 var import_icons_material4 = require("@mui/icons-material");
-var import_i18next6 = __toESM(require("i18next"));
+var import_i18next2 = __toESM(require("i18next"));
 var import_query_string2 = __toESM(require("query-string"));
 var rdf7 = __toESM(require("rdflib"));
-var import_debug11 = require("debug");
+var import_debug12 = require("debug");
+var import_react_i18next6 = require("react-i18next");
 var import_jsx_runtime6 = require("react/jsx-runtime");
-var debug11 = (0, import_debug11.debug)("rde:entity:entitycreation");
+var debug12 = (0, import_debug12.debug)("rde:entity:entitycreation");
 function EntityCreationContainer(props) {
   const config = props.config;
   const params = (0, import_react_router_dom4.useParams)();
@@ -4556,6 +4370,7 @@ function EntityCreationContainer(props) {
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
   const location = (0, import_react_router_dom4.useLocation)();
+  const { t } = (0, import_react_i18next6.useTranslation)();
   const unmounting = { val: false };
   (0, import_react7.useEffect)(() => {
     return () => {
@@ -4568,43 +4383,25 @@ function EntityCreationContainer(props) {
   if (entityLoadingState.error === "422" && entity) {
     const editUrl = subjectQname && propertyQname && index != void 0 ? "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "") : "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname;
     const newUrl = location.pathname.replace(/\/named\/.*/, "") + location.search;
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Dialog422, {
-      open: true,
-      shaped: shapeQname,
-      named: entityQname,
-      editUrl,
-      newUrl
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Dialog422, { open: true, shaped: shapeQname, named: entityQname, editUrl, newUrl });
   } else if (entity) {
     if (subjectQname && propertyQname && index != void 0)
-      return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom4.Navigate, {
-        to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
-      });
+      return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+        import_react_router_dom4.Navigate,
+        {
+          to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
+        }
+      );
     else
-      return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom4.Navigate, {
-        to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname
-      });
+      return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom4.Navigate, { to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname });
   }
   if (entityLoadingState.status === "error") {
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("p", {
-      className: "text-center text-muted",
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_icons_material4.BrokenImage, {
-          className: "icon mr-2"
-        }),
-        entityLoadingState.error
-      ]
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("p", { className: "text-center text-muted", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_icons_material4.BrokenImage, { className: "icon mr-2" }),
+      entityLoadingState.error
+    ] });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", {
-      children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", {
-        children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, {
-          children: import_i18next6.default.t("types.creating")
-        })
-      })
-    })
-  });
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: t("types.creating") }) }) }) });
 }
 function EntityCreationContainerAlreadyOpen(props) {
   const params = (0, import_react_router_dom4.useParams)();
@@ -4621,22 +4418,15 @@ function EntityCreationContainerAlreadyOpen(props) {
     };
   }, []);
   if (subjectQname && propertyQname && index != void 0)
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom4.Navigate, {
-      to: "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+      import_react_router_dom4.Navigate,
+      {
+        to: "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
+      }
+    );
   else
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom4.Navigate, {
-      to: "/edit/" + entityQname + "/" + shapeQname
-    });
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", {
-      children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", {
-        children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, {
-          children: import_i18next6.default.t("types.loading")
-        })
-      })
-    })
-  });
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom4.Navigate, { to: "/edit/" + entityQname + "/" + shapeQname });
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: import_i18next2.default.t("types.loading") }) }) }) });
 }
 function EntityCreationContainerRoute(props) {
   const params = (0, import_react_router_dom4.useParams)();
@@ -4646,27 +4436,22 @@ function EntityCreationContainerRoute(props) {
   const location = (0, import_react_router_dom4.useLocation)();
   const { copy } = import_query_string2.default.parse(location.search, { decode: false });
   if (theEntity)
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(EntityCreationContainerAlreadyOpen, {
-      ...props,
-      copy
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(EntityCreationContainerAlreadyOpen, { ...props, copy });
   else
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(EntityCreationContainer, {
-      ...props,
-      copy
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(EntityCreationContainer, { ...props, copy });
 }
 var EntityCreationContainer_default = EntityCreationContainer;
 
 // src/containers/EntityShapeChooserContainer.tsx
 var import_react8 = require("react");
-var import_i18next7 = __toESM(require("i18next"));
+var import_i18next3 = __toESM(require("i18next"));
 var import_recoil9 = require("recoil");
 var import_react_router_dom5 = require("react-router-dom");
 var import_material4 = require("@mui/material");
-var import_debug12 = require("debug");
+var import_debug13 = require("debug");
+var import_react_i18next7 = require("react-i18next");
 var import_jsx_runtime7 = require("react/jsx-runtime");
-var debug12 = (0, import_debug12.debug)("rde:entity:shape");
+var debug13 = (0, import_debug13.debug)("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
   const config = props.config;
   const params = (0, import_react_router_dom5.useParams)();
@@ -4674,6 +4459,7 @@ function EntityShapeChooserContainer(props) {
   const [entityQname, setEntityQname] = (0, import_react8.useState)(params.entityQname || "");
   const [uiLang] = (0, import_recoil9.useRecoilState)(uiLangState);
   const [entities, setEntities] = (0, import_recoil9.useRecoilState)(entitiesAtom);
+  const { t } = (0, import_react_i18next7.useTranslation)();
   const unmounting = { val: false };
   (0, import_react8.useEffect)(() => {
     return () => {
@@ -4690,68 +4476,26 @@ function EntityShapeChooserContainer(props) {
   if (entityFromList && entityFromList.shapeQname) {
     const shapeQname = entityFromList.shapeQname;
     navigate("/edit/" + entityQname + "/" + shapeQname, { replace: true });
-    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
-      children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
-        children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-          children: import_i18next7.default.t("types.redirect")
-        })
-      })
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("types.redirect") }) }) });
   }
-  const { entityLoadingState, entity } = EntityFetcher(entityQname, "", config, unmounting);
+  const { entityLoadingState, entity } = EntityFetcher(entityQname, "", config, unmounting, true);
   if (entity) {
     const possibleShapes = config.possibleShapeRefsForEntity(entity.node);
     if (entityLoadingState.status === "fetching") {
-      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
-        children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
-          children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-            children: import_i18next7.default.t("types.loading")
-          })
-        })
-      });
+      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("types.loading") }) }) });
     } else if (entityLoadingState.error === "not found") {
-      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
-        className: "error",
-        children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", {
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", {
-              children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next7.default.t("error.exist", { id: entityQname })
-              })
-            }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Link, {
-              style: { fontWeight: 700 },
-              to: "/new",
-              children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next7.default.t("error.redirect")
-              })
-            })
-          ]
-        })
-      });
+      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "error", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("error.exist", { id: entityQname }) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Link, { style: { fontWeight: 700 }, to: "/new", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("error.redirect") }) })
+      ] }) });
     } else if (!possibleShapes) {
-      debug12("cannot find", entity, entityLoadingState);
-      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
-        className: "error",
-        children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", {
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", {
-              children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next7.default.t("error.shape", { id: entityQname })
-              })
-            }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Link, {
-              style: { fontWeight: 700 },
-              to: "/new",
-              children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-                children: import_i18next7.default.t("error.redirect")
-              })
-            })
-          ]
-        })
-      });
+      debug13("cannot find", entity, entityLoadingState);
+      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "error", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("error.shape", { id: entityQname }) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Link, { style: { fontWeight: 700 }, to: "/new", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("error.redirect") }) })
+      ] }) });
     }
     if (possibleShapes.length > 1) {
       const handleClick = (event, shape) => {
@@ -4765,57 +4509,41 @@ function EntityShapeChooserContainer(props) {
           }
         }
       };
-      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
-        className: "centered-ctn",
-        children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", {
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", {
-              children: "Choose a shape:"
-            }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_material4.TextField, {
-              variant: "standard",
-              select: true,
-              helperText: "List of all possible shapes",
-              id: "shapeSelec",
-              className: "shapeSelector",
-              value: config.possibleShapeRefs[0].qname,
-              style: { marginTop: "3px", marginLeft: "10px" },
-              children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_material4.MenuItem, {
-                value: shape.qname,
-                style: { padding: 0 },
-                children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Link, {
-                  to: "/edit/" + entityQname + "/" + shape.qname,
-                  className: "popLink",
-                  onClick: (ev) => handleClick(ev, shape),
-                  children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang)
-                })
-              }, shape.qname))
-            })
-          ]
-        })
-      });
-    } else {
-      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Navigate, {
-        to: "/edit/" + entityQname + "/" + possibleShapes[0].qname
-      });
+      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "centered-ctn", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("b", { children: "Choose a shape:" }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+          import_material4.TextField,
+          {
+            variant: "standard",
+            select: true,
+            helperText: "List of all possible shapes",
+            id: "shapeSelec",
+            className: "shapeSelector",
+            value: config.possibleShapeRefs[0]?.qname,
+            style: { marginTop: "3px", marginLeft: "10px" },
+            children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_material4.MenuItem, { value: shape.qname, style: { padding: 0 }, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+              import_react_router_dom5.Link,
+              {
+                to: "/edit/" + entityQname + "/" + shape?.qname,
+                className: "popLink",
+                onClick: (ev) => handleClick(ev, shape),
+                children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang)
+              }
+            ) }, shape.qname))
+          }
+        )
+      ] }) });
+    } else if (possibleShapes[0]?.qname) {
+      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Navigate, { to: "/edit/" + entityQname + "/" + possibleShapes[0]?.qname });
     }
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
-      children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", {
-        children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, {
-          children: import_i18next7.default.t("types.loading")
-        })
-      })
-    })
-  });
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: t("types.loading") }) }) }) });
 }
 var EntityShapeChooserContainer_default = EntityShapeChooserContainer;
 
 // src/containers/EntitySelectorContainer.tsx
 var import_react9 = require("react");
 var import_icons_material6 = require("@mui/icons-material");
-var import_i18next8 = __toESM(require("i18next"));
 var import_recoil11 = require("recoil");
 var import_react_router_dom7 = require("react-router-dom");
 var import_material6 = require("@mui/material");
@@ -4825,9 +4553,9 @@ var import_recoil10 = require("recoil");
 var import_react_router_dom6 = require("react-router-dom");
 var import_material5 = require("@mui/material");
 var import_icons_material5 = require("@mui/icons-material");
-var import_debug13 = require("debug");
+var import_debug14 = require("debug");
 var import_jsx_runtime8 = require("react/jsx-runtime");
-var debug13 = (0, import_debug13.debug)("rde:entity:selector");
+var debug14 = (0, import_debug14.debug)("rde:entity:selector");
 function a11yProps(index) {
   return {
     id: `simple-tab-${index}`,
@@ -4839,7 +4567,6 @@ var EntityInEntitySelectorContainer = ({
   index,
   config
 }) => {
-  var _a, _b, _c;
   const [uiLitLang] = (0, import_recoil10.useRecoilState)(uiLitLangState);
   const [labelValues] = (0, import_recoil10.useRecoilState)(!entity.preloadedLabel ? entity.subjectLabelState : defaultEntityLabelAtom);
   const [tab, setTab] = (0, import_recoil10.useRecoilState)(uiTabState);
@@ -4861,7 +4588,6 @@ var EntityInEntitySelectorContainer = ({
     }
   };
   const closeEntity = async (ev) => {
-    var _a2, _b2;
     ev.persist();
     if (entity.state === 2 /* NeedsSaving */ || entity.state === 0 /* Error */) {
       const go = window.confirm("unsaved data will be lost");
@@ -4871,7 +4597,7 @@ var EntityInEntitySelectorContainer = ({
     config.setUserMenuState(
       entity.subjectQname,
       shapeQname,
-      !entity.preloadedLabel ? label && ((_a2 = entity.subject) == null ? void 0 : _a2.lname) ? (_b2 = entity.subject) == null ? void 0 : _b2.lname : label : entity.preloadedLabel,
+      !entity.preloadedLabel ? label && entity.subject?.lname ? entity.subject?.lname : label : entity.preloadedLabel,
       true,
       null
     );
@@ -4899,57 +4625,46 @@ var EntityInEntitySelectorContainer = ({
   config.setUserMenuState(
     entity.subjectQname,
     shapeQname,
-    !entity.preloadedLabel ? ((_a = entity.subject) == null ? void 0 : _a.lname) ? (_b = entity.subject) == null ? void 0 : _b.lname : label : entity.preloadedLabel,
+    !entity.preloadedLabel ? entity.subject?.lname ? entity.subject?.lname : label : entity.preloadedLabel,
     false,
     entity.etag
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_material5.Tab, {
+  debug14("state:", entity.state, entity.subjectQname);
+  return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+    import_material5.Tab,
+    {
       ...a11yProps(index),
       className: index === tab ? "Mui-selected" : "",
       onClick: (e) => handleClick(e, index),
       ...disabled ? { disabled: true } : {},
-      label: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, {
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_react_router_dom6.Link, {
-            to: link,
-            children: [
-              icon && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("img", {
-                className: "entity-type",
-                src: icon
-              }),
-              /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", {
-                style: { marginLeft: 30, marginRight: "auto", textAlign: "left" },
-                children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", {
-                    children: label && label != "..." ? label : ((_c = entity.subject) == null ? void 0 : _c.lname) ? entity.subject.lname : label
-                  }),
-                  /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("br", {}),
-                  /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", {
-                    className: "RID",
-                    children: entity.subjectQname
-                  })
-                ]
-              })
-            ]
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", {
-            className: "state state-" + entity.state
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_icons_material5.Close, {
-            className: "close-facet-btn",
-            onClick: closeEntity
-          })
-        ]
-      })
-    }, entity.subjectQname)
-  });
+      label: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_react_router_dom6.Link, { to: link, children: [
+          icon && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+            "img",
+            {
+              className: "entity-type",
+              src: icon
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { style: { marginLeft: 30, marginRight: "auto", textAlign: "left" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: label && label != "..." ? label : entity.subject?.lname ? entity.subject.lname : label }),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("br", {}),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "RID", children: entity.subjectQname })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "state state-" + entity.state }),
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_icons_material5.Close, { className: "close-facet-btn", onClick: closeEntity })
+      ] })
+    },
+    entity.subjectQname
+  ) });
 };
 
 // src/containers/EntitySelectorContainer.tsx
-var import_debug14 = require("debug");
+var import_debug15 = require("debug");
+var import_react_i18next8 = require("react-i18next");
 var import_jsx_runtime9 = require("react/jsx-runtime");
-var debug14 = (0, import_debug14.debug)("rde:entity:selector");
+var debug15 = (0, import_debug15.debug)("rde:entity:selector");
 function a11yProps2(index) {
   return {
     id: `simple-tab-${index}`,
@@ -4970,6 +4685,7 @@ function EntitySelector(props) {
   const [disabled, setDisabled] = (0, import_recoil11.useRecoilState)(uiDisabledTabsState);
   const navigate = (0, import_react_router_dom7.useNavigate)();
   const location = (0, import_react_router_dom7.useLocation)();
+  const { t } = (0, import_react_i18next8.useTranslation)();
   (0, import_react9.useEffect)(() => {
     const session = config.getUserMenuState();
     session.then((entities2) => {
@@ -4993,9 +4709,9 @@ function EntitySelector(props) {
       }
       if (!sessionLoaded)
         setSessionLoaded(true);
-      if ((location == null ? void 0 : location.pathname) == "/new")
+      if (location?.pathname == "/new")
         setTab(newEntities.length);
-      if (location == null ? void 0 : location.pathname.startsWith("/edit/")) {
+      if (location?.pathname.startsWith("/edit/")) {
         const id = location.pathname.split("/")[2];
         let found = false;
         newEntities.map((e, i) => {
@@ -5008,7 +4724,7 @@ function EntitySelector(props) {
           setTab(newEntities.length);
       }
     });
-  }, [config, location]);
+  }, []);
   const closeEntities = async (ev) => {
     let warn = false;
     for (const entity of entities) {
@@ -5037,85 +4753,225 @@ function EntitySelector(props) {
     navigate("/");
     return false;
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("div", {
-    className: "tabs-select",
-    onClick: () => {
-      setEdit("");
-      setGroupEd("");
-    },
-    children: [
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", {
-        children: "Edition"
-      }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("h4", {
-        children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(
+    "div",
+    {
+      className: "tabs-select",
+      onClick: () => {
+        setEdit("");
+        setGroupEd("");
+      },
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("h3", { children: "Edition" }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("h4", { children: [
           "Open entities",
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", {
-            title: import_i18next8.default.t("general.close"),
-            children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_icons_material6.Close, {
-              className: "close-facet-btn",
-              onClick: closeEntities
-            })
-          })
-        ]
-      }),
-      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_material6.Tabs, {
-        value: tab === -1 ? false : tab,
-        onChange: handleChange,
-        "aria-label": "entities",
-        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { title: t("general.close"), children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_icons_material6.Close, { className: "close-facet-btn", onClick: closeEntities }) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_material6.Tabs, { value: tab === -1 ? false : tab, onChange: handleChange, "aria-label": "entities", children: [
           entities.map((entity, index) => {
-            return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(EntityInEntitySelectorContainer, {
-              entity,
-              index,
-              config
-            }, index);
+            return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(EntityInEntitySelectorContainer, { entity, index, config }, index);
           }),
-          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_material6.Tab, {
-            ...a11yProps2(entities.length),
-            id: "new-load",
-            label: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_react_router_dom7.Link, {
-              to: "/new",
-              className: "btn-rouge",
-              onClick: () => setDisabled(false),
-              children: "NEW / LOAD"
-            })
-          }, "new")
-        ]
-      })
-    ]
-  });
+          /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+            import_material6.Tab,
+            {
+              ...a11yProps2(entities.length),
+              id: "new-load",
+              label: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_react_router_dom7.Link, { to: "/new", className: "btn-rouge", onClick: () => setDisabled(false), children: "NEW / LOAD" })
+            },
+            "new"
+          )
+        ] })
+      ]
+    }
+  );
 }
 var EntitySelectorContainer_default = EntitySelector;
 
 // src/containers/BottomBarContainer.tsx
-var import_react10 = __toESM(require("react"));
+var import_react11 = __toESM(require("react"));
 var import_material7 = require("@mui/material");
-var import_i18next9 = __toESM(require("i18next"));
-var import_recoil12 = require("recoil");
+var import_recoil13 = require("recoil");
 var rdf8 = __toESM(require("rdflib"));
-var import_debug15 = require("debug");
+var import_debug16 = require("debug");
 var import_icons_material7 = require("@mui/icons-material");
+var import_react_i18next9 = require("react-i18next");
+
+// src/helpers/observer.tsx
+var import_react10 = require("react");
+var import_recoil12 = require("recoil");
 var import_jsx_runtime10 = require("react/jsx-runtime");
-var debug15 = (0, import_debug15.debug)("rde:BottomBarContainer");
-function BottomBarContainer(props) {
-  var _a, _b, _c, _d;
+var undoRef = null;
+var redoRef = null;
+var GotoButton = ({ label, subject, undo, setUndo, propFromParentPath }) => {
+  const entityUri = subject.uri;
+  const which = label === "UNDO" ? "prev" : "next";
+  const [list, setList] = (0, import_recoil12.useRecoilState)(
+    subject.getAtomForProperty(
+      propFromParentPath ? propFromParentPath : undo[which].parentPath.length && undo[which].parentPath[0] === entityUri ? undo[which].parentPath[1] : undo[which].propertyPath
+    )
+  );
+  const disabled = !undo[which].enabled;
+  const previousValues = (entityUri2, subjectUri, pathString, idx) => {
+    const histo = history[entityUri2], prevUndo = {
+      ...noUndoRedo,
+      next: { enabled: true, subjectUri, propertyPath: pathString, parentPath: undo[which].parentPath }
+    };
+    let vals = [];
+    if (histo && histo.length > idx) {
+      const first = histo.findIndex((h) => h["tmp:allValuesLoaded"]);
+      histo[idx]["tmp:undone"] = true;
+      for (let j = idx - 1; j >= 0; j--) {
+        if (histo[j] && histo[j][subjectUri] && histo[j][subjectUri][pathString]) {
+          vals = histo[j][subjectUri][pathString];
+          break;
+        }
+      }
+      if (first >= 0 && idx > first) {
+        const parentPath = histo[idx - 1]["tmp:parentPath"] || [];
+        for (const subj of Object.keys(histo[idx - 1])) {
+          for (const prop of Object.keys(histo[idx - 1][subj])) {
+            if (["tmp:parentPath", "tmp:undone"].includes(prop))
+              continue;
+            prevUndo.prev = { enabled: true, subjectUri: subj, propertyPath: prop, parentPath };
+            break;
+          }
+          if (prevUndo.prev.enabled)
+            break;
+        }
+      }
+    }
+    return { vals, prevUndo };
+  };
+  const nextValues = (entityUri2, subjectUri, pathString, idx) => {
+    const histo = history[entityUri2], nextUndo = {
+      ...noUndoRedo,
+      prev: { enabled: true, subjectUri, propertyPath: pathString, parentPath: undo[which].parentPath }
+    };
+    let vals = [];
+    if (histo && histo.length > idx) {
+      for (let j = idx; j < histo.length; j++) {
+        if (histo[j] && histo[j][subjectUri] && histo[j][subjectUri][pathString]) {
+          vals = histo[j][subjectUri][pathString];
+          delete histo[j]["tmp:undone"];
+          break;
+        }
+      }
+      if (idx < histo.length - 1) {
+        const parentPath = histo[idx + 1]["tmp:parentPath"] || [];
+        for (const subj of Object.keys(histo[idx + 1])) {
+          for (const prop of Object.keys(histo[idx + 1][subj])) {
+            if (["tmp:parentPath", "tmp:undone"].includes(prop))
+              continue;
+            nextUndo.next = { enabled: true, subjectUri: subj, propertyPath: prop, parentPath };
+            break;
+          }
+          if (nextUndo.next.enabled)
+            break;
+        }
+      }
+    }
+    return { vals, nextUndo };
+  };
+  const clickHandler = () => {
+    if (disabled)
+      return;
+    const entityUri2 = undo[which].parentPath.length ? undo[which].parentPath[0] : subject.uri;
+    if (entityUri2) {
+      let idx = history[entityUri2].findIndex((h) => h["tmp:undone"]) - 1 + (label === "REDO" ? 1 : 0);
+      if (idx < 0)
+        idx = history[entityUri2].length - 1;
+      if (history[entityUri2][idx]) {
+        if (label === "UNDO") {
+          const { vals, prevUndo } = previousValues(entityUri2, undo[which].subjectUri, undo[which].propertyPath, idx);
+          subject.noHisto(true);
+          setList(vals);
+          setUndo(prevUndo);
+        } else if (label === "REDO") {
+          const { vals, nextUndo } = nextValues(entityUri2, undo[which].subjectUri, undo[which].propertyPath, idx);
+          subject.noHisto(true);
+          setList(vals);
+          setUndo(nextUndo);
+        }
+      }
+    }
+  };
+  if (undo[which].parentPath.length && entityUri !== undo[which].subjectUri) {
+    const subnode = list.filter((l) => l instanceof Subject && l.uri === undo[which].subjectUri);
+    if (subnode.length) {
+      return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(GotoButton, { label, undo, setUndo, subject: subnode[0] });
+    } else {
+      const midnode = list.filter((l) => l instanceof Subject && undo[which].parentPath.includes(l.uri));
+      if (midnode.length) {
+        const s = midnode[0];
+        const p = undo[which].parentPath.findIndex((h) => h === s.uri);
+        return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+          GotoButton,
+          {
+            label,
+            undo,
+            setUndo,
+            subject: s,
+            propFromParentPath: undo[which].parentPath[p + 1]
+          }
+        );
+      } else {
+        return null;
+      }
+    }
+  }
+  const ref = (0, import_react10.createRef)();
+  if (label === "UNDO")
+    undoRef = ref;
+  else if (label === "REDO")
+    redoRef = ref;
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+    "button",
+    {
+      ref,
+      disabled,
+      className: "btn btn-sm btn-danger mx-1 icon undo-btn btn-blanc",
+      onClick: clickHandler,
+      children: label
+    },
+    label
+  );
+};
+var HistoryHandler = ({ entityUri }) => {
   const [entities, setEntities] = (0, import_recoil12.useRecoilState)(entitiesAtom);
   const [uiTab] = (0, import_recoil12.useRecoilState)(uiTabState);
+  const [undos, setUndos] = (0, import_recoil12.useRecoilState)(uiUndosState);
+  const undo = undos[entityUri];
+  const setUndo = (s) => setUndos({ ...undos, [entityUri]: s });
+  if (!entities[uiTab])
+    return null;
+  const subject = entities[uiTab].subject;
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "small text-muted", children: [
+    subject && undo && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(GotoButton, { label: "UNDO", subject, undo, setUndo }),
+    subject && undo && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(GotoButton, { label: "REDO", subject, undo, setUndo })
+  ] });
+};
+
+// src/containers/BottomBarContainer.tsx
+var import_jsx_runtime11 = require("react/jsx-runtime");
+var debug16 = (0, import_debug16.debug)("rde:BottomBarContainer");
+function BottomBarContainer(props) {
+  const [entities, setEntities] = (0, import_recoil13.useRecoilState)(entitiesAtom);
+  const [uiTab] = (0, import_recoil13.useRecoilState)(uiTabState);
   const entity = entities.findIndex((e, i) => i === uiTab);
-  const entitySubj = (_a = entities[entity]) == null ? void 0 : _a.subject;
-  const entityUri = ((_c = (_b = entities[entity]) == null ? void 0 : _b.subject) == null ? void 0 : _c.uri) || "tmp:uri";
-  const [message, setMessage] = (0, import_react10.useState)(null);
-  const [uiLang, setUiLang] = (0, import_recoil12.useRecoilState)(uiLangState);
-  const [lang, setLang] = (0, import_react10.useState)(uiLang[0]);
-  const [saving, setSaving] = (0, import_react10.useState)(false);
-  const [gen, setGen] = (0, import_react10.useState)(false);
-  const [popupOn, setPopupOn] = (0, import_recoil12.useRecoilState)(savePopupState);
-  const [reloadEntity, setReloadEntity] = (0, import_recoil12.useRecoilState)(reloadEntityState);
-  const shapeQname = (_d = entities[entity]) == null ? void 0 : _d.shapeQname;
-  const [error, setError] = (0, import_react10.useState)(null);
-  const [errorCode, setErrorCode] = (0, import_react10.useState)(void 0);
-  const [spinner, setSpinner] = (0, import_react10.useState)(false);
+  const entitySubj = entities[entity]?.subject;
+  const entityUri = entities[entity]?.subject?.uri || "tmp:uri";
+  const [message, setMessage] = (0, import_react11.useState)(null);
+  const [uiLang, setUiLang] = (0, import_recoil13.useRecoilState)(uiLangState);
+  const [lang, setLang] = (0, import_react11.useState)(uiLang);
+  const [saving, setSaving] = (0, import_react11.useState)(false);
+  const [gen, setGen] = (0, import_react11.useState)(false);
+  const [popupOn, setPopupOn] = (0, import_recoil13.useRecoilState)(savePopupState);
+  const [reloadEntity, setReloadEntity] = (0, import_recoil13.useRecoilState)(reloadEntityState);
+  const shapeQname = entities[entity]?.shapeQname;
+  const [error, setError] = (0, import_react11.useState)(null);
+  const [errorCode, setErrorCode] = (0, import_react11.useState)(void 0);
+  const [spinner, setSpinner] = (0, import_react11.useState)(false);
+  const { t } = (0, import_react_i18next9.useTranslation)();
   const delay = 300;
   const closePopup = (delay1 = delay, delay2 = delay) => {
     setTimeout(() => {
@@ -5134,9 +4990,8 @@ function BottomBarContainer(props) {
     closePopup();
   };
   const save = async (event) => {
-    var _a2, _b2;
     if (entities[entity].state === 0 /* Error */ && !saving) {
-      if (!window.confirm(import_i18next9.default.t("error.force")))
+      if (!window.confirm(t("error.force")))
         return;
     }
     if (!saving) {
@@ -5146,10 +5001,10 @@ function BottomBarContainer(props) {
     }
     const store = new rdf8.Store();
     props.config.prefixMap.setDefaultPrefixes(store);
-    entitySubj == null ? void 0 : entitySubj.graph.addNewValuestoStore(store);
+    entitySubj?.graph.addNewValuestoStore(store);
     rdf8.serialize(defaultGraphNode, store, void 0, "text/turtle", async function(err, str) {
       if (err) {
-        debug15(err, store);
+        debug16(err, store);
         throw "error when serializing";
       }
       props.config.setUserLocalEntity(
@@ -5168,7 +5023,7 @@ function BottomBarContainer(props) {
         etag = await props.config.putDocument(
           entitySubj.node,
           store,
-          (_a2 = entities[entity]) == null ? void 0 : _a2.etag,
+          entities[entity]?.etag,
           '"' + message + '"@' + lang
         );
         setSpinner(false);
@@ -5177,17 +5032,15 @@ function BottomBarContainer(props) {
           props.config.setUserLocalEntity(entities[entity].subjectQname, shapeQname, str, false, etag, false);
         });
       } catch (error2) {
-        debug15("error:", error2);
+        debug16("error:", error2);
         if (error2.status === 412) {
           setErrorCode(error2.status);
           setError(
-            /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_react10.default.Fragment, {
-              children: [
-                import_i18next9.default.t("error.newer"),
-                /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("br", {}),
-                import_i18next9.default.t("error.lost")
-              ]
-            })
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_react11.default.Fragment, { children: [
+              t("error.newer"),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("br", {}),
+              t("error.lost")
+            ] })
           );
         } else {
           setError(error2.status ? error2.status : error2.message ? error2.message : error2);
@@ -5206,7 +5059,7 @@ function BottomBarContainer(props) {
     setEntities(newEntities);
     history[entityUri] = history[entityUri].filter((h) => !h["tmp:allValuesLoaded"]);
     history[entityUri].push({ "tmp:allValuesLoaded": true });
-    (_b2 = newEntities[entity].subject) == null ? void 0 : _b2.resetNoHisto();
+    newEntities[entity].subject?.resetNoHisto();
     closePopup();
   };
   const onLangChangeHandler = (event) => {
@@ -5226,102 +5079,81 @@ function BottomBarContainer(props) {
       setReloadEntity(entitySubj.qname);
     closePopup();
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("nav", {
-    className: "bottom navbar navbar-dark navbar-expand-md",
-    children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", {
-        className: "popup " + (popupOn ? "on " : "") + (error ? "error " : ""),
-        children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", {
-          children: saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(import_jsx_runtime10.Fragment, {
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.TextField, {
-                label: "commit message",
-                value: message,
-                onChange: onMessageChangeHandler,
-                InputLabelProps: { shrink: true },
-                style: { minWidth: 300 },
-                ...error ? {
-                  helperText: /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("span", {
-                    style: { display: "flex", alignItems: "center" },
-                    children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_icons_material7.Error, {
-                        style: { fontSize: "20px" }
-                      }),
-                      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("i", {
-                        style: { paddingLeft: "5px", lineHeight: "14px", display: "inline-block" },
-                        children: error
-                      }),
-                      "\xA0\xA0",
-                      errorCode === 412 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
-                        className: "btn-blanc",
-                        onClick: handleReload,
-                        children: import_i18next9.default.t("general.reload")
-                      })
-                    ]
-                  }),
-                  error: true
-                } : {}
-              }),
-              /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.TextField, {
-                select: true,
-                value: lang,
-                onChange: onLangChangeHandler,
-                InputLabelProps: { shrink: true },
-                style: { minWidth: 100, marginTop: "16px", marginLeft: "15px", marginRight: "15px" },
-                children: props.config.possibleLiteralLangs.map((option) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.MenuItem, {
-                  value: option.value,
-                  children: option.value
-                }, option.value))
-              })
-            ]
-          })
-        })
-      }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", {
-        className: "buttons",
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
-            variant: "outlined",
-            onClick: save,
-            className: "btn-rouge",
-            ...spinner || message === "" && saving || saved || errorCode ? { disabled: true } : {},
-            children: spinner ? /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.CircularProgress, {
-              size: "14px",
-              color: "primary"
-            }) : saving ? import_i18next9.default.t("general.ok") : import_i18next9.default.t("general.save")
-          }),
-          saving && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_material7.Button, {
-            variant: "outlined",
-            onClick: closePopupHandler,
-            className: "btn-blanc ml-2",
-            children: import_i18next9.default.t("general.cancel")
-          })
-        ]
-      })
-    ]
-  });
+  return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("nav", { className: "bottom navbar navbar-dark navbar-expand-md", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
+    props.extraElement,
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(HistoryHandler, { entityUri }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", {}),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", {}),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "popup " + (popupOn ? "on " : "") + (error ? "error " : ""), children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { children: saving && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_jsx_runtime11.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+        import_material7.TextField,
+        {
+          label: "commit message",
+          value: message,
+          variant: "standard",
+          onChange: onMessageChangeHandler,
+          InputLabelProps: { shrink: true },
+          style: { minWidth: 300 },
+          ...error ? {
+            helperText: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("span", { style: { display: "flex", alignItems: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material7.Error, { style: { fontSize: "20px" } }),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("i", { style: { paddingLeft: "5px", lineHeight: "14px", display: "inline-block" }, children: error }),
+              "\xA0\xA0",
+              errorCode === 412 && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material7.Button, { className: "btn-blanc", onClick: handleReload, children: t("general.reload") })
+            ] }),
+            error: true
+          } : {}
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+        import_material7.TextField,
+        {
+          select: true,
+          variant: "standard",
+          value: lang,
+          onChange: onLangChangeHandler,
+          InputLabelProps: { shrink: true },
+          style: { minWidth: 100, marginTop: "16px", marginLeft: "15px", marginRight: "15px" },
+          children: props.config.possibleLiteralLangs.map((option) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material7.MenuItem, { value: option.value, children: option.value }, option.value))
+        }
+      )
+    ] }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "buttons", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+        import_material7.Button,
+        {
+          variant: "outlined",
+          onClick: save,
+          className: "btn-rouge",
+          ...spinner || message === "" && saving || saved || errorCode ? { disabled: true } : {},
+          children: spinner ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material7.CircularProgress, { size: "14px", color: "primary" }) : saving ? t("general.ok") : t("general.save")
+        }
+      ),
+      saving && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+        import_material7.Button,
+        {
+          variant: "outlined",
+          onClick: closePopupHandler,
+          className: "btn-blanc ml-2",
+          children: t("general.cancel")
+        }
+      )
+    ] })
+  ] }) });
 }
 
 // src/containers/BUDAResourceSelector.tsx
-var import_react11 = __toESM(require("react"));
-var import_recoil13 = require("recoil");
-var import_styles = require("@mui/styles");
+var import_react12 = __toESM(require("react"));
+var import_recoil14 = require("recoil");
 var import_material8 = require("@mui/material");
-var import_i18next10 = __toESM(require("i18next"));
 var import_react_router_dom8 = require("react-router-dom");
 var rdf9 = __toESM(require("rdflib"));
 var import_icons_material8 = require("@mui/icons-material");
-var import_debug16 = require("debug");
-var import_jsx_runtime11 = require("react/jsx-runtime");
-var import_react12 = require("react");
-var debug16 = (0, import_debug16.debug)("rde:atom:event:RS");
-var useStyles = (0, import_styles.makeStyles)((theme) => ({
-  root: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main
-    }
-  }
-}));
+var import_debug17 = require("debug");
+var import_react_i18next10 = require("react-i18next");
+var import_jsx_runtime12 = require("react/jsx-runtime");
+var import_react13 = require("react");
+var debug17 = (0, import_debug17.debug)("rde:atom:event:RS");
 var BDR_uri = "http://purl.bdrc.io/resource/";
 var BUDAResourceSelector = ({
   value,
@@ -5338,36 +5170,34 @@ var BUDAResourceSelector = ({
   shape,
   config
 }) => {
-  var _a, _b, _c, _d;
-  const [keyword, setKeyword] = (0, import_react11.useState)("");
-  const [language, setLanguage] = (0, import_react11.useState)("bo-x-ewts");
-  const [type, setType] = (0, import_react11.useState)(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
-  const [libraryURL, setLibraryURL] = (0, import_react11.useState)("");
-  const [uiLang, setUiLang] = (0, import_recoil13.useRecoilState)(uiLangState);
-  const [uiLitLang, setUiLitLang] = (0, import_recoil13.useRecoilState)(uiLitLangState);
-  const [error, setError] = (0, import_react11.useState)();
-  const [entities, setEntities] = (0, import_recoil13.useRecoilState)(entitiesAtom);
+  const [keyword, setKeyword] = (0, import_react12.useState)("");
+  const [language, setLanguage] = (0, import_react12.useState)("bo-x-ewts");
+  const [type, setType] = (0, import_react12.useState)(property.expectedObjectTypes ? property.expectedObjectTypes[0].qname : "");
+  const [libraryURL, setLibraryURL] = (0, import_react12.useState)("");
+  const [uiLang, setUiLang] = (0, import_recoil14.useRecoilState)(uiLangState);
+  const [uiLitLang, setUiLitLang] = (0, import_recoil14.useRecoilState)(uiLitLangState);
+  const [error, setError] = (0, import_react12.useState)();
+  const [entities, setEntities] = (0, import_recoil14.useRecoilState)(entitiesAtom);
   const navigate = (0, import_react_router_dom8.useNavigate)();
   const msgId = subject.qname + property.qname + idx;
-  const [popupNew, setPopupNew] = (0, import_react11.useState)(false);
-  const iframeRef = (0, import_react11.useRef)(null);
-  const [canCopy, setCanCopy] = (0, import_react11.useState)([]);
-  const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i);
-  const [toCopy, setProp] = (0, import_recoil13.useRecoilState)(
+  const [popupNew, setPopupNew] = (0, import_react12.useState)(false);
+  const iframeRef = (0, import_react12.useRef)(null);
+  const [canCopy, setCanCopy] = (0, import_react12.useState)([]);
+  const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i) ? true : false;
+  const [toCopy, setProp] = (0, import_recoil14.useRecoilState)(
     toCopySelector({
-      list: (_a = property.copyObjectsOfProperty) == null ? void 0 : _a.map((p) => ({
+      list: property.copyObjectsOfProperty?.map((p) => ({
         property: config.prefixMap.qnameFromUri(p.value),
         atom: (owner ? owner : subject).getAtomForProperty(p.uri)
       }))
     })
   );
-  (0, import_react11.useEffect)(() => {
-    var _a2, _b2;
-    if ((_a2 = property.copyObjectsOfProperty) == null ? void 0 : _a2.length) {
+  (0, import_react12.useEffect)(() => {
+    if (property.copyObjectsOfProperty?.length) {
       const copy = [];
       for (const prop of property.copyObjectsOfProperty) {
         const propQname = config.prefixMap.qnameFromUri(prop.value);
-        if ((_b2 = value.otherData[propQname]) == null ? void 0 : _b2.length)
+        if (value.otherData[propQname]?.length)
           copy.push({
             k: propQname,
             val: value.otherData[propQname].map(
@@ -5378,18 +5208,18 @@ var BUDAResourceSelector = ({
       setCanCopy(copy);
     }
   }, []);
-  (0, import_react11.useEffect)(() => {
+  (0, import_react12.useEffect)(() => {
     if (globalError && !error)
       setError(globalError);
   }, [globalError]);
   if (!property.expectedObjectTypes) {
-    debug16(property);
+    debug17(property);
     throw "can't get the types for property " + property.qname;
   }
   const closeFrame = () => {
-    debug16("close?", value, isRid, libraryURL);
+    debug17("close?", value, isRid, libraryURL);
     if (iframeRef.current && isRid) {
-      debug16("if:", iframeRef.current);
+      debug17("if:", iframeRef.current);
       iframeRef.current.click();
       const wn = iframeRef.current.contentWindow;
       if (wn)
@@ -5399,20 +5229,21 @@ var BUDAResourceSelector = ({
         setLibraryURL("");
     }
   };
-  const updateRes = (0, import_react11.useCallback)((data) => {
+  const { t } = (0, import_react_i18next10.useTranslation)();
+  const updateRes = (0, import_react12.useCallback)((data) => {
     let isTypeOk = false;
     let actual;
     if (property.expectedObjectTypes) {
-      const allow = property.expectedObjectTypes.map((t) => t.qname);
+      const allow = property.expectedObjectTypes.map((t2) => t2.qname);
       actual = data["tmp:otherData"]["tmp:type"];
       if (!Array.isArray(actual))
         actual = [actual];
       actual = actual.map((a) => a.replace(/Product/, "Collection"));
-      if (actual.filter((t) => allow.includes(t)).length)
+      if (actual.filter((t2) => allow.includes(t2)).length)
         isTypeOk = true;
-      const displayTypes = (t) => t.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
+      const displayTypes = (t2) => t2.filter((a) => a).map((a) => a.replace(/^bdo:/, "")).join(", ");
       if (!isTypeOk) {
-        setError("" + import_i18next10.default.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
+        setError("" + t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }));
         if (libraryURL)
           setLibraryURL("");
       }
@@ -5451,7 +5282,7 @@ var BUDAResourceSelector = ({
     }
   }, [exists, idx, libraryURL, onChange, property.expectedObjectTypes]);
   let msgHandler = null;
-  (0, import_react11.useEffect)(() => {
+  (0, import_react12.useEffect)(() => {
     if (msgHandler)
       window.removeEventListener("message", msgHandler, true);
     msgHandler = (ev) => {
@@ -5459,18 +5290,18 @@ var BUDAResourceSelector = ({
         if (!window.location.href.includes(ev.origin)) {
           const data = JSON.parse(ev.data);
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
-            debug16("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug17("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
-            setError("" + import_i18next10.default.t("error.notF", { RID: data["@id"] }));
+            setError("" + t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
-            debug16("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug17("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
           } else {
             setLibraryURL("");
           }
         }
       } catch (err) {
-        debug16("error: %o", err);
+        debug17("error: %o", err);
       }
     };
     window.addEventListener("message", msgHandler, true);
@@ -5479,14 +5310,14 @@ var BUDAResourceSelector = ({
         window.removeEventListener("message", msgHandler, true);
     };
   }, [libraryURL]);
-  (0, import_react11.useEffect)(() => {
+  (0, import_react12.useEffect)(() => {
     if (value.otherData["tmp:keyword"]) {
       setKeyword(value.otherData["tmp:keyword"]["@value"]);
       setLanguage(value.otherData["tmp:keyword"]["@language"]);
     }
   }, []);
   const updateLibrary = (ev, newlang, newtype) => {
-    debug16("updLib: %o", msgId);
+    debug17("updLib: %o", msgId);
     if (ev && libraryURL) {
       setLibraryURL("");
     } else if (msgId) {
@@ -5500,25 +5331,27 @@ var BUDAResourceSelector = ({
           lang = newlang;
         else if (!lang)
           lang = "bo-x-ewts";
+        if (lang === "sa-x-iast")
+          lang = "inc-x-ndia";
         let key = encodeURIComponent(keyword);
         key = '"' + key + '"';
         if (lang.startsWith("bo"))
           key = key + "~1";
         lang = encodeURIComponent(lang);
-        let t = type;
+        let t2 = type;
         if (newtype)
-          t = newtype;
-        if (!t)
+          t2 = newtype;
+        if (!t2)
           throw "there should be a type here";
-        t = t.replace(/^bdo:/, "");
-        if (t.includes("ImageInstance"))
-          t = "Scan";
-        else if (t.includes("EtextInstance"))
-          t = "Etext";
-        else if (t.includes("Collection"))
-          t = "Product";
+        t2 = t2.replace(/^bdo:/, "");
+        if (t2.includes("ImageInstance"))
+          t2 = "Scan";
+        else if (t2.includes("EtextInstance"))
+          t2 = "Etext";
+        else if (t2.includes("Collection"))
+          t2 = "Product";
         setLibraryURL(
-          config.libraryUrl + "/simplesearch?q=" + key + "&lg=" + lang + "&t=" + t + "&for=" + msgId + "&f=provider,inc,bda:CP021"
+          config.libraryUrl + "/simplesearch?q=" + key + "&lg=" + lang + "&t=" + t2 + "&for=" + msgId + "&f=provider,inc,bda:CP021"
         );
       }
     }
@@ -5552,11 +5385,11 @@ var BUDAResourceSelector = ({
     if (dates)
       dates = "(" + dates + ")";
   }
-  const createAndUpdate = (0, import_react11.useCallback)(
+  const createAndUpdate = (0, import_react12.useCallback)(
     async (type2, named = "") => {
-      var _a2, _b2;
       let url = "";
-      url = "/new/" + config.possibleShapeRefsForType(type2.node)[0].qname + "/" + ((owner == null ? void 0 : owner.qname) && owner.qname !== subject.qname ? owner.qname : subject.qname) + "/" + config.prefixMap.qnameFromUri((_a2 = property == null ? void 0 : property.path) == null ? void 0 : _a2.sparqlString) + "/" + idx + ((owner == null ? void 0 : owner.qname) && owner.qname !== subject.qname ? "/" + subject.qname : "");
+      url = "/new/" + // TODO: perhaps users might want to choose between different shapes?
+      config.possibleShapeRefsForType(type2.node)[0].qname + "/" + (owner?.qname && owner.qname !== subject.qname ? owner.qname : subject.qname) + "/" + config.prefixMap.qnameFromUri(property?.path?.sparqlString) + "/" + idx + (owner?.qname && owner.qname !== subject.qname ? "/" + subject.qname : "");
       if (property.connectIDs) {
         const newNode = await config.generateConnectedID(subject, shape, type2);
         const newQname = config.prefixMap.qnameFromUri(newNode.uri);
@@ -5564,7 +5397,7 @@ var BUDAResourceSelector = ({
           url += "/named/" + (named ? named : newQname);
       }
       let urlParams = "";
-      if ((_b2 = property.copyObjectsOfProperty) == null ? void 0 : _b2.length) {
+      if (property.copyObjectsOfProperty?.length) {
         for (const kv of toCopy) {
           if (urlParams)
             urlParams += ";";
@@ -5612,204 +5445,191 @@ var BUDAResourceSelector = ({
   const onClickKB = (e) => {
     updateLibrary(e);
   };
-  let name = /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", {
-    style: { fontSize: "16px" },
-    children: ValueByLangToStrPrefLang(value.prefLabels, uiLitLang) + " " + dates
-  });
+  let name = /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { style: {
+    fontSize: "16px"
+    /*, borderBottom:"1px solid #ccc"*/
+  }, children: ValueByLangToStrPrefLang(value.prefLabels, uiLitLang) + " " + dates });
   const entity = entities.filter((e) => e.subjectQname === value.qname);
   if (entity.length) {
-    name = /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(LabelWithRID, {
-      entity: entity[0]
-    });
+    name = /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(LabelWithRID, { entity: entity[0] });
   }
-  (0, import_react11.useEffect)(() => {
+  (0, import_react12.useEffect)(() => {
     if (error) {
-      debug16("error:", error);
+      debug17("error:", error);
     }
   }, [error]);
-  const inputRef = (0, import_react11.useRef)();
-  const [preview, setPreview] = (0, import_react11.useState)(null);
-  (0, import_react11.useLayoutEffect)(() => {
+  const inputRef = (0, import_react12.useRef)();
+  const [preview, setPreview] = (0, import_react12.useState)(null);
+  (0, import_react12.useLayoutEffect)(() => {
     if (document.activeElement === inputRef.current && !isRid && keyword) {
       const previewVal = config.previewLiteral(new rdf9.Literal(keyword, language), uiLang);
       setPreview(previewVal.value);
-      setPreview(previewVal.value);
+    } else {
+      setPreview(null);
     }
-  });
-  return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_react11.default.Fragment, {
-    children: [
-      /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", {
+  }, [config, isRid, keyword, language, uiLang]);
+  return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(import_react12.default.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(
+      "div",
+      {
         className: "resSelect " + (error ? "error" : ""),
         style: { position: "relative", ...value.uri === "tmp:uri" ? { width: "100%" } : {} },
         children: [
-          value.uri === "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", {
-            className: preview ? "withPreview" : "",
-            style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
-            children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_react11.default.Fragment, {
-              children: [
-                preview && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", {
-                  className: "preview-ewts",
-                  children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.TextField, {
-                    disabled: true,
-                    value: preview,
-                    variant: "standard"
-                  })
-                }),
-                /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.TextField, {
-                  variant: "standard",
-                  onKeyPress: (e) => {
-                    if (e.key === "Enter")
-                      onClickKB(e);
-                  },
-                  onFocus: () => {
-                    if (!keyword || isRid)
-                      setPreview(null);
-                    const { value: value2, error: error2 } = config.previewLiteral(new rdf9.Literal(keyword, language), uiLang);
-                    setPreview(value2);
-                  },
-                  onBlur: () => setPreview(null),
-                  inputRef,
-                  InputLabelProps: { shrink: true },
-                  style: { width: "90%" },
-                  value: keyword,
-                  onChange: textOnChange,
-                  placeholder: "Search name or RID for " + title,
-                  ...error ? {
-                    helperText: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(import_react11.default.Fragment, {
-                      children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Error, {
-                          style: { fontSize: "20px", verticalAlign: "-7px" }
-                        }),
-                        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("i", {
-                          children: error
-                        })
-                      ]
-                    }),
-                    error: true
-                  } : {},
-                  ...!editable ? { disabled: true } : {}
-                }),
-                /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(LangSelect, {
-                  value: language,
-                  onChange: (lang) => {
-                    setLanguage(lang);
-                    debug16(lang);
-                    if (libraryURL)
-                      updateLibrary(void 0, lang);
-                  },
-                  ...isRid ? { disabled: true } : { disabled: false },
-                  editable,
-                  error: !!error,
-                  config
-                }),
-                ((_b = property.expectedObjectTypes) == null ? void 0 : _b.length) > 1 && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.TextField, {
-                  variant: "standard",
-                  select: true,
-                  style: { width: 100, flexShrink: 0 },
-                  value: type,
-                  className: "mx-2",
-                  onChange: textOnChangeType,
-                  label: "Type",
-                  ...isRid ? { disabled: true } : {},
-                  ...!editable ? { disabled: true } : {},
-                  ...error ? {
-                    helperText: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("br", {}),
-                    error: true
-                  } : {},
-                  children: (_c = property.expectedObjectTypes) == null ? void 0 : _c.map((r) => {
-                    const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                    return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.MenuItem, {
-                      value: r.qname,
-                      children: label2
-                    }, r.qname);
-                  })
-                }),
-                /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", {
-                  ...!keyword || !isRid && (!language || !type) ? { disabled: true } : {},
-                  className: "btn btn-sm btn-outline-primary ml-2 lookup btn-rouge",
-                  style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
-                  onClick,
-                  ...!editable ? { disabled: true } : {},
-                  children: libraryURL ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Close, {}) : /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Search, {})
-                }),
-                /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", {
-                  className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
-                  style: { boxShadow: "none", alignSelf: "center" },
-                  onClick: togglePopup,
-                  ...!editable ? { disabled: true } : {},
-                  children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_jsx_runtime11.Fragment, {
-                    children: import_i18next10.default.t("search.create")
-                  })
-                })
-              ]
-            })
-          }),
-          value.uri !== "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_react11.default.Fragment, {
-            children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", {
-              className: "selected",
-              children: [
-                name,
-                /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", {
-                  style: { fontSize: "12px", opacity: "0.5", display: "flex", alignItems: "center" },
-                  children: [
-                    value.qname,
-                    "\xA0",
-                    /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("a", {
-                      title: import_i18next10.default.t("search.help.preview"),
-                      onClick: () => {
-                        if (libraryURL)
-                          setLibraryURL("");
-                        else if (value.otherData["tmp:externalUrl"])
-                          setLibraryURL(value.otherData["tmp:externalUrl"]);
-                        else
-                          setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
-                      },
-                      children: [
-                        !libraryURL && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.InfoOutlined, {
-                          style: { width: "18px", cursor: "pointer" }
-                        }),
-                        libraryURL && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Info, {
-                          style: { width: "18px", cursor: "pointer" }
-                        })
-                      ]
-                    }),
-                    "\xA0",
-                    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("a", {
-                      title: import_i18next10.default.t("search.help.open"),
-                      href: config.libraryUrl + "/show/" + value.qname,
-                      rel: "noopener noreferrer",
-                      target: "_blank",
-                      children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Launch, {
-                        style: { width: "16px" }
-                      })
-                    }),
-                    "\xA0",
-                    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_react_router_dom8.Link, {
-                      title: import_i18next10.default.t("search.help.edit"),
-                      to: "/edit/" + value.qname,
-                      children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.Edit, {
-                        style: { width: "16px" }
-                      })
-                    }),
-                    "\xA0",
-                    canCopy.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", {
-                      title: import_i18next10.default.t("general.import"),
-                      children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_icons_material8.ContentPaste, {
-                        style: { width: "17px", cursor: "pointer" },
-                        onClick: () => {
-                          setProp(canCopy);
-                          setCanCopy([]);
-                        }
-                      })
+          value.uri === "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+            "div",
+            {
+              className: preview ? "withPreview" : "",
+              style: { display: "flex", justifyContent: "space-between", alignItems: "end" },
+              children: /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(import_react12.default.Fragment, { children: [
+                preview && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "preview-ewts", children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_material8.TextField, { disabled: true, value: preview, variant: "standard" }) }),
+                /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+                  import_material8.TextField,
+                  {
+                    variant: "standard",
+                    onKeyPress: (e) => {
+                      if (e.key === "Enter")
+                        onClickKB(e);
+                    },
+                    onFocus: () => {
+                      if (!keyword || isRid)
+                        setPreview(null);
+                      const { value: value2, error: error2 } = config.previewLiteral(new rdf9.Literal(keyword, language), uiLang);
+                      setPreview(value2);
+                    },
+                    onBlur: () => setPreview(null),
+                    inputRef,
+                    InputLabelProps: { shrink: true },
+                    style: { width: "90%" },
+                    value: keyword,
+                    onChange: textOnChange,
+                    placeholder: "Search name or RID for " + title,
+                    ...error ? {
+                      helperText: /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(import_react12.default.Fragment, { children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Error, { style: { fontSize: "20px", verticalAlign: "-7px" } }),
+                        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("i", { children: error })
+                      ] }),
+                      error: true
+                    } : {},
+                    ...!editable ? { disabled: true } : {}
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+                  LangSelect,
+                  {
+                    value: language,
+                    onChange: (lang) => {
+                      setLanguage(lang);
+                      debug17(lang);
+                      if (libraryURL)
+                        updateLibrary(void 0, lang);
+                    },
+                    ...isRid ? { disabled: true } : { disabled: false },
+                    editable,
+                    error: !!error,
+                    config
+                  }
+                ),
+                property.expectedObjectTypes?.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+                  import_material8.TextField,
+                  {
+                    variant: "standard",
+                    select: true,
+                    style: { width: 100, flexShrink: 0 },
+                    value: type,
+                    className: "mx-2",
+                    onChange: textOnChangeType,
+                    label: "Type",
+                    ...isRid ? { disabled: true } : {},
+                    ...!editable ? { disabled: true } : {},
+                    ...error ? {
+                      helperText: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("br", {}),
+                      error: true
+                    } : {},
+                    children: property.expectedObjectTypes?.map((r) => {
+                      const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
+                      return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_material8.MenuItem, { value: r.qname, children: label2 }, r.qname);
                     })
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+                  "button",
+                  {
+                    ...!keyword || !isRid && (!language || !type) ? { disabled: true } : {},
+                    className: "btn btn-sm btn-outline-primary ml-2 lookup btn-rouge",
+                    style: { boxShadow: "none", alignSelf: "center", padding: "5px 4px 4px 4px" },
+                    onClick,
+                    ...!editable ? { disabled: true } : {},
+                    children: libraryURL ? /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Close, {}) : /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Search, {})
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+                  "button",
+                  {
+                    className: "btn btn-sm btn-outline-primary py-3 ml-2 dots btn-rouge",
+                    style: { boxShadow: "none", alignSelf: "center" },
+                    onClick: togglePopup,
+                    ...!editable ? { disabled: true } : {},
+                    children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_jsx_runtime12.Fragment, { children: t("search.create") })
+                  }
+                )
+              ] })
+            }
+          ),
+          value.uri !== "tmp:uri" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_react12.default.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "selected", children: [
+            name,
+            /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { style: { fontSize: "12px", opacity: "0.5", display: "flex", alignItems: "center" }, children: [
+              value.qname,
+              "\xA0",
+              /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(
+                "a",
+                {
+                  title: t("search.help.preview"),
+                  onClick: () => {
+                    if (libraryURL)
+                      setLibraryURL("");
+                    else if (value.otherData["tmp:externalUrl"])
+                      setLibraryURL(value.otherData["tmp:externalUrl"]);
+                    else
+                      setLibraryURL(config.libraryUrl + "/simple/" + value.qname + "?view=true");
+                  },
+                  children: [
+                    !libraryURL && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.InfoOutlined, { style: { width: "18px", cursor: "pointer" } }),
+                    libraryURL && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Info, { style: { width: "18px", cursor: "pointer" } })
                   ]
-                })
-              ]
-            })
-          })
+                }
+              ),
+              "\xA0",
+              /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+                "a",
+                {
+                  title: t("search.help.open"),
+                  href: config.libraryUrl + "/show/" + value.qname,
+                  rel: "noopener noreferrer",
+                  target: "_blank",
+                  children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Launch, { style: { width: "16px" } })
+                }
+              ),
+              "\xA0",
+              /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_react_router_dom8.Link, { title: t("search.help.edit"), to: "/edit/" + value.qname, children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Edit, { style: { width: "16px" } }) }),
+              "\xA0",
+              canCopy.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { title: t("general.import"), children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
+                import_icons_material8.ContentPaste,
+                {
+                  style: { width: "17px", cursor: "pointer" },
+                  onClick: () => {
+                    setProp(canCopy);
+                    setCanCopy([]);
+                  }
+                }
+              ) })
+            ] })
+          ] }) })
         ]
-      }),
-      libraryURL && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", {
+      }
+    ),
+    libraryURL && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(
+      "div",
+      {
         className: "row card px-3 py-3 iframe",
         style: {
           position: "absolute",
@@ -5824,100 +5644,63 @@ var BUDAResourceSelector = ({
           ...value.uri !== "tmp:uri" ? { left: "calc(1rem)", width: "calc(100%)", bottom: "calc(100% - 0.5rem)" } : {}
         },
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("iframe", {
-            style: { border: "none" },
-            height: "400",
-            src: libraryURL,
-            ref: iframeRef
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", {
-            className: "iframe-BG",
-            onClick: closeFrame
-          })
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("iframe", { style: { border: "none" }, height: "400", src: libraryURL, ref: iframeRef }),
+          /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "iframe-BG", onClick: closeFrame })
         ]
-      }),
-      popupNew && /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", {
-        className: "card popup-new",
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", {
-            className: "front",
-            children: [
-              entities.map((e, i) => {
-                var _a2;
-                if (!exists(e == null ? void 0 : e.subjectQname) && (e == null ? void 0 : e.subjectQname) != subject.qname && (e == null ? void 0 : e.subjectQname) != (owner == null ? void 0 : owner.qname) && ((_a2 = property.expectedObjectTypes) == null ? void 0 : _a2.some(
-                  (t) => {
-                    var _a3;
-                    return (_a3 = e.shapeQname) == null ? void 0 : _a3.startsWith(t.qname.replace(/^bdo:/, "bds:"));
-                  }
-                ))) {
-                  return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_material8.MenuItem, {
-                    className: "px-0 py-0",
-                    children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(LabelWithRID, {
-                      choose: chooseEntity,
-                      entity: e
-                    })
-                  }, i + 1);
-                }
-              }),
-              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("hr", {
-                className: "my-1"
-              }),
-              (_d = property.expectedObjectTypes) == null ? void 0 : _d.map((r) => {
-                const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
-                return /* @__PURE__ */ (0, import_react12.createElement)(import_material8.MenuItem, {
-                  ...r.qname === "bdo:EtextInstance" ? { disabled: true } : {},
-                  key: r.qname,
-                  value: r.qname,
-                  onClick: async () => {
-                    const url = await createAndUpdate(r);
-                    navigate(url);
-                  }
-                }, import_i18next10.default.t("search.new", { type: label2 }));
-              })
-            ]
-          }),
-          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", {
-            className: "popup-new-BG",
-            onClick: togglePopup
-          })
-        ]
-      })
-    ]
-  });
+      }
+    ),
+    popupNew && /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "card popup-new", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "front", children: [
+        entities.map((e, i) => {
+          if (!exists(e?.subjectQname) && e?.subjectQname != subject.qname && e?.subjectQname != owner?.qname && property.expectedObjectTypes?.some(
+            (t2) => (
+              // DONE shapeRef is updated upon shape selection
+              e.shapeQname?.startsWith(t2.qname.replace(/^bdo:/, "bds:"))
+            )
+          )) {
+            return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_material8.MenuItem, { className: "px-0 py-0", children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(LabelWithRID, { choose: chooseEntity, entity: e }) }, i + 1);
+          }
+        }),
+        /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("hr", { className: "my-1" }),
+        property.expectedObjectTypes?.map((r) => {
+          const label2 = ValueByLangToStrPrefLang(r.prefLabels, uiLang);
+          return /* @__PURE__ */ (0, import_react13.createElement)(
+            import_material8.MenuItem,
+            {
+              ...r.qname === "bdo:EtextInstance" ? { disabled: true } : {},
+              key: r.qname,
+              value: r.qname,
+              onClick: async () => {
+                const url = await createAndUpdate(r);
+                navigate(url);
+              }
+            },
+            t("search.new", { type: label2 })
+          );
+        })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "popup-new-BG", onClick: togglePopup })
+    ] })
+  ] });
 };
 var LabelWithRID = ({
   entity,
   choose
 }) => {
-  var _a;
-  const [uiLitLang] = (0, import_recoil13.useRecoilState)(uiLitLangState);
-  const [labelValues] = (0, import_recoil13.useRecoilState)(entity.subjectLabelState);
+  const [uiLitLang] = (0, import_recoil14.useRecoilState)(uiLitLangState);
+  const [labelValues] = (0, import_recoil14.useRecoilState)(entity.subjectLabelState);
   const prefLabels = RDFResource.valuesByLang(labelValues);
   const label = ValueByLangToStrPrefLang(prefLabels, uiLitLang);
-  let name = label && label != "..." ? label : ((_a = entity.subject) == null ? void 0 : _a.lname) ? entity.subject.lname : entity.subjectQname.split(":")[1];
+  let name = label && label != "..." ? label : entity.subject?.lname ? entity.subject.lname : entity.subjectQname.split(":")[1];
   if (!name)
     name = label;
   if (!choose)
-    return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("span", {
-      style: { fontSize: "16px" },
-      children: name
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { style: { fontSize: "16px" }, children: name });
   else
-    return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", {
-      className: "px-3 py-1",
-      style: { width: "100%" },
-      onClick: choose(entity, prefLabels),
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", {
-          className: "label",
-          children: name
-        }),
-        /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", {
-          className: "RID",
-          children: entity.subjectQname
-        })
-      ]
-    });
+    return /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { className: "px-3 py-1", style: { width: "100%" }, onClick: choose(entity, prefLabels), children: [
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "label", children: name }),
+      /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "RID", children: entity.subjectQname })
+    ] });
 };
 var BUDAResourceSelector_default = BUDAResourceSelector;
 // Annotate the CommonJS export names for ESM import in node:
@@ -5933,6 +5716,7 @@ var BUDAResourceSelector_default = BUDAResourceSelector;
   EntityShapeChooserContainer,
   ExtRDFResourceWithLabel,
   HttpError,
+  LangSelect,
   LiteralWithId,
   NewEntityContainer,
   NodeShape,
@@ -5947,6 +5731,9 @@ var BUDAResourceSelector_default = BUDAResourceSelector;
   getHistoryStatus,
   history,
   ns,
+  rdf,
+  redoRef,
   shapes,
+  undoRef,
   updateHistory
 });

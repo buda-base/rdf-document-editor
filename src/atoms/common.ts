@@ -1,4 +1,4 @@
-import { atom, selectorFamily, RecoilValue, RecoilState } from "recoil"
+import { atom, selectorFamily, RecoilValue, RecoilState, DefaultValue } from "recoil"
 import { FC } from "react"
 import _ from "lodash"
 import * as ns from "../helpers/rdf/ns"
@@ -325,7 +325,11 @@ export const toCopySelector = selectorFamily<{ k: string; val: Value[] }[], toCo
     },
   set:
     (args: toCopySelectorType) =>
-    ({ get, set }, [{ k, val }]: { k: string; val: Value[] }[]) => {
+    ({ get, set }, newValue: DefaultValue|{ k: string; val: Value[] }[]) => {
+      if(newValue instanceof DefaultValue) {
+        return
+      }
+      const { k, val } = newValue[0]
       //debug("set:", list, k, val)
       args.list?.map(({ property, atom }) => {
         if (k == property) set(atom, [...get(atom).filter((lit) => lit.value), ...val])
@@ -363,7 +367,7 @@ export const ESfromRecoilSelector = selectorFamily<any, any>({
       const entities = get(entitiesAtom)
       const setEntities = (val: Entity[]) => set(entitiesAtom, val)
 
-      //debug("UES:", status, entityQname, id, removingFacet, forceRemove, undo, hStatus)
+      debug("UES:", args.status, args.entityQname, args.id, args.removingFacet, args.forceRemove, args.undo, args.hStatus)
 
       const n = entities.findIndex((e) => e.subjectQname === args.entityQname)
 
@@ -392,9 +396,9 @@ export const ESfromRecoilSelector = selectorFamily<any, any>({
           errors[ent.subjectQname] &&
           errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id]
 
-        //debug("no error:", hasError, forceRemove, id, status, ent.state, ent, n, property.qname, errors)
+        debug("no error:", hasError, args.forceRemove, args.id, status, ent.state, ent, n, args.property.qname, errors)
         if (ent.state != status || hasError && args.forceRemove) {
-          //debug("status:", ent.state, status)
+          debug("status:", ent.state, status)
           if (args.removingFacet) {
             //debug("rf:", id)
             if (errors[ent.subjectQname]) {
@@ -448,3 +452,5 @@ export const isUniqueTestSelector = selectorFamily<boolean, isUniqueTestSelector
       return true
     },
 })
+
+

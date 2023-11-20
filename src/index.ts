@@ -6,7 +6,9 @@ import * as atoms from "./atoms/common"
 
 import enTranslations from "./translations/en"
 
-export { ns, shapes, atoms, enTranslations }
+import * as rdf from "rdflib"
+
+export { ns, shapes, atoms, enTranslations, rdf }
 
 export { default as EntityEditContainer, EntityEditContainerMayUpdate } from "./containers/EntityEditContainer"
 export { default as NewEntityContainer } from "./containers/NewEntityContainer"
@@ -15,6 +17,9 @@ export { default as EntityShapeChooserContainer } from "./containers/EntityShape
 export { default as EntitySelectorContainer } from "./containers/EntitySelectorContainer"
 export { default as BottomBarContainer } from "./containers/BottomBarContainer"
 export type { RDEProps, IdTypeParams } from "./helpers/editor_props"
+export { LangSelect } from "./containers/ValueList"
+
+export { undoRef, redoRef } from "./helpers/observer"
 
 export { NodeShape, generateSubnodes } from "./helpers/rdf/shapes"
 

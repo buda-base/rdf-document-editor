@@ -1,6 +1,5 @@
 import React, { useEffect, useState, FC, useRef, useLayoutEffect, useCallback } from "react"
 import { useRecoilState } from "recoil"
-import { makeStyles } from "@mui/styles"
 import { TextField, MenuItem } from "@mui/material"
 import i18n from "i18next"
 import { useNavigate, Link } from "react-router-dom"
@@ -33,20 +32,9 @@ import { LangSelect } from "./ValueList"
 import * as ns from "../helpers/rdf/ns"
 import { Theme } from '@mui/material/styles';
 import { debug as debugfactory } from "debug"
-
-declare module '@mui/styles/defaultTheme' {
-  interface DefaultTheme extends Theme {}
-}
+import { useTranslation } from "react-i18next"
 
 const debug = debugfactory("rde:atom:event:RS")
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-  },
-}))
 
 type valueLang = {
   "@value": string
@@ -118,7 +106,7 @@ const BUDAResourceSelector: FC<{
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [canCopy, setCanCopy] = useState<{ k: string; val: Value[] }[]>([])
 
-  const isRid = keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i)
+  const isRid = (keyword.startsWith("bdr:") || keyword.match(/^([cpgwrti]|mw|wa|was|ut|ie|pr)(\d|eap)[^ ]*$/i)) ? true : false
 
   //debug("BrS:",Object.keys(config?.prefixMap?.prefixToURI),value.value,value.id,value)
 
@@ -177,6 +165,8 @@ const BUDAResourceSelector: FC<{
 
   //debug("ext:", value.qname)
 
+  const { t } = useTranslation()
+
   const updateRes = useCallback((data: messagePayload) => {
     let isTypeOk = false
     let actual
@@ -194,7 +184,7 @@ const BUDAResourceSelector: FC<{
           .map((a) => a.replace(/^bdo:/, ""))
           .join(", ") // TODO: translation (ontology?)
       if (!isTypeOk) {
-        setError(""+i18n.t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }))
+        setError(""+t("error.type", { allow: displayTypes(allow), actual: displayTypes(actual), id: data["@id"] }))
         if (libraryURL) setLibraryURL("")
       }
     }
@@ -251,7 +241,7 @@ const BUDAResourceSelector: FC<{
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
             debug("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL)
             setLibraryURL("")
-            setError(""+i18n.t("error.notF", { RID: data["@id"] }))
+            setError(""+t("error.notF", { RID: data["@id"] }))
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
             debug("received msg: %o %o", msgId, data, ev, property.qname, libraryURL)
             updateRes(data)
@@ -295,6 +285,10 @@ const BUDAResourceSelector: FC<{
         let lang = language
         if (newlang) lang = newlang
         else if (!lang) lang = "bo-x-ewts"
+
+        // #39
+        if(lang === "sa-x-iast") lang = "inc-x-ndia"
+        
         let key = encodeURIComponent(keyword)
         key = '"' + key + '"'
         if (lang.startsWith("bo")) key = key + "~1"
@@ -367,7 +361,7 @@ const BUDAResourceSelector: FC<{
       url =
         "/new/" +
         // TODO: perhaps users might want to choose between different shapes?
-        config.possibleShapeRefsForType(type.node)[0].qname +
+        config.possibleShapeRefsForType(type.node as rdf.NamedNode)[0].qname +
         "/" +
         (owner?.qname && owner.qname !== subject.qname ? owner.qname : subject.qname) +
         "/" +
@@ -465,9 +459,12 @@ const BUDAResourceSelector: FC<{
     if (document.activeElement === inputRef.current && !isRid && keyword) {
       const previewVal = config.previewLiteral(new rdf.Literal(keyword, language), uiLang)
       setPreview(previewVal.value)
-      setPreview(previewVal.value)
+    } else {
+      setPreview(null)
     }
-  })
+  }, [config, isRid, keyword, language, uiLang])
+
+  //debug("isRid:",isRid,keyword,preview)
 
   return (
     <React.Fragment>
@@ -574,7 +571,7 @@ const BUDAResourceSelector: FC<{
                 onClick={togglePopup}
                 {...(!editable ? { disabled: true } : {})}
               >
-                <>{i18n.t("search.create")}</>
+                <>{t("search.create")}</>
               </button>
             </React.Fragment>
           </div>
@@ -587,7 +584,7 @@ const BUDAResourceSelector: FC<{
                 {value.qname}
                 &nbsp;
                 <a
-                  title={i18n.t("search.help.preview")}
+                  title={t("search.help.preview") as string}
                   onClick={() => {
                     if (libraryURL) setLibraryURL("")
                     else if (value.otherData["tmp:externalUrl"]) setLibraryURL(value.otherData["tmp:externalUrl"])
@@ -599,7 +596,7 @@ const BUDAResourceSelector: FC<{
                 </a>
                 &nbsp;
                 <a
-                  title={i18n.t("search.help.open")}
+                  title={t("search.help.open") as string}
                   href={config.libraryUrl + "/show/" + value.qname}
                   rel="noopener noreferrer"
                   target="_blank"
@@ -607,12 +604,12 @@ const BUDAResourceSelector: FC<{
                   <LaunchIcon style={{ width: "16px" }} />
                 </a>
                 &nbsp;
-                <Link title={i18n.t("search.help.edit")} to={"/edit/" + value.qname}>
+                <Link title={t("search.help.edit") as string} to={"/edit/" + value.qname}>
                   <EditIcon style={{ width: "16px" }} />
                 </Link>
                 &nbsp;
                 {canCopy.length > 0 && (
-                  <span title={i18n.t("general.import")}>
+                  <span title={t("general.import") as string}>
                     <ContentPasteIcon
                       style={{ width: "17px", cursor: "pointer" }}
                       onClick={() => {
@@ -687,7 +684,7 @@ const BUDAResourceSelector: FC<{
                     navigate(url)
                   }}
                 >
-                  {i18n.t("search.new", { type: label })}
+                  {t("search.new", { type: label })}
                 </MenuItem>
               )
             })}

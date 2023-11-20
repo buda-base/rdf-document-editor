@@ -230,14 +230,13 @@ export class PropertyShape extends RDFResourceWithLabel {
     graph: EntityGraph
   ): Array<RDFResourceWithLabel> {
     const res: Array<RDFResourceWithLabel> = []
-    for (const node of nodes)
-      if (node instanceof rdf.NamedNode) {
-        const r = new RDFResourceWithLabel(node, graph)
-        // just a way to intialize the value before the object gets frozen like a yogurt by Recoil
-        let justforinit = r.description
-        justforinit = r.prefLabels
-        res.push(r)
-      }
+    for (const node of nodes) {
+      const r = new RDFResourceWithLabel(node, graph)
+      // just a way to intialize the value before the object gets frozen like a yogurt by Recoil
+      let justforinit = r.description
+      justforinit = r.prefLabels
+      res.push(r)
+    }
     return res
   }
 
@@ -249,8 +248,7 @@ export class PropertyShape extends RDFResourceWithLabel {
   }
 
   @Memoize()
-  public get in(): Array<RDFResourceWithLabel | LiteralWithId> | null {
-    //debug("in:",this.id,this.hasListAsObject,this.datatype)
+  public get in(): Array<RDFResourceWithLabel | LiteralWithId> | null {        
     if (this.hasListAsObject) {
       // if no direct in, let's look at the sh:property objects (quite counter intuitive, but it follows the shacl examples)
       const propNodes: Array<rdf.NamedNode | rdf.BlankNode> = this.graph.store.each(
@@ -276,7 +274,6 @@ export class PropertyShape extends RDFResourceWithLabel {
     } else {
       // if no datatype, then it's res
       const nodes = this.getPropResValuesFromList(ns.shIn)
-      //debug("nodes:",nodes)
       if (nodes) return PropertyShape.resourcizeWithInit(nodes, this.graph)
     }
     return null

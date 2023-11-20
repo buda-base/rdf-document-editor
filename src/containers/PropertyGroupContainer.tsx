@@ -16,6 +16,7 @@ import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import "leaflet-geosearch/dist/geosearch.css"
 import { debug as debugfactory } from "debug"
+import { useTranslation } from "react-i18next"
 
 const debug = debugfactory("rde:entity:propertygroup")
 
@@ -123,6 +124,8 @@ const PropertyGroupContainer: FC<{
   const [uiLang] = useRecoilState(uiLangState)
   const label = lang.ValueByLangToStrPrefLang(group.prefLabels, uiLang)
   const [force, setForce] = useState(false)
+
+  const { t } = useTranslation()
 
   //debug("propertyGroup:", subject.qname, errors, group, subject)
 
@@ -272,7 +275,7 @@ const PropertyGroupContainer: FC<{
                     )}
                   {hasExtra && (
                     <span className="toggle-btn  btn btn-rouge my-4" onClick={toggleExtra}>
-                      <>{i18n.t("general.toggle", { show: force ? i18n.t("general.hide") : i18n.t("general.show") })}</>
+                      <>{t("general.toggle", { show: force ? t("general.hide") : t("general.show") })}</>
                     </span>
                   )}
                 </div>

@@ -11,11 +11,12 @@ import {
   entitiesAtom,
   sessionLoadedState,
   EditedEntityState,
-  defaultEntityLabelAtom,
+  defaultEntityLabelAtom
 } from "../../atoms/common"
 import RDEConfig, { IFetchState } from "../rde_config"
 import { prefLabel } from "./ns"
 import { debug as debugfactory } from "debug"
+import { useTranslation } from "react-i18next"
 
 interface StoreWithEtag {
   store: rdf.Store
@@ -148,6 +149,8 @@ export function ShapeFetcher(shapeQname: string, entityQname: string, config: RD
     if (current === shapeQname) fetchResource(shapeQname)
   }, [config, entityQname, shape, shapeQname, current, entities])
 
+  //debug("sF:", shapeQname === current, shape, shapeQname, shape?.qname)
+
   const retVal =
     shapeQname === current && shape && shapeQname == shape.qname
       ? { loadingState, shape, reset }
@@ -162,7 +165,6 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
   const [uiReady, setUiReady] = useRecoilState(uiReadyState)
   const [entities, setEntities] = useRecoilState(entitiesAtom)
   const [sessionLoaded, setSessionLoaded] = useRecoilState(sessionLoadedState)
-  const [idToken, setIdToken] = useState(localStorage.getItem("BLMPidToken"))
   const [current, setCurrent] = useState(entityQname)
   const [reloadEntity, setReloadEntity] = useRecoilState(reloadEntityState)
   const [disabled, setDisabled] = useRecoilState(uiDisabledTabsState)
@@ -189,6 +191,8 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
     setEntityLoadingState({ status: "idle", error: undefined })
   }
 
+  const { t } = useTranslation()
+  
   useEffect(() => {
     if (unmounting.val) return
     async function fetchResource(entityQname: string) {
@@ -197,7 +201,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       const entityUri = config.prefixMap.uriFromQname(entityQname)
       const entityNode = rdf.sym(entityUri)
 
-      debug("fetching", entity, shapeQname, entityQname, entities) //, isAuthenticated, idToken)
+      //debug("fetching", entity, shapeQname, entityQname, entities) //, isAuthenticated)
 
       // TODO: UI "save draft" / "publish"
 
@@ -208,7 +212,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       // 1 - check if entity has local edits (once shape is defined)
       //debug("local?", shapeQname, reloadEntity,entityQname, localEntities[entityQname])
       if (reloadEntity !== entityQname && shapeQname && localEntities[entityQname] !== undefined) {
-        useLocal = window.confirm(i18n.t("general.load_previous_q"))
+        useLocal = window.confirm(t("general.load_previous_q") as string)
         const store: rdf.Store = rdf.graph()
         if (useLocal) {
           try {
@@ -226,7 +230,14 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
         } else {
           rdf.parse("", store, rdf.Store.defaultGraphURI, "text/turtle")
         }
-        const subject = new Subject(entityNode, new EntityGraph(store, entityUri, config.prefixMap))
+        const subject = new Subject(entityNode, new EntityGraph(
+          store, 
+          entityUri, 
+          config.prefixMap, 
+          undefined, 
+          undefined, 
+          config.descriptionProperties
+        ))
         res = { subject, etag }
       }
 
@@ -325,13 +336,15 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       (e) => e.subjectQname === entityQname
     )
 
+    //debug("eF:", shapeLoaded, reloadEntity, entityQname, entities, current)
+
     if (
       shapeLoaded && (
         reloadEntity === entityQname && !entities[index].subject ||
         current === entityQname && (index === -1 || entities[index] && !entities[index].subject)
       )
     ) {
-      if (idToken) fetchResource(entityQname)
+      fetchResource(entityQname)      
     } else {
       if (unmounting.val) return
       else setEntityLoadingState({ status: "fetched", error: undefined })
@@ -344,7 +357,7 @@ export function EntityFetcher(entityQname: string, shapeQname: string, config: R
       if (unmounting.val) return
       else setUiReady(true)
     }
-  }, [config, entities, entityQname, entity, current, shapeQname, idToken, reloadEntity, shapeLoaded])
+  }, [config, entities, entityQname, entity, current, shapeQname, reloadEntity, shapeLoaded])
 
   const retVal =
     entityQname === current

@@ -1,9 +1,10 @@
 import * as rdflib_lib_tf_types from 'rdflib/lib/tf-types';
 import * as rdf from 'rdflib';
+export { rdf };
 import * as recoil from 'recoil';
 import { RecoilState, AtomEffect, RecoilValue } from 'recoil';
-import { FC } from 'react';
-import { Theme } from '@mui/material/styles';
+import { FC, RefObject } from 'react';
+import * as react_jsx_runtime from 'react/jsx-runtime';
 
 declare const DASH_uri = "http://datashapes.org/dash#";
 declare const DASH: (ln: string) => rdflib_lib_tf_types.NamedNode;
@@ -101,167 +102,167 @@ declare const defaultLabelProperties: rdf.NamedNode[];
 declare const defaultDescriptionProperties: rdf.NamedNode[];
 declare const defaultPrefixMap: PrefixMap;
 
-declare const ns_DASH_uri: typeof DASH_uri;
 declare const ns_DASH: typeof DASH;
-declare const ns_OWL_uri: typeof OWL_uri;
-declare const ns_OWL: typeof OWL;
-declare const ns_RDFS_uri: typeof RDFS_uri;
-declare const ns_RDFS: typeof RDFS;
-declare const ns_SH_uri: typeof SH_uri;
-declare const ns_SH: typeof SH;
-declare const ns_RDF_uri: typeof RDF_uri;
-declare const ns_RDF: typeof RDF;
-declare const ns_SKOS_uri: typeof SKOS_uri;
-declare const ns_SKOS: typeof SKOS;
-declare const ns_XSD_uri: typeof XSD_uri;
-declare const ns_XSD: typeof XSD;
-declare const ns_FOAF_uri: typeof FOAF_uri;
+declare const ns_DASH_uri: typeof DASH_uri;
 declare const ns_FOAF: typeof FOAF;
-declare const ns_RDE_uri: typeof RDE_uri;
-declare const ns_RDE: typeof RDE;
+declare const ns_FOAF_uri: typeof FOAF_uri;
+declare const ns_OWL: typeof OWL;
+declare const ns_OWL_uri: typeof OWL_uri;
 type ns_PrefixMap = PrefixMap;
 declare const ns_PrefixMap: typeof PrefixMap;
-declare const ns_rdfType: typeof rdfType;
-declare const ns_shProperty: typeof shProperty;
-declare const ns_shGroup: typeof shGroup;
-declare const ns_shOrder: typeof shOrder;
-declare const ns_rdfsLabel: typeof rdfsLabel;
-declare const ns_prefLabel: typeof prefLabel;
-declare const ns_shName: typeof shName;
-declare const ns_shPath: typeof shPath;
+declare const ns_RDE: typeof RDE;
+declare const ns_RDE_uri: typeof RDE_uri;
+declare const ns_RDF: typeof RDF;
+declare const ns_RDFS: typeof RDFS;
+declare const ns_RDFS_uri: typeof RDFS_uri;
+declare const ns_RDF_uri: typeof RDF_uri;
+declare const ns_SH: typeof SH;
+declare const ns_SH_uri: typeof SH_uri;
+declare const ns_SKOS: typeof SKOS;
+declare const ns_SKOS_uri: typeof SKOS_uri;
+declare const ns_XSD: typeof XSD;
+declare const ns_XSD_uri: typeof XSD_uri;
 declare const ns_dashEditor: typeof dashEditor;
-declare const ns_shNode: typeof shNode;
-declare const ns_dashListShape: typeof dashListShape;
 declare const ns_dashEnumSelectEditor: typeof dashEnumSelectEditor;
-declare const ns_shMessage: typeof shMessage;
-declare const ns_rdeDisplayPriority: typeof rdeDisplayPriority;
-declare const ns_shMinCount: typeof shMinCount;
-declare const ns_shMinInclusive: typeof shMinInclusive;
-declare const ns_shMinExclusive: typeof shMinExclusive;
-declare const ns_shClass: typeof shClass;
-declare const ns_shMaxCount: typeof shMaxCount;
-declare const ns_shMaxInclusive: typeof shMaxInclusive;
-declare const ns_shMaxExclusive: typeof shMaxExclusive;
-declare const ns_shDatatype: typeof shDatatype;
+declare const ns_dashListShape: typeof dashListShape;
 declare const ns_dashSingleLine: typeof dashSingleLine;
+declare const ns_defaultDescriptionProperties: typeof defaultDescriptionProperties;
+declare const ns_defaultLabelProperties: typeof defaultLabelProperties;
+declare const ns_defaultPrefixMap: typeof defaultPrefixMap;
+declare const ns_prefLabel: typeof prefLabel;
+declare const ns_rdeAllowBatchManagement: typeof rdeAllowBatchManagement;
+declare const ns_rdeAllowMarkDown: typeof rdeAllowMarkDown;
+declare const ns_rdeAllowPushToTopLevelLabel: typeof rdeAllowPushToTopLevelLabel;
+declare const ns_rdeClassIn: typeof rdeClassIn;
+declare const ns_rdeConnectIDs: typeof rdeConnectIDs;
+declare const ns_rdeCopyObjectsOfProperty: typeof rdeCopyObjectsOfProperty;
+declare const ns_rdeDefaultLanguage: typeof rdeDefaultLanguage;
+declare const ns_rdeDefaultValue: typeof rdeDefaultValue;
+declare const ns_rdeDisplayPriority: typeof rdeDisplayPriority;
+declare const ns_rdeExternalShape: typeof rdeExternalShape;
+declare const ns_rdeIdentifierPrefix: typeof rdeIdentifierPrefix;
+declare const ns_rdeIgnoreShape: typeof rdeIgnoreShape;
+declare const ns_rdeIndependentIdentifiers: typeof rdeIndependentIdentifiers;
+declare const ns_rdeInternalShape: typeof rdeInternalShape;
+declare const ns_rdePropertyShapeType: typeof rdePropertyShapeType;
+declare const ns_rdeReadOnly: typeof rdeReadOnly;
+declare const ns_rdeSortOnProperty: typeof rdeSortOnProperty;
+declare const ns_rdeSpecialPattern: typeof rdeSpecialPattern;
+declare const ns_rdeUniqueValueAmongSiblings: typeof rdeUniqueValueAmongSiblings;
+declare const ns_rdfFirst: typeof rdfFirst;
+declare const ns_rdfLangString: typeof rdfLangString;
+declare const ns_rdfNil: typeof rdfNil;
+declare const ns_rdfRest: typeof rdfRest;
+declare const ns_rdfType: typeof rdfType;
+declare const ns_rdfsComment: typeof rdfsComment;
+declare const ns_rdfsLabel: typeof rdfsLabel;
+declare const ns_shClass: typeof shClass;
+declare const ns_shDatatype: typeof shDatatype;
+declare const ns_shDescription: typeof shDescription;
+declare const ns_shGroup: typeof shGroup;
+declare const ns_shIn: typeof shIn;
+declare const ns_shInversePath: typeof shInversePath;
+declare const ns_shLanguageIn: typeof shLanguageIn;
+declare const ns_shMaxCount: typeof shMaxCount;
+declare const ns_shMaxExclusive: typeof shMaxExclusive;
+declare const ns_shMaxInclusive: typeof shMaxInclusive;
+declare const ns_shMessage: typeof shMessage;
+declare const ns_shMinCount: typeof shMinCount;
+declare const ns_shMinExclusive: typeof shMinExclusive;
+declare const ns_shMinInclusive: typeof shMinInclusive;
+declare const ns_shName: typeof shName;
+declare const ns_shNamespace: typeof shNamespace;
+declare const ns_shNode: typeof shNode;
+declare const ns_shOrder: typeof shOrder;
+declare const ns_shPath: typeof shPath;
+declare const ns_shPattern: typeof shPattern;
+declare const ns_shProperty: typeof shProperty;
 declare const ns_shTargetClass: typeof shTargetClass;
 declare const ns_shTargetObjectsOf: typeof shTargetObjectsOf;
 declare const ns_shTargetSubjectsOf: typeof shTargetSubjectsOf;
-declare const ns_rdePropertyShapeType: typeof rdePropertyShapeType;
-declare const ns_rdeInternalShape: typeof rdeInternalShape;
-declare const ns_rdeExternalShape: typeof rdeExternalShape;
-declare const ns_rdeIgnoreShape: typeof rdeIgnoreShape;
-declare const ns_rdeClassIn: typeof rdeClassIn;
-declare const ns_shIn: typeof shIn;
-declare const ns_shInversePath: typeof shInversePath;
 declare const ns_shUniqueLang: typeof shUniqueLang;
-declare const ns_rdeReadOnly: typeof rdeReadOnly;
-declare const ns_rdeIdentifierPrefix: typeof rdeIdentifierPrefix;
-declare const ns_rdeAllowMarkDown: typeof rdeAllowMarkDown;
-declare const ns_shNamespace: typeof shNamespace;
-declare const ns_rdeDefaultLanguage: typeof rdeDefaultLanguage;
-declare const ns_rdeDefaultValue: typeof rdeDefaultValue;
-declare const ns_shLanguageIn: typeof shLanguageIn;
-declare const ns_shPattern: typeof shPattern;
-declare const ns_rdeSortOnProperty: typeof rdeSortOnProperty;
-declare const ns_rdeAllowPushToTopLevelLabel: typeof rdeAllowPushToTopLevelLabel;
-declare const ns_rdeIndependentIdentifiers: typeof rdeIndependentIdentifiers;
-declare const ns_rdeSpecialPattern: typeof rdeSpecialPattern;
-declare const ns_rdeConnectIDs: typeof rdeConnectIDs;
-declare const ns_rdeAllowBatchManagement: typeof rdeAllowBatchManagement;
-declare const ns_rdeCopyObjectsOfProperty: typeof rdeCopyObjectsOfProperty;
-declare const ns_rdeUniqueValueAmongSiblings: typeof rdeUniqueValueAmongSiblings;
-declare const ns_rdfLangString: typeof rdfLangString;
 declare const ns_skosDefinition: typeof skosDefinition;
-declare const ns_rdfsComment: typeof rdfsComment;
-declare const ns_shDescription: typeof shDescription;
-declare const ns_rdfFirst: typeof rdfFirst;
-declare const ns_rdfRest: typeof rdfRest;
-declare const ns_rdfNil: typeof rdfNil;
-declare const ns_defaultLabelProperties: typeof defaultLabelProperties;
-declare const ns_defaultDescriptionProperties: typeof defaultDescriptionProperties;
-declare const ns_defaultPrefixMap: typeof defaultPrefixMap;
 declare namespace ns {
   export {
-    ns_DASH_uri as DASH_uri,
     ns_DASH as DASH,
-    ns_OWL_uri as OWL_uri,
-    ns_OWL as OWL,
-    ns_RDFS_uri as RDFS_uri,
-    ns_RDFS as RDFS,
-    ns_SH_uri as SH_uri,
-    ns_SH as SH,
-    ns_RDF_uri as RDF_uri,
-    ns_RDF as RDF,
-    ns_SKOS_uri as SKOS_uri,
-    ns_SKOS as SKOS,
-    ns_XSD_uri as XSD_uri,
-    ns_XSD as XSD,
-    ns_FOAF_uri as FOAF_uri,
+    ns_DASH_uri as DASH_uri,
     ns_FOAF as FOAF,
-    ns_RDE_uri as RDE_uri,
-    ns_RDE as RDE,
+    ns_FOAF_uri as FOAF_uri,
+    ns_OWL as OWL,
+    ns_OWL_uri as OWL_uri,
     ns_PrefixMap as PrefixMap,
-    ns_rdfType as rdfType,
-    ns_shProperty as shProperty,
-    ns_shGroup as shGroup,
-    ns_shOrder as shOrder,
-    ns_rdfsLabel as rdfsLabel,
-    ns_prefLabel as prefLabel,
-    ns_shName as shName,
-    ns_shPath as shPath,
+    ns_RDE as RDE,
+    ns_RDE_uri as RDE_uri,
+    ns_RDF as RDF,
+    ns_RDFS as RDFS,
+    ns_RDFS_uri as RDFS_uri,
+    ns_RDF_uri as RDF_uri,
+    ns_SH as SH,
+    ns_SH_uri as SH_uri,
+    ns_SKOS as SKOS,
+    ns_SKOS_uri as SKOS_uri,
+    ns_XSD as XSD,
+    ns_XSD_uri as XSD_uri,
     ns_dashEditor as dashEditor,
-    ns_shNode as shNode,
-    ns_dashListShape as dashListShape,
     ns_dashEnumSelectEditor as dashEnumSelectEditor,
-    ns_shMessage as shMessage,
-    ns_rdeDisplayPriority as rdeDisplayPriority,
-    ns_shMinCount as shMinCount,
-    ns_shMinInclusive as shMinInclusive,
-    ns_shMinExclusive as shMinExclusive,
-    ns_shClass as shClass,
-    ns_shMaxCount as shMaxCount,
-    ns_shMaxInclusive as shMaxInclusive,
-    ns_shMaxExclusive as shMaxExclusive,
-    ns_shDatatype as shDatatype,
+    ns_dashListShape as dashListShape,
     ns_dashSingleLine as dashSingleLine,
+    ns_defaultDescriptionProperties as defaultDescriptionProperties,
+    ns_defaultLabelProperties as defaultLabelProperties,
+    ns_defaultPrefixMap as defaultPrefixMap,
+    ns_prefLabel as prefLabel,
+    ns_rdeAllowBatchManagement as rdeAllowBatchManagement,
+    ns_rdeAllowMarkDown as rdeAllowMarkDown,
+    ns_rdeAllowPushToTopLevelLabel as rdeAllowPushToTopLevelLabel,
+    ns_rdeClassIn as rdeClassIn,
+    ns_rdeConnectIDs as rdeConnectIDs,
+    ns_rdeCopyObjectsOfProperty as rdeCopyObjectsOfProperty,
+    ns_rdeDefaultLanguage as rdeDefaultLanguage,
+    ns_rdeDefaultValue as rdeDefaultValue,
+    ns_rdeDisplayPriority as rdeDisplayPriority,
+    ns_rdeExternalShape as rdeExternalShape,
+    ns_rdeIdentifierPrefix as rdeIdentifierPrefix,
+    ns_rdeIgnoreShape as rdeIgnoreShape,
+    ns_rdeIndependentIdentifiers as rdeIndependentIdentifiers,
+    ns_rdeInternalShape as rdeInternalShape,
+    ns_rdePropertyShapeType as rdePropertyShapeType,
+    ns_rdeReadOnly as rdeReadOnly,
+    ns_rdeSortOnProperty as rdeSortOnProperty,
+    ns_rdeSpecialPattern as rdeSpecialPattern,
+    ns_rdeUniqueValueAmongSiblings as rdeUniqueValueAmongSiblings,
+    ns_rdfFirst as rdfFirst,
+    ns_rdfLangString as rdfLangString,
+    ns_rdfNil as rdfNil,
+    ns_rdfRest as rdfRest,
+    ns_rdfType as rdfType,
+    ns_rdfsComment as rdfsComment,
+    ns_rdfsLabel as rdfsLabel,
+    ns_shClass as shClass,
+    ns_shDatatype as shDatatype,
+    ns_shDescription as shDescription,
+    ns_shGroup as shGroup,
+    ns_shIn as shIn,
+    ns_shInversePath as shInversePath,
+    ns_shLanguageIn as shLanguageIn,
+    ns_shMaxCount as shMaxCount,
+    ns_shMaxExclusive as shMaxExclusive,
+    ns_shMaxInclusive as shMaxInclusive,
+    ns_shMessage as shMessage,
+    ns_shMinCount as shMinCount,
+    ns_shMinExclusive as shMinExclusive,
+    ns_shMinInclusive as shMinInclusive,
+    ns_shName as shName,
+    ns_shNamespace as shNamespace,
+    ns_shNode as shNode,
+    ns_shOrder as shOrder,
+    ns_shPath as shPath,
+    ns_shPattern as shPattern,
+    ns_shProperty as shProperty,
     ns_shTargetClass as shTargetClass,
     ns_shTargetObjectsOf as shTargetObjectsOf,
     ns_shTargetSubjectsOf as shTargetSubjectsOf,
-    ns_rdePropertyShapeType as rdePropertyShapeType,
-    ns_rdeInternalShape as rdeInternalShape,
-    ns_rdeExternalShape as rdeExternalShape,
-    ns_rdeIgnoreShape as rdeIgnoreShape,
-    ns_rdeClassIn as rdeClassIn,
-    ns_shIn as shIn,
-    ns_shInversePath as shInversePath,
     ns_shUniqueLang as shUniqueLang,
-    ns_rdeReadOnly as rdeReadOnly,
-    ns_rdeIdentifierPrefix as rdeIdentifierPrefix,
-    ns_rdeAllowMarkDown as rdeAllowMarkDown,
-    ns_shNamespace as shNamespace,
-    ns_rdeDefaultLanguage as rdeDefaultLanguage,
-    ns_rdeDefaultValue as rdeDefaultValue,
-    ns_shLanguageIn as shLanguageIn,
-    ns_shPattern as shPattern,
-    ns_rdeSortOnProperty as rdeSortOnProperty,
-    ns_rdeAllowPushToTopLevelLabel as rdeAllowPushToTopLevelLabel,
-    ns_rdeIndependentIdentifiers as rdeIndependentIdentifiers,
-    ns_rdeSpecialPattern as rdeSpecialPattern,
-    ns_rdeConnectIDs as rdeConnectIDs,
-    ns_rdeAllowBatchManagement as rdeAllowBatchManagement,
-    ns_rdeCopyObjectsOfProperty as rdeCopyObjectsOfProperty,
-    ns_rdeUniqueValueAmongSiblings as rdeUniqueValueAmongSiblings,
-    ns_rdfLangString as rdfLangString,
     ns_skosDefinition as skosDefinition,
-    ns_rdfsComment as rdfsComment,
-    ns_shDescription as shDescription,
-    ns_rdfFirst as rdfFirst,
-    ns_rdfRest as rdfRest,
-    ns_rdfNil as rdfNil,
-    ns_defaultLabelProperties as defaultLabelProperties,
-    ns_defaultDescriptionProperties as defaultDescriptionProperties,
-    ns_defaultPrefixMap as defaultPrefixMap,
   };
 }
 
@@ -275,7 +276,7 @@ declare enum ObjectType {
     LitInList = 5
 }
 declare const updateHistory: (entity: string, qname: string, prop: string, val: Array<Value>, noHisto?: boolean | number) => void;
-declare type HistoryStatus = {
+type HistoryStatus = {
     top: number;
     first: number;
     current: number;
@@ -350,8 +351,8 @@ declare class RDFResource {
     getPropBooleanValue(p: rdf.NamedNode, dflt?: boolean): boolean;
 }
 declare class RDFResourceWithLabel extends RDFResource {
-    node: rdf.NamedNode;
-    constructor(node: rdf.NamedNode, graph: EntityGraph, labelProp?: rdf.NamedNode);
+    node: rdf.NamedNode | rdf.BlankNode;
+    constructor(node: rdf.NamedNode | rdf.BlankNode, graph: EntityGraph, labelProp?: rdf.NamedNode);
     get prefLabels(): Record<string, string>;
     get description(): Record<string, string> | null;
 }
@@ -372,7 +373,7 @@ declare class LiteralWithId extends rdf.Literal {
     copyWithUpdatedValue(value: string): LiteralWithId;
     copyWithUpdatedLanguage(language: string): LiteralWithId;
 }
-declare type Value = Subject | LiteralWithId | RDFResourceWithLabel;
+type Value = Subject | LiteralWithId | RDFResourceWithLabel;
 declare class Subject extends RDFResource {
     node: rdf.NamedNode;
     constructor(node: rdf.NamedNode, graph: EntityGraph);
@@ -436,20 +437,20 @@ declare class NodeShape extends RDFResourceWithLabel {
 }
 declare const generateSubnodes$1: (subshape: NodeShape | null, parent: RDFResource, n?: number) => Promise<Subject[]>;
 
-declare const shapes_sortByPropValue: typeof sortByPropValue;
-type shapes_PropertyShape = PropertyShape;
-declare const shapes_PropertyShape: typeof PropertyShape;
-type shapes_PropertyGroup = PropertyGroup;
-declare const shapes_PropertyGroup: typeof PropertyGroup;
 type shapes_NodeShape = NodeShape;
 declare const shapes_NodeShape: typeof NodeShape;
+type shapes_PropertyGroup = PropertyGroup;
+declare const shapes_PropertyGroup: typeof PropertyGroup;
+type shapes_PropertyShape = PropertyShape;
+declare const shapes_PropertyShape: typeof PropertyShape;
+declare const shapes_sortByPropValue: typeof sortByPropValue;
 declare namespace shapes {
   export {
-    shapes_sortByPropValue as sortByPropValue,
-    shapes_PropertyShape as PropertyShape,
-    shapes_PropertyGroup as PropertyGroup,
     shapes_NodeShape as NodeShape,
+    shapes_PropertyGroup as PropertyGroup,
+    shapes_PropertyShape as PropertyShape,
     generateSubnodes$1 as generateSubnodes,
+    shapes_sortByPropValue as sortByPropValue,
   };
 }
 
@@ -460,7 +461,7 @@ declare enum EditedEntityState {
     Loading = 3,
     NotLoaded = 4
 }
-declare type Entity = {
+type Entity = {
     subjectQname: string;
     subject: Subject | null;
     shapeQname: string;
@@ -484,13 +485,13 @@ declare const uiHistoryState: RecoilState<Record<string, never> | FC<{
         string: Array<Value>;
     };
 }>>;
-declare type undoState = {
+type undoState = {
     enabled: boolean;
     subjectUri: string;
     propertyPath: string;
     parentPath: Array<string>;
 };
-declare type undoPN = {
+type undoPN = {
     prev: undoState;
     next: undoState;
 };
@@ -521,13 +522,13 @@ declare const uiNavState: RecoilState<string>;
 declare const sessionLoadedState: RecoilState<boolean>;
 declare const uiDisabledTabsState: RecoilState<boolean>;
 declare const reloadEntityState: RecoilState<string>;
-declare type orderedByPropSelectorArgs = {
+type orderedByPropSelectorArgs = {
     atom: RecoilValue<Array<Value>>;
     propertyPath: string;
     order: string;
 };
 declare const orderedByPropSelector: (param: orderedByPropSelectorArgs) => recoil.RecoilValueReadOnly<any>;
-declare type personNamesLabelsSelectorArgs = {
+type personNamesLabelsSelectorArgs = {
     atom: RecoilValue<Array<Subject>>;
 };
 declare const personNamesLabelsSelector: (param: personNamesLabelsSelectorArgs) => recoil.RecoilValueReadOnly<any>;
@@ -538,28 +539,28 @@ declare const initkvAtom: RecoilState<{
     k: string;
     val: Value[];
 }>;
-declare type canPushPrefLabelGroupType = {
+type canPushPrefLabelGroupType = {
     props?: RecoilState<Value[]>[];
     subprops?: Record<string, {
         atom: RecoilState<Subject[]>;
         allowPush: string[];
     }>;
 };
-declare type canPushPrefLabelGroupsType = {
+type canPushPrefLabelGroupsType = {
     canPushPrefLabelGroups: Record<string, canPushPrefLabelGroupType>;
 };
 declare const possiblePrefLabelsSelector: (param: canPushPrefLabelGroupsType) => recoil.RecoilValueReadOnly<Record<string, Value[]>>;
-declare type orderedNewValSelectorType = {
+type orderedNewValSelectorType = {
     atom: RecoilState<Subject[]> | null;
     propertyPath: string;
     order?: "asc" | "desc";
 };
 declare const orderedNewValSelector: (param: orderedNewValSelectorType) => recoil.RecoilValueReadOnly<string>;
-declare type toCopySelectorsType = Array<{
+type toCopySelectorsType = Array<{
     property: string;
     atom: RecoilState<Value[]>;
 }>;
-declare type toCopySelectorType = {
+type toCopySelectorType = {
     list?: toCopySelectorsType;
 };
 declare const toCopySelector: (param: toCopySelectorType) => RecoilState<{
@@ -567,7 +568,7 @@ declare const toCopySelector: (param: toCopySelectorType) => RecoilState<{
     val: Value[];
 }[]>;
 declare const savePopupState: RecoilState<boolean>;
-declare type ESfromRecoilSelectorType = {
+type ESfromRecoilSelectorType = {
     property: PropertyShape;
     subject: Subject;
     entityQname: string;
@@ -579,104 +580,104 @@ declare type ESfromRecoilSelectorType = {
     forceRemove: boolean;
 };
 declare const ESfromRecoilSelector: (param: any) => RecoilState<any>;
-declare type isUniqueTestSelectorType = {
+type isUniqueTestSelectorType = {
     checkUnique: boolean;
     siblingsAtom: RecoilState<Subject[]>;
     propertyPath: string;
 };
 declare const isUniqueTestSelector: (param: isUniqueTestSelectorType) => recoil.RecoilValueReadOnly<boolean>;
 
+declare const common_ESfromRecoilSelector: typeof ESfromRecoilSelector;
+type common_ESfromRecoilSelectorType = ESfromRecoilSelectorType;
 type common_EditedEntityState = EditedEntityState;
 declare const common_EditedEntityState: typeof EditedEntityState;
 type common_Entity = Entity;
-declare const common_entitiesAtom: typeof entitiesAtom;
+type common_canPushPrefLabelGroupType = canPushPrefLabelGroupType;
+type common_canPushPrefLabelGroupsType = canPushPrefLabelGroupsType;
 declare const common_defaultEntityLabelAtom: typeof defaultEntityLabelAtom;
-declare const common_uiLangState: typeof uiLangState;
-declare const common_uiLitLangState: typeof uiLitLangState;
-declare const common_uiReadyState: typeof uiReadyState;
-declare const common_uiTabState: typeof uiTabState;
-declare const common_uiRIDState: typeof uiRIDState;
+declare const common_entitiesAtom: typeof entitiesAtom;
+declare const common_initListAtom: typeof initListAtom;
+declare const common_initMapAtom: typeof initMapAtom;
+declare const common_initStringAtom: typeof initStringAtom;
+declare const common_initkvAtom: typeof initkvAtom;
+declare const common_isUniqueTestSelector: typeof isUniqueTestSelector;
+type common_isUniqueTestSelectorType = isUniqueTestSelectorType;
+declare const common_noUndo: typeof noUndo;
+declare const common_noUndoRedo: typeof noUndoRedo;
+declare const common_orderedByPropSelector: typeof orderedByPropSelector;
+type common_orderedByPropSelectorArgs = orderedByPropSelectorArgs;
+declare const common_orderedNewValSelector: typeof orderedNewValSelector;
+type common_orderedNewValSelectorType = orderedNewValSelectorType;
+declare const common_personNamesLabelsSelector: typeof personNamesLabelsSelector;
+type common_personNamesLabelsSelectorArgs = personNamesLabelsSelectorArgs;
+declare const common_possiblePrefLabelsSelector: typeof possiblePrefLabelsSelector;
+declare const common_reloadEntityState: typeof reloadEntityState;
+declare const common_sameUndo: typeof sameUndo;
+declare const common_sameUndoSub: typeof sameUndoSub;
+declare const common_savePopupState: typeof savePopupState;
+declare const common_sessionLoadedState: typeof sessionLoadedState;
+declare const common_toCopySelector: typeof toCopySelector;
+type common_toCopySelectorType = toCopySelectorType;
+type common_toCopySelectorsType = toCopySelectorsType;
+declare const common_uiDisabledTabsState: typeof uiDisabledTabsState;
 declare const common_uiEditState: typeof uiEditState;
 declare const common_uiGroupState: typeof uiGroupState;
 declare const common_uiHistoryState: typeof uiHistoryState;
-type common_undoState = undoState;
-type common_undoPN = undoPN;
-declare const common_sameUndoSub: typeof sameUndoSub;
-declare const common_sameUndo: typeof sameUndo;
-declare const common_noUndo: typeof noUndo;
-declare const common_noUndoRedo: typeof noUndoRedo;
-declare const common_uiUndosState: typeof uiUndosState;
+declare const common_uiLangState: typeof uiLangState;
+declare const common_uiLitLangState: typeof uiLitLangState;
 declare const common_uiNavState: typeof uiNavState;
-declare const common_sessionLoadedState: typeof sessionLoadedState;
-declare const common_uiDisabledTabsState: typeof uiDisabledTabsState;
-declare const common_reloadEntityState: typeof reloadEntityState;
-type common_orderedByPropSelectorArgs = orderedByPropSelectorArgs;
-declare const common_orderedByPropSelector: typeof orderedByPropSelector;
-type common_personNamesLabelsSelectorArgs = personNamesLabelsSelectorArgs;
-declare const common_personNamesLabelsSelector: typeof personNamesLabelsSelector;
-declare const common_initListAtom: typeof initListAtom;
-declare const common_initStringAtom: typeof initStringAtom;
-declare const common_initMapAtom: typeof initMapAtom;
-declare const common_initkvAtom: typeof initkvAtom;
-type common_canPushPrefLabelGroupType = canPushPrefLabelGroupType;
-type common_canPushPrefLabelGroupsType = canPushPrefLabelGroupsType;
-declare const common_possiblePrefLabelsSelector: typeof possiblePrefLabelsSelector;
-type common_orderedNewValSelectorType = orderedNewValSelectorType;
-declare const common_orderedNewValSelector: typeof orderedNewValSelector;
-type common_toCopySelectorsType = toCopySelectorsType;
-type common_toCopySelectorType = toCopySelectorType;
-declare const common_toCopySelector: typeof toCopySelector;
-declare const common_savePopupState: typeof savePopupState;
-type common_ESfromRecoilSelectorType = ESfromRecoilSelectorType;
-declare const common_ESfromRecoilSelector: typeof ESfromRecoilSelector;
-type common_isUniqueTestSelectorType = isUniqueTestSelectorType;
-declare const common_isUniqueTestSelector: typeof isUniqueTestSelector;
+declare const common_uiRIDState: typeof uiRIDState;
+declare const common_uiReadyState: typeof uiReadyState;
+declare const common_uiTabState: typeof uiTabState;
+declare const common_uiUndosState: typeof uiUndosState;
+type common_undoPN = undoPN;
+type common_undoState = undoState;
 declare namespace common {
   export {
+    common_ESfromRecoilSelector as ESfromRecoilSelector,
+    common_ESfromRecoilSelectorType as ESfromRecoilSelectorType,
     common_EditedEntityState as EditedEntityState,
     common_Entity as Entity,
-    common_entitiesAtom as entitiesAtom,
+    common_canPushPrefLabelGroupType as canPushPrefLabelGroupType,
+    common_canPushPrefLabelGroupsType as canPushPrefLabelGroupsType,
     common_defaultEntityLabelAtom as defaultEntityLabelAtom,
-    common_uiLangState as uiLangState,
-    common_uiLitLangState as uiLitLangState,
-    common_uiReadyState as uiReadyState,
-    common_uiTabState as uiTabState,
-    common_uiRIDState as uiRIDState,
+    common_entitiesAtom as entitiesAtom,
+    common_initListAtom as initListAtom,
+    common_initMapAtom as initMapAtom,
+    common_initStringAtom as initStringAtom,
+    common_initkvAtom as initkvAtom,
+    common_isUniqueTestSelector as isUniqueTestSelector,
+    common_isUniqueTestSelectorType as isUniqueTestSelectorType,
+    common_noUndo as noUndo,
+    common_noUndoRedo as noUndoRedo,
+    common_orderedByPropSelector as orderedByPropSelector,
+    common_orderedByPropSelectorArgs as orderedByPropSelectorArgs,
+    common_orderedNewValSelector as orderedNewValSelector,
+    common_orderedNewValSelectorType as orderedNewValSelectorType,
+    common_personNamesLabelsSelector as personNamesLabelsSelector,
+    common_personNamesLabelsSelectorArgs as personNamesLabelsSelectorArgs,
+    common_possiblePrefLabelsSelector as possiblePrefLabelsSelector,
+    common_reloadEntityState as reloadEntityState,
+    common_sameUndo as sameUndo,
+    common_sameUndoSub as sameUndoSub,
+    common_savePopupState as savePopupState,
+    common_sessionLoadedState as sessionLoadedState,
+    common_toCopySelector as toCopySelector,
+    common_toCopySelectorType as toCopySelectorType,
+    common_toCopySelectorsType as toCopySelectorsType,
+    common_uiDisabledTabsState as uiDisabledTabsState,
     common_uiEditState as uiEditState,
     common_uiGroupState as uiGroupState,
     common_uiHistoryState as uiHistoryState,
-    common_undoState as undoState,
-    common_undoPN as undoPN,
-    common_sameUndoSub as sameUndoSub,
-    common_sameUndo as sameUndo,
-    common_noUndo as noUndo,
-    common_noUndoRedo as noUndoRedo,
-    common_uiUndosState as uiUndosState,
+    common_uiLangState as uiLangState,
+    common_uiLitLangState as uiLitLangState,
     common_uiNavState as uiNavState,
-    common_sessionLoadedState as sessionLoadedState,
-    common_uiDisabledTabsState as uiDisabledTabsState,
-    common_reloadEntityState as reloadEntityState,
-    common_orderedByPropSelectorArgs as orderedByPropSelectorArgs,
-    common_orderedByPropSelector as orderedByPropSelector,
-    common_personNamesLabelsSelectorArgs as personNamesLabelsSelectorArgs,
-    common_personNamesLabelsSelector as personNamesLabelsSelector,
-    common_initListAtom as initListAtom,
-    common_initStringAtom as initStringAtom,
-    common_initMapAtom as initMapAtom,
-    common_initkvAtom as initkvAtom,
-    common_canPushPrefLabelGroupType as canPushPrefLabelGroupType,
-    common_canPushPrefLabelGroupsType as canPushPrefLabelGroupsType,
-    common_possiblePrefLabelsSelector as possiblePrefLabelsSelector,
-    common_orderedNewValSelectorType as orderedNewValSelectorType,
-    common_orderedNewValSelector as orderedNewValSelector,
-    common_toCopySelectorsType as toCopySelectorsType,
-    common_toCopySelectorType as toCopySelectorType,
-    common_toCopySelector as toCopySelector,
-    common_savePopupState as savePopupState,
-    common_ESfromRecoilSelectorType as ESfromRecoilSelectorType,
-    common_ESfromRecoilSelector as ESfromRecoilSelector,
-    common_isUniqueTestSelectorType as isUniqueTestSelectorType,
-    common_isUniqueTestSelector as isUniqueTestSelector,
+    common_uiRIDState as uiRIDState,
+    common_uiReadyState as uiReadyState,
+    common_uiTabState as uiTabState,
+    common_uiUndosState as uiUndosState,
+    common_undoPN as undoPN,
+    common_undoState as undoState,
   };
 }
 
@@ -757,7 +758,7 @@ declare namespace enTranslations {
     }
 }
 
-declare type Lang = {
+type Lang = {
     value: string;
     keyboard?: string[];
 };
@@ -773,7 +774,7 @@ interface generateSubnodes {
 interface valueByLangToStrPrefLang {
     (vbl: Record<string, string> | null, prefLang: string | Array<string>): string;
 }
-declare type previewResults = {
+type previewResults = {
     value: string | null;
     error: React.ReactNode | null;
 };
@@ -831,14 +832,14 @@ interface setUserLocalEntity {
 interface iconFromEntity {
     (entity: Entity | null): string;
 }
-declare type ShapeRef = RDFResourceWithLabel;
+type ShapeRef = RDFResourceWithLabel;
 interface possibleShapeRefsForEntity {
     (entity: rdf.NamedNode): ShapeRef[];
 }
 interface possibleShapeRefsForType {
     (type: rdf.NamedNode): ShapeRef[];
 }
-declare type ResourceSelector = FC<{
+type ResourceSelector = FC<{
     value: ExtRDFResourceWithLabel;
     onChange: (value: ExtRDFResourceWithLabel, idx: number, removeFirst: boolean | undefined) => void;
     property: PropertyShape;
@@ -895,22 +896,36 @@ interface IdTypeParams {
     subnodeQname?: string;
 }
 interface RDEProps extends IdTypeParams {
+    extraElement?: JSX.Element | Iterable<JSX.Element>;
     copy?: string | null | (string | null)[];
 }
 
-declare function EntityEditContainerMayUpdate(props: RDEProps): JSX.Element;
-declare function EntityEditContainer(props: RDEProps): JSX.Element;
+declare function EntityEditContainerMayUpdate(props: RDEProps): react_jsx_runtime.JSX.Element;
+declare function EntityEditContainer(props: RDEProps): react_jsx_runtime.JSX.Element;
 
-declare function NewEntityContainer(props: RDEProps): JSX.Element;
+declare function NewEntityContainer(props: RDEProps): react_jsx_runtime.JSX.Element;
 
-declare function EntityCreationContainer(props: RDEProps): JSX.Element;
-declare function EntityCreationContainerRoute(props: RDEProps): JSX.Element;
+declare function EntityCreationContainer(props: RDEProps): react_jsx_runtime.JSX.Element;
+declare function EntityCreationContainerRoute(props: RDEProps): react_jsx_runtime.JSX.Element;
 
-declare function EntityShapeChooserContainer(props: RDEProps): JSX.Element;
+declare function EntityShapeChooserContainer(props: RDEProps): react_jsx_runtime.JSX.Element;
 
-declare function EntitySelector(props: RDEProps): JSX.Element;
+declare function EntitySelector(props: RDEProps): react_jsx_runtime.JSX.Element;
 
-declare function BottomBarContainer(props: RDEProps): JSX.Element;
+declare function BottomBarContainer(props: RDEProps): react_jsx_runtime.JSX.Element;
+
+declare const LangSelect: FC<{
+    onChange: (value: string) => void;
+    value: string;
+    property?: PropertyShape;
+    disabled?: boolean;
+    error?: boolean;
+    editable?: boolean;
+    config: RDEConfig;
+}>;
+
+declare let undoRef: RefObject<HTMLButtonElement> | null;
+declare let redoRef: RefObject<HTMLButtonElement> | null;
 
 interface StoreWithEtag {
     store: rdf.Store;
@@ -922,10 +937,6 @@ declare class HttpError extends Error {
 }
 declare const fetchTtl: (url: string, allow404?: boolean, headers?: Headers, allowEmptyEtag?: boolean) => Promise<StoreWithEtag>;
 
-declare module '@mui/styles/defaultTheme' {
-    interface DefaultTheme extends Theme {
-    }
-}
 declare const BUDAResourceSelector: FC<{
     value: ExtRDFResourceWithLabel;
     onChange: (value: ExtRDFResourceWithLabel, idx: number, removeFirst: boolean | undefined) => void;
@@ -942,4 +953,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, HistoryStatus, HttpError, IFetchState, IdTypeParams, Lang, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, RDFResourceWithLabel, Subject, Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, shapes, updateHistory };
+export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, HistoryStatus, HttpError, IFetchState, IdTypeParams, Lang, LangSelect, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, RDFResourceWithLabel, Subject, Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, redoRef, shapes, undoRef, updateHistory };

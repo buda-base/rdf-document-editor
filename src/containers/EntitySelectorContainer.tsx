@@ -1,5 +1,5 @@
 /* eslint-disable no-extra-parens */
-import React, { useEffect, ChangeEvent } from "react"
+import React, { useEffect, ChangeEvent, useTransition } from "react"
 import { history as undoHistory } from "../helpers/rdf/types"
 import { Close as CloseIcon } from "@mui/icons-material"
 import i18n from "i18next"
@@ -18,12 +18,12 @@ import {
   EditedEntityState,
   Entity,
 } from "../atoms/common"
-import { makeStyles } from "@mui/styles"
 import { Tabs, Tab } from "@mui/material"
 import * as lang from "../helpers/lang"
 import * as ns from "../helpers/rdf/ns"
 import { EntityInEntitySelectorContainer } from "./EntityInEntitySelectorContainer"
 import { debug as debugfactory } from "debug"
+import { useTranslation } from "react-i18next"
 
 const debug = debugfactory("rde:entity:selector")
 
@@ -50,6 +50,7 @@ export function EntitySelector(props: RDEProps) {
 
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation()
 
   // restore user session on startup
   useEffect(() => {
@@ -88,7 +89,7 @@ export function EntitySelector(props: RDEProps) {
         if (!found) setTab(newEntities.length)
       }
     })
-  }, [config, location])
+  }, [])
 
   const closeEntities = async (ev: React.MouseEvent) => {
     let warn = false
@@ -136,7 +137,7 @@ export function EntitySelector(props: RDEProps) {
       <h3>Edition</h3>
       <h4>
         Open entities
-        <span title={i18n.t("general.close")}>
+        <span title={t("general.close") as string}>
           <CloseIcon className="close-facet-btn" onClick={closeEntities} />
         </span>
       </h4>
