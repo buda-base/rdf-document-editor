@@ -183,87 +183,7 @@ declare const ns_shTargetSubjectsOf: typeof shTargetSubjectsOf;
 declare const ns_shUniqueLang: typeof shUniqueLang;
 declare const ns_skosDefinition: typeof skosDefinition;
 declare namespace ns {
-  export {
-    ns_DASH as DASH,
-    ns_DASH_uri as DASH_uri,
-    ns_FOAF as FOAF,
-    ns_FOAF_uri as FOAF_uri,
-    ns_OWL as OWL,
-    ns_OWL_uri as OWL_uri,
-    ns_PrefixMap as PrefixMap,
-    ns_RDE as RDE,
-    ns_RDE_uri as RDE_uri,
-    ns_RDF as RDF,
-    ns_RDFS as RDFS,
-    ns_RDFS_uri as RDFS_uri,
-    ns_RDF_uri as RDF_uri,
-    ns_SH as SH,
-    ns_SH_uri as SH_uri,
-    ns_SKOS as SKOS,
-    ns_SKOS_uri as SKOS_uri,
-    ns_XSD as XSD,
-    ns_XSD_uri as XSD_uri,
-    ns_dashEditor as dashEditor,
-    ns_dashEnumSelectEditor as dashEnumSelectEditor,
-    ns_dashListShape as dashListShape,
-    ns_dashSingleLine as dashSingleLine,
-    ns_defaultDescriptionProperties as defaultDescriptionProperties,
-    ns_defaultLabelProperties as defaultLabelProperties,
-    ns_defaultPrefixMap as defaultPrefixMap,
-    ns_prefLabel as prefLabel,
-    ns_rdeAllowBatchManagement as rdeAllowBatchManagement,
-    ns_rdeAllowMarkDown as rdeAllowMarkDown,
-    ns_rdeAllowPushToTopLevelLabel as rdeAllowPushToTopLevelLabel,
-    ns_rdeClassIn as rdeClassIn,
-    ns_rdeConnectIDs as rdeConnectIDs,
-    ns_rdeCopyObjectsOfProperty as rdeCopyObjectsOfProperty,
-    ns_rdeDefaultLanguage as rdeDefaultLanguage,
-    ns_rdeDefaultValue as rdeDefaultValue,
-    ns_rdeDisplayPriority as rdeDisplayPriority,
-    ns_rdeExternalShape as rdeExternalShape,
-    ns_rdeIdentifierPrefix as rdeIdentifierPrefix,
-    ns_rdeIgnoreShape as rdeIgnoreShape,
-    ns_rdeIndependentIdentifiers as rdeIndependentIdentifiers,
-    ns_rdeInternalShape as rdeInternalShape,
-    ns_rdePropertyShapeType as rdePropertyShapeType,
-    ns_rdeReadOnly as rdeReadOnly,
-    ns_rdeSortOnProperty as rdeSortOnProperty,
-    ns_rdeSpecialPattern as rdeSpecialPattern,
-    ns_rdeUniqueValueAmongSiblings as rdeUniqueValueAmongSiblings,
-    ns_rdfFirst as rdfFirst,
-    ns_rdfLangString as rdfLangString,
-    ns_rdfNil as rdfNil,
-    ns_rdfRest as rdfRest,
-    ns_rdfType as rdfType,
-    ns_rdfsComment as rdfsComment,
-    ns_rdfsLabel as rdfsLabel,
-    ns_shClass as shClass,
-    ns_shDatatype as shDatatype,
-    ns_shDescription as shDescription,
-    ns_shGroup as shGroup,
-    ns_shIn as shIn,
-    ns_shInversePath as shInversePath,
-    ns_shLanguageIn as shLanguageIn,
-    ns_shMaxCount as shMaxCount,
-    ns_shMaxExclusive as shMaxExclusive,
-    ns_shMaxInclusive as shMaxInclusive,
-    ns_shMessage as shMessage,
-    ns_shMinCount as shMinCount,
-    ns_shMinExclusive as shMinExclusive,
-    ns_shMinInclusive as shMinInclusive,
-    ns_shName as shName,
-    ns_shNamespace as shNamespace,
-    ns_shNode as shNode,
-    ns_shOrder as shOrder,
-    ns_shPath as shPath,
-    ns_shPattern as shPattern,
-    ns_shProperty as shProperty,
-    ns_shTargetClass as shTargetClass,
-    ns_shTargetObjectsOf as shTargetObjectsOf,
-    ns_shTargetSubjectsOf as shTargetSubjectsOf,
-    ns_shUniqueLang as shUniqueLang,
-    ns_skosDefinition as skosDefinition,
-  };
+  export { ns_DASH as DASH, ns_DASH_uri as DASH_uri, ns_FOAF as FOAF, ns_FOAF_uri as FOAF_uri, ns_OWL as OWL, ns_OWL_uri as OWL_uri, ns_PrefixMap as PrefixMap, ns_RDE as RDE, ns_RDE_uri as RDE_uri, ns_RDF as RDF, ns_RDFS as RDFS, ns_RDFS_uri as RDFS_uri, ns_RDF_uri as RDF_uri, ns_SH as SH, ns_SH_uri as SH_uri, ns_SKOS as SKOS, ns_SKOS_uri as SKOS_uri, ns_XSD as XSD, ns_XSD_uri as XSD_uri, ns_dashEditor as dashEditor, ns_dashEnumSelectEditor as dashEnumSelectEditor, ns_dashListShape as dashListShape, ns_dashSingleLine as dashSingleLine, ns_defaultDescriptionProperties as defaultDescriptionProperties, ns_defaultLabelProperties as defaultLabelProperties, ns_defaultPrefixMap as defaultPrefixMap, ns_prefLabel as prefLabel, ns_rdeAllowBatchManagement as rdeAllowBatchManagement, ns_rdeAllowMarkDown as rdeAllowMarkDown, ns_rdeAllowPushToTopLevelLabel as rdeAllowPushToTopLevelLabel, ns_rdeClassIn as rdeClassIn, ns_rdeConnectIDs as rdeConnectIDs, ns_rdeCopyObjectsOfProperty as rdeCopyObjectsOfProperty, ns_rdeDefaultLanguage as rdeDefaultLanguage, ns_rdeDefaultValue as rdeDefaultValue, ns_rdeDisplayPriority as rdeDisplayPriority, ns_rdeExternalShape as rdeExternalShape, ns_rdeIdentifierPrefix as rdeIdentifierPrefix, ns_rdeIgnoreShape as rdeIgnoreShape, ns_rdeIndependentIdentifiers as rdeIndependentIdentifiers, ns_rdeInternalShape as rdeInternalShape, ns_rdePropertyShapeType as rdePropertyShapeType, ns_rdeReadOnly as rdeReadOnly, ns_rdeSortOnProperty as rdeSortOnProperty, ns_rdeSpecialPattern as rdeSpecialPattern, ns_rdeUniqueValueAmongSiblings as rdeUniqueValueAmongSiblings, ns_rdfFirst as rdfFirst, ns_rdfLangString as rdfLangString, ns_rdfNil as rdfNil, ns_rdfRest as rdfRest, ns_rdfType as rdfType, ns_rdfsComment as rdfsComment, ns_rdfsLabel as rdfsLabel, ns_shClass as shClass, ns_shDatatype as shDatatype, ns_shDescription as shDescription, ns_shGroup as shGroup, ns_shIn as shIn, ns_shInversePath as shInversePath, ns_shLanguageIn as shLanguageIn, ns_shMaxCount as shMaxCount, ns_shMaxExclusive as shMaxExclusive, ns_shMaxInclusive as shMaxInclusive, ns_shMessage as shMessage, ns_shMinCount as shMinCount, ns_shMinExclusive as shMinExclusive, ns_shMinInclusive as shMinInclusive, ns_shName as shName, ns_shNamespace as shNamespace, ns_shNode as shNode, ns_shOrder as shOrder, ns_shPath as shPath, ns_shPattern as shPattern, ns_shProperty as shProperty, ns_shTargetClass as shTargetClass, ns_shTargetObjectsOf as shTargetObjectsOf, ns_shTargetSubjectsOf as shTargetSubjectsOf, ns_shUniqueLang as shUniqueLang, ns_skosDefinition as skosDefinition };
 }
 
 declare const history: Record<string, Array<Record<string, any>>>;
@@ -445,13 +365,7 @@ type shapes_PropertyShape = PropertyShape;
 declare const shapes_PropertyShape: typeof PropertyShape;
 declare const shapes_sortByPropValue: typeof sortByPropValue;
 declare namespace shapes {
-  export {
-    shapes_NodeShape as NodeShape,
-    shapes_PropertyGroup as PropertyGroup,
-    shapes_PropertyShape as PropertyShape,
-    generateSubnodes$1 as generateSubnodes,
-    shapes_sortByPropValue as sortByPropValue,
-  };
+  export { shapes_NodeShape as NodeShape, shapes_PropertyGroup as PropertyGroup, shapes_PropertyShape as PropertyShape, generateSubnodes$1 as generateSubnodes, shapes_sortByPropValue as sortByPropValue };
 }
 
 declare enum EditedEntityState {
@@ -633,52 +547,7 @@ declare const common_uiUndosState: typeof uiUndosState;
 type common_undoPN = undoPN;
 type common_undoState = undoState;
 declare namespace common {
-  export {
-    common_ESfromRecoilSelector as ESfromRecoilSelector,
-    common_ESfromRecoilSelectorType as ESfromRecoilSelectorType,
-    common_EditedEntityState as EditedEntityState,
-    common_Entity as Entity,
-    common_canPushPrefLabelGroupType as canPushPrefLabelGroupType,
-    common_canPushPrefLabelGroupsType as canPushPrefLabelGroupsType,
-    common_defaultEntityLabelAtom as defaultEntityLabelAtom,
-    common_entitiesAtom as entitiesAtom,
-    common_initListAtom as initListAtom,
-    common_initMapAtom as initMapAtom,
-    common_initStringAtom as initStringAtom,
-    common_initkvAtom as initkvAtom,
-    common_isUniqueTestSelector as isUniqueTestSelector,
-    common_isUniqueTestSelectorType as isUniqueTestSelectorType,
-    common_noUndo as noUndo,
-    common_noUndoRedo as noUndoRedo,
-    common_orderedByPropSelector as orderedByPropSelector,
-    common_orderedByPropSelectorArgs as orderedByPropSelectorArgs,
-    common_orderedNewValSelector as orderedNewValSelector,
-    common_orderedNewValSelectorType as orderedNewValSelectorType,
-    common_personNamesLabelsSelector as personNamesLabelsSelector,
-    common_personNamesLabelsSelectorArgs as personNamesLabelsSelectorArgs,
-    common_possiblePrefLabelsSelector as possiblePrefLabelsSelector,
-    common_reloadEntityState as reloadEntityState,
-    common_sameUndo as sameUndo,
-    common_sameUndoSub as sameUndoSub,
-    common_savePopupState as savePopupState,
-    common_sessionLoadedState as sessionLoadedState,
-    common_toCopySelector as toCopySelector,
-    common_toCopySelectorType as toCopySelectorType,
-    common_toCopySelectorsType as toCopySelectorsType,
-    common_uiDisabledTabsState as uiDisabledTabsState,
-    common_uiEditState as uiEditState,
-    common_uiGroupState as uiGroupState,
-    common_uiHistoryState as uiHistoryState,
-    common_uiLangState as uiLangState,
-    common_uiLitLangState as uiLitLangState,
-    common_uiNavState as uiNavState,
-    common_uiRIDState as uiRIDState,
-    common_uiReadyState as uiReadyState,
-    common_uiTabState as uiTabState,
-    common_uiUndosState as uiUndosState,
-    common_undoPN as undoPN,
-    common_undoState as undoState,
-  };
+  export { common_ESfromRecoilSelector as ESfromRecoilSelector, type common_ESfromRecoilSelectorType as ESfromRecoilSelectorType, common_EditedEntityState as EditedEntityState, type common_Entity as Entity, type common_canPushPrefLabelGroupType as canPushPrefLabelGroupType, type common_canPushPrefLabelGroupsType as canPushPrefLabelGroupsType, common_defaultEntityLabelAtom as defaultEntityLabelAtom, common_entitiesAtom as entitiesAtom, common_initListAtom as initListAtom, common_initMapAtom as initMapAtom, common_initStringAtom as initStringAtom, common_initkvAtom as initkvAtom, common_isUniqueTestSelector as isUniqueTestSelector, type common_isUniqueTestSelectorType as isUniqueTestSelectorType, common_noUndo as noUndo, common_noUndoRedo as noUndoRedo, common_orderedByPropSelector as orderedByPropSelector, type common_orderedByPropSelectorArgs as orderedByPropSelectorArgs, common_orderedNewValSelector as orderedNewValSelector, type common_orderedNewValSelectorType as orderedNewValSelectorType, common_personNamesLabelsSelector as personNamesLabelsSelector, type common_personNamesLabelsSelectorArgs as personNamesLabelsSelectorArgs, common_possiblePrefLabelsSelector as possiblePrefLabelsSelector, common_reloadEntityState as reloadEntityState, common_sameUndo as sameUndo, common_sameUndoSub as sameUndoSub, common_savePopupState as savePopupState, common_sessionLoadedState as sessionLoadedState, common_toCopySelector as toCopySelector, type common_toCopySelectorType as toCopySelectorType, type common_toCopySelectorsType as toCopySelectorsType, common_uiDisabledTabsState as uiDisabledTabsState, common_uiEditState as uiEditState, common_uiGroupState as uiGroupState, common_uiHistoryState as uiHistoryState, common_uiLangState as uiLangState, common_uiLitLangState as uiLitLangState, common_uiNavState as uiNavState, common_uiRIDState as uiRIDState, common_uiReadyState as uiReadyState, common_uiTabState as uiTabState, common_uiUndosState as uiUndosState, type common_undoPN as undoPN, type common_undoState as undoState };
 }
 
 declare namespace enTranslations {
@@ -953,4 +822,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, BottomBarContainer, Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, HistoryStatus, HttpError, IFetchState, IdTypeParams, Lang, LangSelect, LiteralWithId, LocalEntityInfo, NewEntityContainer, NodeShape, RDEConfig, RDEProps, RDFResource, RDFResourceWithLabel, Subject, Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, redoRef, shapes, undoRef, updateHistory };
+export { BUDAResourceSelector, BottomBarContainer, type Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, type HistoryStatus, HttpError, type IFetchState, type IdTypeParams, type Lang, LangSelect, LiteralWithId, type LocalEntityInfo, NewEntityContainer, NodeShape, type RDEConfig, type RDEProps, RDFResource, RDFResourceWithLabel, Subject, type Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, redoRef, shapes, undoRef, updateHistory };

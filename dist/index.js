@@ -3854,7 +3854,7 @@ var PropertyGroupContainer_default = PropertyGroupContainer;
 var import_recoil6 = require("recoil");
 var rdf6 = __toESM(require("rdflib"));
 var import_react_router_dom = require("react-router-dom");
-var import_react_router_hash_link = require("react-router-hash-link");
+var import_react_router_dom2 = require("react-router-dom");
 var import_query_string = __toESM(require("query-string"));
 var import_react_router = require("react-router");
 var import_debug9 = require("debug");
@@ -4189,7 +4189,7 @@ function EntityEditContainer(props) {
       shape.groups.map((group, index) => {
         const label = ValueByLangToStrPrefLang(group.prefLabels, uiLang);
         return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
-          import_react_router_hash_link.HashLink,
+          import_react_router_dom2.Link,
           {
             to: "#" + group.qname,
             onClick: () => {
@@ -4230,7 +4230,7 @@ var EntityEditContainer_default = EntityEditContainer;
 // src/containers/NewEntityContainer.tsx
 var import_react5 = require("react");
 var import_recoil7 = require("recoil");
-var import_react_router_dom2 = require("react-router-dom");
+var import_react_router_dom3 = require("react-router-dom");
 var import_react_i18next5 = require("react-i18next");
 var import_material2 = require("@mui/material");
 var import_debug10 = __toESM(require("debug"));
@@ -4240,7 +4240,7 @@ function NewEntityContainer(props) {
   const config = props.config || {};
   const [uiLang] = (0, import_recoil7.useRecoilState)(uiLangState);
   const [RID, setRID] = (0, import_react5.useState)("");
-  const navigate = (0, import_react_router_dom2.useNavigate)();
+  const navigate = (0, import_react_router_dom3.useNavigate)();
   const { t } = (0, import_react_i18next5.useTranslation)();
   return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "new-fix", children: [
     /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { children: [
@@ -4255,7 +4255,7 @@ function NewEntityContainer(props) {
           className: "shapeSelector",
           value: config.possibleShapeRefs[0].qname,
           style: { marginTop: "3px", marginLeft: "10px" },
-          children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_material2.MenuItem, { value: shape.qname, style: { padding: 0 }, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_react_router_dom2.Link, { to: "/new/" + shape.qname, className: "popLink", children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang) }) }, shape.qname))
+          children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_material2.MenuItem, { value: shape.qname, style: { padding: 0 }, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_react_router_dom3.Link, { to: "/new/" + shape.qname, className: "popLink", children: ValueByLangToStrPrefLang(shape.prefLabels, uiLang) }) }, shape.qname))
         }
       ) })
     ] }),
@@ -4280,7 +4280,7 @@ function NewEntityContainer(props) {
         }
       ) }),
       /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
-        import_react_router_dom2.Link,
+        import_react_router_dom3.Link,
         {
           to: "/edit/bdr:" + RID.replace(/^bdr:/, "").toUpperCase(),
           className: "btn btn-sm btn-outline-primary py-3 ml-2 lookup btn-rouge " + (!RID ? "disabled" : ""),
@@ -4298,7 +4298,7 @@ var import_recoil8 = require("recoil");
 
 // src/containers/Dialog.tsx
 var import_react6 = __toESM(require("react"));
-var import_react_router_dom3 = require("react-router-dom");
+var import_react_router_dom4 = require("react-router-dom");
 var import_material3 = require("@mui/material");
 var import_debug11 = require("debug");
 var import_jsx_runtime5 = require("react/jsx-runtime");
@@ -4318,9 +4318,9 @@ function Dialog422(props) {
     setOpen(false);
   };
   if (createNew)
-    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_router_dom3.Navigate, { to: props.newUrl });
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_router_dom4.Navigate, { to: props.newUrl });
   else if (loadNamed)
-    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_router_dom3.Navigate, { to: props.editUrl });
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_react_router_dom4.Navigate, { to: props.editUrl });
   else
     return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.Dialog, { open, children: [
       /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(import_material3.DialogTitle, { children: [
@@ -4350,7 +4350,7 @@ function Dialog422(props) {
 }
 
 // src/containers/EntityCreationContainer.tsx
-var import_react_router_dom4 = require("react-router-dom");
+var import_react_router_dom5 = require("react-router-dom");
 var import_react7 = require("react");
 var import_icons_material4 = require("@mui/icons-material");
 var import_i18next2 = __toESM(require("i18next"));
@@ -4362,14 +4362,14 @@ var import_jsx_runtime6 = require("react/jsx-runtime");
 var debug12 = (0, import_debug12.debug)("rde:entity:entitycreation");
 function EntityCreationContainer(props) {
   const config = props.config;
-  const params = (0, import_react_router_dom4.useParams)();
+  const params = (0, import_react_router_dom5.useParams)();
   const subjectQname = params.subjectQname;
   const shapeQname = params.shapeQname || "";
   const propertyQname = params.propertyQname;
   const index = params.index;
   const subnodeQname = params.subnodeQname;
   const entityQname = params.entityQname || "";
-  const location = (0, import_react_router_dom4.useLocation)();
+  const location = (0, import_react_router_dom5.useLocation)();
   const { t } = (0, import_react_i18next6.useTranslation)();
   const unmounting = { val: false };
   (0, import_react7.useEffect)(() => {
@@ -4387,13 +4387,13 @@ function EntityCreationContainer(props) {
   } else if (entity) {
     if (subjectQname && propertyQname && index != void 0)
       return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
-        import_react_router_dom4.Navigate,
+        import_react_router_dom5.Navigate,
         {
           to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
         }
       );
     else
-      return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom4.Navigate, { to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname });
+      return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom5.Navigate, { to: "/edit/" + (entityQname ? entityQname : entity.qname) + "/" + shapeQname });
   }
   if (entityLoadingState.status === "error") {
     return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("p", { className: "text-center text-muted", children: [
@@ -4404,7 +4404,7 @@ function EntityCreationContainer(props) {
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: t("types.creating") }) }) }) });
 }
 function EntityCreationContainerAlreadyOpen(props) {
-  const params = (0, import_react_router_dom4.useParams)();
+  const params = (0, import_react_router_dom5.useParams)();
   const subjectQname = params.subjectQname;
   const shapeQname = params.shapeQname;
   const propertyQname = params.propertyQname;
@@ -4419,21 +4419,21 @@ function EntityCreationContainerAlreadyOpen(props) {
   }, []);
   if (subjectQname && propertyQname && index != void 0)
     return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
-      import_react_router_dom4.Navigate,
+      import_react_router_dom5.Navigate,
       {
         to: "/edit/" + entityQname + "/" + shapeQname + "/" + subjectQname + "/" + propertyQname + "/" + index + (subnodeQname ? "/" + subnodeQname : "") + (props.copy ? "?copy=" + props.copy : "")
       }
     );
   else
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom4.Navigate, { to: "/edit/" + entityQname + "/" + shapeQname });
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_react_router_dom5.Navigate, { to: "/edit/" + entityQname + "/" + shapeQname });
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: import_i18next2.default.t("types.loading") }) }) }) });
 }
 function EntityCreationContainerRoute(props) {
-  const params = (0, import_react_router_dom4.useParams)();
+  const params = (0, import_react_router_dom5.useParams)();
   const [entities, setEntities] = (0, import_recoil8.useRecoilState)(entitiesAtom);
   const i = entities.findIndex((e) => e.subjectQname === params.entityQname);
   const theEntity = entities[i];
-  const location = (0, import_react_router_dom4.useLocation)();
+  const location = (0, import_react_router_dom5.useLocation)();
   const { copy } = import_query_string2.default.parse(location.search, { decode: false });
   if (theEntity)
     return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(EntityCreationContainerAlreadyOpen, { ...props, copy });
@@ -4446,7 +4446,7 @@ var EntityCreationContainer_default = EntityCreationContainer;
 var import_react8 = require("react");
 var import_i18next3 = __toESM(require("i18next"));
 var import_recoil9 = require("recoil");
-var import_react_router_dom5 = require("react-router-dom");
+var import_react_router_dom6 = require("react-router-dom");
 var import_material4 = require("@mui/material");
 var import_debug13 = require("debug");
 var import_react_i18next7 = require("react-i18next");
@@ -4454,8 +4454,8 @@ var import_jsx_runtime7 = require("react/jsx-runtime");
 var debug13 = (0, import_debug13.debug)("rde:entity:shape");
 function EntityShapeChooserContainer(props) {
   const config = props.config;
-  const params = (0, import_react_router_dom5.useParams)();
-  const navigate = (0, import_react_router_dom5.useNavigate)();
+  const params = (0, import_react_router_dom6.useParams)();
+  const navigate = (0, import_react_router_dom6.useNavigate)();
   const [entityQname, setEntityQname] = (0, import_react8.useState)(params.entityQname || "");
   const [uiLang] = (0, import_recoil9.useRecoilState)(uiLangState);
   const [entities, setEntities] = (0, import_recoil9.useRecoilState)(entitiesAtom);
@@ -4487,14 +4487,14 @@ function EntityShapeChooserContainer(props) {
       return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "error", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("error.exist", { id: entityQname }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Link, { style: { fontWeight: 700 }, to: "/new", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("error.redirect") }) })
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom6.Link, { style: { fontWeight: 700 }, to: "/new", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("error.redirect") }) })
       ] }) });
     } else if (!possibleShapes) {
       debug13("cannot find", entity, entityLoadingState);
       return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "error", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("error.shape", { id: entityQname }) }) }),
         /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Link, { style: { fontWeight: 700 }, to: "/new", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("error.redirect") }) })
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom6.Link, { style: { fontWeight: 700 }, to: "/new", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: import_i18next3.default.t("error.redirect") }) })
       ] }) });
     }
     if (possibleShapes.length > 1) {
@@ -4522,7 +4522,7 @@ function EntityShapeChooserContainer(props) {
             value: config.possibleShapeRefs[0]?.qname,
             style: { marginTop: "3px", marginLeft: "10px" },
             children: config.possibleShapeRefs.map((shape, index) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_material4.MenuItem, { value: shape.qname, style: { padding: 0 }, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
-              import_react_router_dom5.Link,
+              import_react_router_dom6.Link,
               {
                 to: "/edit/" + entityQname + "/" + shape?.qname,
                 className: "popLink",
@@ -4534,7 +4534,7 @@ function EntityShapeChooserContainer(props) {
         )
       ] }) });
     } else if (possibleShapes[0]?.qname) {
-      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom5.Navigate, { to: "/edit/" + entityQname + "/" + possibleShapes[0]?.qname });
+      return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_react_router_dom6.Navigate, { to: "/edit/" + entityQname + "/" + possibleShapes[0]?.qname });
     }
   }
   return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_jsx_runtime7.Fragment, { children: t("types.loading") }) }) }) });
@@ -4545,12 +4545,12 @@ var EntityShapeChooserContainer_default = EntityShapeChooserContainer;
 var import_react9 = require("react");
 var import_icons_material6 = require("@mui/icons-material");
 var import_recoil11 = require("recoil");
-var import_react_router_dom7 = require("react-router-dom");
+var import_react_router_dom8 = require("react-router-dom");
 var import_material6 = require("@mui/material");
 
 // src/containers/EntityInEntitySelectorContainer.tsx
 var import_recoil10 = require("recoil");
-var import_react_router_dom6 = require("react-router-dom");
+var import_react_router_dom7 = require("react-router-dom");
 var import_material5 = require("@mui/material");
 var import_icons_material5 = require("@mui/icons-material");
 var import_debug14 = require("debug");
@@ -4573,7 +4573,7 @@ var EntityInEntitySelectorContainer = ({
   const [entities, setEntities] = (0, import_recoil10.useRecoilState)(entitiesAtom);
   const [disabled, setDisabled] = (0, import_recoil10.useRecoilState)(uiDisabledTabsState);
   const [popupOn, setPopupOn] = (0, import_recoil10.useRecoilState)(savePopupState);
-  const navigate = (0, import_react_router_dom6.useNavigate)();
+  const navigate = (0, import_react_router_dom7.useNavigate)();
   const prefLabels = labelValues ? RDFResource.valuesByLang(labelValues) : null;
   const label = !entity.preloadedLabel ? ValueByLangToStrPrefLang(prefLabels, uiLitLang) : entity.preloadedLabel;
   const icon = config.iconFromEntity(entity);
@@ -4638,7 +4638,7 @@ var EntityInEntitySelectorContainer = ({
       onClick: (e) => handleClick(e, index),
       ...disabled ? { disabled: true } : {},
       label: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_react_router_dom6.Link, { to: link, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_react_router_dom7.Link, { to: link, children: [
           icon && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
             "img",
             {
@@ -4683,8 +4683,8 @@ function EntitySelector(props) {
   const [edit, setEdit] = (0, import_recoil11.useRecoilState)(uiEditState);
   const [groupEd, setGroupEd] = (0, import_recoil11.useRecoilState)(uiGroupState);
   const [disabled, setDisabled] = (0, import_recoil11.useRecoilState)(uiDisabledTabsState);
-  const navigate = (0, import_react_router_dom7.useNavigate)();
-  const location = (0, import_react_router_dom7.useLocation)();
+  const navigate = (0, import_react_router_dom8.useNavigate)();
+  const location = (0, import_react_router_dom8.useLocation)();
   const { t } = (0, import_react_i18next8.useTranslation)();
   (0, import_react9.useEffect)(() => {
     const session = config.getUserMenuState();
@@ -4776,7 +4776,7 @@ function EntitySelector(props) {
             {
               ...a11yProps2(entities.length),
               id: "new-load",
-              label: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_react_router_dom7.Link, { to: "/new", className: "btn-rouge", onClick: () => setDisabled(false), children: "NEW / LOAD" })
+              label: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(import_react_router_dom8.Link, { to: "/new", className: "btn-rouge", onClick: () => setDisabled(false), children: "NEW / LOAD" })
             },
             "new"
           )
@@ -5146,7 +5146,7 @@ function BottomBarContainer(props) {
 var import_react12 = __toESM(require("react"));
 var import_recoil14 = require("recoil");
 var import_material8 = require("@mui/material");
-var import_react_router_dom8 = require("react-router-dom");
+var import_react_router_dom9 = require("react-router-dom");
 var rdf9 = __toESM(require("rdflib"));
 var import_icons_material8 = require("@mui/icons-material");
 var import_debug17 = require("debug");
@@ -5178,7 +5178,7 @@ var BUDAResourceSelector = ({
   const [uiLitLang, setUiLitLang] = (0, import_recoil14.useRecoilState)(uiLitLangState);
   const [error, setError] = (0, import_react12.useState)();
   const [entities, setEntities] = (0, import_recoil14.useRecoilState)(entitiesAtom);
-  const navigate = (0, import_react_router_dom8.useNavigate)();
+  const navigate = (0, import_react_router_dom9.useNavigate)();
   const msgId = subject.qname + property.qname + idx;
   const [popupNew, setPopupNew] = (0, import_react12.useState)(false);
   const iframeRef = (0, import_react12.useRef)(null);
@@ -5610,7 +5610,7 @@ var BUDAResourceSelector = ({
                 }
               ),
               "\xA0",
-              /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_react_router_dom8.Link, { title: t("search.help.edit"), to: "/edit/" + value.qname, children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Edit, { style: { width: "16px" } }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_react_router_dom9.Link, { title: t("search.help.edit"), to: "/edit/" + value.qname, children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_icons_material8.Edit, { style: { width: "16px" } }) }),
               "\xA0",
               canCopy.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("span", { title: t("general.import"), children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
                 import_icons_material8.ContentPaste,

@@ -3806,7 +3806,7 @@ var PropertyGroupContainer_default = PropertyGroupContainer;
 import { useRecoilState as useRecoilState4, useRecoilSnapshot, useRecoilValue as useRecoilValue2 } from "recoil";
 import * as rdf6 from "rdflib";
 import { Navigate } from "react-router-dom";
-import { HashLink as Link } from "react-router-hash-link";
+import { Link } from "react-router-dom";
 import queryString from "query-string";
 import { useLocation, useParams } from "react-router";
 import { debug as debugfactory9 } from "debug";
