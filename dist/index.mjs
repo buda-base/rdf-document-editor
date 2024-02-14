@@ -2928,13 +2928,13 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
     let err = "";
     if (pattern !== void 0 && val !== "" && !val.match(pattern)) {
       err = ValueByLangToStrPrefLang(property.errorMessage, uiLang);
-      debug7("err:", property.errorMessage);
+      if (!err)
+        err = "pattern error";
+      debug7("err:", err, property.errorMessage);
     }
     return err;
   };
-  let timerPreview = 0;
-  let changeCallback = (val) => {
-    return;
+  let timerPreview = 0, changeCallback = function(val) {
   };
   useEffect2(() => {
     changeCallback = (val) => {
@@ -2978,6 +2978,9 @@ var EditString = ({ property, lit, onChange, label, editable, updateEntityState,
       updateEntityState(newError ? 0 /* Error */ : 1 /* Saved */, lit.id);
     }
   });
+  useEffect2(() => {
+    changeCallback(lit.value);
+  }, [lit.value]);
   return /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", width: "100%" }, children: [
     /* @__PURE__ */ jsx(
       TextField,
@@ -3701,11 +3704,11 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
   };
   const [edit, setEdit] = useRecoilState3(uiEditState);
   const [groupEd, setGroupEd] = useRecoilState3(uiGroupState);
-  const [lat, setLat] = useRecoilState3(config.latProp ? subject.getAtomForProperty(config.latProp.uri) : initListAtom);
-  const [lng, setLng] = useRecoilState3(config.lngProp ? subject.getAtomForProperty(config.lngProp.uri) : initListAtom);
+  const [lat, setLat] = useRecoilState3(config.latProp ? subject.getAtomForProperty(config.latProp.value) : initListAtom);
+  const [lng, setLng] = useRecoilState3(config.lngProp ? subject.getAtomForProperty(config.lngProp.value) : initListAtom);
   const [redraw, setRedraw] = useState3(false);
   let coords, zoom = 5, unset = false;
-  if (lat.length && lng.length && lat[0].value != "" && lat[0].value != "")
+  if (lat.length && lng.length && lat[0].value != "" && lng[0].value != "" && !isNaN(Number(lat[0].value)) && !isNaN(Number(lng[0].value)))
     coords = new L.LatLng(Number(lat[0].value), Number(lng[0].value));
   else {
     unset = true;
@@ -3719,17 +3722,25 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
     setRedraw(false);
     if (!isNaN(val.lat)) {
       if (lat.length > 0 && lat[0] instanceof LiteralWithId)
-        setLat([lat[0].copyWithUpdatedValue("" + val.lat)]);
+        setLat([lat[0].copyWithUpdatedValue("" + val.lat.toFixed(6))]);
       if (lat.length == 0)
-        setLat([new LiteralWithId("" + val.lat)]);
+        setLat([new LiteralWithId("" + val.lat.toFixed(6))]);
     }
     if (!isNaN(val.lng)) {
       if (lng.length > 0 && lng[0] instanceof LiteralWithId)
-        setLng([lng[0].copyWithUpdatedValue("" + val.lng)]);
+        setLng([lng[0].copyWithUpdatedValue("" + val.lng.toFixed(6))]);
       if (lng.length == 0)
-        setLng([new LiteralWithId("" + val.lat)]);
+        setLng([new LiteralWithId("" + val.lat.toFixed(6))]);
     }
   };
+  debug8(
+    "gis:",
+    config.gisPropertyGroup,
+    group,
+    group.value === config.gisPropertyGroup?.value,
+    groupEd === group.qname,
+    coords
+  );
   return /* @__PURE__ */ jsx2(
     "div",
     {
@@ -3777,7 +3788,7 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
                 },
                 index
               )),
-              config.gisPropertyGroup && group.uri === config.gisPropertyGroup.uri && groupEd === group.qname && // to force updating map when switching between two place entities
+              config.gisPropertyGroup && group.uri === config.gisPropertyGroup.value && groupEd === group.qname && // to force updating map when switching between two place entities
               coords && // TODO: add a property in shape to enable this instead
               /* @__PURE__ */ jsx2("div", { style: { position: "relative", overflow: "hidden", marginTop: "16px" }, children: /* @__PURE__ */ jsxs2(MapContainer, { style: { width: "100%", height: "400px" }, zoom, center: coords, children: [
                 /* @__PURE__ */ jsxs2(LayersControl, { position: "topright", children: [

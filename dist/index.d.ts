@@ -767,6 +767,7 @@ interface IdTypeParams {
 interface RDEProps extends IdTypeParams {
     extraElement?: JSX.Element | Iterable<JSX.Element>;
     copy?: string | null | (string | null)[];
+    isEtext?: boolean;
 }
 
 declare function EntityEditContainerMayUpdate(props: RDEProps): react_jsx_runtime.JSX.Element;

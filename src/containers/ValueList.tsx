@@ -1176,17 +1176,18 @@ const EditString: FC<{
   const getPatternError = (val: string) => {
     let err = ""
     if (pattern !== undefined && val !== "" && !val.match(pattern)) {
-      err = ValueByLangToStrPrefLang(property.errorMessage, uiLang)
-      debug("err:", property.errorMessage)
+      err = ValueByLangToStrPrefLang(property.errorMessage, uiLang)      
+      if(!err) err = "pattern error"
+      debug("err:", err, property.errorMessage)
     }
     return err
   }
 
-  let timerPreview = 0
-  let changeCallback = (val: string): void => {
-    return
-  }
+  let timerPreview = 0,    
+    changeCallback:(val:string) => void = function(val:string) {}
+
   useEffect(() => {
+    //debug("cCb?",uiLang,locales[uiLang])
     changeCallback = (val: string) => {
       if (val === "") {
         setError(null)
@@ -1230,6 +1231,10 @@ const EditString: FC<{
       updateEntityState(newError ? EditedEntityState.Error : EditedEntityState.Saved, lit.id)
     }
   })
+
+  useEffect(() => {
+    changeCallback(lit.value)
+  }, [ lit.value ] )
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>

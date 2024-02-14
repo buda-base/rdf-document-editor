@@ -23,6 +23,7 @@ export interface ExtendedParams {
 export interface RDEProps extends IdTypeParams {
   extraElement?: JSX.Element | Iterable<JSX.Element>
   copy?: string | null | (string|null)[] 
+  isEtext?:boolean
 }
 
 export interface RDEExtendedProps extends IdTypeParams { copy?: string | null | (string|null)[] }

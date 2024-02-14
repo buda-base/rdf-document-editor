@@ -158,14 +158,14 @@ const PropertyGroupContainer: FC<{
   const [edit, setEdit] = useRecoilState(uiEditState)
   const [groupEd, setGroupEd] = useRecoilState(uiGroupState)
 
-  const [lat, setLat] = useRecoilState(config.latProp ? subject.getAtomForProperty(config.latProp.uri) : initListAtom)
-  const [lng, setLng] = useRecoilState(config.lngProp ? subject.getAtomForProperty(config.lngProp.uri) : initListAtom)
+  const [lat, setLat] = useRecoilState(config.latProp ? subject.getAtomForProperty(config.latProp.value) : initListAtom)
+  const [lng, setLng] = useRecoilState(config.lngProp ? subject.getAtomForProperty(config.lngProp.value) : initListAtom)
   const [redraw, setRedraw] = useState(false)
   let coords: L.LatLng,
     zoom = 5,
     unset = false
   //debug("coords:", coords, lat, lon)
-  if (lat.length && lng.length && lat[0].value != "" && lat[0].value != "")
+  if (lat.length && lng.length && lat[0].value != "" && lng[0].value != "" && !isNaN(Number(lat[0].value)) && !isNaN(Number(lng[0].value))) 
     coords = new L.LatLng(Number(lat[0].value), Number(lng[0].value))
   else {
     unset = true
@@ -182,12 +182,12 @@ const PropertyGroupContainer: FC<{
     //debug("val:",val)
     setRedraw(false)
     if (!isNaN(val.lat)) {
-      if (lat.length > 0 && lat[0] instanceof LiteralWithId) setLat([lat[0].copyWithUpdatedValue("" + val.lat)])
-      if (lat.length == 0) setLat([new LiteralWithId("" + val.lat)])
+      if (lat.length > 0 && lat[0] instanceof LiteralWithId) setLat([lat[0].copyWithUpdatedValue("" + val.lat.toFixed(6))])
+      if (lat.length == 0) setLat([new LiteralWithId("" + val.lat.toFixed(6))])
     }
     if (!isNaN(val.lng)) {
-      if (lng.length > 0 && lng[0] instanceof LiteralWithId) setLng([lng[0].copyWithUpdatedValue("" + val.lng)])
-      if (lng.length == 0) setLng([new LiteralWithId("" + val.lat)])
+      if (lng.length > 0 && lng[0] instanceof LiteralWithId) setLng([lng[0].copyWithUpdatedValue("" + val.lng.toFixed(6))])
+      if (lng.length == 0) setLng([new LiteralWithId("" + val.lat.toFixed(6))])
     }
   }
 
@@ -240,7 +240,7 @@ const PropertyGroupContainer: FC<{
                     />
                   ))}
                   {config.gisPropertyGroup &&
-                    group.uri === config.gisPropertyGroup.uri &&
+                    group.uri === config.gisPropertyGroup.value &&
                     groupEd === group.qname && // to force updating map when switching between two place entities
                     coords && ( // TODO: add a property in shape to enable this instead
                       <div style={{ position: "relative", overflow: "hidden", marginTop: "16px" }}>
