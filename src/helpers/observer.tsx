@@ -1,8 +1,8 @@
-import React, { FC, createRef, RefObject } from "react"
+import React, { FC, createRef, RefObject, useEffect } from "react"
 import {
   useRecoilState,
 } from "recoil"
-import { Subject, history } from "./rdf/types"
+import { HistoryStatus, Subject, getHistoryStatus, history } from "./rdf/types"
 import * as atoms from "../atoms/common"
 
 export let undoRef: RefObject<HTMLButtonElement> | null = null
@@ -200,12 +200,86 @@ const GotoButton: FC<{
   )
 }
 
+let undoTimer = 0
+
 export const HistoryHandler: FC<{ entityUri: string }> = ({ entityUri }) => {
   const [entities, setEntities] = useRecoilState(atoms.entitiesAtom)
   const [uiTab] = useRecoilState(atoms.uiTabState)
   const [undos, setUndos] = useRecoilState(atoms.uiUndosState)
   const undo = undos[entityUri]
   const setUndo = (s: atoms.undoPN) => setUndos({ ...undos, [entityUri]: s })
+  const entity = entities.findIndex((e: any, i: any) => i === uiTab)
+  const [disabled, setDisabled] = useRecoilState(atoms.uiDisabledTabsState)
+
+  // this is needed to initialize undo/redo without any button being clicked
+  // (link between recoil/react states and data updates automatically stored in EntityGraphValues)
+  useEffect(() => {
+    //if (undoTimer === 0 || entityUri !== undoEntity) {
+    //debug("clear:",entities[entity]?.subject,undoTimer, entity, entityUri,entities)
+    clearInterval(undoTimer)
+    const delay = 150
+    undoTimer = window.setInterval(() => {
+      //debug("timer", undoTimer, entity, entityUri, history[entityUri], history)
+      if (!history[entityUri]) return
+      const { top, first, current }:HistoryStatus = getHistoryStatus(entityUri)
+      //debug("disable:",disabled,first)
+      if (first === -1) return
+      if (disabled) setDisabled(false)
+      // check if flag is on top => nothing modified
+      if (history[entityUri][history[entityUri].length - 1]["tmp:allValuesLoaded"]) {
+        if (!atoms.sameUndo(undo, atoms.noUndoRedo)) { //
+          //debug("no undo:",undo)
+          setUndo(atoms.noUndoRedo)
+        }
+      } else {
+        if (first !== -1) {
+          if (current < 0 && first < top) {
+            if (history[entityUri][top][entityUri]) {
+              // we can undo a modification of simple property value
+              const prop = Object.keys(history[entityUri][top][entityUri])
+              if (prop && prop.length && entities[entity].subject !== null) {
+                const newUndo = {
+                  prev: { enabled: true, subjectUri: entityUri, propertyPath: prop[0], parentPath: [] },
+                  next: atoms.noUndo,
+                }
+                if (!atoms.sameUndo(undo, newUndo)) {
+                  //debug("has undo1:", undo, newUndo, first, top, history, current, entities[entity])
+                  setUndo(newUndo)
+                }
+              }
+            } else {
+              // TODO: enable undo when change in subnode
+              const parentPath = history[entityUri][top]["tmp:parentPath"]
+              if (parentPath && parentPath[0] === entityUri) {
+                const sub = Object.keys(history[entityUri][top]).filter(
+                  (k) => !["tmp:parentPath", "tmp:undone"].includes(k)
+                )
+                if (sub && sub.length) {
+                  // we can undo a modification of simple value of subproperty of a property
+                  const prop = Object.keys(history[entityUri][top][sub[0]])
+                  if (prop && prop.length && entities[entity].subject !== null) {
+                    const newUndo = {
+                      next: atoms.noUndo,
+                      prev: { enabled: true, subjectUri: sub[0], propertyPath: prop[0], parentPath },
+                    }
+                    if (!atoms.sameUndo(undo, newUndo)) {
+                      //debug("has undo2:", undo, newUndo, first, top, history, current, entities[entity])
+                      setUndo(newUndo)
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }, delay)
+    //}
+
+    return () => {
+      clearInterval(undoTimer)
+    }
+  }, [disabled, entities, undos, uiTab])
 
   if (!entities[uiTab]) return null
 

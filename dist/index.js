@@ -3781,14 +3781,6 @@ var PropertyGroupContainer = ({ group, subject, onGroupOpen, shape, GISatoms, co
         setLng([new LiteralWithId("" + val.lat.toFixed(6))]);
     }
   };
-  debug8(
-    "gis:",
-    config.gisPropertyGroup,
-    group,
-    group.value === config.gisPropertyGroup?.value,
-    groupEd === group.qname,
-    coords
-  );
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
     "div",
     {
@@ -4947,12 +4939,72 @@ var GotoButton = ({ label, subject, undo, setUndo, propFromParentPath }) => {
     label
   );
 };
+var undoTimer = 0;
 var HistoryHandler = ({ entityUri }) => {
   const [entities, setEntities] = (0, import_recoil12.useRecoilState)(entitiesAtom);
   const [uiTab] = (0, import_recoil12.useRecoilState)(uiTabState);
   const [undos, setUndos] = (0, import_recoil12.useRecoilState)(uiUndosState);
   const undo = undos[entityUri];
   const setUndo = (s) => setUndos({ ...undos, [entityUri]: s });
+  const entity = entities.findIndex((e, i) => i === uiTab);
+  const [disabled, setDisabled] = (0, import_recoil12.useRecoilState)(uiDisabledTabsState);
+  (0, import_react10.useEffect)(() => {
+    clearInterval(undoTimer);
+    const delay = 150;
+    undoTimer = window.setInterval(() => {
+      if (!history[entityUri])
+        return;
+      const { top, first, current } = getHistoryStatus(entityUri);
+      if (first === -1)
+        return;
+      if (disabled)
+        setDisabled(false);
+      if (history[entityUri][history[entityUri].length - 1]["tmp:allValuesLoaded"]) {
+        if (!sameUndo(undo, noUndoRedo)) {
+          setUndo(noUndoRedo);
+        }
+      } else {
+        if (first !== -1) {
+          if (current < 0 && first < top) {
+            if (history[entityUri][top][entityUri]) {
+              const prop = Object.keys(history[entityUri][top][entityUri]);
+              if (prop && prop.length && entities[entity].subject !== null) {
+                const newUndo = {
+                  prev: { enabled: true, subjectUri: entityUri, propertyPath: prop[0], parentPath: [] },
+                  next: noUndo
+                };
+                if (!sameUndo(undo, newUndo)) {
+                  setUndo(newUndo);
+                }
+              }
+            } else {
+              const parentPath = history[entityUri][top]["tmp:parentPath"];
+              if (parentPath && parentPath[0] === entityUri) {
+                const sub = Object.keys(history[entityUri][top]).filter(
+                  (k) => !["tmp:parentPath", "tmp:undone"].includes(k)
+                );
+                if (sub && sub.length) {
+                  const prop = Object.keys(history[entityUri][top][sub[0]]);
+                  if (prop && prop.length && entities[entity].subject !== null) {
+                    const newUndo = {
+                      next: noUndo,
+                      prev: { enabled: true, subjectUri: sub[0], propertyPath: prop[0], parentPath }
+                    };
+                    if (!sameUndo(undo, newUndo)) {
+                      setUndo(newUndo);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }, delay);
+    return () => {
+      clearInterval(undoTimer);
+    };
+  }, [disabled, entities, undos, uiTab]);
   if (!entities[uiTab])
     return null;
   const subject = entities[uiTab].subject;
