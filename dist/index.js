@@ -66,9 +66,7 @@ __export(src_exports, {
   history: () => history,
   ns: () => ns_exports,
   rdf: () => rdf10,
-  redoRef: () => redoRef,
   shapes: () => shapes_exports,
-  undoRef: () => undoRef,
   updateHistory: () => updateHistory
 });
 module.exports = __toCommonJS(src_exports);
@@ -1662,7 +1660,6 @@ var ESfromRecoilSelector = (0, import_recoil2.selectorFamily)({
   set: ({}) => ({ get, set }, args) => {
     const entities = get(entitiesAtom);
     const setEntities = (val) => set(entitiesAtom, val);
-    debug4("UES:", args.status, args.entityQname, args.id, args.removingFacet, args.forceRemove, args.undo, args.hStatus);
     const n = entities.findIndex((e) => e.subjectQname === args.entityQname);
     if (n > -1) {
       const ent = entities[n];
@@ -1679,9 +1676,7 @@ var ESfromRecoilSelector = (0, import_recoil2.selectorFamily)({
       }
       const status = ent.etag && (!args.undo || args.undo.prev && !args.undo.prev.enabled) && !ent.loadedUnsavedFromLocalStorage ? 1 /* Saved */ : 2 /* NeedsSaving */;
       const hasError = errors[ent.subjectQname] && errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id];
-      debug4("no error:", hasError, args.forceRemove, args.id, status, ent.state, ent, n, args.property.qname, errors);
       if (ent.state != status || hasError && args.forceRemove) {
-        debug4("status:", ent.state, status);
         if (args.removingFacet) {
           if (errors[ent.subjectQname]) {
             const keys = Object.keys(errors[ent.subjectQname]);
@@ -2323,7 +2318,6 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     const entityQname = topEntity ? topEntity.qname : subject.qname;
     const undo = undos[config.prefixMap.uriFromQname(entityQname)];
     const hStatus = getHistoryStatus(config.prefixMap.uriFromQname(entityQname));
-    debug7("undo:", undo, hStatus, history, entityQname, undos);
     setESfromRecoil({ property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove });
   };
   const alreadyHasEmptyValue = () => {
@@ -4795,16 +4789,39 @@ var import_react11 = __toESM(require("react"));
 var import_material7 = require("@mui/material");
 var import_recoil13 = require("recoil");
 var rdf8 = __toESM(require("rdflib"));
-var import_debug16 = require("debug");
+var import_debug17 = require("debug");
 var import_icons_material7 = require("@mui/icons-material");
 var import_react_i18next9 = require("react-i18next");
 
 // src/helpers/observer.tsx
 var import_react10 = require("react");
 var import_recoil12 = require("recoil");
+var import_debug16 = __toESM(require("debug"));
 var import_jsx_runtime10 = require("react/jsx-runtime");
+var debug16 = (0, import_debug16.default)("rde:obs");
 var undoRef = null;
 var redoRef = null;
+var ctrlDown = false;
+document.onkeydown = (e) => {
+  ctrlDown = e.metaKey || e.ctrlKey;
+  const key = e.key?.toLowerCase();
+  if (ctrlDown && (key === "z" || key === "y")) {
+    debug16("UNDO/REDO", undoRef?.current, redoRef?.current);
+    if (!e.shiftKey) {
+      if (key === "z")
+        document.querySelector(".bottom.navbar > div:first-child > button:first-child")?.click();
+      else if (key === "y")
+        document.querySelector(".bottom.navbar > div:first-child > button:last-child")?.click();
+    } else if (key === "z")
+      document.querySelector(".bottom.navbar > div:first-child > button:last-child")?.click();
+    const elem = document.activeElement;
+    if (elem)
+      elem.blur();
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }
+};
 var GotoButton = ({ label, subject, undo, setUndo, propFromParentPath }) => {
   const entityUri = subject.uri;
   const which = label === "UNDO" ? "prev" : "next";
@@ -4927,6 +4944,7 @@ var GotoButton = ({ label, subject, undo, setUndo, propFromParentPath }) => {
     undoRef = ref;
   else if (label === "REDO")
     redoRef = ref;
+  debug16(label + " button:", entityUri, undo[which], undoRef?.current, redoRef?.current);
   return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
     "button",
     {
@@ -5016,7 +5034,7 @@ var HistoryHandler = ({ entityUri }) => {
 
 // src/containers/BottomBarContainer.tsx
 var import_jsx_runtime11 = require("react/jsx-runtime");
-var debug16 = (0, import_debug16.debug)("rde:BottomBarContainer");
+var debug17 = (0, import_debug17.debug)("rde:BottomBarContainer");
 function BottomBarContainer(props) {
   const [entities, setEntities] = (0, import_recoil13.useRecoilState)(entitiesAtom);
   const [uiTab] = (0, import_recoil13.useRecoilState)(uiTabState);
@@ -5067,7 +5085,7 @@ function BottomBarContainer(props) {
     entitySubj?.graph.addNewValuestoStore(store);
     rdf8.serialize(defaultGraphNode, store, void 0, "text/turtle", async function(err, str) {
       if (err) {
-        debug16(err, store);
+        debug17(err, store);
         throw "error when serializing";
       }
       props.config.setUserLocalEntity(
@@ -5095,7 +5113,7 @@ function BottomBarContainer(props) {
           props.config.setUserLocalEntity(entities[entity].subjectQname, shapeQname, str, false, etag, false);
         });
       } catch (error2) {
-        debug16("error:", error2);
+        debug17("error:", error2);
         if (error2.status === 412) {
           setErrorCode(error2.status);
           setError(
@@ -5212,11 +5230,11 @@ var import_material8 = require("@mui/material");
 var import_react_router_dom9 = require("react-router-dom");
 var rdf9 = __toESM(require("rdflib"));
 var import_icons_material8 = require("@mui/icons-material");
-var import_debug17 = require("debug");
+var import_debug18 = require("debug");
 var import_react_i18next10 = require("react-i18next");
 var import_jsx_runtime12 = require("react/jsx-runtime");
 var import_react13 = require("react");
-var debug17 = (0, import_debug17.debug)("rde:atom:event:RS");
+var debug18 = (0, import_debug18.debug)("rde:atom:event:RS");
 var BDR_uri = "http://purl.bdrc.io/resource/";
 var BUDAResourceSelector = ({
   value,
@@ -5276,13 +5294,13 @@ var BUDAResourceSelector = ({
       setError(globalError);
   }, [globalError]);
   if (!property.expectedObjectTypes) {
-    debug17(property);
+    debug18(property);
     throw "can't get the types for property " + property.qname;
   }
   const closeFrame = () => {
-    debug17("close?", value, isRid, libraryURL);
+    debug18("close?", value, isRid, libraryURL);
     if (iframeRef.current && isRid) {
-      debug17("if:", iframeRef.current);
+      debug18("if:", iframeRef.current);
       iframeRef.current.click();
       const wn = iframeRef.current.contentWindow;
       if (wn)
@@ -5353,18 +5371,18 @@ var BUDAResourceSelector = ({
         if (!window.location.href.includes(ev.origin)) {
           const data = JSON.parse(ev.data);
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
-            debug17("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug18("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
             setError("" + t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
-            debug17("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug18("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
           } else {
             setLibraryURL("");
           }
         }
       } catch (err) {
-        debug17("error: %o", err);
+        debug18("error: %o", err);
       }
     };
     window.addEventListener("message", msgHandler, true);
@@ -5380,7 +5398,7 @@ var BUDAResourceSelector = ({
     }
   }, []);
   const updateLibrary = (ev, newlang, newtype) => {
-    debug17("updLib: %o", msgId);
+    debug18("updLib: %o", msgId);
     if (ev && libraryURL) {
       setLibraryURL("");
     } else if (msgId) {
@@ -5518,7 +5536,7 @@ var BUDAResourceSelector = ({
   }
   (0, import_react12.useEffect)(() => {
     if (error) {
-      debug17("error:", error);
+      debug18("error:", error);
     }
   }, [error]);
   const inputRef = (0, import_react12.useRef)();
@@ -5582,7 +5600,7 @@ var BUDAResourceSelector = ({
                     value: language,
                     onChange: (lang) => {
                       setLanguage(lang);
-                      debug17(lang);
+                      debug18(lang);
                       if (libraryURL)
                         updateLibrary(void 0, lang);
                     },
@@ -5795,8 +5813,6 @@ var BUDAResourceSelector_default = BUDAResourceSelector;
   history,
   ns,
   rdf,
-  redoRef,
   shapes,
-  undoRef,
   updateHistory
 });

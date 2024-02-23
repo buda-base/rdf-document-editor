@@ -2,11 +2,47 @@ import React, { FC, createRef, RefObject, useEffect } from "react"
 import {
   useRecoilState,
 } from "recoil"
+import debugFactory from "debug"
+
 import { HistoryStatus, Subject, getHistoryStatus, history } from "./rdf/types"
 import * as atoms from "../atoms/common"
 
-export let undoRef: RefObject<HTMLButtonElement> | null = null
-export let redoRef: RefObject<HTMLButtonElement> | null = null
+const debug = debugFactory("rde:obs")
+
+let undoRef: RefObject<HTMLButtonElement> | null = null
+let redoRef: RefObject<HTMLButtonElement> | null = null
+
+let ctrlDown = false
+document.onkeydown = (e: KeyboardEvent) => {
+  ctrlDown = e.metaKey || e.ctrlKey
+  const key = e.key?.toLowerCase()
+  //debug("kD", e)
+  if (ctrlDown && (key === "z" || key === "y")) {
+    
+    debug("UNDO/REDO", undoRef?.current, redoRef?.current)
+
+    /*
+    if (!e.shiftKey) {
+      if (key === "z" && undoRef && undoRef.current) undoRef.current.click()
+      else if (key === "y" && redoRef && redoRef.current) redoRef.current.click()
+    } else if (key === "z" && redoRef && redoRef.current) redoRef.current.click()
+    */
+
+    // workaround for undoRef being empty??
+    if (!e.shiftKey) {
+      if (key === "z") (document.querySelector(".bottom.navbar > div:first-child > button:first-child") as HTMLButtonElement)?.click()
+      else if (key === "y") (document.querySelector(".bottom.navbar > div:first-child > button:last-child") as HTMLButtonElement)?.click()
+    } else if (key === "z") (document.querySelector(".bottom.navbar > div:first-child > button:last-child") as HTMLButtonElement)?.click()
+
+    // DONE: fix conflict with chrome undo inside text input
+    const elem = document.activeElement as HTMLElement
+    if (elem) elem.blur()    
+    e.preventDefault()
+    e.stopPropagation()
+    return false    
+  }
+}
+
 
 export function getParentPath(entityUri: string, sub: string) {
   let parentPath: Array<string> = []
@@ -180,12 +216,12 @@ const GotoButton: FC<{
       }
     }
   }
-
-  //debug(label + " button:", entityUri, undo[which])
-
+  
   const ref = createRef<HTMLButtonElement>()
   if (label === "UNDO") undoRef = ref
   else if (label === "REDO") redoRef = ref
+
+  debug(label + " button:", entityUri, undo[which], undoRef?.current, redoRef?.current)
 
   return (
     <button

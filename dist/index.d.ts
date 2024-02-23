@@ -3,7 +3,7 @@ import * as rdf from 'rdflib';
 export { rdf };
 import * as recoil from 'recoil';
 import { RecoilState, AtomEffect, RecoilValue } from 'recoil';
-import { FC, RefObject } from 'react';
+import { FC } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
 declare const DASH_uri = "http://datashapes.org/dash#";
@@ -794,9 +794,6 @@ declare const LangSelect: FC<{
     config: RDEConfig;
 }>;
 
-declare let undoRef: RefObject<HTMLButtonElement> | null;
-declare let redoRef: RefObject<HTMLButtonElement> | null;
-
 interface StoreWithEtag {
     store: rdf.Store;
     etag: string | null;
@@ -823,4 +820,4 @@ declare const BUDAResourceSelector: FC<{
     config: RDEConfig;
 }>;
 
-export { BUDAResourceSelector, BottomBarContainer, type Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, type HistoryStatus, HttpError, type IFetchState, type IdTypeParams, type Lang, LangSelect, LiteralWithId, type LocalEntityInfo, NewEntityContainer, NodeShape, type RDEConfig, type RDEProps, RDFResource, RDFResourceWithLabel, Subject, type Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, redoRef, shapes, undoRef, updateHistory };
+export { BUDAResourceSelector, BottomBarContainer, type Entity, EntityCreationContainer, EntityCreationContainerRoute, EntityEditContainer, EntityEditContainerMayUpdate, EntityGraph, EntitySelector as EntitySelectorContainer, EntityShapeChooserContainer, ExtRDFResourceWithLabel, type HistoryStatus, HttpError, type IFetchState, type IdTypeParams, type Lang, LangSelect, LiteralWithId, type LocalEntityInfo, NewEntityContainer, NodeShape, type RDEConfig, type RDEProps, RDFResource, RDFResourceWithLabel, Subject, type Value, ValueByLangToStrPrefLang, common as atoms, enTranslations, fetchTtl, generateSubnodes$1 as generateSubnodes, getHistoryStatus, history, ns, shapes, updateHistory };

@@ -322,7 +322,7 @@ const ValueList: FC<{
     const undo = undos[config.prefixMap.uriFromQname(entityQname)]
     const hStatus = getHistoryStatus(config.prefixMap.uriFromQname(entityQname))
 
-    debug("undo:", undo, hStatus, history, entityQname, undos)
+    //debug("undo:", undo, hStatus, history, entityQname, undos)
 
     setESfromRecoil({ property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove })
   }

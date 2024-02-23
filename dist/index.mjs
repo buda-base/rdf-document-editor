@@ -1603,7 +1603,6 @@ var ESfromRecoilSelector = selectorFamily({
   set: ({}) => ({ get, set }, args) => {
     const entities = get(entitiesAtom);
     const setEntities = (val) => set(entitiesAtom, val);
-    debug4("UES:", args.status, args.entityQname, args.id, args.removingFacet, args.forceRemove, args.undo, args.hStatus);
     const n = entities.findIndex((e) => e.subjectQname === args.entityQname);
     if (n > -1) {
       const ent = entities[n];
@@ -1620,9 +1619,7 @@ var ESfromRecoilSelector = selectorFamily({
       }
       const status = ent.etag && (!args.undo || args.undo.prev && !args.undo.prev.enabled) && !ent.loadedUnsavedFromLocalStorage ? 1 /* Saved */ : 2 /* NeedsSaving */;
       const hasError = errors[ent.subjectQname] && errors[ent.subjectQname][args.subject.qname + ";" + args.property.qname + ";" + args.id];
-      debug4("no error:", hasError, args.forceRemove, args.id, status, ent.state, ent, n, args.property.qname, errors);
       if (ent.state != status || hasError && args.forceRemove) {
-        debug4("status:", ent.state, status);
         if (args.removingFacet) {
           if (errors[ent.subjectQname]) {
             const keys = Object.keys(errors[ent.subjectQname]);
@@ -2275,7 +2272,6 @@ var ValueList = ({ subject, property, embedded, force, editable, owner, topEntit
     const entityQname = topEntity ? topEntity.qname : subject.qname;
     const undo = undos[config.prefixMap.uriFromQname(entityQname)];
     const hStatus = getHistoryStatus(config.prefixMap.uriFromQname(entityQname));
-    debug7("undo:", undo, hStatus, history, entityQname, undos);
     setESfromRecoil({ property, subject, entityQname, undo, hStatus, status, id, removingFacet, forceRemove });
   };
   const alreadyHasEmptyValue = () => {
@@ -4761,9 +4757,32 @@ import { createRef, useEffect as useEffect8 } from "react";
 import {
   useRecoilState as useRecoilState10
 } from "recoil";
+import debugFactory2 from "debug";
 import { jsx as jsx10, jsxs as jsxs10 } from "react/jsx-runtime";
+var debug16 = debugFactory2("rde:obs");
 var undoRef = null;
 var redoRef = null;
+var ctrlDown = false;
+document.onkeydown = (e) => {
+  ctrlDown = e.metaKey || e.ctrlKey;
+  const key = e.key?.toLowerCase();
+  if (ctrlDown && (key === "z" || key === "y")) {
+    debug16("UNDO/REDO", undoRef?.current, redoRef?.current);
+    if (!e.shiftKey) {
+      if (key === "z")
+        document.querySelector(".bottom.navbar > div:first-child > button:first-child")?.click();
+      else if (key === "y")
+        document.querySelector(".bottom.navbar > div:first-child > button:last-child")?.click();
+    } else if (key === "z")
+      document.querySelector(".bottom.navbar > div:first-child > button:last-child")?.click();
+    const elem = document.activeElement;
+    if (elem)
+      elem.blur();
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }
+};
 var GotoButton = ({ label, subject, undo, setUndo, propFromParentPath }) => {
   const entityUri = subject.uri;
   const which = label === "UNDO" ? "prev" : "next";
@@ -4886,6 +4905,7 @@ var GotoButton = ({ label, subject, undo, setUndo, propFromParentPath }) => {
     undoRef = ref;
   else if (label === "REDO")
     redoRef = ref;
+  debug16(label + " button:", entityUri, undo[which], undoRef?.current, redoRef?.current);
   return /* @__PURE__ */ jsx10(
     "button",
     {
@@ -4975,7 +4995,7 @@ var HistoryHandler = ({ entityUri }) => {
 
 // src/containers/BottomBarContainer.tsx
 import { Fragment as Fragment8, jsx as jsx11, jsxs as jsxs11 } from "react/jsx-runtime";
-var debug16 = debugfactory15("rde:BottomBarContainer");
+var debug17 = debugfactory15("rde:BottomBarContainer");
 function BottomBarContainer(props) {
   const [entities, setEntities] = useRecoilState11(entitiesAtom);
   const [uiTab] = useRecoilState11(uiTabState);
@@ -5026,7 +5046,7 @@ function BottomBarContainer(props) {
     entitySubj?.graph.addNewValuestoStore(store);
     rdf8.serialize(defaultGraphNode, store, void 0, "text/turtle", async function(err, str) {
       if (err) {
-        debug16(err, store);
+        debug17(err, store);
         throw "error when serializing";
       }
       props.config.setUserLocalEntity(
@@ -5054,7 +5074,7 @@ function BottomBarContainer(props) {
           props.config.setUserLocalEntity(entities[entity].subjectQname, shapeQname, str, false, etag, false);
         });
       } catch (error2) {
-        debug16("error:", error2);
+        debug17("error:", error2);
         if (error2.status === 412) {
           setErrorCode(error2.status);
           setError(
@@ -5184,7 +5204,7 @@ import { debug as debugfactory16 } from "debug";
 import { useTranslation as useTranslation10 } from "react-i18next";
 import { Fragment as Fragment9, jsx as jsx12, jsxs as jsxs12 } from "react/jsx-runtime";
 import { createElement } from "react";
-var debug17 = debugfactory16("rde:atom:event:RS");
+var debug18 = debugfactory16("rde:atom:event:RS");
 var BDR_uri = "http://purl.bdrc.io/resource/";
 var BUDAResourceSelector = ({
   value,
@@ -5244,13 +5264,13 @@ var BUDAResourceSelector = ({
       setError(globalError);
   }, [globalError]);
   if (!property.expectedObjectTypes) {
-    debug17(property);
+    debug18(property);
     throw "can't get the types for property " + property.qname;
   }
   const closeFrame = () => {
-    debug17("close?", value, isRid, libraryURL);
+    debug18("close?", value, isRid, libraryURL);
     if (iframeRef.current && isRid) {
-      debug17("if:", iframeRef.current);
+      debug18("if:", iframeRef.current);
       iframeRef.current.click();
       const wn = iframeRef.current.contentWindow;
       if (wn)
@@ -5321,18 +5341,18 @@ var BUDAResourceSelector = ({
         if (!window.location.href.includes(ev.origin)) {
           const data = JSON.parse(ev.data);
           if (data["tmp:propid"] === msgId && data["@id"] && data["tmp:notFound"]) {
-            debug17("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug18("notfound msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             setLibraryURL("");
             setError("" + t("error.notF", { RID: data["@id"] }));
           } else if (data["tmp:propid"] === msgId && data["@id"]) {
-            debug17("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
+            debug18("received msg: %o %o", msgId, data, ev, property.qname, libraryURL);
             updateRes(data);
           } else {
             setLibraryURL("");
           }
         }
       } catch (err) {
-        debug17("error: %o", err);
+        debug18("error: %o", err);
       }
     };
     window.addEventListener("message", msgHandler, true);
@@ -5348,7 +5368,7 @@ var BUDAResourceSelector = ({
     }
   }, []);
   const updateLibrary = (ev, newlang, newtype) => {
-    debug17("updLib: %o", msgId);
+    debug18("updLib: %o", msgId);
     if (ev && libraryURL) {
       setLibraryURL("");
     } else if (msgId) {
@@ -5486,7 +5506,7 @@ var BUDAResourceSelector = ({
   }
   useEffect10(() => {
     if (error) {
-      debug17("error:", error);
+      debug18("error:", error);
     }
   }, [error]);
   const inputRef = useRef4();
@@ -5550,7 +5570,7 @@ var BUDAResourceSelector = ({
                     value: language,
                     onChange: (lang) => {
                       setLanguage(lang);
-                      debug17(lang);
+                      debug18(lang);
                       if (libraryURL)
                         updateLibrary(void 0, lang);
                     },
@@ -5762,8 +5782,6 @@ export {
   history,
   ns_exports as ns,
   rdf10 as rdf,
-  redoRef,
   shapes_exports as shapes,
-  undoRef,
   updateHistory
 };
